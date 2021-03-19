@@ -2,19 +2,23 @@ import multiprocessing
 
 from sklearn import tree
 from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier, BaggingClassifier, ExtraTreesClassifier
+from sklearn.model_selection import train_test_split
 
 from sources.decision_tree.ensemble_method import EnsembleMethod
 
 
 class GenerateDecisionTree:
-    def __init__(self, ensemble_method, n_estimators, max_depth):
+    def __init__(self, ensemble_method, n_estimators, max_depth, training_data_x, training_data_y, fraction_opt):
         self.ensemble_method = ensemble_method
         self.n_estimators = n_estimators
         self.max_depth = max_depth
+        self.training_data_x = training_data_x
+        self.training_data_y = training_data_y
+        self.fraction_opt = fraction_opt
 
         # Constant Parameters
         # Configuration
-        self.debug_mode = True
+        self.debug_mode = False
         self.cherry_pick_iterations = 256
         self.num_cores = 14
 
@@ -23,44 +27,34 @@ class GenerateDecisionTree:
         self.min_samples_leaf = 2
         self.criterion = "entropy"
 
-        # Execute all needed functions to generate the modell
+        # Execute all needed functions to generate the model
+        self.training_data_train_x, self.training_data_opt_x, self.training_data_train_y, \
+        self.training_data_opt_y = train_test_split(self.training_data_x, self.training_data_y,
+                                                    test_size=self.fraction_opt, random_state=0)
         self.result = self.cherry_pick()
 
         if self.debug_mode:
             self.print_evaluation()
 
     def cherry_pick(self):
-        # TODO
-        X_train = 0
-        Y_train = 0
-        X_test_and_opt = 0
-
         pool = multiprocessing.Pool(processes=self.num_cores)
         args = []
         for i in range(self.cherry_pick_iterations):
-            args.append([self.model(i), X_train, Y_train, X_test_and_opt])
+            args.append(self.model(i))
         classifier = pool.map(self.evaluate_classifier, args)
         classifier.sort(key=lambda x: x[1], reverse=True)
         return classifier[0][0]
 
-    def max_depth_forest(self):
-        return max(x.tree_.max_depth for x in self.result.estimators_)
-
-    def evaluate_classifier(self, args):
-        # TODO
-        y_test_and_opt = 0
-
-        clf, X_train, y_train, X_test_and_opt = args
-
-        clf = clf.fit(X_train, y_train)
-        predicted = clf.predict(X_test_and_opt)
+    def evaluate_classifier(self, clf):
+        clf = clf.fit(self.training_data_train_x, self.training_data_train_y)
+        predicted = clf.predict(self.training_data_opt_x)
 
         correct = 0
-        for i in range(len(y_test_and_opt)):
-            if predicted[i] == y_test_and_opt[i]:
+        for i in range(len(self.training_data_opt_y)):
+            if predicted[i] == self.training_data_opt_y[i]:
                 correct += 1
 
-        accuracy = correct / len(y_test_and_opt)
+        accuracy = correct / len(self.training_data_opt_y)
 
         return clf, accuracy
 
@@ -103,6 +97,12 @@ class GenerateDecisionTree:
         return ExtraTreesClassifier(n_estimators=self.n_estimators, random_state=random_state, n_jobs=1,
                                     max_depth=self.max_depth, ccp_alpha=self.ccp_alpha,
                                     min_samples_leaf=self.min_samples_leaf)
+
+    def max_depth_forest(self):
+        return max(x.tree_.max_depth for x in self.result.estimators_)
+
+    def predict(self, data):
+        return self.result.predict(data)
 
     def save_model_to_file(self, path):
         raise Exception("Not implemented.")
