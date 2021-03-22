@@ -12,7 +12,6 @@ class FeatureAverageTimeBetween:
         self.feature = self.__calculate()
 
     def __calculate(self):
-        # First take a look at the whole input and find the global subject
         value_extracted_input = [self.value_extraction_function(x) for x in self.input]
         global_subject = self.subject_function(value_extracted_input)
         found_subjects = []
