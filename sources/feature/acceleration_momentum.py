@@ -1,6 +1,6 @@
 # Assuming following data structure:
 # [[timestamp, [acc_x, acc_y, acc_z]]]
-class FeatureMomentumDirection:
+class FeatureAccelerationMomentum:
     def __init__(self, input):
         self.input = input
 
