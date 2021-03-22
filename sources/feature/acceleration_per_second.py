@@ -4,7 +4,7 @@
 # So we just want to have a feeling for the velocity.
 # So maybe not velocity but acceleration per second
 # Assuming following data structure as input:
-# [[timestamp, acceleration]]
+# [[timestamp, [acc_x, acc_y, acc_z]]]
 class FeatureAccelerationPerSecond:
     def __init__(self, input):
         self.input = input
@@ -13,13 +13,20 @@ class FeatureAccelerationPerSecond:
     def __calculate(self):
         input_len = len(self.input)
         if input_len == 0:
-            return 0
+            return [0, 0, 0]
 
         index = input_len - 1
         last_ts = self.input[index][0]
-        acceleration = 0
-        while last_ts - self.input[index][0] < 1:
-            acceleration = acceleration + self.input[index][1]
+        acceleration = [0, 0, 0]
+        while index > 0 and last_ts - self.input[index][0] < 1:
+            acceleration[0] = acceleration[0] + self.input[index][1][0]
+            acceleration[1] = acceleration[1] + self.input[index][1][1]
+            acceleration[2] = acceleration[2] + self.input[index][1][2]
             index = index - 1
 
-        raise acceleration
+        if last_ts - self.input[index][0] < 1:
+            acceleration[0] / (last_ts - self.input[index][0])
+            acceleration[1] / (last_ts - self.input[index][0])
+            acceleration[2] / (last_ts - self.input[index][0])
+
+        return acceleration
