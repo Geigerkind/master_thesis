@@ -1,5 +1,6 @@
 import numpy as np
 
+from sources.feature.significant_direction_change import FeatureSignificantDirectionChange
 from sources.data.test_route_1 import get_test_route_1_labeled_by_xy
 from sources.decision_tree.ensemble_method import EnsembleMethod
 from sources.decision_tree.gen_dt import GenerateDecisionTree
@@ -12,7 +13,7 @@ from sources.feature.min import FeatureMin
 from sources.feature.standard_deviation import FeatureStandardDeviation
 
 np.random.seed(0)
-WINDOW_SIZE = 20
+WINDOW_SIZE = 100
 
 print("Reading data...")
 data = get_test_route_1_labeled_by_xy(False, 0.3)
@@ -29,6 +30,7 @@ for i in range(WINDOW_SIZE + 1, len(data)):
 
     f_acc_per_s = FeatureAccelerationPerSecond(window[["t_stamp", "x_acc", "y_acc", "z_acc"]].values).feature
     f_acc_momentum = FeatureAccelerationMomentum(window[["t_stamp", "x_acc", "y_acc", "z_acc"]].values).feature
+    f_significant_direction_change = FeatureSignificantDirectionChange(window[["x_acc", "y_acc", "z_acc"]].values, 0.5).feature
 
     x_acc_col_list = window["x_acc"].tolist()
     y_acc_col_list = window["y_acc"].tolist()
@@ -38,6 +40,10 @@ for i in range(WINDOW_SIZE + 1, len(data)):
     z_ang_col_list = window["z_ang"].tolist()
 
     data_features.append([
+        f_significant_direction_change[0],
+        f_significant_direction_change[1],
+        f_significant_direction_change[2],
+
         FeatureDiscreteAbsMax(window.iloc[0][["x_acc", "y_acc", "z_acc"]].values).feature,
         FeatureDiscreteAbsMax(window.iloc[0][["x_ang", "y_ang", "z_ang"]].values).feature,
 
