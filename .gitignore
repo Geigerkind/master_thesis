@@ -2,3 +2,4 @@
 external_sources
 venv
 *__pycache__*
+bin

@@ -1,5 +1,5 @@
 # Assuming following data structure:
-# [[timestamp, [acc_x, acc_y, acc_z]]]
+# [[timestamp, acc_x, acc_y, acc_z]]
 class FeatureAccelerationMomentum:
     def __init__(self, input):
         self.input = input
@@ -16,8 +16,8 @@ class FeatureAccelerationMomentum:
 
         acceleration = [0, 0, 0]
         for i in range(len(self.input)):
-            acceleration[0] = acceleration[0] * self.decay_factor + self.input[i][1][0]
-            acceleration[1] = acceleration[1] * self.decay_factor + self.input[i][1][1]
-            acceleration[2] = acceleration[2] * self.decay_factor + self.input[i][1][2]
+            acceleration[0] = acceleration[0] * self.decay_factor + self.input[i][1]
+            acceleration[1] = acceleration[1] * self.decay_factor + self.input[i][2]
+            acceleration[2] = acceleration[2] * self.decay_factor + self.input[i][3]
 
         return acceleration

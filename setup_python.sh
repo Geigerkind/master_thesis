@@ -1,0 +1,1 @@
+export PYTHONPATH=/home/shino/Uni/master_thesis

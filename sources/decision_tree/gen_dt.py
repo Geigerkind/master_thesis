@@ -33,9 +33,6 @@ class GenerateDecisionTree:
                                                     test_size=self.fraction_opt, random_state=0)
         self.result = self.cherry_pick()
 
-        if self.debug_mode:
-            self.print_evaluation()
-
     def cherry_pick(self):
         pool = multiprocessing.Pool(processes=self.num_cores)
         args = []
@@ -107,5 +104,10 @@ class GenerateDecisionTree:
     def save_model_to_file(self, path):
         raise Exception("Not implemented.")
 
-    def print_evaluation(self):
-        raise Exception("Not implemented.")
+    def evaluate_accuracy(self, prediction, reality):
+        correct = 0
+        for i in range(len(prediction)):
+            if prediction[i] == reality[i]:
+                correct = correct + 1
+
+        return correct / len(prediction)
