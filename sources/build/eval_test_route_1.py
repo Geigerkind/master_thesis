@@ -24,7 +24,7 @@ NUM_OUTPUTS = 8
 NUM_CORES = 14
 
 print("Reading data...")
-data = get_test_route_1_labeled_by_xy(False, 0.15)
+data = get_test_route_1_labeled_by_xy(False, 0.15, 1)
 
 print("Processing features...")
 

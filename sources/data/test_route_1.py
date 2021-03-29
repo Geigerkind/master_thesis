@@ -14,10 +14,11 @@ TEST_ROUTE_1_POINTS = [
 ]
 
 
-def get_test_route_1_labeled_by_xy(is_pos_data, proximity):
+def get_test_route_1_labeled_by_xy(is_pos_data, proximity, sampling_frequency_factor):
     """
     :param is_pos_data: If true it uses pos_data.txt else run_data.txt
-    :param proximity: Euclidean distance where a point should be counted towards a label:
+    :param proximity: Euclidean distance where a point should be counted towards a label
+    :param sampling_frequency_factor: Multiple of 0.05
     :return: Labeled Route
     """
 
@@ -38,8 +39,9 @@ def get_test_route_1_labeled_by_xy(is_pos_data, proximity):
             row["prev_location"] = pt[4]
         return row
 
+    path = "/home/shino/Uni/master_thesis/external_sources/trial_route_1_data/run_data.txt"
     if is_pos_data:
-        return pd.read_csv("/home/shino/Uni/master_thesis/external_sources/trial_route_1_data/pos_data.txt") \
-            .apply(lambda row: get_labeled_point(row), axis=1)
-    return pd.read_csv("/home/shino/Uni/master_thesis/external_sources/trial_route_1_data/run_data.txt") \
-        .apply(lambda row: get_labeled_point(row), axis=1)
+        path = "/home/shino/Uni/master_thesis/external_sources/trial_route_1_data/pos_data.txt"
+
+    return pd.read_csv(path).apply(lambda row: get_labeled_point(row), axis=1).query(
+        "t_stamp % " + str(sampling_frequency_factor * 0.05) + " == 0")
