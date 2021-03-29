@@ -9,6 +9,8 @@ from tensorflow.keras import layers
 
 class GenerateFFNN:
     def __init__(self):
+        self.history = 0
+
         # Set random seeds for reproducible results
         os.environ['PYTHONHASHSEED'] = str(0)
         random.seed(0)
@@ -24,12 +26,13 @@ class GenerateFFNN:
 
         # Train the model
         self.keras_model = self.model()
-        self.keras_model.compile(optimizer='adam', loss='categorical_crossentropy')
+        self.keras_model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=["accuracy"])
         # self.keras_model.summary()
 
-    def fit(self, training_data_x, training_data_y):
-        self.keras_model.fit(np.asarray(training_data_x), np.asarray(training_data_y), batch_size=50, epochs=100,
-                             verbose=0)
+    def fit(self, training_data_x, training_data_y, validation_data_x, validation_data_y):
+        self.history = self.keras_model.fit(np.asarray(training_data_x), np.asarray(training_data_y), batch_size=50,
+                                            epochs=100, verbose=0,
+                                            validation_data=(np.asarray(validation_data_x), np.asarray(validation_data_y)))
 
     def predict(self, data):
         return self.keras_model.predict(np.asarray(data))
@@ -48,3 +51,6 @@ class GenerateFFNN:
                 correct = correct + 1
 
         return correct / len(prediction)
+
+    def get_history(self):
+        return self.history.history

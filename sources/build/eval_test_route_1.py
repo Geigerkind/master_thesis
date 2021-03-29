@@ -1,8 +1,7 @@
 from multiprocessing import Pool
 
-import numpy as np
 import matplotlib.pyplot as plt
-
+import numpy as np
 from sklearn.preprocessing import StandardScaler
 
 from sources.data.test_route_1 import get_test_route_1_labeled_by_xy
@@ -24,6 +23,7 @@ NUM_CYCLES = 10
 FRACTION_PREDICTION_LABELED = 0.6
 NUM_OUTPUTS = 8
 NUM_CORES = 14
+NUM_EPOCHS_PER_CYCLE = 100
 
 print("Reading data...")
 data = get_test_route_1_labeled_by_xy(False, 0.15, 1)
@@ -195,6 +195,10 @@ model_knn = GenerateFFNN()
 
 print("Training...")
 acc_per_cycle = []
+metric_knn_loss = []
+metric_knn_acc = []
+metric_knn_val_loss = []
+metric_knn_val_acc = []
 for cycle in range(NUM_CYCLES - 1):
     print("")
     print("Training cycle: {0}".format(cycle))
@@ -206,7 +210,7 @@ for cycle in range(NUM_CYCLES - 1):
 
     print("")
     print("Training KNN Model...")
-    model_knn.fit(knn_features[cycle], knn_labels[cycle])
+    model_knn.fit(knn_features[cycle], knn_labels[cycle], knn_features[cycle + 1], knn_labels[cycle + 1])
     knn_prediction = model_knn.predict(knn_features[cycle + 1])
     print("Accuracy: {0}".format(
         model_knn.evaluate_accuracy(knn_prediction, knn_labels[cycle + 1])))
@@ -227,16 +231,58 @@ for cycle in range(NUM_CYCLES - 1):
     print("Accuracy DT: {0}".format(dt_acc))
     print("Accuracy KNN: {0}".format(knn_acc))
 
+    print("")
+    print("Collecting data...")
+    knn_hist = model_knn.get_history()
+    metric_knn_loss = metric_knn_loss + knn_hist["loss"]
+    metric_knn_acc = metric_knn_acc + knn_hist["accuracy"]
+    metric_knn_val_loss = metric_knn_val_loss + knn_hist["val_loss"]
+    metric_knn_val_acc = metric_knn_val_acc + knn_hist["val_accuracy"]
+
 print("")
 print("Generating fancy plots...")
-plt.plot(range(NUM_CYCLES - 1), [x[0] for x in acc_per_cycle], label="Entscheidungsbaum")
-plt.plot(range(NUM_CYCLES - 1), [x[1] for x in acc_per_cycle], label="Künstliches Neuronale Netzwerk")
-plt.xlabel("Zyklus")
-plt.ylabel("Klassifizierungsgenauigkeit")
-plt.title("Klassifizierungsgenauigkeit über Trainingszyklen")
-plt.legend(['Entscheidungsbaum', 'Künstliches Neuronale Netzwerk'])
+# Accuracy on the validation set over cycles
+fig, ax1 = plt.subplots()
+ax1.plot(range(NUM_CYCLES - 1), [x[0] for x in acc_per_cycle], "o-g")
+ax1.plot(range(NUM_CYCLES - 1), [x[1] for x in acc_per_cycle], "*-b")
+ax1.set_xlabel("Zyklus")
+ax1.set_ylabel("Klassifizierungsgenauigkeit")
+ax1.set_ylim([0, 1])
+ax1.set_title("Klassifizierungsgenauigkeit über Trainingszyklen")
+fig.legend(['Entscheidungsbaum', 'Künstliches Neuronale Netzwerk'], loc='upper left')
 plt.savefig("/home/shino/Uni/master_thesis/bin/tr1_acc_per_cycle.png")
+plt.clf()
+plt.close(fig)
 
+# KNN: Loss and Accuracy
+fig, ax1 = plt.subplots()
+ax1.plot(range((NUM_CYCLES - 1) * NUM_EPOCHS_PER_CYCLE), metric_knn_loss, "o-g")
+ax1.set_xlabel("Epoche")
+ax1.set_ylabel("Loss")
+ax1.set_title("Loss und Klassifizierungsgenauigkeit über Trainingsepochen")
+ax2 = ax1.twinx()
+ax2.plot(range((NUM_CYCLES - 1) * NUM_EPOCHS_PER_CYCLE), metric_knn_acc, "*-b")
+ax2.set_ylabel("Klassifizierungsgenauigkeit")
+ax2.set_ylim([0, 1])
+fig.legend(['Loss', 'Klassifizierungsgenauigkeit'], loc='upper left')
+plt.savefig("/home/shino/Uni/master_thesis/bin/tr1_loss_acc_training.png")
+plt.clf()
+plt.close(fig)
+
+# Validation set
+fig, ax1 = plt.subplots()
+ax1.plot(range((NUM_CYCLES - 1) * NUM_EPOCHS_PER_CYCLE), metric_knn_val_loss, "o-g")
+ax1.set_xlabel("Epoche")
+ax1.set_ylabel("Loss")
+ax1.set_title("Validation Loss und Klassifizierungsgenauigkeit über Trainingsepochen")
+ax2 = ax1.twinx()
+ax2.plot(range((NUM_CYCLES - 1) * NUM_EPOCHS_PER_CYCLE), metric_knn_val_acc, "*-b")
+ax2.set_ylabel("Klassifizierungsgenauigkeit")
+ax2.set_ylim([0, 1])
+fig.legend(['Loss', 'Klassifizierungsgenauigkeit'], loc='upper left')
+plt.savefig("/home/shino/Uni/master_thesis/bin/tr1_loss_acc_validation.png")
+plt.clf()
+plt.close(fig)
 
 """
 print("Fraction of test data that is 0:")
