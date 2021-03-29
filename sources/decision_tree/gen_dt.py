@@ -16,7 +16,7 @@ class GenerateDecisionTree:
         # Constant Parameters
         # Configuration
         self.debug_mode = False
-        self.cherry_pick_iterations = 1024
+        self.cherry_pick_iterations = 256
         self.num_cores = 14
 
         # Tree related

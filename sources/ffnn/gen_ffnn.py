@@ -21,7 +21,7 @@ class GenerateFFNN:
 
         # Configuration
         self.input_size = 36
-        self.intermediate_size = 100
+        self.intermediate_size = 300
         self.output_size = 9
 
         # Train the model
