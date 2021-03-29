@@ -210,7 +210,7 @@ for cycle in range(NUM_CYCLES - 1):
 
     print("")
     print("Training KNN Model...")
-    model_knn.fit(knn_features[cycle], knn_labels[cycle], knn_features[cycle + 1], knn_labels[cycle + 1])
+    model_knn.fit(knn_features[cycle], knn_labels[cycle], knn_features[NUM_CYCLES - 1], knn_labels[NUM_CYCLES - 1])
     knn_prediction = model_knn.predict(knn_features[cycle + 1])
     print("Accuracy: {0}".format(
         model_knn.evaluate_accuracy(knn_prediction, knn_labels[cycle + 1])))
