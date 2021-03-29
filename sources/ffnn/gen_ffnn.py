@@ -20,7 +20,7 @@ class GenerateFFNN:
                              verbose=0)
 
     def predict(self, data):
-        return self.keras_model.predict(data)
+        return self.keras_model.predict(np.asarray(data))
 
     def model(self):
         return keras.Sequential([

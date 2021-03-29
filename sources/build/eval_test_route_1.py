@@ -1,4 +1,5 @@
 import numpy as np
+import sys
 
 from sources.data.test_route_1 import get_test_route_1_labeled_by_xy
 from sources.decision_tree.ensemble_method import EnsembleMethod
@@ -17,19 +18,22 @@ from sklearn.preprocessing import StandardScaler
 
 np.random.seed(0)
 WINDOW_SIZE = 100
+NUM_CYCLES = 10
 
 print("Reading data...")
 data = get_test_route_1_labeled_by_xy(False, 0.15)
 
 print("Processing features...")
-data_features = []
-data_label = []
+features_tmp = []
+labels_tmp = []
+cycles = []
 for i in range(WINDOW_SIZE + 1, len(data)):
     window = data.iloc[(i - WINDOW_SIZE):i, :]
     # if window.iloc[WINDOW_SIZE - 1]["location"] == 0:
     #     continue
 
-    data_label.append(window.iloc[WINDOW_SIZE - 1]["location"])
+    cycles.append(window.iloc[WINDOW_SIZE - 1]["cycle"])
+    labels_tmp.append(window.iloc[WINDOW_SIZE - 1]["location"])
 
     f_acc_per_s = FeatureAccelerationPerSecond(window[["t_stamp", "x_acc", "y_acc", "z_acc"]].values).feature
     f_acc_momentum = FeatureAccelerationMomentum(window[["t_stamp", "x_acc", "y_acc", "z_acc"]].values).feature
@@ -54,7 +58,7 @@ for i in range(WINDOW_SIZE + 1, len(data)):
     # FeatureSignificantDirectionChange: 27%
     # FeatureAccPerSecond: 19%
     # FeatureDiscreteAbsoluteMax: 17%
-    data_features.append([
+    features_tmp.append([
         # window.iloc[WINDOW_SIZE - 1]["prev_location"],
         window.iloc[WINDOW_SIZE - 2]["location"],
 
@@ -102,55 +106,91 @@ for i in range(WINDOW_SIZE + 1, len(data)):
         FeatureDiscreteAbsMax(window.iloc[0][["x_ang", "y_ang", "z_ang"]].values).feature,
     ])
 
+print("Normalizing KNN data...")
+# TODO: Is this doing what I think it is doing ? !! VALIDATE !!
+sc = StandardScaler()
+knn_features_tmp = sc.fit_transform(features_tmp)
 
-X_train = data_features[:int(len(data_features) / 2 + 1)]
-Y_train = data_label[:int(len(data_label) / 2 + 1)]
+print("Onehot encoding KNN data...")
+ohe = OneHotEncoder()
+knn_labels_tmp = ohe.fit_transform([[x] for x in labels_tmp]).toarray()
 
-X_test = data_features[int(len(data_features) / 2):]
-Y_test = data_label[int(len(data_label) / 2):]
+print("Reshaping data...")
+dt_features = []
+dt_labels = []
+knn_features = []
+knn_labels = []
 
+current_cycle = 1
+cycle_dt_features = []
+cycle_dt_labels = []
+cycle_knn_features = []
+cycle_knn_labels = []
+for i in range(len(cycles)):
+    if cycles[i] > current_cycle:
+        current_cycle = cycles[i]
+        dt_features.append(cycle_dt_features)
+        dt_labels.append(cycle_dt_labels)
+        knn_features.append(cycle_knn_features)
+        knn_labels.append(cycle_knn_labels)
+        cycle_dt_features = []
+        cycle_dt_labels = []
+        cycle_knn_features = []
+        cycle_knn_labels = []
+
+    cycle_dt_features.append(features_tmp[i])
+    cycle_dt_labels.append(labels_tmp[i])
+    cycle_knn_features.append(knn_features_tmp[i])
+    cycle_knn_labels.append(knn_labels_tmp[i])
+
+dt_features.append(cycle_dt_features)
+dt_labels.append(cycle_dt_labels)
+knn_features.append(cycle_knn_features)
+knn_labels.append(cycle_knn_labels)
+
+cycle_dt_features = 0
+cycle_dt_labels = 0
+cycle_knn_features = 0
+cycle_knn_labels = 0
+features_tmp = 0
+knn_features_tmp = 0
+labels_tmp = 0
+knn_labels_tmp = 0
+cycles = 0
+
+print("")
+print("Training models:")
+print("Initializing...")
+model_dt = GenerateDecisionTree(EnsembleMethod.RandomForest, 16, 20)
+model_knn = GenerateFFNN()
+
+# TODO: Mix in some correct labeled input in each cycle (Configurable fraction)
+# TODO: Use prediction output for next cycle
+# TODO: Dont normalize prev location(?)
+print("Training...")
+for cycle in range(NUM_CYCLES - 1):
+    print("")
+    print("Training cycle: {0}".format(cycle))
+    print("Training Decision Tree Model...")
+    model_dt.fit(dt_features[cycle], dt_labels[cycle], 0.5)
+    print("Accuracy: {0}".format(model_dt.evaluate_accuracy(model_dt.predict(dt_features[cycle + 1]), dt_labels[cycle + 1])))
+
+    print("")
+    print("Training KNN Model...")
+    model_knn.fit(knn_features[cycle], knn_labels[cycle])
+    print("Accuracy: {0}".format(model_knn.evaluate_accuracy(model_knn.predict(knn_features[cycle + 1]), knn_labels[cycle + 1])))
+
+    print("")
+    print("Accuracy on validation set:")
+    print("Accuracy DT: {0}".format(model_dt.evaluate_accuracy(model_dt.predict(dt_features[NUM_CYCLES - 1]), dt_labels[NUM_CYCLES - 1])))
+    print("Accuracy KNN: {0}".format(model_knn.evaluate_accuracy(model_knn.predict(knn_features[NUM_CYCLES - 1]), knn_labels[NUM_CYCLES - 1])))
+
+"""
 print("Fraction of test data that is 0:")
 count = 0
 for i in range(len(Y_test)):
     if Y_test[i] == 0:
         count = count + 1
 print(count / len(Y_test))
-
-print("Decision Tree based model:")
-print("Training model...")
-model = GenerateDecisionTree(EnsembleMethod.RandomForest, 16, 20)
-model.fit(X_train, Y_train, 0.5)
-prediction = model.predict(X_test)
-
-print("Prediction Accuracy:")
-print(model.evaluate_accuracy(prediction, Y_test))
-
-print("")
-
-print("FFNN Model:")
-print("Normalizing data...")
-sc = StandardScaler()
-new_x = sc.fit_transform(data_features)
-
-X_train = new_x[:int(len(new_x) / 2 + 1)]
-X_test = new_x[int(len(new_x) / 2):]
-
-print("Onehot encoding...")
-ohe = OneHotEncoder()
-new_y = []
-for res_y in data_label:
-    new_y.append([res_y])
-
-new_y = ohe.fit_transform(new_y).toarray()
-
-Y_train = new_y[:int(len(new_y) / 2 + 1)]
-Y_test = new_y[int(len(new_y) / 2):]
-
-print("Training model...")
-model = GenerateFFNN()
-model.fit(X_train, Y_train)
-prediction = model.predict(X_test)
-
-print("Prediction Accuracy:")
-print(model.evaluate_accuracy(prediction, Y_test))
+"""
 
