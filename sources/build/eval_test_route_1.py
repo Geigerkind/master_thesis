@@ -1,3 +1,5 @@
+from multiprocessing import Pool
+
 import numpy as np
 from sklearn.preprocessing import StandardScaler
 
@@ -19,28 +21,20 @@ WINDOW_SIZE = 100
 NUM_CYCLES = 10
 FRACTION_PREDICTION_LABELED = 0.6
 NUM_OUTPUTS = 8
+NUM_CORES = 14
 
 print("Reading data...")
 data = get_test_route_1_labeled_by_xy(False, 0.15)
 
 print("Processing features...")
-features_tmp = []
-labels_tmp = []
-prev_locations_tmp = []
-cycles = []
-for i in range(WINDOW_SIZE + 1, len(data)):
+
+
+def calculate_features(i):
     window = data.iloc[(i - WINDOW_SIZE):i, :]
-    # if window.iloc[WINDOW_SIZE - 1]["location"] == 0:
-    #     continue
-
-    cycles.append(window.iloc[WINDOW_SIZE - 1]["cycle"])
-    labels_tmp.append(window.iloc[WINDOW_SIZE - 1]["location"])
-
     f_acc_per_s = FeatureAccelerationPerSecond(window[["t_stamp", "x_acc", "y_acc", "z_acc"]].values).feature
     f_acc_momentum = FeatureAccelerationMomentum(window[["t_stamp", "x_acc", "y_acc", "z_acc"]].values).feature
     f_significant_direction_change = FeatureSignificantDirectionChange(window[["x_acc", "y_acc", "z_acc"]].values,
                                                                        0.5).feature
-    # f_significant_direction_change_ang = FeatureSignificantDirectionChange(window[["x_ang", "y_ang", "z_ang"]].values, 0.5).feature
 
     x_acc_col_list = window["x_acc"].tolist()
     y_acc_col_list = window["y_acc"].tolist()
@@ -58,54 +52,67 @@ for i in range(WINDOW_SIZE + 1, len(data)):
     # FeatureSignificantDirectionChange: 27%
     # FeatureAccPerSecond: 19%
     # FeatureDiscreteAbsoluteMax: 17%
-    prev_locations_tmp.append(window.iloc[WINDOW_SIZE - 2]["location"])
-    features_tmp.append([
-        # window.iloc[WINDOW_SIZE - 1]["prev_location"],
-        window.iloc[WINDOW_SIZE - 2]["location"],
+    return window.iloc[WINDOW_SIZE - 1]["cycle"], window.iloc[WINDOW_SIZE - 1]["location"], \
+           window.iloc[WINDOW_SIZE - 2]["location"], [
+               # window.iloc[WINDOW_SIZE - 1]["prev_location"],
+               window.iloc[WINDOW_SIZE - 2]["location"],
 
-        FeatureStandardDeviation(x_acc_col_list).feature,
-        FeatureStandardDeviation(y_acc_col_list).feature,
-        FeatureStandardDeviation(z_acc_col_list).feature,
-        FeatureStandardDeviation(x_ang_col_list).feature,
-        FeatureStandardDeviation(y_ang_col_list).feature,
-        FeatureStandardDeviation(z_ang_col_list).feature,
+               FeatureStandardDeviation(x_acc_col_list).feature,
+               FeatureStandardDeviation(y_acc_col_list).feature,
+               FeatureStandardDeviation(z_acc_col_list).feature,
+               FeatureStandardDeviation(x_ang_col_list).feature,
+               FeatureStandardDeviation(y_ang_col_list).feature,
+               FeatureStandardDeviation(z_ang_col_list).feature,
 
-        FeatureMax(x_acc_col_list).feature,
-        FeatureMax(y_acc_col_list).feature,
-        FeatureMax(z_acc_col_list).feature,
-        FeatureMax(x_ang_col_list).feature,
-        FeatureMax(y_ang_col_list).feature,
-        FeatureMax(z_ang_col_list).feature,
+               FeatureMax(x_acc_col_list).feature,
+               FeatureMax(y_acc_col_list).feature,
+               FeatureMax(z_acc_col_list).feature,
+               FeatureMax(x_ang_col_list).feature,
+               FeatureMax(y_ang_col_list).feature,
+               FeatureMax(z_ang_col_list).feature,
 
-        FeatureMin(x_acc_col_list).feature,
-        FeatureMin(y_acc_col_list).feature,
-        FeatureMin(z_acc_col_list).feature,
-        FeatureMin(x_ang_col_list).feature,
-        FeatureMin(y_ang_col_list).feature,
-        FeatureMin(z_ang_col_list).feature,
+               FeatureMin(x_acc_col_list).feature,
+               FeatureMin(y_acc_col_list).feature,
+               FeatureMin(z_acc_col_list).feature,
+               FeatureMin(x_ang_col_list).feature,
+               FeatureMin(y_ang_col_list).feature,
+               FeatureMin(z_ang_col_list).feature,
 
-        f_acc_momentum[0],
-        f_acc_momentum[1],
-        f_acc_momentum[2],
+               f_acc_momentum[0],
+               f_acc_momentum[1],
+               f_acc_momentum[2],
 
-        FeatureMean(x_acc_col_list).feature,
-        FeatureMean(y_acc_col_list).feature,
-        FeatureMean(z_acc_col_list).feature,
-        FeatureMean(x_ang_col_list).feature,
-        FeatureMean(y_ang_col_list).feature,
-        FeatureMean(z_ang_col_list).feature,
+               FeatureMean(x_acc_col_list).feature,
+               FeatureMean(y_acc_col_list).feature,
+               FeatureMean(z_acc_col_list).feature,
+               FeatureMean(x_ang_col_list).feature,
+               FeatureMean(y_ang_col_list).feature,
+               FeatureMean(z_ang_col_list).feature,
 
-        f_significant_direction_change[0],
-        f_significant_direction_change[1],
-        f_significant_direction_change[2],
+               f_significant_direction_change[0],
+               f_significant_direction_change[1],
+               f_significant_direction_change[2],
 
-        f_acc_per_s[0],
-        f_acc_per_s[1],
-        f_acc_per_s[2],
+               f_acc_per_s[0],
+               f_acc_per_s[1],
+               f_acc_per_s[2],
 
-        FeatureDiscreteAbsMax(window.iloc[0][["x_acc", "y_acc", "z_acc"]].values).feature,
-        FeatureDiscreteAbsMax(window.iloc[0][["x_ang", "y_ang", "z_ang"]].values).feature,
-    ])
+               FeatureDiscreteAbsMax(window.iloc[0][["x_acc", "y_acc", "z_acc"]].values).feature,
+               FeatureDiscreteAbsMax(window.iloc[0][["x_ang", "y_ang", "z_ang"]].values).feature,
+           ]
+
+
+features_tmp = []
+labels_tmp = []
+prev_locations_tmp = []
+cycles = []
+with Pool(processes=NUM_CORES) as pool:
+    result = pool.map(calculate_features, range(WINDOW_SIZE + 1, len(data)))
+    for (cycle, label, prev_loc, features) in result:
+        cycles.append(cycle)
+        labels_tmp.append(label)
+        prev_locations_tmp.append(prev_loc)
+        features_tmp.append(features)
 
 print("Normalizing KNN data...")
 sc = StandardScaler()
