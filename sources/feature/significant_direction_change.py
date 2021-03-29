@@ -3,7 +3,7 @@
 # We must be aware that there is a lot of noise, hence a delta parameter is used, to configure at which point
 # we want to detect a "significant" change
 # How it works:
-# We can go 6^3 directions:
+# We can go 3^3 directions:
 # Each XYZ can go in both ways and their combinations.
 # We consider it a significant change, if from our rolling average
 # a stronger change is detected than the input threshold
