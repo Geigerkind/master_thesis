@@ -26,10 +26,10 @@ data_features = []
 data_label = []
 for i in range(WINDOW_SIZE + 1, len(data)):
     window = data.iloc[(i - WINDOW_SIZE):i, :]
-    if window.iloc[0]["label"] == 0:
+    if window.iloc[0]["location"] == 0:
         continue
 
-    data_label.append(window.iloc[0]["label"])
+    data_label.append(window.iloc[0]["location"])
 
     f_acc_per_s = FeatureAccelerationPerSecond(window[["t_stamp", "x_acc", "y_acc", "z_acc"]].values).feature
     f_acc_momentum = FeatureAccelerationMomentum(window[["t_stamp", "x_acc", "y_acc", "z_acc"]].values).feature
@@ -54,6 +54,8 @@ for i in range(WINDOW_SIZE + 1, len(data)):
     # FeatureAccPerSecond: 19%
     # FeatureDiscreteAbsoluteMax: 17%
     data_features.append([
+        window.iloc[0]["prev_location"],
+
         FeatureStandardDeviation(x_acc_col_list).feature,
         FeatureStandardDeviation(y_acc_col_list).feature,
         FeatureStandardDeviation(z_acc_col_list).feature,

@@ -3,14 +3,14 @@ import math
 import pandas as pd
 
 TEST_ROUTE_1_POINTS = [
-    [-3.5, 0.7, "Top Left", 1],
-    [3.5, 0.7, "Top Right", 2],
-    [3.5, -0.7, "Bottom Right", 3],
-    [-3.5, -0.7, "Bottom Left", 4],
-    [-3.5, -0.2, "Detour Bottom Left", 5],
-    [-3.5, 0.3, "Detour Top Left", 6],
-    [-2.5, -0.2, "Detour Bottom Right", 7],
-    [-2.5, 0.3, "Detour Top Right", 8],
+    [-3.5, 0.7, "Top Left", 1, 3],
+    [3.5, 0.7, "Top Right", 2, 1],
+    [3.5, -0.7, "Bottom Right", 3, 4],
+    [-3.5, -0.7, "Bottom Left", 4, 5],
+    [-3.5, -0.2, "Detour Bottom Left", 5, 7],
+    [-3.5, 0.3, "Detour Top Left", 6, 1],
+    [-2.5, -0.2, "Detour Bottom Right", 7, 8],
+    [-2.5, 0.3, "Detour Top Right", 8, 6],
 ]
 
 
@@ -23,13 +23,19 @@ def get_test_route_1_labeled_by_xy(is_pos_data, proximity):
 
     # Takes a row and returns row with label
     def get_labeled_point(row):
-        label = 0
+        pt = 0
         for point in TEST_ROUTE_1_POINTS:
             distance = math.sqrt((row["x_pos"] - point[0]) ** 2 + (row["y_pos"] - point[1]) ** 2)
             if distance <= proximity:
-                label = point[3]
+                pt = point
                 break
-        row["label"] = label
+
+        if pt == 0:
+            row["location"] = 0
+            row["prev_location"] = 0
+        else:
+            row["location"] = pt[3]
+            row["prev_location"] = pt[4]
         return row
 
     if is_pos_data:

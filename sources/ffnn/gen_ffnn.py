@@ -9,15 +9,15 @@ class GenerateFFNN:
         self.training_data_y = np.asarray(training_data_y)
 
         # Configuration
-        self.input_size = 35
+        self.input_size = 36
         self.intermediate_size = 100
         self.output_size = 8
 
         # Train the model
         self.keras_model = self.model()
         self.keras_model.compile(optimizer='adam', loss='categorical_crossentropy')
-        self.keras_model.fit(self.training_data_x, self.training_data_y, batch_size=50, epochs=100)
-        self.keras_model.summary()
+        self.keras_model.fit(self.training_data_x, self.training_data_y, batch_size=50, epochs=100, verbose=0)
+        # self.keras_model.summary()
 
     def predict(self, data):
         return self.keras_model.predict(data)
