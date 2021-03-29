@@ -44,4 +44,4 @@ def get_test_route_1_labeled_by_xy(is_pos_data, proximity, sampling_frequency_fa
         path = "/home/shino/Uni/master_thesis/external_sources/trial_route_1_data/pos_data.txt"
 
     return pd.read_csv(path).apply(lambda row: get_labeled_point(row), axis=1).query(
-        "t_stamp % " + str(sampling_frequency_factor * 0.05) + " == 0")
+        "t_stamp % " + str(sampling_frequency_factor * 0.05) + " == 0 or " + str(sampling_frequency_factor) + " == 1")

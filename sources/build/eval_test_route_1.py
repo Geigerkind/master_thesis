@@ -1,6 +1,8 @@
 from multiprocessing import Pool
 
 import numpy as np
+import matplotlib.pyplot as plt
+
 from sklearn.preprocessing import StandardScaler
 
 from sources.data.test_route_1 import get_test_route_1_labeled_by_xy
@@ -192,6 +194,7 @@ model_dt = GenerateDecisionTree(EnsembleMethod.RandomForest, 16, 20)
 model_knn = GenerateFFNN()
 
 print("Training...")
+acc_per_cycle = []
 for cycle in range(NUM_CYCLES - 1):
     print("")
     print("Training cycle: {0}".format(cycle))
@@ -216,11 +219,24 @@ for cycle in range(NUM_CYCLES - 1):
             knn_features[cycle + 1][i][0] = np.array(knn_prediction[i]).argmax() * (1 / NUM_OUTPUTS)
 
     print("")
+    dt_acc = model_dt.evaluate_accuracy(model_dt.predict(dt_features[NUM_CYCLES - 1]), dt_labels[NUM_CYCLES - 1])
+    knn_acc = model_knn.evaluate_accuracy(model_knn.predict(knn_features[NUM_CYCLES - 1]), knn_labels[NUM_CYCLES - 1])
+    acc_per_cycle.append((dt_acc, knn_acc))
+
     print("Accuracy on validation set:")
-    print("Accuracy DT: {0}".format(
-        model_dt.evaluate_accuracy(model_dt.predict(dt_features[NUM_CYCLES - 1]), dt_labels[NUM_CYCLES - 1])))
-    print("Accuracy KNN: {0}".format(
-        model_knn.evaluate_accuracy(model_knn.predict(knn_features[NUM_CYCLES - 1]), knn_labels[NUM_CYCLES - 1])))
+    print("Accuracy DT: {0}".format(dt_acc))
+    print("Accuracy KNN: {0}".format(knn_acc))
+
+print("")
+print("Generating fancy plots...")
+plt.plot(range(NUM_CYCLES - 1), [x[0] for x in acc_per_cycle], label="Entscheidungsbaum")
+plt.plot(range(NUM_CYCLES - 1), [x[1] for x in acc_per_cycle], label="Künstliches Neuronale Netzwerk")
+plt.xlabel("Zyklus")
+plt.ylabel("Klassifizierungsgenauigkeit")
+plt.title("Klassifizierungsgenauigkeit über Trainingszyklen")
+plt.legend(['Entscheidungsbaum', 'Künstliches Neuronale Netzwerk'])
+plt.savefig("/home/shino/Uni/master_thesis/bin/tr1_acc_per_cycle.png")
+
 
 """
 print("Fraction of test data that is 0:")
