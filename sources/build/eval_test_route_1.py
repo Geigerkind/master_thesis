@@ -11,6 +11,9 @@ from sources.feature.mean import FeatureMean
 from sources.feature.min import FeatureMin
 from sources.feature.significant_direction_change import FeatureSignificantDirectionChange
 from sources.feature.standard_deviation import FeatureStandardDeviation
+from sources.ffnn.gen_ffnn import GenerateFFNN
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.preprocessing import StandardScaler
 
 np.random.seed(0)
 WINDOW_SIZE = 100
@@ -95,12 +98,21 @@ for i in range(WINDOW_SIZE + 1, len(data)):
         FeatureDiscreteAbsMax(window.iloc[0][["x_ang", "y_ang", "z_ang"]].values).feature,
     ])
 
+
 X_train = data_features[:int(len(data_features) / 2 + 1)]
 Y_train = data_label[:int(len(data_label) / 2 + 1)]
 
 X_test = data_features[int(len(data_features) / 2):]
 Y_test = data_label[int(len(data_label) / 2):]
 
+print("Fraction of test data that is 0:")
+count = 0
+for i in range(len(Y_test)):
+    if Y_test[i] == 0:
+        count = count + 1
+print(count / len(Y_test))
+
+print("Decision Tree based model:")
 print("Training model...")
 model = GenerateDecisionTree(EnsembleMethod.RandomForest, 16, 20, X_train, Y_train, 0.5)
 
@@ -109,9 +121,31 @@ prediction = model.predict(X_test)
 print("Prediction Accuracy:")
 print(model.evaluate_accuracy(prediction, Y_test))
 
-print("Fraction of test data that is 0:")
-count = 0
-for i in range(len(Y_test)):
-    if Y_test[i] == 0:
-        count = count + 1
-print(count / len(Y_test))
+print("")
+
+print("FFNN Model:")
+print("Normalizing data...")
+sc = StandardScaler()
+new_x = sc.fit_transform(data_features)
+
+X_train = new_x[:int(len(new_x) / 2 + 1)]
+X_test = new_x[int(len(new_x) / 2):]
+
+print("Onehot encoding...")
+ohe = OneHotEncoder()
+new_y = []
+for res_y in data_label:
+    new_y.append([res_y])
+
+new_y = ohe.fit_transform(new_y).toarray()
+
+Y_train = new_y[:int(len(new_y) / 2 + 1)]
+Y_test = new_y[int(len(new_y) / 2):]
+
+print("Training model...")
+model = GenerateFFNN(X_train, Y_train)
+prediction = model.predict(X_test)
+
+print("Prediction Accuracy:")
+print(model.evaluate_accuracy(prediction, Y_test))
+
