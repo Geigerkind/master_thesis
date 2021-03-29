@@ -26,10 +26,10 @@ data_features = []
 data_label = []
 for i in range(WINDOW_SIZE + 1, len(data)):
     window = data.iloc[(i - WINDOW_SIZE):i, :]
-    if window.iloc[0]["location"] == 0:
+    if window.iloc[WINDOW_SIZE - 1]["location"] == 0:
         continue
 
-    data_label.append(window.iloc[0]["location"])
+    data_label.append(window.iloc[WINDOW_SIZE - 1]["location"])
 
     f_acc_per_s = FeatureAccelerationPerSecond(window[["t_stamp", "x_acc", "y_acc", "z_acc"]].values).feature
     f_acc_momentum = FeatureAccelerationMomentum(window[["t_stamp", "x_acc", "y_acc", "z_acc"]].values).feature
@@ -45,6 +45,7 @@ for i in range(WINDOW_SIZE + 1, len(data)):
     z_ang_col_list = window["z_ang"].tolist()
 
     # Note: Order of features matters: There was an order that achieved 62%
+    # The previous location features are by far the best.
     # FeatureStandardDeviation: 55%
     # FeatureMax: 40%
     # FeatureMin: 38%
@@ -54,7 +55,8 @@ for i in range(WINDOW_SIZE + 1, len(data)):
     # FeatureAccPerSecond: 19%
     # FeatureDiscreteAbsoluteMax: 17%
     data_features.append([
-        window.iloc[0]["prev_location"],
+        window.iloc[WINDOW_SIZE - 1]["prev_location"],
+        # window.iloc[WINDOW_SIZE - 2]["location"],
 
         FeatureStandardDeviation(x_acc_col_list).feature,
         FeatureStandardDeviation(y_acc_col_list).feature,
