@@ -1,5 +1,6 @@
 import numpy as np
-import sys
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.preprocessing import StandardScaler
 
 from sources.data.test_route_1 import get_test_route_1_labeled_by_xy
 from sources.decision_tree.ensemble_method import EnsembleMethod
@@ -13,12 +14,11 @@ from sources.feature.min import FeatureMin
 from sources.feature.significant_direction_change import FeatureSignificantDirectionChange
 from sources.feature.standard_deviation import FeatureStandardDeviation
 from sources.ffnn.gen_ffnn import GenerateFFNN
-from sklearn.preprocessing import OneHotEncoder
-from sklearn.preprocessing import StandardScaler
 
 np.random.seed(0)
 WINDOW_SIZE = 100
 NUM_CYCLES = 10
+FRACTION_PREDICTION_LABELED = 0.6
 
 print("Reading data...")
 data = get_test_route_1_labeled_by_xy(False, 0.15)
@@ -26,6 +26,7 @@ data = get_test_route_1_labeled_by_xy(False, 0.15)
 print("Processing features...")
 features_tmp = []
 labels_tmp = []
+prev_locations_tmp = []
 cycles = []
 for i in range(WINDOW_SIZE + 1, len(data)):
     window = data.iloc[(i - WINDOW_SIZE):i, :]
@@ -58,6 +59,7 @@ for i in range(WINDOW_SIZE + 1, len(data)):
     # FeatureSignificantDirectionChange: 27%
     # FeatureAccPerSecond: 19%
     # FeatureDiscreteAbsoluteMax: 17%
+    prev_locations_tmp.append(window.iloc[WINDOW_SIZE - 2]["location"])
     features_tmp.append([
         # window.iloc[WINDOW_SIZE - 1]["prev_location"],
         window.iloc[WINDOW_SIZE - 2]["location"],
@@ -107,13 +109,32 @@ for i in range(WINDOW_SIZE + 1, len(data)):
     ])
 
 print("Normalizing KNN data...")
-# TODO: Is this doing what I think it is doing ? !! VALIDATE !!
 sc = StandardScaler()
 knn_features_tmp = sc.fit_transform(features_tmp)
 
+# TODO: Or do we want to have values between 0 and 1?
+print("Fixing location labels...")
+for i in range(len(knn_features_tmp)):
+    knn_features_tmp[i][0] = prev_locations_tmp[i]
+
+prev_locations_tmp = 0
+
 print("Onehot encoding KNN data...")
-ohe = OneHotEncoder()
-knn_labels_tmp = ohe.fit_transform([[x] for x in labels_tmp]).toarray()
+ohe_mapping = {
+    0: [1, 0, 0, 0, 0, 0, 0, 0, 0],
+    1: [0, 1, 0, 0, 0, 0, 0, 0, 0],
+    2: [0, 0, 1, 0, 0, 0, 0, 0, 0],
+    3: [0, 0, 0, 1, 0, 0, 0, 0, 0],
+    4: [0, 0, 0, 0, 1, 0, 0, 0, 0],
+    5: [0, 0, 0, 0, 0, 1, 0, 0, 0],
+    6: [0, 0, 0, 0, 0, 0, 1, 0, 0],
+    7: [0, 0, 0, 0, 0, 0, 0, 1, 0],
+    8: [0, 0, 0, 0, 0, 0, 0, 0, 1],
+}
+
+# ohe = OneHotEncoder()
+# knn_labels_tmp = ohe.fit_transform([[x] for x in labels_tmp]).toarray()
+knn_labels_tmp = [ohe_mapping[x] for x in labels_tmp]
 
 print("Reshaping data...")
 dt_features = []
@@ -164,26 +185,36 @@ print("Initializing...")
 model_dt = GenerateDecisionTree(EnsembleMethod.RandomForest, 16, 20)
 model_knn = GenerateFFNN()
 
-# TODO: Mix in some correct labeled input in each cycle (Configurable fraction)
-# TODO: Use prediction output for next cycle
-# TODO: Dont normalize prev location(?)
 print("Training...")
 for cycle in range(NUM_CYCLES - 1):
     print("")
     print("Training cycle: {0}".format(cycle))
     print("Training Decision Tree Model...")
     model_dt.fit(dt_features[cycle], dt_labels[cycle], 0.5)
-    print("Accuracy: {0}".format(model_dt.evaluate_accuracy(model_dt.predict(dt_features[cycle + 1]), dt_labels[cycle + 1])))
+    dt_prediction = model_dt.predict(dt_features[cycle + 1])
+    print("Accuracy: {0}".format(
+        model_dt.evaluate_accuracy(dt_prediction, dt_labels[cycle + 1])))
 
     print("")
     print("Training KNN Model...")
     model_knn.fit(knn_features[cycle], knn_labels[cycle])
-    print("Accuracy: {0}".format(model_knn.evaluate_accuracy(model_knn.predict(knn_features[cycle + 1]), knn_labels[cycle + 1])))
+    knn_prediction = model_knn.predict(knn_features[cycle + 1])
+    print("Accuracy: {0}".format(
+        model_knn.evaluate_accuracy(knn_prediction, knn_labels[cycle + 1])))
+
+    if cycle < NUM_CYCLES - 2:
+        print("")
+        print("Relabeling next cycle's set...")
+        for i in range(int(len(dt_features[cycle + 1]) * FRACTION_PREDICTION_LABELED)):
+            dt_features[cycle + 1][i][0] = dt_prediction[i]
+            knn_features[cycle + 1][i][0] = np.array(knn_prediction[i]).argmax()
 
     print("")
     print("Accuracy on validation set:")
-    print("Accuracy DT: {0}".format(model_dt.evaluate_accuracy(model_dt.predict(dt_features[NUM_CYCLES - 1]), dt_labels[NUM_CYCLES - 1])))
-    print("Accuracy KNN: {0}".format(model_knn.evaluate_accuracy(model_knn.predict(knn_features[NUM_CYCLES - 1]), knn_labels[NUM_CYCLES - 1])))
+    print("Accuracy DT: {0}".format(
+        model_dt.evaluate_accuracy(model_dt.predict(dt_features[NUM_CYCLES - 1]), dt_labels[NUM_CYCLES - 1])))
+    print("Accuracy KNN: {0}".format(
+        model_knn.evaluate_accuracy(model_knn.predict(knn_features[NUM_CYCLES - 1]), knn_labels[NUM_CYCLES - 1])))
 
 """
 print("Fraction of test data that is 0:")
@@ -193,4 +224,3 @@ for i in range(len(Y_test)):
         count = count + 1
 print(count / len(Y_test))
 """
-
