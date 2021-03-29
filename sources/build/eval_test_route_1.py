@@ -1,5 +1,4 @@
 import numpy as np
-from sklearn.preprocessing import OneHotEncoder
 from sklearn.preprocessing import StandardScaler
 
 from sources.data.test_route_1 import get_test_route_1_labeled_by_xy
@@ -19,6 +18,7 @@ np.random.seed(0)
 WINDOW_SIZE = 100
 NUM_CYCLES = 10
 FRACTION_PREDICTION_LABELED = 0.6
+NUM_OUTPUTS = 8
 
 print("Reading data...")
 data = get_test_route_1_labeled_by_xy(False, 0.15)
@@ -49,7 +49,6 @@ for i in range(WINDOW_SIZE + 1, len(data)):
     y_ang_col_list = window["y_ang"].tolist()
     z_ang_col_list = window["z_ang"].tolist()
 
-    # Note: Order of features matters: There was an order that achieved 62%
     # The previous location features are by far the best.
     # FeatureStandardDeviation: 55%
     # FeatureMax: 40%
@@ -112,10 +111,10 @@ print("Normalizing KNN data...")
 sc = StandardScaler()
 knn_features_tmp = sc.fit_transform(features_tmp)
 
-# TODO: Or do we want to have values between 0 and 1?
 print("Fixing location labels...")
 for i in range(len(knn_features_tmp)):
-    knn_features_tmp[i][0] = prev_locations_tmp[i]
+    # Manual scaling between 0 and 1
+    knn_features_tmp[i][0] = prev_locations_tmp[i] * (1 / NUM_OUTPUTS)
 
 prev_locations_tmp = 0
 
@@ -207,7 +206,7 @@ for cycle in range(NUM_CYCLES - 1):
         print("Relabeling next cycle's set...")
         for i in range(int(len(dt_features[cycle + 1]) * FRACTION_PREDICTION_LABELED)):
             dt_features[cycle + 1][i][0] = dt_prediction[i]
-            knn_features[cycle + 1][i][0] = np.array(knn_prediction[i]).argmax()
+            knn_features[cycle + 1][i][0] = np.array(knn_prediction[i]).argmax() * (1 / NUM_OUTPUTS)
 
     print("")
     print("Accuracy on validation set:")

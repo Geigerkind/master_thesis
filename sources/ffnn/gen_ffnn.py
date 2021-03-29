@@ -1,10 +1,22 @@
+import os
+import random
+
 import numpy as np
+import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
 
 
 class GenerateFFNN:
     def __init__(self):
+        # Set random seeds for reproducible results
+        os.environ['PYTHONHASHSEED'] = str(0)
+        random.seed(0)
+        tf.random.set_seed(0)
+        session_conf = tf.compat.v1.ConfigProto(intra_op_parallelism_threads=14, inter_op_parallelism_threads=14)
+        sess = tf.compat.v1.Session(graph=tf.compat.v1.get_default_graph(), config=session_conf)
+        tf.compat.v1.keras.backend.set_session(sess)
+
         # Configuration
         self.input_size = 36
         self.intermediate_size = 100
