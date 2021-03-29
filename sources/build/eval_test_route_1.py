@@ -26,8 +26,8 @@ data_features = []
 data_label = []
 for i in range(WINDOW_SIZE + 1, len(data)):
     window = data.iloc[(i - WINDOW_SIZE):i, :]
-    if window.iloc[WINDOW_SIZE - 1]["location"] == 0:
-        continue
+    # if window.iloc[WINDOW_SIZE - 1]["location"] == 0:
+    #     continue
 
     data_label.append(window.iloc[WINDOW_SIZE - 1]["location"])
 
@@ -55,8 +55,8 @@ for i in range(WINDOW_SIZE + 1, len(data)):
     # FeatureAccPerSecond: 19%
     # FeatureDiscreteAbsoluteMax: 17%
     data_features.append([
-        window.iloc[WINDOW_SIZE - 1]["prev_location"],
-        # window.iloc[WINDOW_SIZE - 2]["location"],
+        # window.iloc[WINDOW_SIZE - 1]["prev_location"],
+        window.iloc[WINDOW_SIZE - 2]["location"],
 
         FeatureStandardDeviation(x_acc_col_list).feature,
         FeatureStandardDeviation(y_acc_col_list).feature,
@@ -118,8 +118,8 @@ print(count / len(Y_test))
 
 print("Decision Tree based model:")
 print("Training model...")
-model = GenerateDecisionTree(EnsembleMethod.RandomForest, 16, 20, X_train, Y_train, 0.5)
-
+model = GenerateDecisionTree(EnsembleMethod.RandomForest, 16, 20)
+model.fit(X_train, Y_train, 0.5)
 prediction = model.predict(X_test)
 
 print("Prediction Accuracy:")
@@ -147,7 +147,8 @@ Y_train = new_y[:int(len(new_y) / 2 + 1)]
 Y_test = new_y[int(len(new_y) / 2):]
 
 print("Training model...")
-model = GenerateFFNN(X_train, Y_train)
+model = GenerateFFNN()
+model.fit(X_train, Y_train)
 prediction = model.predict(X_test)
 
 print("Prediction Accuracy:")

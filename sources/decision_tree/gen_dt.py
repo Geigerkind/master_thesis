@@ -8,13 +8,10 @@ from sources.decision_tree.ensemble_method import EnsembleMethod
 
 
 class GenerateDecisionTree:
-    def __init__(self, ensemble_method, n_estimators, max_depth, training_data_x, training_data_y, fraction_opt):
+    def __init__(self, ensemble_method, n_estimators, max_depth):
         self.ensemble_method = ensemble_method
         self.n_estimators = n_estimators
         self.max_depth = max_depth
-        self.training_data_x = training_data_x
-        self.training_data_y = training_data_y
-        self.fraction_opt = fraction_opt
 
         # Constant Parameters
         # Configuration
@@ -27,10 +24,10 @@ class GenerateDecisionTree:
         self.min_samples_leaf = 2
         self.criterion = "entropy"
 
-        # Execute all needed functions to generate the model
+    def fit(self, training_data_x, training_data_y, fraction_opt):
         self.training_data_train_x, self.training_data_opt_x, self.training_data_train_y, \
-        self.training_data_opt_y = train_test_split(self.training_data_x, self.training_data_y,
-                                                    test_size=self.fraction_opt, random_state=0)
+        self.training_data_opt_y = train_test_split(training_data_x, training_data_y,
+                                                    test_size=fraction_opt, random_state=0)
         self.result = self.cherry_pick()
 
     def cherry_pick(self):
