@@ -45,6 +45,7 @@ def calculate_features(i):
     x_ang_col_list = window["x_ang"].tolist()
     y_ang_col_list = window["y_ang"].tolist()
     z_ang_col_list = window["z_ang"].tolist()
+    light_col_list = window["light"].tolist()
 
     return window.iloc[WINDOW_SIZE - 1]["cycle"], window.iloc[WINDOW_SIZE - 1]["location"], \
            window.iloc[WINDOW_SIZE - 2]["location"], [
@@ -57,6 +58,7 @@ def calculate_features(i):
                FeatureStandardDeviation(x_ang_col_list).feature,
                FeatureStandardDeviation(y_ang_col_list).feature,
                FeatureStandardDeviation(z_ang_col_list).feature,
+               FeatureStandardDeviation(light_col_list).feature,
 
                FeatureMax(x_acc_col_list).feature,
                FeatureMax(y_acc_col_list).feature,
@@ -64,6 +66,7 @@ def calculate_features(i):
                FeatureMax(x_ang_col_list).feature,
                FeatureMax(y_ang_col_list).feature,
                FeatureMax(z_ang_col_list).feature,
+               FeatureMax(light_col_list).feature,
 
                FeatureMin(x_acc_col_list).feature,
                FeatureMin(y_acc_col_list).feature,
@@ -71,6 +74,7 @@ def calculate_features(i):
                FeatureMin(x_ang_col_list).feature,
                FeatureMin(y_ang_col_list).feature,
                FeatureMin(z_ang_col_list).feature,
+               FeatureMin(light_col_list).feature,
 
                f_acc_momentum[0],
                f_acc_momentum[1],
@@ -82,6 +86,7 @@ def calculate_features(i):
                FeatureMean(x_ang_col_list).feature,
                FeatureMean(y_ang_col_list).feature,
                FeatureMean(z_ang_col_list).feature,
+               FeatureMean(light_col_list).feature,
 
                f_significant_direction_change[0],
                f_significant_direction_change[1],
