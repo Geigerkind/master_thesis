@@ -21,7 +21,7 @@ class GenerateFFNN:
 
         # Configuration
         self.input_size = input_size
-        self.intermediate_size = 600
+        self.intermediate_size = 500
         self.output_size = output_size
 
         # Train the model
@@ -40,6 +40,8 @@ class GenerateFFNN:
     def model(self):
         return keras.Sequential([
             layers.Dense(self.input_size, input_dim=self.input_size, activation="relu"),
+            layers.Dense(self.intermediate_size, activation="relu"),
+            layers.Dense(self.intermediate_size, activation="relu"),
             layers.Dense(self.intermediate_size, activation="relu"),
             layers.Dense(self.output_size, activation="sigmoid"),
         ])
