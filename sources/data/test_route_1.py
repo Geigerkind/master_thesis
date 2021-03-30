@@ -24,14 +24,14 @@ def get_test_route_1_labeled_by_xy(is_pos_data, proximity, sampling_frequency_fa
 
     # Takes a row and returns row with label
     def get_labeled_point(row):
-        pt = 0
+        pt = None
         for point in TEST_ROUTE_1_POINTS:
             distance = math.sqrt((row["x_pos"] - point[0]) ** 2 + (row["y_pos"] - point[1]) ** 2)
             if distance <= proximity:
                 pt = point
                 break
 
-        if pt == 0:
+        if pt is None:
             row["location"] = 0
             row["prev_location"] = 0
         else:

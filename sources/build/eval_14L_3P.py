@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.preprocessing import StandardScaler
 
-from sources.data.test_route_1 import get_test_route_1_labeled_by_xy
+from sources.data.route_14L_3P import get_route_14L_3P_labeled
 from sources.decision_tree.ensemble_method import EnsembleMethod
 from sources.decision_tree.gen_dt import GenerateDecisionTree
 from sources.feature.acceleration_momentum import FeatureAccelerationMomentum
@@ -19,14 +19,15 @@ from sources.ffnn.gen_ffnn import GenerateFFNN
 
 np.random.seed(0)
 WINDOW_SIZE = 100
-NUM_CYCLES = 10
+NUM_CYCLES = 20
 FRACTION_PREDICTION_LABELED = 0.6
-NUM_OUTPUTS = 9
+NUM_OUTPUTS = 15
 NUM_CORES = 14
 NUM_EPOCHS_PER_CYCLE = 100
+NUM_WARMUP_CYCLES = 5
 
 print("Reading data...")
-data = get_test_route_1_labeled_by_xy(False, 0.15, 1)
+data = get_route_14L_3P_labeled(0.15, 1)
 
 print("Processing features...")
 
@@ -45,15 +46,6 @@ def calculate_features(i):
     y_ang_col_list = window["y_ang"].tolist()
     z_ang_col_list = window["z_ang"].tolist()
 
-    # The previous location features are by far the best.
-    # FeatureStandardDeviation: 55%
-    # FeatureMax: 40%
-    # FeatureMin: 38%
-    # FeatureAccMomentum: 32%
-    # FeatureMean: 27%
-    # FeatureSignificantDirectionChange: 27%
-    # FeatureAccPerSecond: 19%
-    # FeatureDiscreteAbsoluteMax: 17%
     return window.iloc[WINDOW_SIZE - 1]["cycle"], window.iloc[WINDOW_SIZE - 1]["location"], \
            window.iloc[WINDOW_SIZE - 2]["location"], [
                window.iloc[WINDOW_SIZE - 2]["location"],
@@ -129,15 +121,21 @@ prev_locations_tmp = 0
 
 print("Onehot encoding KNN data...")
 ohe_mapping = {
-    0: [1, 0, 0, 0, 0, 0, 0, 0, 0],
-    1: [0, 1, 0, 0, 0, 0, 0, 0, 0],
-    2: [0, 0, 1, 0, 0, 0, 0, 0, 0],
-    3: [0, 0, 0, 1, 0, 0, 0, 0, 0],
-    4: [0, 0, 0, 0, 1, 0, 0, 0, 0],
-    5: [0, 0, 0, 0, 0, 1, 0, 0, 0],
-    6: [0, 0, 0, 0, 0, 0, 1, 0, 0],
-    7: [0, 0, 0, 0, 0, 0, 0, 1, 0],
-    8: [0, 0, 0, 0, 0, 0, 0, 0, 1],
+    0: [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    1: [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    2: [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    3: [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    4: [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    5: [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    6: [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+    7: [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+    8: [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+    9: [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+    10: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+    11: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+    12: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
+    13: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+    14: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 }
 
 # ohe = OneHotEncoder()
@@ -203,7 +201,6 @@ metric_knn_val_acc = []
 dt_data_features = []
 dt_data_labels = []
 for cycle in range(NUM_CYCLES - 1):
-    print("")
     print("Training cycle: {0}".format(cycle))
     print("Training Decision Tree Model...")
     dt_data_features = dt_data_features + dt_features[cycle]
@@ -220,7 +217,7 @@ for cycle in range(NUM_CYCLES - 1):
     print("Accuracy: {0}".format(
         model_knn.evaluate_accuracy(knn_prediction, knn_labels[cycle + 1])))
 
-    if cycle < NUM_CYCLES - 2:
+    if cycle < NUM_CYCLES - 2 and cycle >= NUM_WARMUP_CYCLES:
         print("")
         print("Relabeling next cycle's set...")
         for i in range(int(len(dt_features[cycle + 1]) * FRACTION_PREDICTION_LABELED)):
@@ -244,7 +241,8 @@ for cycle in range(NUM_CYCLES - 1):
     metric_knn_val_loss = metric_knn_val_loss + knn_hist["val_loss"]
     metric_knn_val_acc = metric_knn_val_acc + knn_hist["val_accuracy"]
 
-print("")
+    print("")
+
 print("Generating fancy plots...")
 # Accuracy on the validation set over cycles
 fig, ax1 = plt.subplots()
@@ -255,7 +253,7 @@ ax1.set_ylabel("Klassifizierungsgenauigkeit")
 ax1.set_ylim([0, 1])
 ax1.set_title("Klassifizierungsgenauigkeit über Trainingszyklen")
 fig.legend(['Entscheidungsbaum', 'Künstliches Neuronale Netzwerk'], loc='upper left')
-plt.savefig("/home/shino/Uni/master_thesis/bin/tr1_acc_per_cycle.png")
+plt.savefig("/home/shino/Uni/master_thesis/bin/14L_3P_acc_per_cycle.png")
 plt.clf()
 plt.close(fig)
 
@@ -270,7 +268,7 @@ ax2.plot(range((NUM_CYCLES - 1) * NUM_EPOCHS_PER_CYCLE), metric_knn_acc, "*-b")
 ax2.set_ylabel("Klassifizierungsgenauigkeit")
 ax2.set_ylim([0, 1])
 fig.legend(['Loss', 'Klassifizierungsgenauigkeit'], loc='upper left')
-plt.savefig("/home/shino/Uni/master_thesis/bin/tr1_loss_acc_training.png")
+plt.savefig("/home/shino/Uni/master_thesis/bin/14L_3P_loss_acc_training.png")
 plt.clf()
 plt.close(fig)
 
@@ -285,15 +283,6 @@ ax2.plot(range((NUM_CYCLES - 1) * NUM_EPOCHS_PER_CYCLE), metric_knn_val_acc, "*-
 ax2.set_ylabel("Klassifizierungsgenauigkeit")
 ax2.set_ylim([0, 1])
 fig.legend(['Loss', 'Klassifizierungsgenauigkeit'], loc='upper left')
-plt.savefig("/home/shino/Uni/master_thesis/bin/tr1_loss_acc_validation.png")
+plt.savefig("/home/shino/Uni/master_thesis/bin/14L_3P_loss_acc_validation.png")
 plt.clf()
 plt.close(fig)
-
-"""
-print("Fraction of test data that is 0:")
-count = 0
-for i in range(len(Y_test)):
-    if Y_test[i] == 0:
-        count = count + 1
-print(count / len(Y_test))
-"""

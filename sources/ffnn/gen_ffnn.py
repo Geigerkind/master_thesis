@@ -8,7 +8,7 @@ from tensorflow.keras import layers
 
 
 class GenerateFFNN:
-    def __init__(self):
+    def __init__(self, input_size, output_size):
         self.history = 0
 
         # Set random seeds for reproducible results
@@ -20,9 +20,9 @@ class GenerateFFNN:
         tf.compat.v1.keras.backend.set_session(sess)
 
         # Configuration
-        self.input_size = 36
-        self.intermediate_size = 300
-        self.output_size = 9
+        self.input_size = input_size
+        self.intermediate_size = 600
+        self.output_size = output_size
 
         # Train the model
         self.keras_model = self.model()
