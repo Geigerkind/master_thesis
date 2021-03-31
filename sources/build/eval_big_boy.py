@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.preprocessing import StandardScaler
 
-from sources.data.route_14L_3P import get_route_14L_3P_labeled
+from sources.data.route_big_boy import get_route_big_boy_labeled
 from sources.decision_tree.ensemble_method import EnsembleMethod
 from sources.decision_tree.gen_dt import GenerateDecisionTree
 from sources.feature.acceleration_momentum import FeatureAccelerationMomentum
@@ -19,16 +19,16 @@ from sources.ffnn.gen_ffnn import GenerateFFNN
 
 np.random.seed(0)
 WINDOW_SIZE = 100
-NUM_CYCLES = 20
+NUM_CYCLES = 40
 FRACTION_PREDICTION_LABELED = 0.6
-NUM_OUTPUTS = 15
-NUM_CORES = 14
+NUM_OUTPUTS = 37
+NUM_CORES = 15
 NUM_EPOCHS_PER_CYCLE = 100
-NUM_WARMUP_CYCLES = 5
-NUM_VALIDATION_SET_CYCLES = 5
+NUM_WARMUP_CYCLES = 6
+NUM_VALIDATION_SET_CYCLES = 10
 
 print("Reading data...")
-data = get_route_14L_3P_labeled(0.15, 1)
+data = get_route_big_boy_labeled(0.15, 1)
 
 print("Processing features...")
 
@@ -126,27 +126,19 @@ for i in range(len(knn_features_tmp)):
 prev_locations_tmp = 0
 
 print("Onehot encoding KNN data...")
-ohe_mapping = {
-    0: [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    1: [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    2: [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    3: [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    4: [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    5: [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    6: [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
-    7: [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
-    8: [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
-    9: [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-    10: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
-    11: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
-    12: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
-    13: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
-    14: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-}
 
-# ohe = OneHotEncoder()
-# knn_labels_tmp = ohe.fit_transform([[x] for x in labels_tmp]).toarray()
-knn_labels_tmp = [ohe_mapping[x] for x in labels_tmp]
+
+def create_ohe_mapping(x):
+    mapping = []
+    for _ in range(x):
+        mapping.append(0)
+    mapping.append(1)
+    for _ in range(NUM_OUTPUTS - 1 - x):
+        mapping.append(0)
+    return mapping
+
+
+knn_labels_tmp = [create_ohe_mapping(x) for x in labels_tmp]
 
 print("Reshaping data...")
 dt_features = []
