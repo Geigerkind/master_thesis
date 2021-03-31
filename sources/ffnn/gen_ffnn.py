@@ -15,13 +15,13 @@ class GenerateFFNN:
         os.environ['PYTHONHASHSEED'] = str(0)
         random.seed(0)
         tf.random.set_seed(0)
-        session_conf = tf.compat.v1.ConfigProto(intra_op_parallelism_threads=14, inter_op_parallelism_threads=14)
+        session_conf = tf.compat.v1.ConfigProto(intra_op_parallelism_threads=16, inter_op_parallelism_threads=16)
         sess = tf.compat.v1.Session(graph=tf.compat.v1.get_default_graph(), config=session_conf)
         tf.compat.v1.keras.backend.set_session(sess)
 
         # Configuration
         self.input_size = input_size
-        self.intermediate_size = 500
+        self.intermediate_size = 200
         self.output_size = output_size
 
         # Train the model

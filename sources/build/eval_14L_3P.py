@@ -25,6 +25,7 @@ NUM_OUTPUTS = 15
 NUM_CORES = 14
 NUM_EPOCHS_PER_CYCLE = 100
 NUM_WARMUP_CYCLES = 5
+NUM_VALIDATION_SET_CYCLES = 5
 
 print("Reading data...")
 data = get_route_14L_3P_labeled(0.15, 1)
@@ -192,21 +193,32 @@ cycles = 0
 
 print("")
 print("Training models:")
-print("Initializing...")
-model_dt = GenerateDecisionTree(EnsembleMethod.RandomForest, 16, 20)
-model_knn = GenerateFFNN(len(knn_features[0][0]), NUM_OUTPUTS)
-
 print("Training...")
 acc_per_cycle = []
-metric_knn_loss = []
-metric_knn_acc = []
-metric_knn_val_loss = []
-metric_knn_val_acc = []
+
+print("Creating validation set...")
+dt_vs_features = []
+dt_vs_labels = []
+knn_vs_features = []
+knn_vs_labels = []
+for cycle in range(NUM_CYCLES - NUM_VALIDATION_SET_CYCLES, NUM_CYCLES):
+    print("VS Cycle Summing: {0}".format(cycle))
+    dt_vs_features = dt_vs_features + dt_features[cycle]
+    dt_vs_labels = dt_vs_labels + dt_labels[cycle]
+    knn_vs_features = knn_vs_features + knn_features[cycle]
+    knn_vs_labels = knn_vs_labels + knn_labels[cycle]
 
 dt_data_features = []
 dt_data_labels = []
-for cycle in range(NUM_CYCLES - 1):
+knn_data_features = []
+knn_data_labels = []
+for cycle in range(NUM_CYCLES - NUM_VALIDATION_SET_CYCLES):
     print("Training cycle: {0}".format(cycle))
+    print("Initializing...")
+    # Reinitializing to make sure that there is no partial learning
+    model_dt = GenerateDecisionTree(EnsembleMethod.RandomForest, 16, 20)
+    model_knn = GenerateFFNN(len(knn_features[0][0]), NUM_OUTPUTS)
+
     print("Training Decision Tree Model...")
     dt_data_features = dt_data_features + dt_features[cycle]
     dt_data_labels = dt_data_labels + dt_labels[cycle]
@@ -217,12 +229,15 @@ for cycle in range(NUM_CYCLES - 1):
 
     print("")
     print("Training KNN Model...")
-    model_knn.fit(knn_features[cycle], knn_labels[cycle], knn_features[NUM_CYCLES - 1], knn_labels[NUM_CYCLES - 1])
+    knn_data_features = knn_data_features + knn_features[cycle]
+    knn_data_labels = knn_data_labels + knn_labels[cycle]
+    model_knn.fit(knn_data_features, knn_data_labels, knn_vs_features, knn_vs_labels)
+    # model_knn.fit(knn_features[cycle], knn_labels[cycle], knn_vs_features, knn_vs_labels)
     knn_prediction = model_knn.predict(knn_features[cycle + 1])
     print("Accuracy: {0}".format(
         model_knn.evaluate_accuracy(knn_prediction, knn_labels[cycle + 1])))
 
-    if cycle < NUM_CYCLES - 2 and cycle >= NUM_WARMUP_CYCLES:
+    if cycle >= NUM_WARMUP_CYCLES and cycle < NUM_CYCLES - NUM_VALIDATION_SET_CYCLES - 1:
         print("")
         print("Relabeling next cycle's set...")
         for i in range(int(len(dt_features[cycle + 1]) * FRACTION_PREDICTION_LABELED)):
@@ -230,8 +245,8 @@ for cycle in range(NUM_CYCLES - 1):
             knn_features[cycle + 1][i][0] = np.array(knn_prediction[i]).argmax() * (1 / NUM_OUTPUTS)
 
     print("")
-    dt_acc = model_dt.evaluate_accuracy(model_dt.predict(dt_features[NUM_CYCLES - 1]), dt_labels[NUM_CYCLES - 1])
-    knn_acc = model_knn.evaluate_accuracy(model_knn.predict(knn_features[NUM_CYCLES - 1]), knn_labels[NUM_CYCLES - 1])
+    dt_acc = model_dt.evaluate_accuracy(model_dt.predict(dt_vs_features), dt_vs_labels)
+    knn_acc = model_knn.evaluate_accuracy(model_knn.predict(knn_vs_features), knn_vs_labels)
     acc_per_cycle.append((dt_acc, knn_acc))
 
     print("Accuracy on validation set:")
@@ -239,20 +254,17 @@ for cycle in range(NUM_CYCLES - 1):
     print("Accuracy KNN: {0}".format(knn_acc))
 
     print("")
-    print("Collecting data...")
-    knn_hist = model_knn.get_history()
-    metric_knn_loss = metric_knn_loss + knn_hist["loss"]
-    metric_knn_acc = metric_knn_acc + knn_hist["accuracy"]
-    metric_knn_val_loss = metric_knn_val_loss + knn_hist["val_loss"]
-    metric_knn_val_acc = metric_knn_val_acc + knn_hist["val_accuracy"]
 
-    print("")
+print("Collecting data...")
+knn_hist = model_knn.get_history()
+
+print("")
 
 print("Generating fancy plots...")
 # Accuracy on the validation set over cycles
 fig, ax1 = plt.subplots()
-ax1.plot(range(NUM_CYCLES - 1), [x[0] for x in acc_per_cycle], "o-g")
-ax1.plot(range(NUM_CYCLES - 1), [x[1] for x in acc_per_cycle], "*-b")
+ax1.plot(range(NUM_CYCLES - NUM_VALIDATION_SET_CYCLES - 1), [x[0] for x in acc_per_cycle], "o-g")
+ax1.plot(range(NUM_CYCLES - NUM_VALIDATION_SET_CYCLES - 1), [x[1] for x in acc_per_cycle], "*-b")
 ax1.set_xlabel("Zyklus")
 ax1.set_ylabel("Klassifizierungsgenauigkeit")
 ax1.set_ylim([0, 1])
@@ -264,12 +276,12 @@ plt.close(fig)
 
 # KNN: Loss and Accuracy
 fig, ax1 = plt.subplots()
-ax1.plot(range((NUM_CYCLES - 1) * NUM_EPOCHS_PER_CYCLE), metric_knn_loss, "o-g")
+ax1.plot(range(NUM_EPOCHS_PER_CYCLE), knn_hist["loss"], "o-g")
 ax1.set_xlabel("Epoche")
 ax1.set_ylabel("Loss")
 ax1.set_title("Loss und Klassifizierungsgenauigkeit über Trainingsepochen")
 ax2 = ax1.twinx()
-ax2.plot(range((NUM_CYCLES - 1) * NUM_EPOCHS_PER_CYCLE), metric_knn_acc, "*-b")
+ax2.plot(range(NUM_EPOCHS_PER_CYCLE), knn_hist["accuracy"], "*-b")
 ax2.set_ylabel("Klassifizierungsgenauigkeit")
 ax2.set_ylim([0, 1])
 fig.legend(['Loss', 'Klassifizierungsgenauigkeit'], loc='upper left')
@@ -279,12 +291,12 @@ plt.close(fig)
 
 # Validation set
 fig, ax1 = plt.subplots()
-ax1.plot(range((NUM_CYCLES - 1) * NUM_EPOCHS_PER_CYCLE), metric_knn_val_loss, "o-g")
+ax1.plot(range(NUM_EPOCHS_PER_CYCLE), knn_hist["val_loss"], "o-g")
 ax1.set_xlabel("Epoche")
 ax1.set_ylabel("Loss")
 ax1.set_title("Validation Loss und Klassifizierungsgenauigkeit über Trainingsepochen")
 ax2 = ax1.twinx()
-ax2.plot(range((NUM_CYCLES - 1) * NUM_EPOCHS_PER_CYCLE), metric_knn_val_acc, "*-b")
+ax2.plot(range(NUM_EPOCHS_PER_CYCLE), knn_hist["val_accuracy"], "*-b")
 ax2.set_ylabel("Klassifizierungsgenauigkeit")
 ax2.set_ylim([0, 1])
 fig.legend(['Loss', 'Klassifizierungsgenauigkeit'], loc='upper left')
