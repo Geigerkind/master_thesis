@@ -11,9 +11,9 @@ from sources.ffnn.gen_ffnn import GenerateFFNN
 FRACTION_PREDICTION_LABELED = 0.6
 NUM_EPOCHS_PER_CYCLE = 50
 
-features = [Features.PreviousLocation, Features.Temperature]
-data = DataCompiler([DataSet.SimpleSquare], features, False)
-# data = DataCompiler([DataSet.SimpleSquare, DataSet.LongRectangle, DataSet.RectangleWithRamp, DataSet.ManyCorners], features)
+features = [Features.PreviousLocation, Features.AccessPointDetection, Features.Temperature, Features.StandardDeviation]
+# data = DataCompiler([DataSet.SimpleSquare], features, False)
+data = DataCompiler([DataSet.SimpleSquare, DataSet.LongRectangle, DataSet.RectangleWithRamp, DataSet.ManyCorners], features)
 
 print("")
 print("Training models:")

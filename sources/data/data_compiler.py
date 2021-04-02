@@ -112,11 +112,11 @@ def calculate_features(args):
         result.append(FeatureMean(light_col_list).feature)
 
     if Features.AccessPointDetection in features:
-        result.append(window.iloc[window_size - 1]["access_point_0"])
-        result.append(window.iloc[window_size - 1]["access_point_1"])
-        result.append(window.iloc[window_size - 1]["access_point_2"])
-        result.append(window.iloc[window_size - 1]["access_point_3"])
-        result.append(window.iloc[window_size - 1]["access_point_4"])
+        result.append(int(window.iloc[window_size - 1]["access_point_0"]))
+        result.append(int(window.iloc[window_size - 1]["access_point_1"]))
+        result.append(int(window.iloc[window_size - 1]["access_point_2"]))
+        result.append(int(window.iloc[window_size - 1]["access_point_3"]))
+        result.append(int(window.iloc[window_size - 1]["access_point_4"]))
 
     if Features.Temperature in features:
         result.append(FeatureStandardDeviation(temperature_col_list).feature)
@@ -379,7 +379,7 @@ class DataCompiler:
         def calculate_volume(row):
             # NOTE: We assume no overlapping !!!!
             background_noise = background_noise_mean + (
-                        -background_noise_variance + (background_noise_variance * 2) * random.random())
+                    -background_noise_variance + (background_noise_variance * 2) * random.random())
             for noise in noises:
                 distance = ((row["x_pos"] - noise[0][0]) ** 2 + (
                         row["y_pos"] - noise[0][1]) ** 2)
@@ -395,7 +395,7 @@ class DataCompiler:
                         # We say that we can here its aftermath until after 0.5s
                         if row["t_stamp"] % noise[4] <= 0.5:
                             noise_volume = (amplitude * (distance ** 2) + noise[1]) * (
-                                        -4 * ((row["t_stamp"] % noise[4]) ** 2) + 1)
+                                    -4 * ((row["t_stamp"] % noise[4]) ** 2) + 1)
                             return noise_volume
                         return background_noise
             return background_noise
@@ -404,7 +404,35 @@ class DataCompiler:
             data_set["volume"] = data_set.apply(calculate_volume, axis=1)
 
     def __interrupt_based_selection(self):
-        return 0
+        # We collect data from all sensors if any of the sensors sends an interrupt
+        # Therefore we define here for each row if it should fire an "interrupt"
+        # compared to the previous row that fired an interrupt
+        print("Filtering raw data by synthetic interrupts...")
+        new_raw_data = []
+        count = 0
+        for data_set in self.raw_data:
+            print("Data set {0} of {1}".format(count, len(self.raw_data)))
+            count = count + 1
+            # previous interrupt row
+            pir = data_set.iloc[0]
+            new_df = DataFrame(columns=data_set.keys())
+            for row in data_set.iterrows():
+                pir_total_acc = abs(pir["x_acc"] + pir["y_acc"] + pir["z_acc"])
+                if (abs(abs(row[1]["x_acc"] + row[1]["y_acc"] + row[1]["z_acc"]) - pir_total_acc) >= 0.05 * pir_total_acc) \
+                        or (abs(pir["heading"] - row[1]["heading"]) >= 20) \
+                        or (abs(pir["temperature"] - row[1]["temperature"]) >= 0.15 * pir["temperature"]) \
+                        or (abs(pir["light"] - row[1]["light"]) >= 0.1 * pir["light"]) \
+                        or (pir["access_point_0"] != row[1]["access_point_0"]) \
+                        or (pir["access_point_1"] != row[1]["access_point_1"]) \
+                        or (pir["access_point_2"] != row[1]["access_point_2"]) \
+                        or (pir["access_point_3"] != row[1]["access_point_3"]) \
+                        or (pir["access_point_4"] != row[1]["access_point_4"]):
+                    pir = row[1]
+                    new_df = new_df.append(row[1], ignore_index=True)
+
+            print("Reduced the data set by: %.2f Percent" % (100 * (1 - (len(new_df)/len(data_set)))))
+            new_raw_data.append(new_df)
+        self.raw_data = new_raw_data
 
     def __extract_features(self):
         # For each entry in the raw data array, extract features
