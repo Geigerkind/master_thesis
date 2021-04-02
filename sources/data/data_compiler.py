@@ -127,6 +127,31 @@ def calculate_features(args):
     return window.iloc[window_size - 1]["cycle"], window.iloc[window_size - 1]["location"], result
 
 
+def process_data_set(args):
+    data_set, count, total_len = args
+    print("Processing data set {0} of {1}".format(count, total_len))
+    count = count + 1
+    # previous interrupt row
+    pir = data_set.iloc[0]
+    new_df = DataFrame(columns=data_set.keys())
+    for row in data_set.iterrows():
+        pir_total_acc = abs(pir["x_acc"] + pir["y_acc"] + pir["z_acc"])
+        if (abs(abs(row[1]["x_acc"] + row[1]["y_acc"] + row[1]["z_acc"]) - pir_total_acc) >= 0.05 * pir_total_acc) \
+                or (abs(pir["heading"] - row[1]["heading"]) >= 20) \
+                or (abs(pir["temperature"] - row[1]["temperature"]) >= 0.15 * pir["temperature"]) \
+                or (abs(pir["light"] - row[1]["light"]) >= 0.1 * pir["light"]) \
+                or (pir["access_point_0"] != row[1]["access_point_0"]) \
+                or (pir["access_point_1"] != row[1]["access_point_1"]) \
+                or (pir["access_point_2"] != row[1]["access_point_2"]) \
+                or (pir["access_point_3"] != row[1]["access_point_3"]) \
+                or (pir["access_point_4"] != row[1]["access_point_4"]):
+            pir = row[1]
+            new_df = new_df.append(row[1], ignore_index=True)
+
+    print("Reduced the data set " + str(count) + " by: %.2f Percent" % (100 * (1 - (len(new_df)/len(data_set)))))
+    print("Finished processing data set {0} of {1}".format(count, total_len))
+    return new_df
+
 class DataCompiler:
     def __init__(self, data_sets, features, use_synthetic_routes=False, proximity=0.1):
         # Configuration
@@ -408,31 +433,13 @@ class DataCompiler:
         # Therefore we define here for each row if it should fire an "interrupt"
         # compared to the previous row that fired an interrupt
         print("Filtering raw data by synthetic interrupts...")
-        new_raw_data = []
-        count = 0
-        for data_set in self.raw_data:
-            print("Data set {0} of {1}".format(count, len(self.raw_data)))
-            count = count + 1
-            # previous interrupt row
-            pir = data_set.iloc[0]
-            new_df = DataFrame(columns=data_set.keys())
-            for row in data_set.iterrows():
-                pir_total_acc = abs(pir["x_acc"] + pir["y_acc"] + pir["z_acc"])
-                if (abs(abs(row[1]["x_acc"] + row[1]["y_acc"] + row[1]["z_acc"]) - pir_total_acc) >= 0.05 * pir_total_acc) \
-                        or (abs(pir["heading"] - row[1]["heading"]) >= 20) \
-                        or (abs(pir["temperature"] - row[1]["temperature"]) >= 0.15 * pir["temperature"]) \
-                        or (abs(pir["light"] - row[1]["light"]) >= 0.1 * pir["light"]) \
-                        or (pir["access_point_0"] != row[1]["access_point_0"]) \
-                        or (pir["access_point_1"] != row[1]["access_point_1"]) \
-                        or (pir["access_point_2"] != row[1]["access_point_2"]) \
-                        or (pir["access_point_3"] != row[1]["access_point_3"]) \
-                        or (pir["access_point_4"] != row[1]["access_point_4"]):
-                    pir = row[1]
-                    new_df = new_df.append(row[1], ignore_index=True)
-
-            print("Reduced the data set by: %.2f Percent" % (100 * (1 - (len(new_df)/len(data_set)))))
-            new_raw_data.append(new_df)
-        self.raw_data = new_raw_data
+        with Pool(processes=cpu_count()) as pool:
+            args = []
+            count = 1
+            for data_set in self.raw_data:
+                args.append([data_set, count, len(self.raw_data)])
+                count = count + 1
+            self.raw_data = pool.map(process_data_set, args)
 
     def __extract_features(self):
         # For each entry in the raw data array, extract features
