@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 from sources.data.test_route_1 import get_test_route_1_labeled_by_xy
-True,
+
 route = pd.read_csv("/home/shino/Uni/master_thesis/external_sources/trial_route_1_data/pos_data.txt")
 xyz = route[["x_pos", "y_pos", "z_pos"]]
 
