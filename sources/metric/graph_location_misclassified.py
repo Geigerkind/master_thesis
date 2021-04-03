@@ -59,7 +59,7 @@ class GraphLocationMisclassified:
         plt.bar(x, y)
         plt.xlabel("Ort (Diskret)")
         plt.ylabel("Anteil falsch klassifiziert")
-        plt.ylim([0, np.asarray(y).max()])
+        plt.ylim([0, 1])
         plt.title("Anteil Orte falsch klassifiziert")
         plt.savefig("{0}{1}".format(self.file_path, self.__graph_name()))
         plt.clf()
