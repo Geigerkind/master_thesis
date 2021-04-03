@@ -16,6 +16,10 @@ features = [Features.PreviousLocation, Features.AccessPointDetection, Features.T
 data = DataCompiler([DataSet.SimpleSquare], features, False)
 # data = DataCompiler([DataSet.SimpleSquare, DataSet.LongRectangle, DataSet.RectangleWithRamp, DataSet.ManyCorners], features)
 
+print("Saving data...")
+with open("/home/shino/Uni/master_thesis/bin/evaluation_data.pkl", 'wb') as file:
+    pickle.dump(data, file)
+
 print("")
 print("Training models:")
 print("Training...")
