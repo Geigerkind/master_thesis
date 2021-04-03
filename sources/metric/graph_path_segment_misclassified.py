@@ -1,3 +1,5 @@
+import os
+
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -11,7 +13,11 @@ class GraphPathSegmentMisclassified:
         self.test_labels = np.asarray(test_labels)
 
         # Configuration
-        self.file_path = "/home/shino/Uni/master_thesis/bin/"
+        self.file_path = "/home/shino/Uni/master_thesis/bin/" + prefix + "/"
+        try:
+            os.mkdir(self.file_path)
+        except:
+            pass
 
         self.__generate_graph()
 

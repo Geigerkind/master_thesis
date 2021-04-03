@@ -10,7 +10,7 @@ from sources.decision_tree.ensemble_method import EnsembleMethod
 from sources.decision_tree.gen_dt import GenerateDecisionTree
 from sources.ffnn.gen_ffnn import GenerateFFNN
 
-FRACTION_PREDICTION_LABELED = 0.6
+FRACTION_PREDICTION_LABELED = 0.8
 NUM_EPOCHS_PER_CYCLE = 50
 
 features = [Features.PreviousLocation, Features.AccessPointDetection, Features.Temperature, Features.Acceleration,

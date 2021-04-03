@@ -136,7 +136,6 @@ def calculate_features(args):
 def process_data_set(args):
     data_set, count, total_len = args
     print("Processing data set {0} of {1}".format(count, total_len))
-    count = count + 1
     # previous interrupt row
     pir = data_set.iloc[0]
     new_df = DataFrame(columns=data_set.keys())
@@ -164,17 +163,24 @@ class DataCompiler:
         # Configuration
         self.num_cycles = 20
         self.num_validation_cycles = 5
-        self.num_warmup_cycles = 4
+        self.num_warmup_cycles = 3
         self.window_size = 5
 
         # Declarations
         self.num_outputs = 0
         self.num_inputs = 0
+        self.raw_data = []
+
         self.result_features_dt = []
         self.result_features_knn = []
         self.result_labels_dt = []
         self.result_labels_knn = []
-        self.raw_data = []
+
+        self.faulty_raw_data = []
+        self.faulty_features_dt = []
+        self.faulty_features_knn = []
+        self.faulty_labels_dt = []
+        self.faulty_labels_knn = []
 
         # Input variables
         self.data_sets = data_sets
@@ -228,11 +234,25 @@ class DataCompiler:
 
         self.__add_synthetic_sensor_data()
         self.__interrupt_based_selection()
+        self.__create_faulty_data_sets()
 
         self.num_outputs = location_offset + 1
         self.__extract_features()
 
         self.num_inputs = len(self.result_features_knn[0][0][0])
+
+    def __create_faulty_data_sets(self):
+        # Permute paths randomly
+        for data_set in self.raw_data:
+            result = DataFrame()
+            for cycle in range(self.num_cycles):
+                cycle_view = data_set.query("cycle == " + str(cycle))
+                permutation = np.random.permutation(10)
+                split_dataset = np.array_split(cycle_view, 10)
+                for index in permutation:
+                    result = result.append(split_dataset[index], ignore_index=False)
+
+            self.faulty_raw_data.append(result)
 
     def __add_synthetic_sensor_data(self):
         print("Adding synthetic sensor data...")
@@ -452,93 +472,106 @@ class DataCompiler:
         # For each entry in the raw data array, extract features
         print("Extracting features...")
         sc = StandardScaler()
-        count = 1
 
-        result_features_dt = []
-        result_features_knn = []
-        result_labels_dt = []
-        result_labels_knn = []
-        for data_set in self.raw_data:
-            print("Processing data set {0} of {1}...".format(count, len(self.raw_data)))
-            count = count + 1
-            features_tmp = []
-            labels_tmp = []
-            cycles = []
-            with Pool(processes=cpu_count()) as pool:
-                args = []
-                for i in range(self.window_size + 1, len(data_set)):
-                    args.append([data_set, i, self.window_size, self.features])
-                result = pool.map(calculate_features, args)
-                for (cycle, label, features) in result:
-                    cycles.append(cycle)
-                    labels_tmp.append(int(label))
-                    features_tmp.append(features)
+        def extract_from_data_sets(data_sets, window_size, input_features, input_num_outputs):
+            count = 1
+            result_features_dt = []
+            result_features_knn = []
+            result_labels_dt = []
+            result_labels_knn = []
+            for data_set in data_sets:
+                print("Processing data set {0} of {1}...".format(count, len(data_sets)))
+                count = count + 1
+                features_tmp = []
+                labels_tmp = []
+                cycles = []
+                with Pool(processes=cpu_count()) as pool:
+                    args = []
+                    for i in range(window_size + 1, len(data_set)):
+                        args.append([data_set, i, window_size, input_features])
+                    result = pool.map(calculate_features, args)
+                    for (cycle, label, features) in result:
+                        cycles.append(cycle)
+                        labels_tmp.append(int(label))
+                        features_tmp.append(features)
 
-            print("Normalizing KNN data...")
-            knn_features_tmp = sc.fit_transform(features_tmp)
+                print("Normalizing KNN data...")
+                knn_features_tmp = sc.fit_transform(features_tmp)
 
-            if Features.PreviousLocation in self.features:
-                print("Fixing location labels...")
-                for i in range(len(knn_features_tmp)):
-                    # Manual scaling between 0 and 1
-                    knn_features_tmp[i][0] = knn_features_tmp[i][0] * (1 / self.num_outputs)
-                    knn_features_tmp[i][1] = knn_features_tmp[i][1] * (1 / self.num_outputs)
+                if Features.PreviousLocation in input_features:
+                    print("Fixing location labels...")
+                    for i in range(len(knn_features_tmp)):
+                        # Manual scaling between 0 and 1
+                        knn_features_tmp[i][0] = knn_features_tmp[i][0] * (1 / input_num_outputs)
+                        knn_features_tmp[i][1] = knn_features_tmp[i][1] * (1 / input_num_outputs)
 
-            print("Onehot encoding KNN data...")
+                print("Onehot encoding KNN data...")
 
-            def create_ohe_mapping(x, num_outputs):
-                mapping = []
-                for _ in range(x):
-                    mapping.append(0)
-                mapping.append(1)
-                for _ in range(int(num_outputs) - 1 - x):
-                    mapping.append(0)
-                return mapping
+                def create_ohe_mapping(x, num_outputs):
+                    mapping = []
+                    for _ in range(x):
+                        mapping.append(0)
+                    mapping.append(1)
+                    for _ in range(int(num_outputs) - 1 - x):
+                        mapping.append(0)
+                    return mapping
 
-            knn_labels_tmp = [create_ohe_mapping(x, self.num_outputs) for x in labels_tmp]
+                knn_labels_tmp = [create_ohe_mapping(x, self.num_outputs) for x in labels_tmp]
 
-            print("Reshaping data...")
-            dt_features = []
-            dt_labels = []
-            knn_features = []
-            knn_labels = []
+                print("Reshaping data...")
+                dt_features = []
+                dt_labels = []
+                knn_features = []
+                knn_labels = []
 
-            current_cycle = 0
-            cycle_dt_features = []
-            cycle_dt_labels = []
-            cycle_knn_features = []
-            cycle_knn_labels = []
-            for i in range(len(cycles)):
-                if cycles[i] > current_cycle:
-                    current_cycle = cycles[i]
-                    dt_features.append(cycle_dt_features)
-                    dt_labels.append(cycle_dt_labels)
-                    knn_features.append(cycle_knn_features)
-                    knn_labels.append(cycle_knn_labels)
-                    cycle_dt_features = []
-                    cycle_dt_labels = []
-                    cycle_knn_features = []
-                    cycle_knn_labels = []
+                current_cycle = 0
+                cycle_dt_features = []
+                cycle_dt_labels = []
+                cycle_knn_features = []
+                cycle_knn_labels = []
+                for i in range(len(cycles)):
+                    if cycles[i] > current_cycle:
+                        current_cycle = cycles[i]
+                        dt_features.append(cycle_dt_features)
+                        dt_labels.append(cycle_dt_labels)
+                        knn_features.append(cycle_knn_features)
+                        knn_labels.append(cycle_knn_labels)
+                        cycle_dt_features = []
+                        cycle_dt_labels = []
+                        cycle_knn_features = []
+                        cycle_knn_labels = []
 
-                cycle_dt_features.append(features_tmp[i])
-                cycle_dt_labels.append(labels_tmp[i])
-                cycle_knn_features.append(knn_features_tmp[i])
-                cycle_knn_labels.append(knn_labels_tmp[i])
+                    cycle_dt_features.append(features_tmp[i])
+                    cycle_dt_labels.append(labels_tmp[i])
+                    cycle_knn_features.append(knn_features_tmp[i])
+                    cycle_knn_labels.append(knn_labels_tmp[i])
 
-            dt_features.append(cycle_dt_features)
-            dt_labels.append(cycle_dt_labels)
-            knn_features.append(cycle_knn_features)
-            knn_labels.append(cycle_knn_labels)
+                dt_features.append(cycle_dt_features)
+                dt_labels.append(cycle_dt_labels)
+                knn_features.append(cycle_knn_features)
+                knn_labels.append(cycle_knn_labels)
 
-            result_features_dt.append(dt_features)
-            result_features_knn.append(knn_features)
-            result_labels_dt.append(dt_labels)
-            result_labels_knn.append(knn_labels)
+                result_features_dt.append(dt_features)
+                result_features_knn.append(knn_features)
+                result_labels_dt.append(dt_labels)
+                result_labels_knn.append(knn_labels)
+            return result_features_dt, result_features_knn, result_labels_dt, result_labels_knn
 
+        print("Raw data...")
+        result_features_dt, result_features_knn, result_labels_dt, result_labels_knn = extract_from_data_sets(
+            self.raw_data, self.window_size, self.features, self.num_outputs)
         self.result_labels_dt = result_labels_dt
         self.result_labels_knn = result_labels_knn
         self.result_features_dt = result_features_dt
         self.result_features_knn = result_features_knn
+
+        print("Faulty data...")
+        faulty_features_dt, faulty_features_knn, faulty_labels_dt, faulty_labels_knn = extract_from_data_sets(
+            self.faulty_raw_data, self.window_size, self.features, self.num_outputs)
+        self.faulty_labels_dt = faulty_labels_dt
+        self.faulty_labels_knn = faulty_labels_knn
+        self.faulty_features_dt = faulty_features_dt
+        self.faulty_features_knn = faulty_features_knn
 
     def __glue_routes_together(self, data_set1, data_set2, glue_location):
         pd.set_option('mode.chained_assignment', None)

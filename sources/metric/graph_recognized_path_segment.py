@@ -1,3 +1,5 @@
+import os
+
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -11,7 +13,11 @@ class GraphRecognizedPathSegment:
         self.test_labels = np.asarray(test_labels)
 
         # Configuration
-        self.file_path = "/home/shino/Uni/master_thesis/bin/"
+        self.file_path = "/home/shino/Uni/master_thesis/bin/" + prefix + "/"
+        try:
+            os.mkdir(self.file_path)
+        except:
+            pass
         self.infinite_number = 99999999
 
         self.__generate_graph()
@@ -66,7 +72,8 @@ class GraphRecognizedPathSegment:
         path_segments = self.__calculate_path_segments()
 
         min_value = path_segments.min()
-        max_value = path_segments[path_segments != self.infinite_number].max() + 1
+        filtered_path_segments = path_segments[path_segments != self.infinite_number]
+        max_value = 1 if len(filtered_path_segments) == 0 else filtered_path_segments.max() + 1
         plt.bar(range(len(path_segments)), path_segments)
         for i in range(len(path_segments)):
             if path_segments[i] == self.infinite_number:
