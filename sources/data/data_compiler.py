@@ -67,15 +67,17 @@ def calculate_features(args):
     data, i, window_size, features = args
     window = data.iloc[(i - window_size):i, :]
 
-    x_acc_col_list = window["x_acc"].tolist()
-    y_acc_col_list = window["y_acc"].tolist()
-    z_acc_col_list = window["z_acc"].tolist()
+    # x_acc_col_list = window["x_acc"].tolist()
+    # y_acc_col_list = window["y_acc"].tolist()
+    # z_acc_col_list = window["z_acc"].tolist()
     acc_total_abs_col_list = (window["x_acc"] + window["y_acc"] + window["z_acc"]).abs().tolist()
-    x_ang_col_list = window["x_ang"].tolist()
-    y_ang_col_list = window["y_ang"].tolist()
-    z_ang_col_list = window["z_ang"].tolist()
+    # x_ang_col_list = window["x_ang"].tolist()
+    # y_ang_col_list = window["y_ang"].tolist()
+    # z_ang_col_list = window["z_ang"].tolist()
     light_col_list = window["light"].tolist()
     temperature_col_list = window["temperature"].tolist()
+    heading_col_list = window["heading"].tolist()
+    volume_col_list = window["volume"].tolist()
 
     result = []
     if Features.PreviousLocation in features:
@@ -91,26 +93,16 @@ def calculate_features(args):
 
         result.append(prev_location)
 
-    if Features.StandardDeviation in features:
-        # result.append(FeatureStandardDeviation(x_acc_col_list).feature)
-        # result.append(FeatureStandardDeviation(y_acc_col_list).feature)
-        # result.append(FeatureStandardDeviation(z_acc_col_list).feature)
-        # result.append(FeatureStandardDeviation(x_ang_col_list).feature)
-        # result.append(FeatureStandardDeviation(y_ang_col_list).feature)
-        # result.append(FeatureStandardDeviation(z_ang_col_list).feature)
+    if Features.Acceleration in features:
         result.append(FeatureStandardDeviation(acc_total_abs_col_list).feature)
-        result.append(FeatureStandardDeviation(light_col_list).feature)
-
-    if Features.Maximum in features:
         result.append(FeatureMax(acc_total_abs_col_list).feature)
-        result.append(FeatureMax(light_col_list).feature)
-
-    if Features.Minimum in features:
         result.append(FeatureMin(acc_total_abs_col_list).feature)
-        result.append(FeatureMin(light_col_list).feature)
-
-    if Features.Mean in features:
         result.append(FeatureMean(acc_total_abs_col_list).feature)
+
+    if Features.Light in features:
+        result.append(FeatureStandardDeviation(light_col_list).feature)
+        result.append(FeatureMax(light_col_list).feature)
+        result.append(FeatureMin(light_col_list).feature)
         result.append(FeatureMean(light_col_list).feature)
 
     if Features.AccessPointDetection in features:
@@ -125,6 +117,18 @@ def calculate_features(args):
         result.append(FeatureMax(temperature_col_list).feature)
         result.append(FeatureMin(temperature_col_list).feature)
         result.append(FeatureMean(temperature_col_list).feature)
+
+    if Features.Heading in features:
+        result.append(FeatureStandardDeviation(heading_col_list).feature)
+        result.append(FeatureMax(heading_col_list).feature)
+        result.append(FeatureMin(heading_col_list).feature)
+        result.append(FeatureMean(heading_col_list).feature)
+
+    if Features.Volume in features:
+        result.append(FeatureStandardDeviation(volume_col_list).feature)
+        result.append(FeatureMax(volume_col_list).feature)
+        result.append(FeatureMin(volume_col_list).feature)
+        result.append(FeatureMean(volume_col_list).feature)
 
     return window.iloc[window_size - 1]["cycle"], window.iloc[window_size - 1]["location"], result
 

@@ -1,6 +1,7 @@
+import pickle
+
 import matplotlib.pyplot as plt
 import numpy as np
-import pickle
 
 from sources.data.data_compiler import DataCompiler
 from sources.data.data_set import DataSet
@@ -12,7 +13,8 @@ from sources.ffnn.gen_ffnn import GenerateFFNN
 FRACTION_PREDICTION_LABELED = 0.6
 NUM_EPOCHS_PER_CYCLE = 50
 
-features = [Features.PreviousLocation, Features.AccessPointDetection, Features.Temperature, Features.StandardDeviation]
+features = [Features.PreviousLocation, Features.AccessPointDetection, Features.Temperature, Features.Acceleration,
+            Features.Heading, Features.Volume, Features.Light]
 data = DataCompiler([DataSet.SimpleSquare], features, False)
 # data = DataCompiler([DataSet.SimpleSquare, DataSet.LongRectangle, DataSet.RectangleWithRamp, DataSet.ManyCorners], features)
 
@@ -123,7 +125,6 @@ with open("/home/shino/Uni/master_thesis/bin/evaluation_dt_model.pkl", 'wb') as 
     pickle.dump(model_dt, file)
 
 model_knn.save("/home/shino/Uni/master_thesis/bin/evaluation_knn_model.h5")
-
 
 print("")
 
