@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import pickle
 
 from sources.data.data_compiler import DataCompiler
 from sources.data.data_set import DataSet
@@ -12,8 +13,8 @@ FRACTION_PREDICTION_LABELED = 0.6
 NUM_EPOCHS_PER_CYCLE = 50
 
 features = [Features.PreviousLocation, Features.AccessPointDetection, Features.Temperature, Features.StandardDeviation]
-# data = DataCompiler([DataSet.SimpleSquare], features, False)
-data = DataCompiler([DataSet.SimpleSquare, DataSet.LongRectangle, DataSet.RectangleWithRamp, DataSet.ManyCorners], features)
+data = DataCompiler([DataSet.SimpleSquare], features, False)
+# data = DataCompiler([DataSet.SimpleSquare, DataSet.LongRectangle, DataSet.RectangleWithRamp, DataSet.ManyCorners], features)
 
 print("")
 print("Training models:")
@@ -48,6 +49,7 @@ for data_set_index in range(len(data.result_features_dt)):
     knn_next_cycle_labels = knn_next_cycle_labels + data.result_labels_knn[data_set_index][0]
 
 model_knn = 0
+model_dt = 0
 for cycle in range(data.num_cycles - data.num_validation_cycles):
     print("Training cycle: {0}".format(cycle))
     print("Initializing...")
@@ -111,6 +113,15 @@ for cycle in range(data.num_cycles - data.num_validation_cycles):
     print("Accuracy KNN: {0}".format(knn_acc))
 
     print("")
+
+print("Saving models...")
+with open("/home/shino/Uni/master_thesis/bin/evaluation_dt_model.pkl", 'wb') as file:
+    pickle.dump(model_dt, file)
+
+model_knn.save("/home/shino/Uni/master_thesis/bin/evaluation_knn_model.h5")
+
+
+print("")
 
 print("Collecting data...")
 knn_hist = model_knn.get_history()

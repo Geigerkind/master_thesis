@@ -56,3 +56,6 @@ class GenerateFFNN:
 
     def get_history(self):
         return self.history.history
+
+    def save(self, file_path):
+        self.keras_model.save(file_path)

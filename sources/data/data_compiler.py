@@ -14,6 +14,8 @@ from sources.feature.mean import FeatureMean
 from sources.feature.min import FeatureMin
 from sources.feature.standard_deviation import FeatureStandardDeviation
 
+np.random.seed(0)
+
 
 def parallelize(data, func, args):
     cores = cpu_count()
@@ -148,16 +150,17 @@ def process_data_set(args):
             pir = row[1]
             new_df = new_df.append(row[1], ignore_index=True)
 
-    print("Reduced the data set " + str(count) + " by: %.2f Percent" % (100 * (1 - (len(new_df)/len(data_set)))))
+    print("Reduced the data set " + str(count) + " by: %.2f Percent" % (100 * (1 - (len(new_df) / len(data_set)))))
     print("Finished processing data set {0} of {1}".format(count, total_len))
     return new_df
+
 
 class DataCompiler:
     def __init__(self, data_sets, features, use_synthetic_routes=False, proximity=0.1):
         # Configuration
         self.num_cycles = 20
         self.num_validation_cycles = 5
-        self.num_warmup_cycles = 2
+        self.num_warmup_cycles = 4
         self.window_size = 5
 
         # Declarations
