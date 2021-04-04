@@ -132,7 +132,7 @@ with open("/home/shino/Uni/master_thesis/bin/evaluation_data.pkl", 'rb') as file
         generate_graphs("nulled_volume", model_dt, model_knn, test_set_features_dt_nulled,
                         test_set_features_knn_nulled, test_set_labels_dt, test_set_labels_knn, data.num_outputs)
 
-        # Faulty data set
+        # Permuted path
         test_set_features_dt_faulty = data.faulty_features_dt[0][18]
         test_set_features_knn_faulty = data.faulty_features_knn[0][18]
         test_set_labels_dt_faulty = data.faulty_labels_dt[0][18]

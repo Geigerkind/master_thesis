@@ -1,7 +1,9 @@
+import os
 import pickle
 
 import matplotlib.pyplot as plt
 import numpy as np
+import tensorflow as tf
 
 from sources.data.data_compiler import DataCompiler
 from sources.data.data_set import DataSet
@@ -9,6 +11,13 @@ from sources.data.features import Features
 from sources.decision_tree.ensemble_method import EnsembleMethod
 from sources.decision_tree.gen_dt import GenerateDecisionTree
 from sources.ffnn.gen_ffnn import GenerateFFNN
+
+np.random.seed(0)
+os.environ['PYTHONHASHSEED'] = str(0)
+tf.random.set_seed(0)
+session_conf = tf.compat.v1.ConfigProto(intra_op_parallelism_threads=16, inter_op_parallelism_threads=16)
+sess = tf.compat.v1.Session(graph=tf.compat.v1.get_default_graph(), config=session_conf)
+tf.compat.v1.keras.backend.set_session(sess)
 
 FRACTION_PREDICTION_LABELED = 0.8
 NUM_EPOCHS_PER_CYCLE = 50

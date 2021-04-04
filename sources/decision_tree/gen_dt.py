@@ -1,5 +1,7 @@
 import multiprocessing
+import os
 
+import numpy as np
 from sklearn import tree
 from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier, BaggingClassifier, ExtraTreesClassifier
 from sklearn.model_selection import train_test_split
@@ -12,6 +14,10 @@ class GenerateDecisionTree:
         self.ensemble_method = ensemble_method
         self.n_estimators = n_estimators
         self.max_depth = max_depth
+
+        # Set random seeds
+        np.random.seed(0)
+        os.environ['PYTHONHASHSEED'] = str(0)
 
         # Constant Parameters
         # Configuration

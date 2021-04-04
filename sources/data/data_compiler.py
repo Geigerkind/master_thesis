@@ -1,4 +1,5 @@
 import math
+import os
 import random
 from multiprocessing import cpu_count, Pool
 
@@ -15,6 +16,7 @@ from sources.feature.min import FeatureMin
 from sources.feature.standard_deviation import FeatureStandardDeviation
 
 np.random.seed(0)
+os.environ['PYTHONHASHSEED'] = str(0)
 
 
 def parallelize(data, func, args):
