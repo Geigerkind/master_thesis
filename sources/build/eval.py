@@ -24,8 +24,9 @@ NUM_EPOCHS_PER_CYCLE = 50
 
 features = [Features.PreviousLocation, Features.AccessPointDetection, Features.Temperature, Features.Acceleration,
             Features.Heading, Features.Volume, Features.Light]
-data = DataCompiler([DataSet.SimpleSquare], features, False)
-# data = DataCompiler([DataSet.SimpleSquare, DataSet.LongRectangle, DataSet.RectangleWithRamp, DataSet.ManyCorners], features)
+# data = DataCompiler([DataSet.SimpleSquare], features, False)
+data = DataCompiler([DataSet.SimpleSquare, DataSet.LongRectangle, DataSet.RectangleWithRamp, DataSet.ManyCorners],
+                    features, True)
 
 print("Saving data...")
 with open("/home/shino/Uni/master_thesis/bin/evaluation_data.pkl", 'wb') as file:
@@ -107,6 +108,7 @@ for cycle in range(data.num_cycles - data.num_validation_cycles):
         print("Relabeling next cycle's set...")
         for i in range(1, int(len(dt_next_cycle_features) * FRACTION_PREDICTION_LABELED)):
             knn_pred = np.array(knn_prediction[i]).argmax() * (1 / data.num_outputs)
+            """
             if dt_prediction[i] != dt_next_cycle_features[i][0]:
                 if dt_next_cycle_features[i][0] > 0:
                     dt_next_cycle_features[i][1] = dt_next_cycle_features[i][0]
@@ -114,6 +116,7 @@ for cycle in range(data.num_cycles - data.num_validation_cycles):
             if abs(knn_pred - knn_next_cycle_features[i][0]) >= (1 / data.num_outputs):
                 if knn_next_cycle_features[i][0] > 0:
                     knn_next_cycle_features[i][1] = knn_next_cycle_features[i][0]
+            """
 
             dt_next_cycle_features[i][0] = dt_prediction[i - 1]
             knn_next_cycle_features[i][0] = knn_pred

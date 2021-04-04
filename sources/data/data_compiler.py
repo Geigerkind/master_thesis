@@ -93,26 +93,26 @@ def calculate_features(args):
                 prev_location = data.iloc[j]["location"]
                 break
 
-        result.append(prev_location)
+        # result.append(prev_location)
 
     if Features.Acceleration in features:
         result.append(FeatureStandardDeviation(acc_total_abs_col_list).feature)
-        result.append(FeatureMax(acc_total_abs_col_list).feature)
-        result.append(FeatureMin(acc_total_abs_col_list).feature)
-        result.append(FeatureMean(acc_total_abs_col_list).feature)
+        # result.append(FeatureMax(acc_total_abs_col_list).feature)
+        # result.append(FeatureMin(acc_total_abs_col_list).feature)
+        # result.append(FeatureMean(acc_total_abs_col_list).feature)
 
     if Features.Light in features:
-        result.append(FeatureStandardDeviation(light_col_list).feature)
+        # result.append(FeatureStandardDeviation(light_col_list).feature)
         result.append(FeatureMax(light_col_list).feature)
         result.append(FeatureMin(light_col_list).feature)
-        result.append(FeatureMean(light_col_list).feature)
+        # result.append(FeatureMean(light_col_list).feature)
 
     if Features.AccessPointDetection in features:
-        result.append(int(window.iloc[window_size - 1]["access_point_0"]))
+        # result.append(int(window.iloc[window_size - 1]["access_point_0"]))
         result.append(int(window.iloc[window_size - 1]["access_point_1"]))
-        result.append(int(window.iloc[window_size - 1]["access_point_2"]))
+        # result.append(int(window.iloc[window_size - 1]["access_point_2"]))
         result.append(int(window.iloc[window_size - 1]["access_point_3"]))
-        result.append(int(window.iloc[window_size - 1]["access_point_4"]))
+        # result.append(int(window.iloc[window_size - 1]["access_point_4"]))
 
     if Features.Temperature in features:
         result.append(FeatureStandardDeviation(temperature_col_list).feature)
@@ -122,15 +122,15 @@ def calculate_features(args):
 
     if Features.Heading in features:
         result.append(FeatureStandardDeviation(heading_col_list).feature)
-        result.append(FeatureMax(heading_col_list).feature)
-        result.append(FeatureMin(heading_col_list).feature)
-        result.append(FeatureMean(heading_col_list).feature)
+        # result.append(FeatureMax(heading_col_list).feature)
+        # result.append(FeatureMin(heading_col_list).feature)
+        # result.append(FeatureMean(heading_col_list).feature)
 
     if Features.Volume in features:
-        result.append(FeatureStandardDeviation(volume_col_list).feature)
+        # result.append(FeatureStandardDeviation(volume_col_list).feature)
         result.append(FeatureMax(volume_col_list).feature)
-        result.append(FeatureMin(volume_col_list).feature)
-        result.append(FeatureMean(volume_col_list).feature)
+        # result.append(FeatureMin(volume_col_list).feature)
+        # result.append(FeatureMean(volume_col_list).feature)
 
     return window.iloc[window_size - 1]["cycle"], window.iloc[window_size - 1]["location"], result
 
@@ -544,7 +544,7 @@ class DataCompiler:
                     for i in range(len(knn_features_tmp)):
                         # Manual scaling between 0 and 1
                         knn_features_tmp[i][0] = knn_features_tmp[i][0] * (1 / input_num_outputs)
-                        knn_features_tmp[i][1] = knn_features_tmp[i][1] * (1 / input_num_outputs)
+                        # knn_features_tmp[i][1] = knn_features_tmp[i][1] * (1 / input_num_outputs)
 
                 print("Onehot encoding KNN data...")
 
