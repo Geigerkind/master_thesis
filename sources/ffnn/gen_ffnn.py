@@ -21,7 +21,7 @@ class GenerateFFNN:
 
         # Configuration
         self.input_size = input_size
-        self.intermediate_size = 30
+        self.intermediate_size = 100
         self.output_size = output_size
 
         # Train the model
@@ -31,7 +31,7 @@ class GenerateFFNN:
 
     def fit(self, training_data_x, training_data_y, validation_data_x, validation_data_y):
         self.history = self.keras_model.fit(np.asarray(training_data_x), np.asarray(training_data_y), batch_size=50,
-                                            epochs=50, verbose=0,
+                                            epochs=75, verbose=0,
                                             validation_data=(np.asarray(validation_data_x), np.asarray(validation_data_y)))
 
     def predict(self, data):
