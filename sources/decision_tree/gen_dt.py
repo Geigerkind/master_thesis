@@ -40,14 +40,14 @@ class GenerateDecisionTree:
     def cherry_pick(self):
         pool = multiprocessing.Pool(processes=self.num_cores)
         best_classifier = None
-        for j in range(len(math.ceil(self.cherry_pick_iterations / self.num_cores))):
+        for j in range(int(math.ceil(self.cherry_pick_iterations / self.num_cores))):
             args = []
             for i in range(self.num_cores):
                 args.append(self.model(i))
             classifier = pool.map(self.evaluate_classifier, args)
             classifier.sort(key=lambda x: x[1], reverse=True)
             if best_classifier is None or best_classifier[1] < classifier[0][1]:
-                best_classifier = classifier
+                best_classifier = classifier[0]
         return best_classifier[0]
 
     def evaluate_classifier(self, clf):
