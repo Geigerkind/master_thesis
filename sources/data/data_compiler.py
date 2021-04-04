@@ -93,7 +93,7 @@ def calculate_features(args):
                 prev_location = data.iloc[j]["location"]
                 break
 
-        # result.append(prev_location)
+        result.append(prev_location)
 
     if Features.Acceleration in features:
         result.append(FeatureStandardDeviation(acc_total_abs_col_list).feature)
@@ -544,7 +544,7 @@ class DataCompiler:
                     for i in range(len(knn_features_tmp)):
                         # Manual scaling between 0 and 1
                         knn_features_tmp[i][0] = knn_features_tmp[i][0] * (1 / input_num_outputs)
-                        # knn_features_tmp[i][1] = knn_features_tmp[i][1] * (1 / input_num_outputs)
+                        knn_features_tmp[i][1] = knn_features_tmp[i][1] * (1 / input_num_outputs)
 
                 print("Onehot encoding KNN data...")
 

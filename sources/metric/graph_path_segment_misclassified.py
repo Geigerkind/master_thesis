@@ -3,14 +3,18 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 
+from sources.ffnn.gen_ffnn import GenerateFFNN
+
 
 class GraphPathSegmentMisclassified:
-    def __init__(self, prefix, model, is_dt, test_features, test_labels):
+    def __init__(self, prefix, model, is_dt, test_features, test_labels, num_outputs, use_continued_prediction):
         self.prefix = prefix
         self.model = model
         self.is_dt = is_dt
         self.test_features = np.asarray(test_features)
         self.test_labels = np.asarray(test_labels)
+        self.num_outputs = num_outputs
+        self.use_continued_prediction = use_continued_prediction
 
         # Configuration
         self.file_path = "/home/shino/Uni/master_thesis/bin/" + prefix + "/"
@@ -35,7 +39,14 @@ class GraphPathSegmentMisclassified:
         return self.__get_discrete_label(test) == self.__get_discrete_label(predicted)
 
     def __calculate_path_segment_misclassified(self):
-        predicted = self.model.predict(self.test_features)
+        predicted = 0
+        if self.use_continued_prediction:
+            predicted = self.model.continued_predict(
+                self.test_features) if self.is_dt else GenerateFFNN.static_continued_predict(self.model,
+                                                                                             self.test_features,
+                                                                                             self.num_outputs)
+        else:
+            predicted = self.model.predict(self.test_features)
 
         result = []
         total = []

@@ -13,36 +13,36 @@ from sources.metric.graph_true_vs_predicted import GraphTrueVsPredicted
 
 
 def generate_graphs(prefix, model_dt, model_knn, test_set_features_dt, test_set_features_knn, test_set_labels_dt,
-                    test_set_labels_knn, num_outputs):
+                    test_set_labels_knn, num_outputs, use_continued_prediction):
     GraphTrueVsPredicted(prefix + "_dt", model_dt, True, test_set_features_dt,
-                         test_set_labels_dt, num_outputs)
+                         test_set_labels_dt, num_outputs, use_continued_prediction)
     GraphTrueVsPredicted(prefix + "_knn", model_knn, False, test_set_features_knn,
-                         test_set_labels_knn, num_outputs)
+                         test_set_labels_knn, num_outputs, use_continued_prediction)
 
     GraphRecognizedPathSegment(prefix + "_dt", model_dt, True, test_set_features_dt,
-                               test_set_labels_dt)
+                               test_set_labels_dt, num_outputs, use_continued_prediction)
     GraphRecognizedPathSegment(prefix + "_knn", model_knn, False, test_set_features_knn,
-                               test_set_labels_knn)
+                               test_set_labels_knn, num_outputs, use_continued_prediction)
 
     GraphLocationMisclassified(prefix + "_dt", model_dt, True, test_set_features_dt,
-                               test_set_labels_dt, num_outputs)
+                               test_set_labels_dt, num_outputs, use_continued_prediction)
     GraphLocationMisclassified(prefix + "_knn", model_knn, False, test_set_features_knn,
-                               test_set_labels_knn, num_outputs)
+                               test_set_labels_knn, num_outputs, use_continued_prediction)
 
     GraphLocationMisclassification(prefix + "_dt", model_dt, True, test_set_features_dt,
-                                   test_set_labels_dt, num_outputs)
+                                   test_set_labels_dt, num_outputs, use_continued_prediction)
     GraphLocationMisclassification(prefix + "_knn", model_knn, False, test_set_features_knn,
-                                   test_set_labels_knn, num_outputs)
+                                   test_set_labels_knn, num_outputs, use_continued_prediction)
 
     GraphLocationMisclassifiedDistribution(prefix + "_dt", model_dt, True, test_set_features_dt,
-                                           test_set_labels_dt, num_outputs)
+                                           test_set_labels_dt, num_outputs, use_continued_prediction)
     GraphLocationMisclassifiedDistribution(prefix + "_knn", model_knn, False, test_set_features_knn,
-                                           test_set_labels_knn, num_outputs)
+                                           test_set_labels_knn, num_outputs, use_continued_prediction)
 
     GraphPathSegmentMisclassified(prefix + "_dt", model_dt, True, test_set_features_dt,
-                                  test_set_labels_dt)
+                                  test_set_labels_dt, num_outputs, use_continued_prediction)
     GraphPathSegmentMisclassified(prefix + "_knn", model_knn, False, test_set_features_knn,
-                                  test_set_labels_knn)
+                                  test_set_labels_knn, num_outputs, use_continued_prediction)
 
 
 with open("/home/shino/Uni/master_thesis/bin/evaluation_data.pkl", 'rb') as file:
@@ -60,8 +60,11 @@ with open("/home/shino/Uni/master_thesis/bin/evaluation_data.pkl", 'rb') as file
         test_set_labels_dt = data.result_labels_dt[0][19]
         test_set_labels_knn = data.result_labels_knn[0][19]
 
+        generate_graphs("evaluation_continued", model_dt, model_knn, test_set_features_dt, test_set_features_knn,
+                        test_set_labels_dt, test_set_labels_knn, data.num_outputs, True)
+
         generate_graphs("evaluation", model_dt, model_knn, test_set_features_dt, test_set_features_knn,
-                        test_set_labels_dt, test_set_labels_knn, data.num_outputs)
+                        test_set_labels_dt, test_set_labels_knn, data.num_outputs, False)
 
         # Previous Location with offset
         test_set_features_dt_offset = data.result_features_dt[0][19]
@@ -74,7 +77,7 @@ with open("/home/shino/Uni/master_thesis/bin/evaluation_data.pkl", 'rb') as file
             test_set_features_knn_offset[i][1] = test_set_features_knn_offset[i - 10][1]
 
         generate_graphs("prev_location_offset", model_dt, model_knn, test_set_features_dt_offset,
-                        test_set_features_knn_offset, test_set_labels_dt, test_set_labels_knn, data.num_outputs)
+                        test_set_features_knn_offset, test_set_labels_dt, test_set_labels_knn, data.num_outputs, False)
 
         # Wrong previous location
         test_set_features_dt_random_location = data.result_features_dt[0][19]
@@ -88,49 +91,49 @@ with open("/home/shino/Uni/master_thesis/bin/evaluation_data.pkl", 'rb') as file
 
         generate_graphs("random_prev_location", model_dt, model_knn, test_set_features_dt_random_location,
                         test_set_features_knn_random_location, test_set_labels_dt, test_set_labels_knn,
-                        data.num_outputs)
+                        data.num_outputs, False)
 
         # Nulled Acceleraton
         test_set_features_dt_nulled = data.faulty_features_dt[1][19]
         test_set_features_knn_nulled = data.faulty_features_knn[1][19]
 
         generate_graphs("nulled_acceleration", model_dt, model_knn, test_set_features_dt_nulled,
-                        test_set_features_knn_nulled, test_set_labels_dt, test_set_labels_knn, data.num_outputs)
+                        test_set_features_knn_nulled, test_set_labels_dt, test_set_labels_knn, data.num_outputs, False)
 
         # Nulled Light
         test_set_features_dt_nulled = data.faulty_features_dt[2][19]
         test_set_features_knn_nulled = data.faulty_features_knn[2][19]
 
         generate_graphs("nulled_light", model_dt, model_knn, test_set_features_dt_nulled,
-                        test_set_features_knn_nulled, test_set_labels_dt, test_set_labels_knn, data.num_outputs)
+                        test_set_features_knn_nulled, test_set_labels_dt, test_set_labels_knn, data.num_outputs, False)
 
         # Nulled Accesspoint
         test_set_features_dt_nulled = data.faulty_features_dt[3][19]
         test_set_features_knn_nulled = data.faulty_features_knn[3][19]
 
         generate_graphs("nulled_access_point", model_dt, model_knn, test_set_features_dt_nulled,
-                        test_set_features_knn_nulled, test_set_labels_dt, test_set_labels_knn, data.num_outputs)
+                        test_set_features_knn_nulled, test_set_labels_dt, test_set_labels_knn, data.num_outputs, False)
 
         # Nulled Temperature
         test_set_features_dt_nulled = data.faulty_features_dt[5][19]
         test_set_features_knn_nulled = data.faulty_features_knn[5][19]
 
         generate_graphs("nulled_temperature", model_dt, model_knn, test_set_features_dt_nulled,
-                        test_set_features_knn_nulled, test_set_labels_dt, test_set_labels_knn, data.num_outputs)
+                        test_set_features_knn_nulled, test_set_labels_dt, test_set_labels_knn, data.num_outputs, False)
 
         # Nulled Heading
         test_set_features_dt_nulled = data.faulty_features_dt[4][19]
         test_set_features_knn_nulled = data.faulty_features_knn[4][19]
 
         generate_graphs("nulled_heading", model_dt, model_knn, test_set_features_dt_nulled,
-                        test_set_features_knn_nulled, test_set_labels_dt, test_set_labels_knn, data.num_outputs)
+                        test_set_features_knn_nulled, test_set_labels_dt, test_set_labels_knn, data.num_outputs, False)
 
         # Nulled Volume
         test_set_features_dt_nulled = data.faulty_features_dt[6][19]
         test_set_features_knn_nulled = data.faulty_features_knn[6][19]
 
         generate_graphs("nulled_volume", model_dt, model_knn, test_set_features_dt_nulled,
-                        test_set_features_knn_nulled, test_set_labels_dt, test_set_labels_knn, data.num_outputs)
+                        test_set_features_knn_nulled, test_set_labels_dt, test_set_labels_knn, data.num_outputs, False)
 
         # Permuted path
         test_set_features_dt_faulty = data.faulty_features_dt[0][18]
@@ -138,6 +141,6 @@ with open("/home/shino/Uni/master_thesis/bin/evaluation_data.pkl", 'rb') as file
         test_set_labels_dt_faulty = data.faulty_labels_dt[0][18]
         test_set_labels_knn_faulty = data.faulty_labels_knn[0][18]
 
-        generate_graphs("faulty", model_dt, model_knn, test_set_features_dt_faulty,
+        generate_graphs("permuted_path", model_dt, model_knn, test_set_features_dt_faulty,
                         test_set_features_knn_faulty, test_set_labels_dt_faulty, test_set_labels_knn_faulty,
-                        data.num_outputs)
+                        data.num_outputs, False)

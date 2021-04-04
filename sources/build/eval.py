@@ -20,13 +20,13 @@ sess = tf.compat.v1.Session(graph=tf.compat.v1.get_default_graph(), config=sessi
 tf.compat.v1.keras.backend.set_session(sess)
 
 FRACTION_PREDICTION_LABELED = 0.8
-NUM_EPOCHS_PER_CYCLE = 50
+NUM_EPOCHS_PER_CYCLE = 75
 
 features = [Features.PreviousLocation, Features.AccessPointDetection, Features.Temperature, Features.Acceleration,
             Features.Heading, Features.Volume, Features.Light]
-# data = DataCompiler([DataSet.SimpleSquare], features, False)
-data = DataCompiler([DataSet.SimpleSquare, DataSet.LongRectangle, DataSet.RectangleWithRamp, DataSet.ManyCorners],
-                    features, True)
+data = DataCompiler([DataSet.SimpleSquare], features, False)
+# data = DataCompiler([DataSet.SimpleSquare, DataSet.LongRectangle, DataSet.RectangleWithRamp, DataSet.ManyCorners],
+#                    features, True)
 
 print("Saving data...")
 with open("/home/shino/Uni/master_thesis/bin/evaluation_data.pkl", 'wb') as file:
@@ -58,6 +58,7 @@ dt_next_cycle_features = []
 knn_next_cycle_features = []
 dt_next_cycle_labels = []
 knn_next_cycle_labels = []
+# BIG NOTE: We change the data that is present in "data", because this is a reference not a copy
 for data_set_index in range(len(data.result_features_dt)):
     dt_next_cycle_features = dt_next_cycle_features + data.result_features_dt[data_set_index][0]
     dt_next_cycle_labels = dt_next_cycle_labels + data.result_labels_dt[data_set_index][0]
@@ -106,20 +107,24 @@ for cycle in range(data.num_cycles - data.num_validation_cycles):
     if cycle >= data.num_warmup_cycles and cycle < data.num_cycles - data.num_validation_cycles - 1 and Features.PreviousLocation in features:
         print("")
         print("Relabeling next cycle's set...")
+        last_distinct_location_dt = dt_next_cycle_features[0][1]
+        last_distinct_location_knn = knn_next_cycle_features[0][1]
         for i in range(1, int(len(dt_next_cycle_features) * FRACTION_PREDICTION_LABELED)):
-            knn_pred = np.array(knn_prediction[i]).argmax() * (1 / data.num_outputs)
-            """
-            if dt_prediction[i] != dt_next_cycle_features[i][0]:
-                if dt_next_cycle_features[i][0] > 0:
-                    dt_next_cycle_features[i][1] = dt_next_cycle_features[i][0]
+            dt_pred = dt_prediction[i]
+            dt_prev_pred = dt_prediction[i - 1]
 
-            if abs(knn_pred - knn_next_cycle_features[i][0]) >= (1 / data.num_outputs):
-                if knn_next_cycle_features[i][0] > 0:
-                    knn_next_cycle_features[i][1] = knn_next_cycle_features[i][0]
-            """
+            if dt_pred != dt_prev_pred and dt_prev_pred != last_distinct_location_dt and dt_prev_pred > 0:
+                last_distinct_location_dt = dt_prev_pred
 
-            dt_next_cycle_features[i][0] = dt_prediction[i - 1]
-            knn_next_cycle_features[i][0] = knn_pred
+            prev_knn_pred = np.array(knn_prediction[i - 1]).argmax() / data.num_outputs
+            knn_pred = np.array(knn_prediction[i]).argmax() / data.num_outputs
+            if knn_pred != prev_knn_pred and prev_knn_pred != last_distinct_location_knn and prev_knn_pred > 0:
+                last_distinct_location_knn = prev_knn_pred
+
+            dt_next_cycle_features[i][0] = dt_prev_pred
+            dt_next_cycle_features[i][1] = last_distinct_location_dt
+            knn_next_cycle_features[i][0] = prev_knn_pred
+            knn_next_cycle_features[i][1] = last_distinct_location_knn
 
     print("")
     dt_acc = model_dt.evaluate_accuracy(model_dt.predict(dt_vs_features), dt_vs_labels)

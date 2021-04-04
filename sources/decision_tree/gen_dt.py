@@ -1,5 +1,6 @@
 import multiprocessing
 import os
+import math
 
 import numpy as np
 from sklearn import tree
@@ -23,7 +24,7 @@ class GenerateDecisionTree:
         # Configuration
         self.debug_mode = False
         self.cherry_pick_iterations = 128
-        self.num_cores = 16
+        self.num_cores = multiprocessing.cpu_count()
 
         # Tree related
         self.ccp_alpha = 0.0001
@@ -38,12 +39,16 @@ class GenerateDecisionTree:
 
     def cherry_pick(self):
         pool = multiprocessing.Pool(processes=self.num_cores)
-        args = []
-        for i in range(self.cherry_pick_iterations):
-            args.append(self.model(i))
-        classifier = pool.map(self.evaluate_classifier, args)
-        classifier.sort(key=lambda x: x[1], reverse=True)
-        return classifier[0][0]
+        best_classifier = None
+        for j in range(len(math.ceil(self.cherry_pick_iterations / self.num_cores))):
+            args = []
+            for i in range(self.num_cores):
+                args.append(self.model(i))
+            classifier = pool.map(self.evaluate_classifier, args)
+            classifier.sort(key=lambda x: x[1], reverse=True)
+            if best_classifier is None or best_classifier[1] < classifier[0][1]:
+                best_classifier = classifier
+        return best_classifier[0]
 
     def evaluate_classifier(self, clf):
         clf = clf.fit(self.training_data_train_x, self.training_data_train_y)
@@ -103,6 +108,29 @@ class GenerateDecisionTree:
 
     def predict(self, data):
         return self.result.predict(data)
+
+    def continued_predict(self, data):
+        # Assumes that feature 0 and 1 are previous locations
+        data_copy = np.asarray(data).copy()
+        predictions = []
+        data_copy_len = len(data_copy)
+        prediction = self.predict([data_copy[0]])[0]
+        predictions.append(prediction)
+        prev_predicted_location = prediction
+        last_distinct_location = 0
+        for i in range(1, data_copy_len):
+            prediction = self.predict([data_copy[i]])[0]
+            if i < data_copy_len - 1:
+                predicted_location = prediction
+                if predicted_location != prev_predicted_location and prev_predicted_location != last_distinct_location \
+                        and prev_predicted_location > 0:
+                    last_distinct_location = prev_predicted_location
+
+                data_copy[i + 1][0] = predicted_location
+                data_copy[i + 1][1] = last_distinct_location
+                prev_predicted_location = predicted_location
+            predictions.append(prediction)
+        return predictions
 
     def save_model_to_file(self, path):
         raise Exception("Not implemented.")
