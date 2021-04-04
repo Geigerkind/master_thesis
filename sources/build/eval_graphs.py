@@ -3,6 +3,7 @@ import random
 
 from tensorflow import keras
 
+from sources.metric.graph_feature_importance import GraphFeatureImportance
 from sources.metric.graph_location_misclassified import GraphLocationMisclassified
 from sources.metric.graph_location_misclassified_distribution import GraphLocationMisclassifiedDistribution
 from sources.metric.graph_location_missclassification import GraphLocationMisclassification
@@ -49,6 +50,9 @@ with open("/home/shino/Uni/master_thesis/bin/evaluation_data.pkl", 'rb') as file
     with open("/home/shino/Uni/master_thesis/bin/evaluation_dt_model.pkl", 'rb') as file:
         model_dt = pickle.load(file)
         model_knn = keras.models.load_model("/home/shino/Uni/master_thesis/bin/evaluation_knn_model.h5")
+
+        # Feature Importance
+        GraphFeatureImportance("evaluation", model_dt)
 
         # Valid set
         test_set_features_dt = data.result_features_dt[0][19]

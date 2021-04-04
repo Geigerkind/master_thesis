@@ -108,3 +108,6 @@ class GenerateDecisionTree:
                 correct = correct + 1
 
         return correct / len(prediction)
+
+    def feature_importances(self):
+        return self.result.feature_importances_
