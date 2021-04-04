@@ -1,2 +1,26 @@
 \chapter{Evaluation}
 TODO
+
+\section{Klassifizierungsgenauigkeit}
+\begin{itemize}
+    \item Wie groß ist die Wahrscheinlichkeit, dass die Orte korrekt erkannt werden?
+    \item Entscheidungsbaum vs KNN
+    \item Skalierung mit Anzahl der Orte
+    \item Signifikanz der Features
+\end{itemize}
+
+\section{Fehlertoleranz}
+\begin{itemize}
+    \item Wenn falscher Ort erkannt wurde, wie lange dauert es um wieder den korrekten Ort zu finden?
+    \item Was passiert wenn Sensoren ausfallen?
+    \item Transportbox nicht dem trainierten Pfad folgt?
+    \item Änderungen der Fabrik, e.g. Licht, Wärme, Magnet, Schnelligkeit der Fließbänder
+\end{itemize}
+
+\section{Ressourcennutzung}
+\begin{itemize}
+    \item Entscheidungsbaum Ausführung
+    \item FFNN Ausführung
+    \item Feature extrahierung
+    \item Daten Sammlung => Interrupts (Wakeups)
+\end{itemize}
