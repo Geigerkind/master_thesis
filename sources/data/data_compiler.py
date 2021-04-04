@@ -251,9 +251,11 @@ class DataCompiler:
         self.num_inputs = len(self.result_features_knn[0][0][0])
 
     def __create_faulty_data_sets(self):
+        print("Creating faulty data sets...")
         for data_set in self.raw_data:
 
             # Permute paths randomly
+            print("Creating permuted paths set...")
             result_permutation = DataFrame()
             for cycle in range(self.num_cycles):
                 cycle_view = data_set.query("cycle == " + str(cycle))
@@ -265,16 +267,19 @@ class DataCompiler:
             self.faulty_raw_data.append(result_permutation)
 
             # Set sensor values 0
+            print("Creating nulled acceleration set...")
             nulled_acceleration = data_set.copy(deep=True)
             nulled_acceleration["x_acc"] = 0
             nulled_acceleration["y_acc"] = 0
             nulled_acceleration["z_acc"] = 0
             self.faulty_raw_data.append(nulled_acceleration)
 
+            print("Creating nulled light set...")
             nulled_light = data_set.copy(deep=True)
             nulled_light["light"] = 0
             self.faulty_raw_data.append(nulled_light)
 
+            print("Creating nulled access point set...")
             nulled_access_point = data_set.copy(deep=True)
             nulled_access_point["access_point_0"] = False
             nulled_access_point["access_point_1"] = False
@@ -283,14 +288,17 @@ class DataCompiler:
             nulled_access_point["access_point_4"] = False
             self.faulty_raw_data.append(nulled_access_point)
 
+            print("Creating nulled heading set...")
             nulled_heading = data_set.copy(deep=True)
             nulled_heading["heading"] = 0
             self.faulty_raw_data.append(nulled_heading)
 
+            print("Creating nulled temperature set...")
             nulled_temperature = data_set.copy(deep=True)
             nulled_temperature["temperature"] = 0
             self.faulty_raw_data.append(nulled_temperature)
 
+            print("Creating nulled volume set...")
             nulled_volume = data_set.copy(deep=True)
             nulled_volume["volume"] = 0
             self.faulty_raw_data.append(nulled_volume)
@@ -329,6 +337,7 @@ class DataCompiler:
         # Heat sources can be above or below ambient temperature.
         # The temperature is approaching the ambient temperature quadratically after a predefined distance.
         # We take then the temperature with the maximum absolute difference to the ambient, if there is a conflict.
+        print("Adding temperature data...")
         ambient_temperature = 20  # Degrees Celsius
         # ([x,y], temperature, distance_until_ambient_is_reached_again)
         heat_sources = [
@@ -377,6 +386,7 @@ class DataCompiler:
         # In a conveyor belt system the facing of the sensor will usually not change, because there are usually no round
         # conveyor belts. BUT it will not always be put on the conveyor belt with the same facing. Therefore, each
         # cycle, a random facing in [0, 359] will be drawn.
+        print("Adding heading data...")
         magnetic_sources = [
             ([3, 5], 2),
             ([0, 5], 1.5),
@@ -460,6 +470,7 @@ class DataCompiler:
         # Noise tends to interfere with each other. They can destroy each other and resonate.
         # Unrealistic assumption: No interference, because we assume that they deafened so much after a while that
         # they dont interfere with each other
+        print("Adding volume data...")
         background_noise_mean = 20
         background_noise_variance = 3
         # ([x, y], max_volume, distance_until_ambient, is_constant, [periodicity?])
