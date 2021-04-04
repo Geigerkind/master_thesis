@@ -159,12 +159,13 @@ def process_data_set(args):
 
 
 class DataCompiler:
-    def __init__(self, data_sets, features, use_synthetic_routes=False, proximity=0.1):
+    def __init__(self, data_sets, features, train_with_faulty_data=False, use_synthetic_routes=False, proximity=0.1):
         # Configuration
         self.num_cycles = 20
         self.num_validation_cycles = 5
         self.num_warmup_cycles = 3
         self.window_size = 5
+        self.train_with_faulty_data = train_with_faulty_data
 
         # Declarations
         self.num_outputs = 0
@@ -239,20 +240,58 @@ class DataCompiler:
         self.num_outputs = location_offset + 1
         self.__extract_features()
 
+        if self.train_with_faulty_data:
+            self.result_features_dt = self.result_features_dt + self.faulty_features_dt
+            self.result_features_knn = self.result_features_knn + self.faulty_features_knn
+            self.result_labels_dt = self.result_labels_dt + self.faulty_labels_dt
+            self.result_labels_knn = self.result_labels_knn + self.faulty_labels_knn
+
         self.num_inputs = len(self.result_features_knn[0][0][0])
 
     def __create_faulty_data_sets(self):
-        # Permute paths randomly
         for data_set in self.raw_data:
-            result = DataFrame()
+
+            # Permute paths randomly
+            result_permutation = DataFrame()
             for cycle in range(self.num_cycles):
                 cycle_view = data_set.query("cycle == " + str(cycle))
                 permutation = np.random.permutation(10)
                 split_dataset = np.array_split(cycle_view, 10)
                 for index in permutation:
-                    result = result.append(split_dataset[index], ignore_index=False)
+                    result_permutation = result_permutation.append(split_dataset[index], ignore_index=False)
 
-            self.faulty_raw_data.append(result)
+            self.faulty_raw_data.append(result_permutation)
+
+            # Set sensor values 0
+            nulled_acceleration = data_set.copy(deep=True)
+            nulled_acceleration["x_acc"] = 0
+            nulled_acceleration["y_acc"] = 0
+            nulled_acceleration["z_acc"] = 0
+            self.faulty_raw_data.append(nulled_acceleration)
+
+            nulled_light = data_set.copy(deep=True)
+            nulled_light["light"] = 0
+            self.faulty_raw_data.append(nulled_light)
+
+            nulled_access_point = data_set.copy(deep=True)
+            nulled_access_point["access_point_0"] = False
+            nulled_access_point["access_point_1"] = False
+            nulled_access_point["access_point_2"] = False
+            nulled_access_point["access_point_3"] = False
+            nulled_access_point["access_point_4"] = False
+            self.faulty_raw_data.append(nulled_access_point)
+
+            nulled_heading = data_set.copy(deep=True)
+            nulled_heading["heading"] = 0
+            self.faulty_raw_data.append(nulled_heading)
+
+            nulled_temperature = data_set.copy(deep=True)
+            nulled_temperature["temperature"] = 0
+            self.faulty_raw_data.append(nulled_temperature)
+
+            nulled_volume = data_set.copy(deep=True)
+            nulled_volume["volume"] = 0
+            self.faulty_raw_data.append(nulled_volume)
 
     def __add_synthetic_sensor_data(self):
         print("Adding synthetic sensor data...")

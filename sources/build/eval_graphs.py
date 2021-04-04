@@ -91,8 +91,8 @@ with open("/home/shino/Uni/master_thesis/bin/evaluation_data.pkl", 'rb') as file
                         data.num_outputs)
 
         # Nulled Acceleraton
-        test_set_features_dt_nulled = data.result_features_dt[0][19]
-        test_set_features_knn_nulled = data.result_features_knn[0][19]
+        test_set_features_dt_nulled = data.faulty_features_dt[1][19]
+        test_set_features_knn_nulled = data.faulty_features_knn[1][19]
 
         for i in range(len(test_set_features_dt)):
             for j in range(2, 6):
@@ -103,8 +103,8 @@ with open("/home/shino/Uni/master_thesis/bin/evaluation_data.pkl", 'rb') as file
                         test_set_features_knn_nulled, test_set_labels_dt, test_set_labels_knn, data.num_outputs)
 
         # Nulled Light
-        test_set_features_dt_nulled = data.result_features_dt[0][19]
-        test_set_features_knn_nulled = data.result_features_knn[0][19]
+        test_set_features_dt_nulled = data.faulty_features_dt[2][19]
+        test_set_features_knn_nulled = data.faulty_features_knn[2][19]
 
         for i in range(len(test_set_features_dt)):
             for j in range(6, 10):
@@ -115,8 +115,8 @@ with open("/home/shino/Uni/master_thesis/bin/evaluation_data.pkl", 'rb') as file
                         test_set_features_knn_nulled, test_set_labels_dt, test_set_labels_knn, data.num_outputs)
 
         # Nulled Accesspoint
-        test_set_features_dt_nulled = data.result_features_dt[0][19]
-        test_set_features_knn_nulled = data.result_features_knn[0][19]
+        test_set_features_dt_nulled = data.faulty_features_dt[3][19]
+        test_set_features_knn_nulled = data.faulty_features_knn[3][19]
 
         for i in range(len(test_set_features_dt)):
             for j in range(10, 15):
@@ -127,8 +127,8 @@ with open("/home/shino/Uni/master_thesis/bin/evaluation_data.pkl", 'rb') as file
                         test_set_features_knn_nulled, test_set_labels_dt, test_set_labels_knn, data.num_outputs)
 
         # Nulled Temperature
-        test_set_features_dt_nulled = data.result_features_dt[0][19]
-        test_set_features_knn_nulled = data.result_features_knn[0][19]
+        test_set_features_dt_nulled = data.faulty_features_dt[5][19]
+        test_set_features_knn_nulled = data.faulty_features_knn[5][19]
 
         for i in range(len(test_set_features_dt)):
             for j in range(15, 19):
@@ -139,8 +139,8 @@ with open("/home/shino/Uni/master_thesis/bin/evaluation_data.pkl", 'rb') as file
                         test_set_features_knn_nulled, test_set_labels_dt, test_set_labels_knn, data.num_outputs)
 
         # Nulled Heading
-        test_set_features_dt_nulled = data.result_features_dt[0][19]
-        test_set_features_knn_nulled = data.result_features_knn[0][19]
+        test_set_features_dt_nulled = data.faulty_features_dt[4][19]
+        test_set_features_knn_nulled = data.faulty_features_knn[4][19]
 
         for i in range(len(test_set_features_dt)):
             for j in range(19, 23):
@@ -151,8 +151,8 @@ with open("/home/shino/Uni/master_thesis/bin/evaluation_data.pkl", 'rb') as file
                         test_set_features_knn_nulled, test_set_labels_dt, test_set_labels_knn, data.num_outputs)
 
         # Nulled Volume
-        test_set_features_dt_nulled = data.result_features_dt[0][19]
-        test_set_features_knn_nulled = data.result_features_knn[0][19]
+        test_set_features_dt_nulled = data.faulty_features_dt[6][19]
+        test_set_features_knn_nulled = data.faulty_features_knn[6][19]
 
         for i in range(len(test_set_features_dt)):
             for j in range(23, 27):

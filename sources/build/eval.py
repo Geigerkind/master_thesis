@@ -15,7 +15,7 @@ NUM_EPOCHS_PER_CYCLE = 50
 
 features = [Features.PreviousLocation, Features.AccessPointDetection, Features.Temperature, Features.Acceleration,
             Features.Heading, Features.Volume, Features.Light]
-data = DataCompiler([DataSet.SimpleSquare], features, False)
+data = DataCompiler([DataSet.SimpleSquare], features, True)
 # data = DataCompiler([DataSet.SimpleSquare, DataSet.LongRectangle, DataSet.RectangleWithRamp, DataSet.ManyCorners], features)
 
 print("Saving data...")
