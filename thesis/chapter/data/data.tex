@@ -1,39 +1,86 @@
 \chapter{Trainings- und Validationsdaten}
-TODO
+\begin{itemize}
+    \item Daten aufgenommen mit CoppeliaSim(?)
+\end{itemize}
 
 \section{Simulierten Sensordaten}
 \begin{itemize}
     \item Wie wurde es aufgenommen?
     \item Welche Sensoren
     \item Aufgenommene Routen
-    \item Synthetische Routen
 \end{itemize}
 
 \section{Künstlichen Sensordaten}
-TODO
+\begin{itemize}
+    \item Motivation: Warum ist das nötig?
+\end{itemize}
 
 \subsection{Magnetfeld}
-TODO
+\begin{itemize}
+    \item Welchen Sensor spiegelt das wieder?
+    \item Wie funktioniert das Modell?
+    \item Was und Wie wurden Daten ergänzt?
+\end{itemize}
 
 \subsection{Temperatur}
-TODO
+\begin{itemize}
+    \item Welchen Sensor spiegelt das wieder?
+    \item Wie funktioniert das Modell?
+    \item Was und Wie wurden Daten ergänzt?
+\end{itemize}
 
 \subsection{Lautstärke}
-TODO
+\begin{itemize}
+    \item Welchen Sensor spiegelt das wieder?
+    \item Wie funktioniert das Modell?
+    \item Was und Wie wurden Daten ergänzt?
+\end{itemize}
 
 \subsection{WLAN Zugangspunkte}
-TODO
+\begin{itemize}
+    \item Welchen Sensor spiegelt das wieder?
+    \item Wie funktioniert das Modell?
+    \item Was und Wie wurden Daten ergänzt?
+\end{itemize}
 
 \section{Simulation von Interrupts}
-TODO
+\begin{itemize}
+    \item Motivation => Energieverbrauch, Spiegelung der echten Datenaufnahme, Reduzierung der Trainingsdaten
+    \item Wie funktioniert ist?
+    \item Wie und Wann bei der Datenverarbeitung wird es gemacht?
+\end{itemize}
 
 \section{Standortenkodierung}
-TODO
+\begin{itemize}
+    \item Wie werden Orte modelliert?
+    \item Warum wurden die Orte so modelliert?
+    \item Wie werden Pfade zwischen Orten modelliert?
+    \item Sollte das Modell ausgeben können, dass kein Ort erkannt wurde?
+    \item Sollten Pfade erkannt werden können?
+\end{itemize}
 
 \section{Feature-Extrahierung}
 \begin{itemize}
+    \item Datenfenster: Realzeit vs. Diskret mittels Wakeups
+    \item Relevanz von Zeit
     \item Welche Feature werden genutzt?
+    \item Wie werden diese extrahiert?
+    \item Welchen Mehrwert verschaffen diese Features?
+    \item Welchen Einfluss haben Sie im Hinblick auf Ressourcenbedarf(?), Klassifizierungsgenauigkeit(?), Fehlertoleranz(?)
 \end{itemize}
 
 \section{Aufteilung der Daten}
-TODO
+\begin{itemize}
+    \item Kurz und knapp wie und warum werden die Daten aufgeteilt.
+    \item Sollten Trainingsdaten um synthetische Daten ergänzt werden?
+    \begin{itemize}
+        \item Fault Daten, um das Modell Robuster zu machen
+        \item Synthetische Routen
+    \end{itemize}
+    \item Wie viele Trainingsdaten werden benötigt?
+    \begin{itemize}
+        \item Um KNN zu trainieren?
+        \item Um Entscheidungsbaum zu trainieren?
+        \item Ggf. Unterschiede klären
+    \end{itemize}
+\end{itemize}
