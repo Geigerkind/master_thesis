@@ -1,24 +1,15 @@
 \chapter{Entscheidungsbäume}
-TODO: Im Prinzip aus der alten Arbeit kopieren und erweitern mit dem was in den Erfolgen beschrieben wurde.
+Ein Entscheidungsbaum ist ein Baum mit dem Entscheidungen getroffen werden. Das geschieht, indem der Baum von der Wurzel zu einem Blatt traversiert wird. Dabei bestimmt ein Test in jedem
+inneren Knoten, mit welchem Kindknoten fortgefahren wird. Jedes Blatt entspricht einer Entscheidung des Entscheidungsbaums. Es wird unterschieden zwischen Bäumen, die versuchen eine der
+vordefinierten Klassen zu klassifizieren (Klassifizierer), und solchen, die versuchen den nächsten Wert vorherzusagen (Regressoren).
+\newline
+\newline
+Die Konstruktion eines optimalen binären Entscheidungsbaumes ist NP-Vollständig \cite{laurent1976constructing}. Den optimalen Klassifizierer zu finden ist folglich sehr aufwendig.
+Aus diesem Grund werden bei der Konstruktion Heuristiken verwendet, die nur lokal die beste Entscheidung treffen. Zudem werden einzelne Entscheidungsbäume in einem Ensemble zu einen
+Entscheidungswald zusammengefasst, um den lokalen Fehler eines einzelnen Baumes zu reduzieren \cite{ScikitLearnEnsemble}.
 
-\section{Scikit-Learn}
-TODO
-
-\section{Einzelne Entscheidungsbäume}
-TODO
-
-\section{Einsemble-Methoden}
-TODO
-
-\section{Cherry-Picking}
-\begin{itemize}
-    \item Gehe hier auf Monte Carlo etc ein.
-\end{itemize}
-
-\section{Ressourcenbedarf auf dem Mirkocontroller}
-\begin{itemize}
-    \item Energieverbrauch
-    \item Speicherverbrauch
-    \item RAM verbrauch
-    \item Siehe Forschungsprojekt
-\end{itemize}
+\input{chapter/decision_trees/scikit_learn}
+\input{chapter/decision_trees/ind_trees}
+\input{chapter/decision_trees/ensemble_methods}
+\input{chapter/decision_trees/cherry_picking}
+\input{chapter/decision_trees/resource_usage}
