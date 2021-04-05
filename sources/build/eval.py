@@ -24,9 +24,9 @@ NUM_EPOCHS_PER_CYCLE = 75
 
 features = [Features.PreviousLocation, Features.AccessPointDetection, Features.Temperature, Features.Acceleration,
             Features.Heading, Features.Volume, Features.Light]
-# data = DataCompiler([DataSet.SimpleSquare], features, False)
-data = DataCompiler([DataSet.SimpleSquare, DataSet.LongRectangle, DataSet.RectangleWithRamp, DataSet.ManyCorners],
-                    features, True)
+data = DataCompiler([DataSet.SimpleSquare], features, False)
+# data = DataCompiler([DataSet.SimpleSquare, DataSet.LongRectangle, DataSet.RectangleWithRamp, DataSet.ManyCorners],
+#                    features, True)
 
 print("Saving data...")
 with open("/home/shino/Uni/master_thesis/bin/evaluation_data.pkl", 'wb') as file:
@@ -64,6 +64,9 @@ for data_set_index in range(len(data.result_features_dt)):
     dt_next_cycle_labels = dt_next_cycle_labels + data.result_labels_dt[data_set_index][0]
     knn_next_cycle_features = knn_next_cycle_features + data.result_features_knn[data_set_index][0]
     knn_next_cycle_labels = knn_next_cycle_labels + data.result_labels_knn[data_set_index][0]
+
+log_acc_per_cycle = open("/home/shino/Uni/master_thesis/bin/log_accuracy_per_cycle.csv", "w")
+log_acc_per_cycle.write("cycle,accuracy_dt,accuracy_knn\n")
 
 model_knn = 0
 model_dt = 0
@@ -130,12 +133,15 @@ for cycle in range(data.num_cycles - data.num_validation_cycles):
     dt_acc = model_dt.evaluate_accuracy(model_dt.predict(dt_vs_features), dt_vs_labels)
     knn_acc = model_knn.evaluate_accuracy(model_knn.predict(knn_vs_features), knn_vs_labels)
     acc_per_cycle.append((dt_acc, knn_acc))
+    log_acc_per_cycle.write("{0},{1},{2}\n".format(cycle, dt_acc, knn_acc))
 
     print("Accuracy on validation set:")
     print("Accuracy DT: {0}".format(dt_acc))
     print("Accuracy KNN: {0}".format(knn_acc))
 
     print("")
+
+log_acc_per_cycle.close()
 
 print("Saving models...")
 with open("/home/shino/Uni/master_thesis/bin/evaluation_dt_model.pkl", 'wb') as file:

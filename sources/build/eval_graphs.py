@@ -154,8 +154,8 @@ with open("/home/shino/Uni/master_thesis/bin/evaluation_data.pkl", 'rb') as file
 
         test_set_features_dt[0][0] = 5
         test_set_features_dt[0][1] = 5
-        test_set_features_knn[0][0] = 5
-        test_set_features_knn[0][1] = 5
+        test_set_features_knn[0][0] = 5 / data.num_outputs
+        test_set_features_knn[0][1] = 5 / data.num_outputs
 
         generate_graphs("continued_pred_with_faulty_start", model_dt, model_knn, test_set_features_dt, test_set_features_knn,
                         test_set_labels_dt, test_set_labels_knn, data.num_outputs, True)
