@@ -77,10 +77,17 @@ class GraphRecognizedPathSegment:
                 count = count + 1
                 same_prediction_count = 1
             previous_prediction = self.__get_discrete_label(predicted[i])
+
         return np.asarray(result)
 
     def __generate_graph(self):
         path_segments = self.__calculate_path_segments()
+
+        log_file = open(self.file_path + "log_recognized_path_segment.csv", "w")
+        log_file.write("path_segment,recognized_after\n")
+        for i in range(len(path_segments)):
+            log_file.write("{0},{1}\n".format(i, path_segments[i]))
+        log_file.close()
 
         min_value = path_segments.min()
         filtered_path_segments = path_segments[path_segments != self.infinite_number]

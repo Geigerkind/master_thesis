@@ -67,12 +67,16 @@ class GraphPathSegmentMisclassified:
             if self.__get_discrete_label(predicted[i]) != current_location:
                 misclassified_count = misclassified_count + 1
 
+        log_file = open(self.file_path + "log_path_segment_misclassified.csv", "w")
+        log_file.write("path_segment,times_misclassified,path_len\n")
         values = []
         for i in range(len(result)):
+            log_file.write("{0},{1},{2}\n".format(i, result[i], total[i]))
             if total[i] == 0:
                 values.append(0)
             else:
                 values.append(result[i] / total[i])
+        log_file.close()
 
         return values
 
