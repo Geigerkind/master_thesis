@@ -60,14 +60,18 @@ class GraphLocationMisclassified:
             if not self.__compare_predicted(self.test_labels[i], predicted[i]):
                 result[real_label] = result[real_label] + 1
 
+        log_file = open(self.file_path + "log_location_misclassified.csv", "w")
+        log_file.write("location,times_misclassified,total_location\n")
         keys = []
         values = []
         for key in result:
+            log_file.write("{0},{1},{2}\n".format(key, result[key], total[key]))
             keys.append(key)
             if total[key] == 0:
                 values.append(0)
             else:
                 values.append(result[key] / total[key])
+        log_file.close()
         return keys, values
 
     def __generate_graph(self):
