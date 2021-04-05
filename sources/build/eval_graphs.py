@@ -5,6 +5,7 @@ from multiprocessing import cpu_count, Pool
 import numpy as np
 from tensorflow import keras
 
+from sources.metric.compile_log import CompileLog
 from sources.metric.graph_feature_importance import GraphFeatureImportance
 from sources.metric.graph_location_misclassified import GraphLocationMisclassified
 from sources.metric.graph_location_misclassified_distribution import GraphLocationMisclassifiedDistribution
@@ -47,6 +48,9 @@ def generate_graphs(prefix, model_dt, test_set_features_dt, test_set_features_kn
                                   test_set_labels_dt, num_outputs, use_continued_prediction)
     GraphPathSegmentMisclassified(prefix + "_knn", model_knn, False, test_set_features_knn,
                                   test_set_labels_knn, num_outputs, use_continued_prediction)
+
+    CompileLog(prefix + "_dt")
+    CompileLog(prefix + "_knn")
 
 
 def exec_gen_graphs(args):
@@ -176,6 +180,21 @@ with open("/home/shino/Uni/master_thesis/bin/evaluation_data.pkl", 'rb') as file
 
         map_args.append(["continued_pred_with_faulty_start", model_dt, test_set_features_dt,
                          test_set_features_knn, test_set_labels_dt, test_set_labels_knn, data.num_outputs, True])
+
+        log_compiled = open("/home/shino/Uni/master_thesis/bin/evaluation/log_compiled.csv", "w")
+        log_compiled.write("accuracy,accuracy_given_previous_location_was_correct,"
+                           "accuracy_given_location_is_cont_the_same_and_within_5_entries,"
+                           "accuracy_given_location_is_cont_the_same_and_within_10_entries,"
+                           "average_path_recognition_delay,times_not_found_path\n")
+        log_compiled.close()
+
+        log_compiled = open("/home/shino/Uni/master_thesis/bin/evaluation/log_compiled_location.csv", "w")
+        log_compiled.write("location,times_misclassified_as,times_misclassified,total_location\n")
+        log_compiled.close()
+
+        log_compiled = open("/home/shino/Uni/master_thesis/bin/evaluation/log_compiled_path.csv", "w")
+        log_compiled.write("path_segment,recognized_after,times_misclassified,path_len\n")
+        log_compiled.close()
 
         # Evaluate all graphs in parallel
         with Pool(cpu_count()) as pool:
