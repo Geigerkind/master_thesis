@@ -1,12 +1,13 @@
 \chapter{Entscheidungsbäume}
-Ein Entscheidungsbaum ist ein Baum mit dem Entscheidungen getroffen werden. Das geschieht, indem der Baum von der Wurzel zu einem Blatt traversiert wird. Dabei bestimmt ein Test in jedem
-inneren Knoten, mit welchem Kindknoten fortgefahren wird. Jedes Blatt entspricht einer Entscheidung des Entscheidungsbaums. Es wird unterschieden zwischen Bäumen, die versuchen eine der
+\label{chapter:decision_trees}
+Ein Entscheidungsbaum ist ein Baum mit dem Entscheidungen getroffen werden \cite{quinlan1990decision}. Das geschieht, indem der Baum von der Wurzel zu einem Blatt traversiert wird. Dabei bestimmt ein
+Test in jedem inneren Knoten, mit welchem Kindknoten fortgefahren wird. Jedes Blatt entspricht einer Entscheidung des Entscheidungsbaums. Es wird unterschieden zwischen Bäumen, die versuchen eine der
 vordefinierten Klassen zu klassifizieren (Klassifizierer), und solchen, die versuchen den nächsten Wert vorherzusagen (Regressoren).
 \newline
 \newline
 Die Konstruktion eines optimalen binären Entscheidungsbaumes ist NP-Vollständig \cite{laurent1976constructing}. Den optimalen Klassifizierer zu finden ist folglich sehr aufwendig.
 Aus diesem Grund werden bei der Konstruktion Heuristiken verwendet, die nur lokal die beste Entscheidung treffen. Zudem werden einzelne Entscheidungsbäume in einem Ensemble zu einen
-Entscheidungswald zusammengefasst, um den lokalen Fehler eines einzelnen Baumes zu reduzieren \cite{ScikitLearnEnsemble}.
+Entscheidungswald zusammengefasst, um den Fehler eines einzelnen Baumes zu reduzieren \cite{ScikitLearnEnsemble}.
 
 \input{chapter/decision_trees/scikit_learn}
 \input{chapter/decision_trees/ind_trees}
