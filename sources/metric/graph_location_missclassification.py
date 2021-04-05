@@ -59,14 +59,18 @@ class GraphLocationMisclassification:
                 result[predicted_label] = result[predicted_label] + 1
                 total = total + 1
 
+        log_file = open(self.file_path + "log_location_misclassification.csv", "w")
+        log_file.write("location,times_misclassified_as\n")
         keys = []
         values = []
         for key in result:
+            log_file.write("{0},{1}\n".format(key, result[key]))
             keys.append(key)
             if total == 0:
                 values.append(0)
             else:
                 values.append(result[key] / total)
+        log_file.close()
         return keys, values
 
     def __generate_graph(self):
