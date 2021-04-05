@@ -68,6 +68,9 @@ for data_set_index in range(len(data.result_features_dt)):
 log_acc_per_cycle = open("/home/shino/Uni/master_thesis/bin/log_accuracy_per_cycle.csv", "w")
 log_acc_per_cycle.write("cycle,accuracy_dt,accuracy_knn\n")
 
+log_knn_hist = open("/home/shino/Uni/master_thesis/bin/log_knn_history.csv", "w")
+log_knn_hist.write("cycle,index,loss,accuracy,val_loss,val_accuracy\n")
+
 model_knn = 0
 model_dt = 0
 for cycle in range(data.num_cycles - data.num_validation_cycles):
@@ -133,7 +136,6 @@ for cycle in range(data.num_cycles - data.num_validation_cycles):
     dt_acc = model_dt.evaluate_accuracy(model_dt.predict(dt_vs_features), dt_vs_labels)
     knn_acc = model_knn.evaluate_accuracy(model_knn.predict(knn_vs_features), knn_vs_labels)
     acc_per_cycle.append((dt_acc, knn_acc))
-    log_acc_per_cycle.write("{0},{1},{2}\n".format(cycle, dt_acc, knn_acc))
 
     print("Accuracy on validation set:")
     print("Accuracy DT: {0}".format(dt_acc))
@@ -141,7 +143,15 @@ for cycle in range(data.num_cycles - data.num_validation_cycles):
 
     print("")
 
+    log_acc_per_cycle.write("{0},{1},{2}\n".format(cycle, dt_acc, knn_acc))
+    knn_hist = model_knn.get_history()
+    for i in range(NUM_EPOCHS_PER_CYCLE):
+        log_knn_hist.write(
+            "{0},{1},{2},{3},{4},{5}\n".format(cycle, i, knn_hist["loss"][i], knn_hist["accuracy"][i],
+                                               knn_hist["val_loss"][i], knn_hist["val_accuracy"][i]))
+
 log_acc_per_cycle.close()
+log_knn_hist.close()
 
 print("Saving models...")
 with open("/home/shino/Uni/master_thesis/bin/evaluation_dt_model.pkl", 'wb') as file:
