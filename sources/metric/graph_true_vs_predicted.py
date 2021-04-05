@@ -43,6 +43,26 @@ class GraphTrueVsPredicted:
             y_true_position = [np.asarray(x).argmax() for x in self.test_labels]
             y_predicted_position = [np.asarray(x).argmax() for x in predicted]
 
+        accuracy = 0
+        for i in range(len(y_true_position)):
+            if y_true_position[i] == y_predicted_position[i]:
+                accuracy = accuracy + 1
+        accuracy = accuracy / len(y_true_position)
+
+        accuracy_given_previous_location_was_correct = 0
+        total_prev_location_correct = 0
+        for i in range(1, len(y_true_position)):
+            if y_true_position[i - 1] == y_predicted_position[i - 1]:
+                total_prev_location_correct = total_prev_location_correct + 1
+                if y_true_position[i] == y_predicted_position[i]:
+                    accuracy_given_previous_location_was_correct = accuracy_given_previous_location_was_correct + 1
+        accuracy_given_previous_location_was_correct = accuracy_given_previous_location_was_correct / total_prev_location_correct
+
+        log_file = open(self.file_path + "log_true_vs_predicted.csv", "w")
+        log_file.write("accuracy,accuracy_given_previous_location_was_correct\n")
+        log_file.write("{0},{1}".format(accuracy, accuracy_given_previous_location_was_correct))
+        log_file.close()
+
         fig, ax1 = plt.subplots()
         ax1.plot(range(len(predicted)), y_true_position, "o-g")
         ax1.plot(range(len(predicted)), y_predicted_position, "*-b")
