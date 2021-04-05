@@ -1,7 +1,8 @@
 import pickle
 import random
-import numpy as np
+from multiprocessing import cpu_count, Pool
 
+import numpy as np
 from tensorflow import keras
 
 from sources.metric.graph_feature_importance import GraphFeatureImportance
@@ -13,8 +14,10 @@ from sources.metric.graph_recognized_path_segment import GraphRecognizedPathSegm
 from sources.metric.graph_true_vs_predicted import GraphTrueVsPredicted
 
 
-def generate_graphs(prefix, model_dt, model_knn, test_set_features_dt, test_set_features_knn, test_set_labels_dt,
+def generate_graphs(prefix, model_dt, test_set_features_dt, test_set_features_knn, test_set_labels_dt,
                     test_set_labels_knn, num_outputs, use_continued_prediction):
+    # Loaded here cause it cant be pickled
+    model_knn = keras.models.load_model("/home/shino/Uni/master_thesis/bin/evaluation_knn_model.h5")
     GraphTrueVsPredicted(prefix + "_dt", model_dt, True, test_set_features_dt,
                          test_set_labels_dt, num_outputs, use_continued_prediction)
     GraphTrueVsPredicted(prefix + "_knn", model_knn, False, test_set_features_knn,
@@ -46,11 +49,18 @@ def generate_graphs(prefix, model_dt, model_knn, test_set_features_dt, test_set_
                                   test_set_labels_knn, num_outputs, use_continued_prediction)
 
 
+def exec_gen_graphs(args):
+    prefix, model_dt, test_set_features_dt, test_set_features_knn, test_set_labels_dt, \
+    test_set_labels_knn, num_outputs, use_continued_prediction = args
+    generate_graphs(prefix, model_dt, test_set_features_dt, test_set_features_knn, test_set_labels_dt,
+                    test_set_labels_knn, num_outputs, use_continued_prediction)
+
+
 with open("/home/shino/Uni/master_thesis/bin/evaluation_data.pkl", 'rb') as file:
     data = pickle.load(file)
     with open("/home/shino/Uni/master_thesis/bin/evaluation_dt_model.pkl", 'rb') as file:
+        map_args = []
         model_dt = pickle.load(file)
-        model_knn = keras.models.load_model("/home/shino/Uni/master_thesis/bin/evaluation_knn_model.h5")
 
         # Feature Importance
         GraphFeatureImportance("evaluation", model_dt)
@@ -61,11 +71,11 @@ with open("/home/shino/Uni/master_thesis/bin/evaluation_data.pkl", 'rb') as file
         test_set_labels_dt = np.asarray(data.result_labels_dt[0][19]).copy()
         test_set_labels_knn = np.asarray(data.result_labels_knn[0][19]).copy()
 
-        generate_graphs("evaluation_continued", model_dt, model_knn, test_set_features_dt, test_set_features_knn,
-                        test_set_labels_dt, test_set_labels_knn, data.num_outputs, True)
+        map_args.append(["evaluation_continued", model_dt, test_set_features_dt, test_set_features_knn,
+                         test_set_labels_dt, test_set_labels_knn, data.num_outputs, True])
 
-        generate_graphs("evaluation", model_dt, model_knn, test_set_features_dt, test_set_features_knn,
-                        test_set_labels_dt, test_set_labels_knn, data.num_outputs, False)
+        map_args.append(["evaluation", model_dt, test_set_features_dt, test_set_features_knn,
+                         test_set_labels_dt, test_set_labels_knn, data.num_outputs, False])
 
         # Previous Location with offset
         test_set_features_dt_offset = np.asarray(data.result_features_dt[0][19]).copy()
@@ -77,8 +87,9 @@ with open("/home/shino/Uni/master_thesis/bin/evaluation_data.pkl", 'rb') as file
             test_set_features_knn_offset[i][0] = test_set_features_knn_offset[i - 10][0]
             test_set_features_knn_offset[i][1] = test_set_features_knn_offset[i - 10][1]
 
-        generate_graphs("prev_location_offset", model_dt, model_knn, test_set_features_dt_offset,
-                        test_set_features_knn_offset, test_set_labels_dt, test_set_labels_knn, data.num_outputs, False)
+        map_args.append(["prev_location_offset", model_dt, test_set_features_dt_offset,
+                         test_set_features_knn_offset, test_set_labels_dt, test_set_labels_knn, data.num_outputs,
+                         False])
 
         # Wrong previous location
         test_set_features_dt_random_location = np.asarray(data.result_features_dt[0][19]).copy()
@@ -90,51 +101,57 @@ with open("/home/shino/Uni/master_thesis/bin/evaluation_data.pkl", 'rb') as file
             test_set_features_knn_random_location[i][0] = random.randint(0, data.num_outputs) / data.num_outputs
             test_set_features_knn_random_location[i][1] = random.randint(1, data.num_outputs) / data.num_outputs
 
-        generate_graphs("random_prev_location", model_dt, model_knn, test_set_features_dt_random_location,
-                        test_set_features_knn_random_location, test_set_labels_dt, test_set_labels_knn,
-                        data.num_outputs, False)
+        map_args.append(["random_prev_location", model_dt, test_set_features_dt_random_location,
+                         test_set_features_knn_random_location, test_set_labels_dt, test_set_labels_knn,
+                         data.num_outputs, False])
 
         # Nulled Acceleraton
         test_set_features_dt_nulled = np.asarray(data.faulty_features_dt[1][19]).copy()
         test_set_features_knn_nulled = np.asarray(data.faulty_features_knn[1][19]).copy()
 
-        generate_graphs("nulled_acceleration", model_dt, model_knn, test_set_features_dt_nulled,
-                        test_set_features_knn_nulled, test_set_labels_dt, test_set_labels_knn, data.num_outputs, False)
+        map_args.append(["nulled_acceleration", model_dt, test_set_features_dt_nulled,
+                         test_set_features_knn_nulled, test_set_labels_dt, test_set_labels_knn, data.num_outputs,
+                         False])
 
         # Nulled Light
         test_set_features_dt_nulled = np.asarray(data.faulty_features_dt[2][19]).copy()
         test_set_features_knn_nulled = np.asarray(data.faulty_features_knn[2][19]).copy()
 
-        generate_graphs("nulled_light", model_dt, model_knn, test_set_features_dt_nulled,
-                        test_set_features_knn_nulled, test_set_labels_dt, test_set_labels_knn, data.num_outputs, False)
+        map_args.append(["nulled_light", model_dt, test_set_features_dt_nulled,
+                         test_set_features_knn_nulled, test_set_labels_dt, test_set_labels_knn, data.num_outputs,
+                         False])
 
         # Nulled Accesspoint
         test_set_features_dt_nulled = np.asarray(data.faulty_features_dt[3][19]).copy()
         test_set_features_knn_nulled = np.asarray(data.faulty_features_knn[3][19]).copy()
 
-        generate_graphs("nulled_access_point", model_dt, model_knn, test_set_features_dt_nulled,
-                        test_set_features_knn_nulled, test_set_labels_dt, test_set_labels_knn, data.num_outputs, False)
+        map_args.append(["nulled_access_point", model_dt, test_set_features_dt_nulled,
+                         test_set_features_knn_nulled, test_set_labels_dt, test_set_labels_knn, data.num_outputs,
+                         False])
 
         # Nulled Temperature
         test_set_features_dt_nulled = np.asarray(data.faulty_features_dt[5][19]).copy()
         test_set_features_knn_nulled = np.asarray(data.faulty_features_knn[5][19]).copy()
 
-        generate_graphs("nulled_temperature", model_dt, model_knn, test_set_features_dt_nulled,
-                        test_set_features_knn_nulled, test_set_labels_dt, test_set_labels_knn, data.num_outputs, False)
+        map_args.append(["nulled_temperature", model_dt, test_set_features_dt_nulled,
+                         test_set_features_knn_nulled, test_set_labels_dt, test_set_labels_knn, data.num_outputs,
+                         False])
 
         # Nulled Heading
         test_set_features_dt_nulled = np.asarray(data.faulty_features_dt[4][19]).copy()
         test_set_features_knn_nulled = np.asarray(data.faulty_features_knn[4][19]).copy()
 
-        generate_graphs("nulled_heading", model_dt, model_knn, test_set_features_dt_nulled,
-                        test_set_features_knn_nulled, test_set_labels_dt, test_set_labels_knn, data.num_outputs, False)
+        map_args.append(["nulled_heading", model_dt, test_set_features_dt_nulled,
+                         test_set_features_knn_nulled, test_set_labels_dt, test_set_labels_knn, data.num_outputs,
+                         False])
 
         # Nulled Volume
         test_set_features_dt_nulled = np.asarray(data.faulty_features_dt[6][19]).copy()
         test_set_features_knn_nulled = np.asarray(data.faulty_features_knn[6][19]).copy()
 
-        generate_graphs("nulled_volume", model_dt, model_knn, test_set_features_dt_nulled,
-                        test_set_features_knn_nulled, test_set_labels_dt, test_set_labels_knn, data.num_outputs, False)
+        map_args.append(["nulled_volume", model_dt, test_set_features_dt_nulled,
+                         test_set_features_knn_nulled, test_set_labels_dt, test_set_labels_knn, data.num_outputs,
+                         False])
 
         # Permuted path
         test_set_features_dt_faulty = np.asarray(data.faulty_features_dt[0][18]).copy()
@@ -142,9 +159,9 @@ with open("/home/shino/Uni/master_thesis/bin/evaluation_data.pkl", 'rb') as file
         test_set_labels_dt_faulty = np.asarray(data.faulty_labels_dt[0][18]).copy()
         test_set_labels_knn_faulty = np.asarray(data.faulty_labels_knn[0][18]).copy()
 
-        generate_graphs("permuted_path", model_dt, model_knn, test_set_features_dt_faulty,
-                        test_set_features_knn_faulty, test_set_labels_dt_faulty, test_set_labels_knn_faulty,
-                        data.num_outputs, False)
+        map_args.append(["permuted_path", model_dt, test_set_features_dt_faulty,
+                         test_set_features_knn_faulty, test_set_labels_dt_faulty, test_set_labels_knn_faulty,
+                         data.num_outputs, False])
 
         # Continued prediction with faulty beginning
         test_set_features_dt = np.asarray(data.result_features_dt[0][19]).copy()
@@ -157,5 +174,11 @@ with open("/home/shino/Uni/master_thesis/bin/evaluation_data.pkl", 'rb') as file
         test_set_features_knn[0][0] = 5 / data.num_outputs
         test_set_features_knn[0][1] = 5 / data.num_outputs
 
-        generate_graphs("continued_pred_with_faulty_start", model_dt, model_knn, test_set_features_dt, test_set_features_knn,
-                        test_set_labels_dt, test_set_labels_knn, data.num_outputs, True)
+        map_args.append(["continued_pred_with_faulty_start", model_dt, test_set_features_dt,
+                         test_set_features_knn, test_set_labels_dt, test_set_labels_knn, data.num_outputs, True])
+
+        # Evaluate all graphs in parallel
+        with Pool(cpu_count()) as pool:
+            pool.map(exec_gen_graphs, map_args)
+            pool.close()
+            pool.join()
