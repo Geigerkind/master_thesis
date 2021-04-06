@@ -1,7 +1,58 @@
 \section{Ressourcenbedarf auf dem Mikrocontroller}
-\begin{itemize}
-    \item Energieverbrauch
-    \item Speicherverbrauch
-    \item RAM verbrauch
-    \item Siehe Forschungsprojekt
-\end{itemize}
+\label{sec:dt_resource_usage}
+Zukünftig soll das Modell auf einem Mikrocontroller ausgeführt werden \cite{antragForschungsprojekt}.
+Mikrocontroller sind stark limitiert in ihrer Rechenleistung, Speicherkapazität, RAM und werden oft zudem mit einer Batterie betrieben.
+Aus diesem Grund ist der Energieverbrauch zu minimieren und das Modell muss innerhalb dieser Limitierungen operieren können.
+
+\subsection{Ausführungszeit und Energieverbrauch}
+\label{sub_sec:dt_ru_execution_time}
+Der Energieverbrauch korreliert mit der Ausführungszeit.
+Je länger die CPU ausgeschaltet ist, desto weniger Energie wird verbraucht.
+Kurze Ausführungszeiträume vergrößern den Zeitraum, in dem die CPU ausgeschaltet sein kann.
+Die Ausführungszeit ist die Zeit die benötigt wird, um alle Instruktionen auszuführen \cite{dymelThesis}.
+Jede Instruktion bedarf eine bestimmte Anzahl an CPU-Zyklen.
+Die Zeit pro Zyklus ist abhängig von der Taktrate der CPU.
+\newline
+\newline
+Die Ausführungszeit eines Entscheidungswaldes setzt sich zusammen aus der Zeit für die Feature-Extrahierung, der Evaluierung aller im Ensemble enthaltenen Entscheidungsbäume
+und der Aggregierungsfunktion.
+Im schlimmsten Fall muss die gesamte Höhe eines Entscheidungsbaumes traversiert werden, um das Ergebnis zu bestimmen. Aus diesem Grund skaliert die Ausführungszeit mit der
+traversierten Höhe jedes Baumes.
+\newline
+\newline
+Um die Instruktionen zu minimieren sollten Datentypen verwendet werden, die von der CPU mit höchstens einem Wort dargestellt werden können.
+Eine 8-Bit CPU würde zum Laden in Register eines 32-Bit Datentypen vier mal so viele Instruktionen benötigen wie bei einem 8-Bit Datentypen.
+Außerdem sollten Operationen verwendet werden, die durch die von der CPU in Hardware abgebildet werden können.
+Ist dem nicht so, muss diese Operation durch Software ersetzt werden.
+Dies erfordert mehr Zyklen als eine native Operation in Hardware.
+\newline
+\newline
+Zu Beachten bei der Minimierung ist, dass Instruktionen unterschiedlich viele Zyklen benötigen und Funktionsaufrufe Overhead erzeugen.
+Ein Beispiel dafür ist die Optimierung \textit{Function Inlining} \cite{leupers1999function}.
+Der Aufruf von Funktionen kann einen hohen Overhead durch den Kontextwechsel erzeugen.
+Aus diesem Grund verringert diese Optimierung die Ausführungszeit, erhöht aber die die Programmgröße signifikant.
+Im Umkehrschluss könnten durch die Verwendung von Funktionen Instruktionen eingespart werden, Ausführungszeit und Energieverbrauch aber erhöht werden.
+
+\subsection{Programmgröße}
+\label{sub_sec:dt_ru_programm_size}
+Die Programmgröße ist die Gesamtheit aller Instruktionen die für das Programm benötigt werden \cite{dymelThesis}.
+Dabei ist der Anteil für die Entscheidungswälder integral und der Anteil für die perifären Funktionalitäten zu vernachlässigen.
+Die Programmgröße, die für einen Entscheidungswald benötigt wird, skaliert mit der Waldgröße und Höhe der einzelnen Entscheidungsbäume.
+\newline
+\newline
+Die Höhe des Entscheidungsbaumes ist die Verzweigungstiefe der verschachtelten Tests.
+Jeder Test ist ein Vergleich mit einem Schwellenwert.
+Die Programmgröße für einen Vergleich setzt sich zusammen aus den Operationen um die Operanden in die Register zu laden
+und die Instruktion um den Vergleich durchzuführen, sowie Abzweiginstruktionen. Wie in Kapitel \ref{sub_sec:dt_ru_execution_time}
+sind Instruktionen durch einen passenden Datentypen zu vermeiden.
+\newline
+\newline
+Ein weiterer Faktor sind die Instruktionen, die zur Rückgabe des Klassifizierungsergebnis benötigt werden.
+In Kapitel \ref{sec:dt_ensemble_methods} wurden verschiedene möglichkeiten der Rückgabe diskutiert, die relevant bei dem Aggregierungsprozess eines Ensembles ist.
+Einerseits kann die Rückgabe eine Wahrscheinlichkeitsverteilung sein und andererseits eine diskrete Klasse.
+Bei $m$ möglichen Klassen würde die erste Variante $m$-mal so viele Instruktion benötigen, wie die zweite Variante, da der Rückgabe Vektor zuvor mit der Wahrscheinlichkeitsverteilung gefüllt werden muss.
+In der Praxis werden aber weniger Instruktion benötigt, da es eine große Überschneidung der Wahrscheinlichkeitsverteilungen gibt, die zurück gegeben werden.
+Die Instruktionen, um den Rückgabevektor zu befüllen, können durch \textit{Basic Blocks}, d. h. beschriftete Instruktionsblöcke, geschickt recycled werden.
+Zudem können Zuweisungen ausgelassen werden, die die Wahrscheinlichkeit 0 zuweisen, da der Vektor mit Nullen initialisiert wird.
+Dennoch werden signifikant mehr Instruktionen benötigt.
+Aus diesem Grund wurde ein hybrider Ansatz vorgeschlagen, der im Falle eines eindeutigen Ergebnisses mit einer Toleranz von $\epsilon\in [0, 1]$ die diskrete Klasse statt der Wahrscheinlichkeitsverteilung zurück gibt.

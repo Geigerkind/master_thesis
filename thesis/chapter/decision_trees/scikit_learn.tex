@@ -1,14 +1,14 @@
 \section{Scikit-Learn}
 \label{sec:dt_scikit_learn}
-Diese Arbeit verwendet die Python ML-Bibliothek \textit{Scikit-Learn}. Scikit-Learn bietet verschiedene ML Algorithmen an mit einem High-Level Interface \cite{scikit-learn}.
+Diese Arbeit verwendet die Python ML-Bibliothek \textit{Scikit-Learn}. Scikit-Learn bietet verschiedene ML Algorithmen mit einem High-Level Interface an \cite{scikit-learn}.
 Zur Konstruktion der Entscheidungsbäume wird der Algorithmus von CART verwendet \cite{ScikitLearnCART}.
 Die Bibliothek kann Klassifizierer und Regressoren generieren.
 \newline
 \newline
 Relevant ist jedoch lediglich der Klassifizierer, da in dieser Arbeit ein Klassifizierungsproblem gelöst werden soll. Dieser bietet zahlreiche Hyperparameter an, um die Konstruktion des
-Entscheidungsbaumes zu steuern. In dieser Arbeit wird lediglich der Hyperparameter \texttt{max\_depth} verwendet. Dieser Hyperparameter beschränkt die maximale Baumhöhe und begrenzt somit
+Entscheidungsbaumes zu steuern. In dieser Arbeit wird der Hyperparameter \texttt{max\_depth} verwendet. Dieser Hyperparameter beschränkt die maximale Baumhöhe und begrenzt somit
 den Programmspeicherverbrauch.
 \newline
 \newline
 Scikit-Learn bietet Ensemble-Methoden an, um Entscheidungswälder zu trainieren. Ein wichtiger Parameter diese Methoden ist \texttt{n\_estimators}. Dieser steuert die Größe des Ensembles bzw.
-Waldgröße. Somit hat auch dieser Parameter Einfluss auf den Programmspeicherverbrauch.
+die Waldgröße. Somit hat auch dieser Parameter Einfluss auf den Programmspeicherverbrauch.
