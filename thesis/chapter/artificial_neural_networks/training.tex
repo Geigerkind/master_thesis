@@ -1,0 +1,27 @@
+\section{Training von KNN}
+Um die Zielfunktion zu approximieren ist eine Kostenfunktion nötig, die den Abstand von der approximierten Funktion zu der Zielfunktion angibt.
+Im Optimierungsprozess wird die Kostenfunktion minimiert. Oft wird die Kostenfunktion auch als Verlustfunktion bezeichnet.
+Die Kostenfunktion kann aber zusätzlich noch Regulurisierungsterme besitzen.
+Üblicherweise wird Kreuzentropie für die Verlustfunktion verwendet, da sich diese experimentell als Beste Verlustfunktion für flache KNN erwiesen hat.
+\newline
+\newline
+Das KNN wird für eine endliche Anzahl an Trainingsdurläufen trainiert.
+Ein Trainingsdurchlauf einer Trainingsmenge wird als Epoche bezeichnet.
+Mit jeder Epoche werden die Kosten erhoben und der Optimierer wird ausgeführt.
+Der Fehler wird dabei rückwerts durch das KNN propagiert, wodurch die Parameter $\boldsymbol\theta$ sich verändern.
+Dieser Vorgang wird als \textit{Backpropagation} bezeichnet.
+Zu den Parametern gehört die Struktur des neuronalen Netzwerks, Aktivierungsfunktionen, Gewichte und Bias.
+Mit Fehler ist der Unterschied von dem des KNN ermittelten Wertes zu dem Zielwert gemeint.
+\newline
+\newline
+Abhängig von der Strategie des Optimierers müssen die Gradienten rückwerts, rekursiv Schicht für Schicht zurück propagiert werden.
+Ziel ist es den Fehler unter Berücksichtigung der Parameter zurück zu propagieren.
+Dafür ist es nötig die Ableitungen von der Kostenfunktion zu den Parametern zu berechnen.
+Gleichung \ref{formular:general_knn} zeigt, dass das Ergebnis einer Schicht die Aktivierung der gewichteten Summe des
+Ergebnises der jeweiligen vorherigen Schicht ist.
+Um die Ableitungen unter Berücksichtigung der Parameter zu berechnen ist die Anwendung der Kettenregel nötig.
+\newline
+\newline
+Angefangen mit dem Gradienten der Aktivierungen der Ausgabeschicht, wird der Fehler rekursiv zurück propagiert.
+Dabei wird in jeder Schicht die Korrektur auf die Parameter addiert.
+Anschließend kann der Vorgang für nächste Epoche wiederholt werden.

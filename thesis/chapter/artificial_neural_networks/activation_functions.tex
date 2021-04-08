@@ -1,0 +1,34 @@
+\section{Aktivierungsfunktionen}
+Die Aktivierungsfunktion trennt die einzelnen Schichten von einander, indem sie nicht-linearität einführt (TODO: Quelle).
+Aktivierungsfunktion sollten kontinuierlich und differenzierbar sein.
+Dies ist wichtig für den \textit{Backpropagation}-Prozess beim Trainieren.
+Sie unterscheiden sich in ihren Eigenschaften und Berechnungskosten, was eine besondere Rolle für Mikrocontroller spielt.
+Es gibt viele verschiedene Aktivierungsfunktionen, eingeteilt in Familien.
+\newline
+\newline
+In der \textit{Heaviside}-Familie sind die Funktionen \textit{Heaviside}, \textit{modifizierte Heaviside} und die \textit{Logistik} enthalten.
+Die Heaviside-Funktion, oder auch Stufenfunktion, ist die Aktivierungsfunktion des biologischen Modells.
+Sie ist aber nicht kontinuierlich bei 0 und damit nicht differenzierbar.
+Dies stellt ein Problem für neuronale Netze dar, da einerseits sie einerseits unsymmetrisch ist und andererseits die Information über die Distanz zur Entscheidungsgrenze verloren geht.
+Die modifizierte Heavisde-Funktion löst das erste Problem, indem 0 der Wert $\frac{1}{2}$ zugeordnet wird.
+Das zweite Problem kann durch \textit{sigmoidal} Funktionen gelöst werden.
+Eine Variante ist die Logistikfunktion, welche in der frühen Geschichte der neuronalen Netzwerke verwendet wurde.
+Sie ist kontinuierlich und differenzierbar. Der Wert der Ableitung ist in der Rechweite $[0, \frac{1}{4}]$.
+Dadurch ist sie ungeeignet für tiefe neuronale Netzwerke, da dadurch der Gradient bereits nach wenigen Schichten gegen 0 geht.
+Eine Generalisierung der Logistikfunktion ist die \textit{SoftMax}-Funktion oder normalisierte Exponentialfunktion.
+Diese wird häufig in der Ausgabeschicht, da ihre Ausgabewerte in der Summe 1 ergeben und sie aus diesem Grund als Wahrscheinlichkeit für jede Klasse betrachtet werden können.
+\newline
+\newline
+Zur \textit{ReLU}-Familie gehört die ReLU-Funktion und ihre Varianten, sowie die \textit{SoftPlus}- und \textit{Swish}-Funktion.
+ReLU steht für \glqq\textit{rectified linear function}\grqq\ und wird häufig in modernen neuronalen Netzwerken verwendet.
+Sie ist nicht differenzierbar bei 0 und die Ableitung für negative Eingaben ist 0.
+Dafür ist die Ableitung der Funktion ansonsten 1, was sehr gut für den Backpropagation-Prozess ist, da dadurch der Gradient unverändert ist.
+Zudem ist sie sehr leicht zu berechnen.
+Varianten sind \textit{leaky ReLU} und \textit{ELU (exponential linear unit)} welche versuchen das Problem bei 0 zu lösen.
+\textit{SoftPlus} ist analytisch, dafür aber aufwendiger zu berechnen im Vergleich zu ReLU.
+Eine weitere Variante ist \textit{Swish}. Sie ist analytisch aber nicht monoton.
+Im Vergleich zu ReLU ist sie aufwendig zu berechnen.
+Ihre Autoren behaupten aber, dass dadurch bessere Ergebnisse erzielt werden können, ohne andere Parameter zu ändern.
+\newline
+\newline
+Daneben gibt es noch die \textit{Sign}-Familie und die \textit{Abs}-Familie, die in dieser Arbeit nicht verwendet werden (TODO: Quelle).
