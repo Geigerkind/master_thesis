@@ -10,6 +10,7 @@ from sklearn.model_selection import train_test_split
 from sources.decision_tree.ensemble_method import EnsembleMethod
 
 
+# TODO: API Kommentare
 class GenerateDecisionTree:
     def __init__(self, ensemble_method, n_estimators, max_depth):
         self.ensemble_method = ensemble_method

@@ -77,7 +77,7 @@ for cycle in range(data.num_cycles - data.num_validation_cycles):
     print("Training cycle: {0}".format(cycle))
     print("Initializing...")
     # Reinitializing to make sure that there is no partial learning
-    model_dt = GenerateDecisionTree(EnsembleMethod.RandomForest, 64, 100)
+    model_dt = GenerateDecisionTree(EnsembleMethod.RandomForest, 16, 20)
     model_knn = GenerateFFNN(data.num_inputs, data.num_outputs)
 
     print("Preparing input data...")

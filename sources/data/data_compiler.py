@@ -160,6 +160,7 @@ def process_data_set(args):
     return new_df
 
 
+# TODO: Sag was das Ding macht.
 class DataCompiler:
     def __init__(self, data_sets, features, train_with_faulty_data=False, use_synthetic_routes=False, proximity=0.1):
         # Configuration
