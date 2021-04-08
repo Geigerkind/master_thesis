@@ -52,7 +52,7 @@ Dafür nutzt es die Multikernarchitektur von CPUs, GPUs und spezialisierte Hardw
 Es wurde als open-source Projekt veröffentlicht und ist weit verbreitet.
 \newline
 \newline
-Keras bietet die in dieser Arbeit benötigten Algorithmen an, weshalb sie zum Trainieren von FFNNs verwendet wird.
+Keras bietet die in dieser Arbeit benötigten Algorithmen an, weshalb es zum Trainieren von FFNNs verwendet wird.
 
 \section{Training von KNN}
 \begin{itemize}
@@ -136,7 +136,7 @@ und Anteilweise das Hadamard-Produkt des Gradienten der Kostenfunktion addiert w
 \begin{align}
     \label{formular:rmsprop}
     \textbf{w}_{-1} = \textbf{0}, \hspace{0.6cm}
-    \textbf{g}_k = \bigtriangledown C_{j_k}(\textbf{x}_k), \hspace{0.6cm}
+    \textbf{g}_k = \bigtriangledown C_{j_k}(\textbf{x}_k), \hspace{2cm} \nonumber\\
     \textbf{w}_k = \textbf{w}_{k-1}\gamma + \textbf{g}_k^2 (1-\gamma), \hspace{0.6cm}
     \textbf{x}_{k+1} = \textbf{x}_k - \textbf{g}_k \circ \frac{\eta}{\sqrt{\textbf{w}_k + \epsilon}}
 \end{align}
@@ -145,8 +145,9 @@ Adam nutzt zwei Hilfsvektoren $\textbf{v}$ und $\textbf{w}$, die mit einer Zerfa
 sowohl Momentum nutzt, um lokale Extrema zu überbrücken, und passt die Lernrate im Laufe des Trainingsprozesses an.
 \begin{align}
     \label{formular:adam}
+    \textbf{v}_{-1} = \textbf{w}_{-1} = \textbf{0}, \hspace{3.5cm} \nonumber\\
     \textbf{g}_k = \bigtriangledown C_{j_k}(\textbf{x}_k), \hspace{0.6cm}
-    \textbf{v}_k = \textbf{v}_{k-1}\gamma_1 + \textbf{g}_k (1-\gamma_1), \hspace{0.6cm} \nonumber\\
+    \textbf{v}_k = \textbf{v}_{k-1}\gamma_1 + \textbf{g}_k (1-\gamma_1), \hspace{1cm} \nonumber\\
     \textbf{w}_k = \textbf{w}_{k-1}\gamma_2 + \textbf{g}_k^2 (1-\gamma_2), \hspace{0.6cm}
     \textbf{x}_{k+1} = \textbf{x}_k - \textbf{v}_k \circ \frac{\eta}{\sqrt{\textbf{w}_k + \epsilon}}
 \end{align}
