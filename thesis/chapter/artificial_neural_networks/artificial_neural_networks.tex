@@ -34,7 +34,9 @@ Die Schwellenwerte jedes Neuronen werden durch die Biase $\textbf{b}_i\in\mathbb
 Gleichung \ref{formular:general_knn} zeigt, wie das allgemeine KNN mit einer rekursiven Funktion modelliert werden kann.
 \begin{align}
     \label{formular:general_knn}
-    \textbf{a}_1 := \textbf{x}, \hspace{1cm} \textbf{z}_i := \textbf{W}_i\textbf{a}_i + \textbf{b}_i, \hspace{1cm} \textbf{a}_{i+1} := a_i(\textbf{z}_i), \hspace{1cm} \textbf{f(x)} := \textbf{a}_m
+    \textbf{a}_1 := \textbf{x}, \hspace{1cm}
+    \textbf{z}_i := \textbf{W}_i\textbf{a}_i + \textbf{b}_i, \hspace{1cm}
+    \textbf{a}_{i+1} := a_i(\textbf{z}_i), \hspace{1cm} \textbf{f(x)} := \textbf{a}_m
 \end{align}
 Diese Arbeit nutzt ausschließelich \textit{Feed Forward neuronale Netzwerke}.
 Diese werden durch \textit{dichte Schichten (engl. Dense-Layer)} charakterisiert, d. h. Schichten in denen alle Neuronen einer Schicht mit allen Neuronen der folgenden Schicht verbunden sind.
@@ -55,18 +57,34 @@ Es wurde als open-source Projekt veröffentlicht und ist weit verbreitet.
 Keras bietet die in dieser Arbeit benötigten Algorithmen an, weshalb es zum Trainieren von FFNNs verwendet wird.
 
 \section{Training von KNN}
-\begin{itemize}
-    \item Backpropagation von FFNN
-    \item Gehe auch auf Verlust (loss) und Verlustfunktionen ein => Zusammenhang Optimierungsproblem
-    \item Exploding/Vanishing Gradient Problem und wie es mit Aktivierungsfunktionen
-\end{itemize}
+Um die Zielfunktion zu approximieren ist eine Kostenfunktion nötig, die den Abstand von der approximierten Funktion zu der Zielfunktion angibt.
+Im Optimierungsprozess wird die Kostenfunktion minimiert. Oft wird die Kostenfunktion auch als Verlustfunktion bezeichnet.
+Die Kostenfunktion kann aber zusätzlich noch Regulurisierungsterme besitzen.
+Üblicherweise wird Kreuzentropie für die Verlustfunktion verwendet, da sich diese experimentell als Beste Verlustfunktion für flache KNN erwiesen hat.
+\newline
+\newline
+Das KNN wird für eine endliche Anzahl an Trainingsdurläufen trainiert.
+Ein Trainingsdurchlauf einer Trainingsmenge wird als Epoche bezeichnet.
+Mit jeder Epoche werden die Kosten erhoben und der Optimierer wird ausgeführt.
+Der Fehler wird dabei rückwerts durch das KNN propagiert, wodurch die Parameter $\boldsymbol\theta$ sich verändern.
+Dieser Vorgang wird als \textit{Backpropagation} bezeichnet.
+Zu den Parametern gehört die Struktur des neuronalen Netzwerks, Aktivierungsfunktionen, Gewichte und Bias.
+Mit Fehler ist der Unterschied von dem des KNN ermittelten Wertes zu dem Zielwert gemeint.
+\newline
+\newline
+Abhängig von der Strategie des Optimierers müssen die Gradienten rückwerts, rekursiv Schicht für Schicht zurück propagiert werden.
+Ziel ist es den Fehler unter Berücksichtigung der Parameter zurück zu propagieren.
+Dafür ist es nötig die Ableitungen von der Kostenfunktion zu den Parametern zu berechnen.
+Gleichung \ref{formular:general_knn} zeigt, dass das Ergebnis einer Schicht die Aktivierung der gewichteten Summe des
+Ergebnises der jeweiligen vorherigen Schicht ist.
+Um die Ableitungen unter Berücksichtigung der Parameter zu berechnen ist die Anwendung der Kettenregel nötig.
+\newline
+\newline
+Angefangen mit dem Gradienten der Aktivierungen der Ausgabeschicht, wird der Fehler rekursiv zurück propagiert.
+Dabei wird in jeder Schicht die Korrektur auf die Parameter addiert.
+Anschließend kann der Vorgang für nächste Epoche wiederholt werden.
 
 \section{Optimierer}
-Um die Zielfunktion zu approximieren ist eine Kostenfunktion nötig, die den Abstand von der approximierten Funktion zu der Zielfunktion angibt.
-Diese Funktion wird als Verlustfunktion (engl. loss) bezeichnet und wird im Optimierungsprozess genutzt.
-Üblicherweise wird Kreuzentropie verwendet, da sich diese experimentell als Beste erwiesen hat.
-\newline
-\newline
 Die Strategie im Optimierungsprozess wird als Optimierer bezeichnet.
 Diese Algorithmen steuern, wie die Parameter $\boldsymbol\theta$ aktualisiert werden.
 Üblicherweise wird \textit{ADAM} verwendet.
@@ -78,22 +96,24 @@ GD ist ein iterativer Algorithmus, der den Gradienten in Richtung des Extrema fo
 \begin{align}
     \label{formular:gradient_descent}
     x_{k+1} := \begin{cases}
-                   x_k - f^{\prime}(x_k)\alpha_k & \text{, wenn} f(x_k - f^{\prime}(x_k)\eta_k) < f(x_k)\\
+                   x_k - C^{\prime}(x_k)\alpha_k & \text{, wenn } C(x_k - C^{\prime}(x_k)\eta_k) < C(x_k)\\
                    (1 + \alpha_k)x_k & \text{, ansonsten}
     \end{cases}
 \end{align}
 Gleichung \ref{formular:gradient_descent} illustriert diesen iterativen Prozess für Minimierung im eindimensionalen Fall,
-wobei $\eta_k > 0$ eine angemessene \textit{Lernrate} ist.
+wobei $\eta_k > 0$ eine angemessene \textit{Lernrate} ist, $x$ der Eingabeparameter und $C$ die Kostenfunktion.
 Ist die Lernrate zu groß könnte keine Verbesserung beobachtet werden, da das Maxima immer übersprungen wird.
 Ist die Lernrate zu klein könnte die Konvergenz sehr langsam sein.
+\newline
+\newline
 Im mehrdimensionalen Fall wird für jede Komponente des Eingabevektors dieser Prozess durchgeführt, sodass für jede Komponente
 die Richtung des Extrema verfolgt wird.
 Dies impliziert, dass GD sehr aufwendig zu berechnen ist für Eingabevektoren mit hohen Dimensionen.
+Gleichung \ref{formular:gd_multi_dim} zeigt die iterative Berechnung im mehrdimensionalen Fall.
 \begin{align}
     \label{formular:gd_multi_dim}
-    \textbf{x}_{k+1} = \textbf{x}_k - \bigtriangledown f(\textbf{x}_k)\eta_k
+    \textbf{x}_{k+1} = \textbf{x}_k - \bigtriangledown C(\textbf{x}_k)\eta_k
 \end{align}
-Gleichung \ref{formular:gd_multi_dim} zeigt die iterative Berechnung im mehrdimensionalen Fall.
 Zur Berechnung muss der Gradient des Eingabevektors berechnet werden.
 Je größer die Dimension des Eingabevektor ist, desto aufwendiger ist die Berechnung.
 \newline
@@ -105,12 +125,12 @@ Dadurch bedarf das neuronale Netzwerk zur Konvergenz mehr Epochen, muss aber wen
 \newline
 (S)GD mit Momentum versucht zu vermeiden, dass lokale Extrema gefunden werden anstatt globale Extrema, indem Momentum aus
 vorherigen Gradienten beibehalten wird, um aus lokalen Extrema wieder raus zu finden.
+Gleichung \ref{formular:sgd_momentum} zeigt die iterative Berechnung.
 \begin{align}
     \label{formular:sgd_momentum}
     \textbf{v}_{-1} = \textbf{0}, \hspace{0.6cm} \textbf{v}_k = \textbf{v}_{k-1}\gamma +
     \bigtriangledown f(\textbf{x}_k), \hspace{0.6cm} \textbf{x}_{k+1} = \textbf{x}_k - \textbf{v}_k\eta
 \end{align}
-Gleichung \ref{formular:sgd_momentum} zeigt die iterative Berechnung.
 Zur Berechnung wird ein Hilfsvektor $\textbf{v}$ verwendet, welcher das Momentum vergangener Gradienten darstellt.
 In jeder Iteration fließt ein Anteil $\gamma$, typischerweise $\gamma=0.9$, von dem Hilfsvektor in die Berechnung der neuen Eingabeparameter ein.
 Der Unterschied zum GD (\ref{formular:gd_multi_dim}) ist der Anteil vergangener Gradienten.
@@ -119,17 +139,15 @@ Der Unterschied zum GD (\ref{formular:gd_multi_dim}) ist der Anteil vergangener 
 RMSprop ist eine Variante von \textit{Adagrad}.
 Adagrad passt die Lernrate $\eta$ an, denn typischerweise wird zuerst eine hohe Lernrate benötigt und je näher sich dem Extrema angenähert wird,
 sollte diese Lernrate sinken.
+Gleichung \ref{formular:adagrad} zeigt, wie sich iterativ die Lernrate antiproportional
+zur kummulierten Norm der Gradienten der Kostenfunktion verringert.
+Dabei wird für $\epsilon$ eine kleine Zahl gewählt, um Teilen durch 0 zu vermeiden aber keinen signifikanten Einfluss auf die Berechnung zu haben.
 \begin{align}
     \label{formular:adagrad}
     \textbf{g}_k = \bigtriangledown C_{j_k}(\textbf{x}_k), \hspace{0.6cm}
     \textbf{w}_k = \textbf{w}_{k-1} + \textbf{g}_k^2, \hspace{0.6cm}
     \textbf{x}_{k+1} = \textbf{x}_k - \textbf{g}_k \circ \frac{\eta}{\sqrt{\textbf{w}_k + \epsilon}}
 \end{align}
-Gleichung \ref{formular:adagrad} zeigt, wie sich iterativ die Lernrate antiproportional
-zur kummulierten Norm der Gradienten der Kostenfunktion verringert.
-Dabei wird für $\epsilon$ eine kleine Zahl gewählt, um Teilen durch 0 zu vermeiden aber keinen signifikanten Einfluss auf die Berechnung zu haben.
-\newline
-\newline
 Das Problem an Adagrad ist, dass die Lernrate zu schnell gegen 0 konvergieren kann, wodurch das Zielextrema nicht erreicht wird.
 RMSprop (\ref{formular:rmsprop}) löst dieses Problem, indem in jeder Iteration ein Zerfallsfaktor $\gamma < 1$ auf den Hilfsvektor $\textbf{w}$ angewendet wird
 und Anteilweise das Hadamard-Produkt des Gradienten der Kostenfunktion addiert wird.
