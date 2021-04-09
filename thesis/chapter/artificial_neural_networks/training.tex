@@ -1,13 +1,12 @@
 \section{Training von KNN}
-Um die Zielfunktion zu approximieren ist eine Kostenfunktion nötig, die den Abstand von der approximierten Funktion zu der Zielfunktion angibt.
-Im Optimierungsprozess wird die Kostenfunktion minimiert. Oft wird die Kostenfunktion auch als Verlustfunktion bezeichnet.
+Um die Zielfunktion zu approximieren ist eine Kostenfunktion nötig, die den Abstand von der approximierten Funktion zur Zielfunktion angibt \cite{nielsenneural}.
+Im Optimierungsprozess wird die Kostenfunktion minimiert. Oft wird die Kostenfunktion auch als Verlustfunktion bezeichnet \cite{bengio2017deep}.
 Die Kostenfunktion kann aber zusätzlich noch Regulurisierungsterme besitzen.
-Üblicherweise wird Kreuzentropie für die Verlustfunktion verwendet, da sich diese experimentell als Beste Verlustfunktion für flache KNN erwiesen hat.
 \newline
 \newline
-Das KNN wird für eine endliche Anzahl an Trainingsdurläufen trainiert.
+Das KNN wird für eine endliche Anzahl an Trainingsdurchläufen trainiert \cite{nielsenneural}.
 Ein Trainingsdurchlauf einer Trainingsmenge wird als Epoche bezeichnet.
-Mit jeder Epoche werden die Kosten erhoben und der Optimierer wird ausgeführt.
+Der Optimierer steuert dabei, wie in dieser Epoche die Parameter mit den Trainingsdaten aktualisiert wird.
 Der Fehler wird dabei rückwerts durch das KNN propagiert, wodurch die Parameter $\boldsymbol\theta$ sich verändern.
 Dieser Vorgang wird als \textit{Backpropagation} bezeichnet.
 Zu den Parametern gehört die Struktur des neuronalen Netzwerks, Aktivierungsfunktionen, Gewichte und Bias.
@@ -25,6 +24,3 @@ Um die Ableitungen unter Berücksichtigung der Parameter zu berechnen ist die An
 Angefangen mit dem Gradienten der Aktivierungen der Ausgabeschicht, wird der Fehler rekursiv zurück propagiert.
 Dabei wird in jeder Schicht die Korrektur auf die Parameter addiert.
 Anschließend kann der Vorgang für nächste Epoche wiederholt werden.
-\newline
-\newline
-TODO: Batchsize

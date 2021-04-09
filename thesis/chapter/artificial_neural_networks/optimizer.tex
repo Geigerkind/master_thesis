@@ -1,11 +1,12 @@
 \section{Optimierer}
 Die Strategie im Optimierungsprozess wird als Optimierer bezeichnet.
 Diese Algorithmen steuern, wie die Parameter $\boldsymbol\theta$ aktualisiert werden.
+Die Eingabe sind die Kosten der Trainingsdaten.
 Üblicherweise wird \textit{ADAM} verwendet.
 ADAM ist eine Kombination aus \textit{SGD} (\textbf{S}tochastic \textbf{G}radient \textbf{D}escent) mit Momentum und \textit{RMSprop}.
 \newline
 \newline
-SGD ist eine Approximation von \textit{Gradient Descent} (GD), oder \textit{Steepest Descent}.
+SGD ist eine Approximation von \textit{Gradient Descent} (GD).
 GD ist ein iterativer Algorithmus, der den Gradienten in Richtung des Extrema folgt und dementsprechend die Eingabeparameter aktualisiert.
 \begin{align}
     \label{formular:gradient_descent}
@@ -32,7 +33,8 @@ Zur Berechnung muss der Gradient des Eingabevektors berechnet werden.
 Je größer die Dimension des Eingabevektor ist, desto aufwendiger ist die Berechnung.
 \newline
 \newline
-SGD nimmt an, dass eine Verbesserung wahrscheinlich ist, wenn eine Komponente des Eingabevektors in Richtung des Extrema aktualisiert wird.
+SGD nimmt an, dass eine Verbesserung wahrscheinlich ist, wenn eine Komponente, bzw. ein \textit{mini-batch} (Teilmenge), des
+Eingabevektors in Richtung des Extrema aktualisiert wird.
 Aus diesem Grund werden die Parameter aktualisiert, nachdem jeweils nur eine Komponente des Eingabevektors aktualisiert wurde.
 Dadurch bedarf das neuronale Netzwerk zur Konvergenz mehr Epochen, muss aber weniger Berechnungen durchführen.
 \newline
