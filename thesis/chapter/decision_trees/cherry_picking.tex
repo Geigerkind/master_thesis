@@ -3,7 +3,7 @@ Die Konstruktion eines Entscheidungsbaumes mit Scikit-Learn ist nicht determinis
 Bei der Konstruktion mit CART können zwei Teilungsregeln gefunden werden, die eine gleich gute Unterteilung erzeugen.
 In diesem Fall wählt Scikit-Learn zufällig eine Teilung aus.
 Dadurch werden anschließende Teilungen beeinflusst, die in einen der Fälle womöglich bessere Teilungen finden hätten können.
-Dieser Zufall ist stuerbar, indem der Startwert des Zufallgenerators auf einen vordefinierten Wert gesetzt wird.
+Dieser Zufall ist steuerbar, indem der Startwert des Zufallgenerators auf einen vordefinierten Wert gesetzt wird.
 \newline
 \newline
 Bei identischer Trainingsmenge und Konfiguration können folglich für verschiedene Startwerte unterschiedliche Modelle erzeugt werden.

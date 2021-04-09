@@ -22,7 +22,7 @@ traversierten Höhe jedes Baumes.
 \newline
 Um die Instruktionen zu minimieren sollten Datentypen verwendet werden, die von der CPU mit höchstens einem Wort dargestellt werden können.
 Eine 8-Bit CPU würde zum Laden in Register eines 32-Bit Datentypen vier mal so viele Instruktionen benötigen wie bei einem 8-Bit Datentypen.
-Außerdem sollten Operationen verwendet werden, die durch die von der CPU in Hardware abgebildet werden können.
+Außerdem sollten Operationen verwendet werden, die durch native Hardware-Operationen abgebildet werden können.
 Ist dem nicht so, muss diese Operation durch Software ersetzt werden.
 Dies erfordert mehr Zyklen als eine native Operation in Hardware.
 \newline
@@ -31,7 +31,7 @@ Zu Beachten bei der Minimierung ist, dass Instruktionen unterschiedlich viele Zy
 Ein Beispiel dafür ist die Optimierung \textit{Function Inlining} \cite{leupers1999function}.
 Der Aufruf von Funktionen kann einen hohen Overhead durch den Kontextwechsel erzeugen.
 Aus diesem Grund verringert diese Optimierung die Ausführungszeit, erhöht aber die die Programmgröße signifikant.
-Im Umkehrschluss könnten durch die Verwendung von Funktionen Instruktionen eingespart werden, Ausführungszeit und Energieverbrauch aber erhöht werden.
+Im Umkehrschluss könnten durch die Verwendung von Funktionen der nutzen des Programmspeichers verringert werden, Ausführungszeit und Energieverbrauch aber erhöht werden.
 
 \subsection{Programmgröße}
 \label{sub_sec:dt_ru_programm_size}
@@ -48,11 +48,11 @@ sind Instruktionen durch einen passenden Datentypen zu vermeiden.
 \newline
 \newline
 Ein weiterer Faktor sind die Instruktionen, die zur Rückgabe des Klassifizierungsergebnis benötigt werden.
-In Kapitel \ref{sec:dt_ensemble_methods} wurden verschiedene möglichkeiten der Rückgabe diskutiert, die relevant bei dem Aggregierungsprozess eines Ensembles ist.
+In Kapitel \ref{sec:dt_ensemble_methods} wurden verschiedene Möglichkeiten der Rückgabe diskutiert, die relevant bei dem Aggregierungsprozess eines Ensembles ist.
 Einerseits kann die Rückgabe eine Wahrscheinlichkeitsverteilung sein und andererseits eine diskrete Klasse.
-Bei $m$ möglichen Klassen würde die erste Variante $m$-mal so viele Instruktion benötigen, wie die zweite Variante, da der Rückgabe Vektor zuvor mit der Wahrscheinlichkeitsverteilung gefüllt werden muss.
+Bei $m$ möglichen Klassen würde die erste Variante $m$-mal so viele Instruktion benötigen, wie die zweite Variante, da der Rückgabevektor zuvor mit der Wahrscheinlichkeitsverteilung gefüllt werden muss.
 In der Praxis werden aber weniger Instruktion benötigt, da es eine große Überschneidung der Wahrscheinlichkeitsverteilungen gibt, die zurück gegeben werden.
 Die Instruktionen, um den Rückgabevektor zu befüllen, können durch \textit{Basic Blocks}, d. h. beschriftete Instruktionsblöcke, geschickt recycled werden.
 Zudem können Zuweisungen ausgelassen werden, die die Wahrscheinlichkeit 0 zuweisen, da der Vektor mit Nullen initialisiert wird.
-Dennoch werden signifikant mehr Instruktionen benötigt.
+Dennoch werden signifikant mehr Instruktionen benötigt als bei der diskreten Variante.
 Aus diesem Grund wurde ein hybrider Ansatz vorgeschlagen, der im Falle eines eindeutigen Ergebnisses mit einer Toleranz von $\epsilon\in [0, 1]$ die diskrete Klasse statt der Wahrscheinlichkeitsverteilung zurück gibt.
