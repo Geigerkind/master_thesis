@@ -1,7 +1,32 @@
-\section{Ressourcenbedarf auf dem Mirkocontroller}
-\begin{itemize}
-    \item Energieverbrauch
-    \item Speicherverbrauch
-    \item RAM verbrauch
-    \item Siehe Kubik und Co.
-\end{itemize}
+\section{Ressourcenbedarf auf dem Mikrocontroller}
+Der Speicherverbrauch eines neuronalen Netzes ist abhängig von der Anzahl der Gewichte und Biase, sowie der Größe des verwendeten Datentypen.
+Ein FFNN mit 3 Schichten der Größe $n_1, n_2 und n_3$ hat $n_1 n_2 + n_2 n_3$ Gewichte und $n_1 + n_2 + n_3$ Biase.
+Die Gewichte und Biase sind für gewöhnlich Gleitkommazahlen. Dieser kann mit 4 und 8 Byte dargestellt werden.
+Als Alternative können auch Festkommazahlen mit verwendet werden, die 2 Byte benötigen.
+\newline
+\newline
+Die Ausführungszeit des KNN ist stark abhängig von der Hardware.
+Das KNN kann sowohl im RAM abgelegt werden oder im Flash-Speicher.
+Wenn es im Flash-Speicher abgelegt werden muss, müssen die Gewichte bei der Ausführung in den RAM und die Register geladen werden.
+In Yao's Experimenten hat es die Ausführungszeit um bis zu 74\% verlangsamt.
+\newline
+\newline
+Außerdem wird Multiplikation und Division zur Evaluierung des KNNs benötigt.
+Wenn die Hardware keine Unterstützung dafür hat, müssen diese Operationen durch Software ergänzt werden.
+Diese sind dann signifikant komplexer zu berechnen im Vergleich zu Hardwareuntersützten Operationen.
+Moderne Prozessoren besitzen Hardware Instruktionen, um Matrix Multiplikation durchzuführen anstatt
+die Matrix Multiplikation in Software durchzuführen.
+\newline
+\newline
+Die Ausführungszeit ist aber auch abhängig von der Struktur des Netzwerkes.
+Je mehr Gewichte eine KNN hat, desto mehr Multiplikationen müssen durchgeführt werden.
+Zudem wird in jeder Schicht eine Aktivierungsfunktion angewendet, die ebenfalls sehr aufwendige Berechnungen benötigen kann.
+\newline
+\newline
+Es gibt verschiedene Optimierungen, die die Ausführungszeit und Speicherbedarf verringern.
+Giese hat in seiner Arbeit festgestellt, dass das Löschen von Gewichten (engl. pruning) oder das Gruppieren von ähnlichen Gewichten (engl. quantization)
+signifikante Verbesserungen sowohl des Speicherverbrauchs und der Ausführungszeit zeigt.
+Denkbar sind auch Compiler-Optimierungen, die sich sowohl auf Ausführungszeit, Speicherbedarf und Energiebedarf auswirken können.
+Giese stellte fest, dass sowohl der Speicherbedarf verringert werden kann, als auch die Ausführungszeit.
+(TODO: WER?) hat durch geschickte Registerallokation und nutzen des Scratchpad Memory (SPM) signifikante
+Verbesserungen der Ausführungszeit und Energiebedarf gezeigt.
