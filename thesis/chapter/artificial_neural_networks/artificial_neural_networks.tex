@@ -1,45 +1,53 @@
 \chapter{Künstliche Neuronale Netze}
 Das mathematische Modell von künstlichen neuronalen Netzen wurde von McCulloch und Pitts im Jahre 1943 erfunden \cite{mcculloch1943logical}.
 Dieses Modell ist eine Abstraktion des biologischen Neuronen als logischer Mechanismus.
-Man unterscheided beim biologischen Neuronen zwischen \textit{Afferent}-Neuronen, \textit{Efferent}-Neuronen und \textit{Inter}-Neuronen (TODO: Quelle).
+\newline
+\newline
+Das Nervensystem besteht aus einem Netz von Neuronen, die miteinander verbunden sind und über elektrische Impulse miteinander interagieren \cite{rosenblatt1961principles}.
+Man unterscheided beim biologischen Neuronen zwischen \textit{Afferent}-Neuronen, \textit{Efferent}-Neuronen und \textit{Inter}-Neuronen.
 Afferent-Neuronen nehmen elektrische Signale von Organen entgegen und können als \textit{Input} interpretiert werden.
 Efferent-Neuronen geben elektrische Signale an \textit{Effektorzellen} weiter und können als \textit{Output} interpretiert werden.
 Inter-Neuronen nehmen elektrische Signale von Afferent-Neuronen oder Inter-Neuronen entgegen und geben sie an Inter-Neuronen oder Efferent-Neuronen weiter.
-Wenn der Schwellenwert eines \textit{Dendrite} von einem Neuronen durch ein elektrisches Signal erreicht wurde, wird ein elektrisches Signal über den \textit{Axon} an ein anderes Neuron oder Effektorzellen übertragen.
-Diese Charakteristiken werden mathematisch als ein Vergleich von einer gewichtete Summe von eingehenden Signalen mit einem Schwellenwert modelliert (TODO: Quelle).
+Wenn der Schwellenwert eines \textit{Dendrite} von einem Neuronen durch ein elektrisches Signal erreicht wurde, wird ein elektrisches Signal über den \textit{Axon} an ein
+anderes Neuron oder Effektorzellen übertragen.
+\newline
+\newline
+Diese Charakteristiken werden mathematisch als ein Vergleich von einer gewichtete Summe von eingehenden Signalen mit einem Schwellenwert modelliert \cite{higham2019deep}.
 Gleichung \ref{formular:neuron_activation} stellt diesen Zusammenhang dar.
 \begin{align}
     \label{formular:neuron_activation}
-    y = a(\textbf{w}^\intercal\textbf{x} + b)
+    y = \sigma(\sum_{i=1}^N\textbf{w}_i\textbf{x}_i + b)
 \end{align}
-Die Vergleichsoperation ist die \textit{Aktivierungsfunktion} $a: \mathbb{R}\mapsto\mathbb{R}$, die in diesem Fall ist es die Stufenfunktion (TODO: Quelle).
-Die Eingabe $\textbf{x}\in\mathbb{R}^n$ wird mit $\textbf{w}\in[0, 1]$ gewichtet und der \textit{Bias} $b\in\mathbb{R}$ wird addiert. Der Bias stellt den Schwellenwert dar.
+Die Vergleichsoperation ist die \textit{Aktivierungsfunktion} $\sigma: \mathbb{R}\mapsto\mathbb{R}$, die in diesem Fall ist es die Stufenfunktion.
+Die Eingabe $\textbf{x}\in\mathbb{R}^n$ wird mit $\textbf{w}\in[0, 1]^n$ gewichtet und der \textit{Bias} $b\in\mathbb{R}$ wird addiert. Der Bias stellt den Schwellenwert dar.
 \newline
 \newline
 Das künstliche neuronale Netz approximiert eine arbiträre Funktion $f^*$. Dazu findet es eine Menge von Parametern $\boldsymbol\theta$, wodurch $f^*(\textbf{x})\approx f(\textbf{x}, \boldsymbol\theta)$
-möglichst gut von der Approximationsfunktion $f$ abgebildet wird.
+möglichst gut von der Approximationsfunktion $f$ abgebildet wird \cite{bengio2017deep}.
 \newline
 \newline
 Das KNN ist in Schichten organisiert. Analog zu den biologischen Neuron, gibt es eine \textit{Eingabeschicht (engl. Input-Layer)},
-\textit{Ausgabeschicht (engl. Output-Layer)} und \textit{verdeckte Schicht (engl. Hidden-Layer)} (TODO: Quelle).
-Analog zur Aktivierung eines einzelnen Neuronen, dargestellt in Gleichung \ref{formular:neuron_activation}, stellt Gleichung \ref{formular:layer_activation} die Aktivierung einer Schicht dar.
+\textit{Ausgabeschicht (engl. Output-Layer)} und \textit{verdeckte Schicht (engl. Hidden-Layer)}.
+Analog zur Aktivierung eines einzelnen Neuronen, dargestellt in Gleichung \ref{formular:neuron_activation}, stellt
+Gleichung \ref{formular:layer_activation} die Aktivierung einer Schicht dar \cite{higham2019deep}.
 \begin{align}
     \label{formular:layer_activation}
-    \textbf{a}_{i+1} = a_i(\textbf{z}_i), \hspace{2cm} \textbf{z}_i := \textbf{W}_i\textbf{a}_i + \textbf{b}_i
+    \textbf{a}_{l} = \sigma_l(\textbf{z}_l), \hspace{2cm} \textbf{z}_l := \textbf{W}_l\textbf{a}_{l-1} + \textbf{b}_l
 \end{align}
-Das allgemeine KNN verfügt über $m\in\mathbb{N}$ Schichten. Jede Schicht $i$ verfügt über $n_i\in\mathbb{N}$ Neuronen.
-Die Aktivierungsfunktion $a_i:\mathbb{R}^{n_{i+1}}\mapsto\mathbb{R}^{n_{i+1}}$ berechnet die Aktivierung mit der gewichteten Summe $\textbf{z}_i$.
-Die gewichtete Summe setzt sich zusammen aus der Aktivierung der vorherigen Schicht $\textbf{a}_i$ die mit $W_i\in\mathbb{R}^{n_{i+1}x{n_{i}}}$ gewichtet wird.
-Die Schwellenwerte jedes Neuronen werden durch die Biase $\textbf{b}_i\in\mathbb{R}^{n_{i+1}}$ dargestellt.
+Das allgemeine KNN verfügt über $L\in\mathbb{N}$ Schichten. Jede Schicht $l$ verfügt über $n_l\in\mathbb{N}$ Neuronen.
+Die Aktivierungsfunktion $\sigma_l:\mathbb{R}^{n_{l}}\mapsto\mathbb{R}^{n_{l}}$ berechnet die Aktivierung mit der gewichteten Summe $\textbf{z}_l$.
+Die gewichtete Summe setzt sich zusammen aus der Aktivierung der vorherigen Schicht $\textbf{a}_l$ die mit $W_i\in\mathbb{R}^{n_{l}x{n_{l-1}}}$ gewichtet wird.
+Die Schwellenwerte jedes Neuronen werden durch die Biase $\textbf{b}_l\in\mathbb{R}^{n_{l}}$ dargestellt.
 Gleichung \ref{formular:general_knn} zeigt, wie das allgemeine KNN mit einer rekursiven Funktion modelliert werden kann.
 \begin{align}
     \label{formular:general_knn}
     \textbf{a}_1 := \textbf{x}, \hspace{1cm}
-    \textbf{z}_i := \textbf{W}_i\textbf{a}_i + \textbf{b}_i, \hspace{1cm}
-    \textbf{a}_{i+1} := a_i(\textbf{z}_i), \hspace{1cm} \textbf{f(x)} := \textbf{a}_m
+    \textbf{z}_l := \textbf{W}_l\textbf{a}_{l-1} + \textbf{b}_l, \hspace{1cm}
+    \textbf{a}_l := \sigma_l(\textbf{z}_l), \hspace{1cm} \textbf{f(x)} := \textbf{a}_L
 \end{align}
 Diese Arbeit nutzt ausschließelich \textit{Feed Forward neuronale Netzwerke}.
-Diese werden durch \textit{dichte Schichten (engl. Dense-Layer)} charakterisiert, d. h. Schichten in denen alle Neuronen einer Schicht mit allen Neuronen der folgenden Schicht verbunden sind.
+Diese werden durch \textit{dichte Schichten (engl. Dense-Layer)} charakterisiert, d. h. Schichten in denen alle Neuronen
+einer Schicht mit allen Neuronen der folgenden Schicht verbunden sind \cite{bengio2017deep}.
 
 \input{chapter/artificial_neural_networks/keras}
 \input{chapter/artificial_neural_networks/training}
