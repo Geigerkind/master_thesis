@@ -1,16 +1,17 @@
 \section{Training von KNN}
-Um die Zielfunktion zu approximieren ist eine Kostenfunktion nötig, die den Abstand von der approximierten Funktion zur Zielfunktion angibt \cite{nielsenneural}.
-Im Optimierungsprozess wird die Kostenfunktion minimiert. Oft wird die Kostenfunktion auch als Verlustfunktion bezeichnet \cite{bengio2017deep}.
-Die Kostenfunktion kann aber zusätzlich noch Regulurisierungsterme besitzen.
+Um die Zielfunktion zu approximieren ist eine Kostenfunktion nötig, die den Abstand von der approximierten Funktion zur approximierenden Funktion angibt \cite{nielsenneural}.
+Im Optimierungsprozess wird die Kostenfunktion minimiert. 
+Oft wird die Kostenfunktion auch als \textit{Verlustfunktion (engl. loss function)}, \textit{Fehlerfunktion (engl. error function)},
+oder \textit{Zielfunktion (engl. objective function)} bezeichnet \cite{bengio2017deep}.
+Je nach Publikation können einiger dieser Funktionen spezielle Bedeutungen haben, in dieser Arbeit haben sie aber die gleiche Bedeutung.
 \newline
 \newline
 Das KNN wird für eine endliche Anzahl an Trainingsdurchläufen trainiert \cite{nielsenneural}.
 Ein Trainingsdurchlauf einer Trainingsmenge wird als Epoche bezeichnet.
-Der Optimierer steuert dabei, wie in dieser Epoche die Parameter mit den Trainingsdaten aktualisiert wird.
-Der Fehler wird dabei rückwerts durch das KNN propagiert, wodurch die Parameter $\boldsymbol\theta$ sich verändern.
-Dieser Vorgang wird als \textit{Backpropagation} bezeichnet.
+Als \textit{Backpropagation} wird der Algorithmus bezeichnet, der mit Hilfe des Lernalgorithmus den Fehler der
+Kostenfunktion rückwerts durch die Schichten des KNN propagiert, wodurch die Parameter $\boldsymbol\theta$ angepasst werden.
+Der Lernalgorithmus steuert dabei, wie in dieser Epoche die Parameter mit den Trainingsdaten aktualisiert werden.
 Zu den Parametern gehört die Struktur des neuronalen Netzwerks, Aktivierungsfunktionen, Gewichte und Bias.
-Mit Fehler ist der Unterschied von dem des KNN ermittelten Wertes zu dem Zielwert gemeint.
 \newline
 \newline
 Abhängig von der Strategie des Optimierers müssen die Gradienten rückwerts, rekursiv Schicht für Schicht zurück propagiert werden.
