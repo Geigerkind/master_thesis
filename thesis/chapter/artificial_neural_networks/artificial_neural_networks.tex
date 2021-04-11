@@ -28,12 +28,20 @@ möglichst gut von der Approximationsfunktion $f$ abgebildet wird \cite{bengio20
 \newline
 Das KNN ist in Schichten organisiert. Analog zu den biologischen Neuron, gibt es eine \textit{Eingabeschicht (engl. Input-Layer)},
 \textit{Ausgabeschicht (engl. Output-Layer)} und \textit{verdeckte Schicht (engl. Hidden-Layer)}.
+Dies wird in Abbildung \ref{fig:neural_network_example} illustriert.
 Analog zur Aktivierung eines einzelnen Neuronen, dargestellt in Gleichung \ref{formular:neuron_activation}, stellt
 Gleichung \ref{formular:layer_activation} die Aktivierung einer Schicht dar \cite{higham2019deep}.
 \begin{align}
     \label{formular:layer_activation}
     \textbf{a}_{l} = \sigma_l(\textbf{z}_l), \hspace{2cm} \textbf{z}_l := \textbf{W}_l\textbf{a}_{l-1} + \textbf{b}_l
 \end{align}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\linewidth]{images/neural_network_example.png}
+    \caption{Beispiel eines FFNN mit vier Schichten und einer binären Ausgabeschicht.}
+    \label{fig:neural_network_example}
+\end{figure}
+\newline
 Das allgemeine KNN verfügt über $L\in\mathbb{N}$ Schichten. Jede Schicht $l$ verfügt über $n_l\in\mathbb{N}$ Neuronen.
 Die Aktivierungsfunktion $\sigma_l:\mathbb{R}^{n_{l}}\mapsto\mathbb{R}^{n_{l}}$ berechnet die Aktivierung mit der gewichteten Summe $\textbf{z}_l$.
 Die gewichtete Summe setzt sich zusammen aus der Aktivierung der vorherigen Schicht $\textbf{a}_{l-1}$ die mit $W_i\in\mathbb{R}^{n_{l}\times{n_{l-1}}}$ gewichtet wird.
