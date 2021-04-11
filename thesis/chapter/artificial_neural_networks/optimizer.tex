@@ -1,8 +1,13 @@
 \section{Lernalgorithmen}
 Die Lernalgorithmen bestimmen die Strategie, mit der die Parameter $\boldsymbol\theta$ des KNN aktualisiert werden \cite{higham2019deep}.
-In dieser Arbeit wird ADAM verwendet, da dieser Algorithmus die Vorteile von \textit{SGD} (\textbf{S}tochastic \textbf{G}radient \textbf{D}escent)
+In dieser Arbeit wird ADAM verwendet, da dieser Algorithmus die Vorteile von \textit{(S)GD} (\textbf{S}tochastic \textbf{G}radient \textbf{D}escent)
 mit Momentum und \textit{RMSprop} vereinigt \cite{kingma2014adam, higham2019deep}.
-\newline
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\linewidth]{images/learn_algorithms.png}
+    \caption{Verschiedene Lernalgorithmen auf der Rosenbrock-Funktion \cite{rosenbrock}.}
+    \label{fig:learn_algorithms}
+\end{figure}
 \newline
 SGD ist eine Approximation von \textit{Gradient Descent} (GD) \cite{bengio2017deep}.
 GD ist ein iterativer Algorithmus, der den Gradienten in Richtung des Extrema folgt und dementsprechend die Eingabeparameter aktualisiert.
@@ -71,7 +76,7 @@ exponentiell gewichteten gleitenden Mittelwert verwendet wird \cite{bengio2017de
     \textbf{w}_k = \textbf{w}_{k-1}\gamma + \textbf{g}_k^2 (1-\gamma), \hspace{0.6cm}
     \boldsymbol\theta_{k+1} = \boldsymbol\theta_k - \textbf{g}_k \circ \frac{\eta}{\sqrt{\textbf{w}_k + \epsilon}}
 \end{align}
-Gleichung \ref{formular:adam} zeigt, wie Adam RMSprop und SGD mit Momentum vereint, wobei $\gamma_1 < \gamma_2 < 1$ \cite{kingma2014adam}.
+Gleichung \ref{formular:adam} zeigt, wie Adam RMSprop und (S)GD mit Momentum vereint, wobei $\gamma_1 < \gamma_2 < 1$ \cite{kingma2014adam}.
 Adam beinhaltet RMSprop und hat eine Momentum komponente, indem der Moment der ersten Ordnung mit exponentieller Gewichtung approximiert wird \cite{bengio2017deep}.
 Zudem korrigiert Adam den Bias der Momente der ersten und zweiten Ordnung der durch die Initialisierung entsteht.
 \begin{align}
