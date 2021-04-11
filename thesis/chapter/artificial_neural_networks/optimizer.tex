@@ -1,6 +1,6 @@
 \section{Lernalgorithmen}
 Die Lernalgorithmen bestimmen die Strategie, mit der die Parameter $\boldsymbol\theta$ des KNN aktualisiert werden \cite{higham2019deep}.
-In dieser Arbeit wird ADAM verwendet, da er die Vorteile von \textit{SGD} (\textbf{S}tochastic \textbf{G}radient \textbf{D}escent)
+In dieser Arbeit wird ADAM verwendet, da dieser Algorithmus die Vorteile von \textit{SGD} (\textbf{S}tochastic \textbf{G}radient \textbf{D}escent)
 mit Momentum und \textit{RMSprop} vereinigt \cite{kingma2014adam, higham2019deep}.
 \newline
 \newline
@@ -8,10 +8,10 @@ SGD ist eine Approximation von \textit{Gradient Descent} (GD) \cite{bengio2017de
 GD ist ein iterativer Algorithmus, der den Gradienten in Richtung des Extrema folgt und dementsprechend die Eingabeparameter aktualisiert.
 \begin{align}
     \label{formular:gradient_descent}
-    \theta_{k+1} := \theta_k - \text{sign}(C^{\prime}(\theta_k))\eta_k
+    \theta_{k+1} := \theta_k - \text{sign}(C^{\prime}(\theta_k))\eta
 \end{align}
 Gleichung \ref{formular:gradient_descent} illustriert diesen iterativen Prozess für Minimierung im eindimensionalen Fall,
-wobei $\eta_k > 0$ eine angemessene \textit{Lernrate} ist, $\theta$ der Eingabeparameter und $C$ die Kostenfunktion.
+wobei $\eta > 0$ eine angemessene \textit{Lernrate} ist, $\theta$ der Eingabeparameter und $C$ die Kostenfunktion.
 Ist die Lernrate zu groß könnte keine Verbesserung beobachtet werden, da das Maxima immer übersprungen wird.
 Ist die Lernrate zu klein könnte die Konvergenz sehr langsam sein.
 Wenn ein Sattelpunkt erreicht wird ist der Gradient 0.
@@ -24,7 +24,7 @@ Dies impliziert, dass GD sehr aufwendig zu berechnen ist für Eingabevektoren mi
 Gleichung \ref{formular:gd_multi_dim} zeigt die iterative Berechnung im mehrdimensionalen Fall.
 \begin{align}
     \label{formular:gd_multi_dim}
-    \boldsymbol\theta_{k+1} = \boldsymbol\theta_k - \bigtriangledown C(\boldsymbol\theta_k)\eta_k
+    \boldsymbol\theta_{k+1} = \boldsymbol\theta_k - \bigtriangledown C(\boldsymbol\theta_k)\eta
 \end{align}
 Diese Methode konvergiert, wenn alle Komponenten des Gradienten 0 sind.
 Je größer die Dimension des Eingabevektor ist, desto aufwendiger ist die Berechnung.
@@ -46,7 +46,7 @@ Gleichung \ref{formular:sgd_momentum} zeigt die iterative Berechnung.
 \end{align}
 Zur Berechnung wird ein Hilfsvektor $\textbf{v}$ verwendet, welcher das Momentum vergangener Gradienten darstellt.
 In jeder Iteration fließt ein Anteil $\gamma$, typischerweise $\gamma=0.9$, von dem Hilfsvektor in die Berechnung der neuen Eingabeparameter ein.
-Der Unterschied zum GD (\ref{formular:gd_multi_dim}) ist der Anteil vergangener Gradienten.
+Der Unterschied zu GD (\ref{formular:gd_multi_dim}) ist der Anteil vergangener Gradienten.
 \newline
 \newline
 RMSprop ist eine Generalisierung von \textit{Adagrad} \cite{mukkamala2017variants}.
@@ -67,7 +67,7 @@ exponentiell gewichteten gleitenden Mittelwert verwendet wird \cite{bengio2017de
 \begin{align}
     \label{formular:rmsprop}
     \textbf{w}_{-1} = \textbf{0}, \hspace{0.6cm}
-    \textbf{g}_k = \bigtriangledown C_{j_k}(\boldsymbol\theta_k), \hspace{2cm} \nonumber\\
+    \textbf{g}_k = \bigtriangledown C_{j_k}(\boldsymbol\theta_k) \hspace{2.3cm} \nonumber\\
     \textbf{w}_k = \textbf{w}_{k-1}\gamma + \textbf{g}_k^2 (1-\gamma), \hspace{0.6cm}
     \boldsymbol\theta_{k+1} = \boldsymbol\theta_k - \textbf{g}_k \circ \frac{\eta}{\sqrt{\textbf{w}_k + \epsilon}}
 \end{align}

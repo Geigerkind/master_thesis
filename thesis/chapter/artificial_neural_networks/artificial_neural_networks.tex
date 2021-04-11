@@ -18,7 +18,7 @@ Gleichung \ref{formular:neuron_activation} stellt diesen Zusammenhang dar.
     \label{formular:neuron_activation}
     y = \sigma(\sum_{i=1}^n\textbf{w}_i\textbf{x}_i + b)
 \end{align}
-Die Vergleichsoperation ist die \textit{Aktivierungsfunktion} $\sigma: \mathbb{R}\mapsto\mathbb{R}$, die in diesem Fall ist es die Stufenfunktion.
+Die Vergleichsoperation ist die \textit{Aktivierungsfunktion} $\sigma: \mathbb{R}\mapsto\mathbb{R}$, die in diesem Fall die Stufenfunktion ist.
 Die Eingabe $\textbf{x}\in\mathbb{R}^n$ wird mit $\textbf{w}\in[0, 1]^n$ gewichtet und der \textit{Bias} $b\in\mathbb{R}$ wird addiert. Der Bias stellt den Schwellenwert dar.
 \newline
 \newline
@@ -36,8 +36,8 @@ Gleichung \ref{formular:layer_activation} die Aktivierung einer Schicht dar \cit
 \end{align}
 Das allgemeine KNN verfügt über $L\in\mathbb{N}$ Schichten. Jede Schicht $l$ verfügt über $n_l\in\mathbb{N}$ Neuronen.
 Die Aktivierungsfunktion $\sigma_l:\mathbb{R}^{n_{l}}\mapsto\mathbb{R}^{n_{l}}$ berechnet die Aktivierung mit der gewichteten Summe $\textbf{z}_l$.
-Die gewichtete Summe setzt sich zusammen aus der Aktivierung der vorherigen Schicht $\textbf{a}_l$ die mit $W_i\in\mathbb{R}^{n_{l}x{n_{l-1}}}$ gewichtet wird.
-Die Schwellenwerte jedes Neuronen werden durch die Biase $\textbf{b}_l\in\mathbb{R}^{n_{l}}$ dargestellt.
+Die gewichtete Summe setzt sich zusammen aus der Aktivierung der vorherigen Schicht $\textbf{a}_{l-1}$ die mit $W_i\in\mathbb{R}^{n_{l}\times{n_{l-1}}}$ gewichtet wird.
+Die Schwellenwerte der Neuronen werden durch die Biase $\textbf{b}_l\in\mathbb{R}^{n_{l}}$ dargestellt.
 Gleichung \ref{formular:general_knn} zeigt, wie das allgemeine KNN mit einer rekursiven Funktion modelliert werden kann.
 \begin{align}
     \label{formular:general_knn}

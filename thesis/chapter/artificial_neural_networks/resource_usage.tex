@@ -8,15 +8,15 @@ Als Alternative können auch Festkommazahlen mit verwendet werden, die 2 Byte be
 Die Ausführungszeit des KNN ist stark abhängig von der Hardware.
 Das KNN kann sowohl im RAM abgelegt werden oder im Flash-Speicher \cite{engelhardtThesis}.
 Wenn es im Flash-Speicher abgelegt werden muss, müssen die Gewichte bei der Ausführung in den RAM und die Register geladen werden.
-In Yao's Experimenten hat es die Ausführungszeit um bis zu 74\% verlangsamt \cite{yaoThesis}.
+In Yao's Experimenten hat dies die Ausführungszeit um bis zu 74\% verlangsamt \cite{yaoThesis}.
 \newline
 \newline
 Außerdem wird Multiplikation und Division zur Evaluierung des KNNs benötigt \cite{engelhardtThesis}.
 Wenn die Hardware keine Unterstützung dafür anbietet, müssen diese Operationen durch Software ergänzt werden.
-Diese sind dann signifikant komplexer zu berechnen im Vergleich zu Hardwareuntersützten Operationen.
+Diese sind dann signifikant komplexer zu berechnen im Vergleich zu hardwareuntersützten Operationen.
 \newline
 \newline
-Die Ausführungszeit ist aber auch abhängig von der Struktur des Netzwerkes \cite{gieseThesis}.
+Die Ausführungszeit ist auch abhängig von der Struktur des Netzwerkes \cite{gieseThesis}.
 Je mehr Gewichte eine KNN hat, desto mehr Multiplikationen müssen durchgeführt werden.
 Zudem wird in jeder Schicht eine Aktivierungsfunktion angewendet, die ebenfalls sehr aufwendige Berechnungen benötigen kann \cite{venzkeArticle}.
 \newline

@@ -11,7 +11,7 @@ Oft wird sie heute in der Ausgabeschicht für binäre Klassifizierungsprobleme e
 Allerdings ist sie für tiefe neuronale Netzwerke ungeeignet, da der Gradient zwischen 0 und 0.25 ist und dadurch im
 Backpropagation-Prozess bereits nach wenigen Schichten gegen 0 geht.
 Die \textit{SoftMax}-Funktion (\ref{formular:af_softmax}) oder normalisierte Exponentialfunktion berechnet für einen Eingabevektor eine Wahrscheinlichkeitsverteilung.
-Die Einträge diese Verteilung können für die Wahrscheinlichkeiten der einzelnen Klassen eines multivariat Klassifizierungsproblem interpretiert werden.
+Die Einträge dieser Verteilung können für die Wahrscheinlichkeiten der einzelnen Klassen eines multivariat Klassifizierungsproblem interpretiert werden.
 \begin{align}
     \label{formular:af_sigmoid}
     \text{sigmoid}(x) = \frac{1}{1 + e^{-x}}
@@ -43,14 +43,14 @@ Varianten sind beispielsweise \textit{leaky ReLU} \cite{maas2013rectifier} (\ref
     \label{formular:af_leaky_relu}
     \text{leaky\_ReLU}_{\alpha}(x) = \begin{cases}
                                x & \text{, wenn } x \geq 0\\
-                               \alpha x & \text{, ansonsten } (\alpha\in \mathbb{R}_{0})
+                               \alpha x & \text{, ansonsten } (\alpha\in \mathbb{R}_{0}^{+})
     \end{cases}
 \end{align}
 \begin{align}
     \label{formular:af_elu}
     \text{ELU}_{\alpha}(x) = \begin{cases}
                                  x & \text{, wenn } x \geq 0\\
-                                 \alpha(e^{x} - 1) & \text{, ansonsten } (\alpha\in \mathbb{R}_{0})
+                                 \alpha(e^{x} - 1) & \text{, ansonsten } (\alpha\in \mathbb{R}_{0}^{+})
     \end{cases}
 \end{align}
 \textit{SoftPlus} (\ref{formular:af_softplus}) ist analytisch, dafür aber aufwendiger zu berechnen im Vergleich zu ReLU \cite{apicella2021survey}.
