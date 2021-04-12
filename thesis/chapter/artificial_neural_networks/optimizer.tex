@@ -16,7 +16,7 @@ GD ist ein iterativer Algorithmus, der den Gradienten in Richtung des Extrema fo
     \theta_{k+1} := \theta_k - \text{sign}(C^{\prime}(\theta_k))\eta
 \end{align}
 Gleichung \ref{formular:gradient_descent} illustriert diesen iterativen Prozess für Minimierung im eindimensionalen Fall,
-wobei $\eta > 0$ eine angemessene \textit{Lernrate} ist, $\theta$ der Eingabeparameter und $C$ die Kostenfunktion.
+wobei $\eta > 0$ eine angemessene \textit{Lernrate}, $\theta$ der Eingabeparameter und $C$ die Kostenfunktion ist.
 Ist die Lernrate zu groß könnte keine Verbesserung beobachtet werden, da das Maxima immer übersprungen wird.
 Ist die Lernrate zu klein könnte die Konvergenz sehr langsam sein.
 Wenn ein Sattelpunkt erreicht wird ist der Gradient 0.
@@ -25,7 +25,7 @@ Aus diesem Grund können mit dieser Technik globale Extrema verfehlt werden.
 \newline
 Im mehrdimensionalen Fall wird für jede Komponente des Eingabevektors dieser Prozess durchgeführt, sodass für jede Komponente
 die Richtung des Extrema verfolgt wird.
-Dies impliziert, dass GD sehr aufwendig zu berechnen ist für Eingabevektoren mit hohen Dimensionen.
+Dies impliziert, dass GD für Eingabevektoren mit hohen Dimensionen sehr aufwendig zu berechnen ist.
 Gleichung \ref{formular:gd_multi_dim} zeigt die iterative Berechnung im mehrdimensionalen Fall.
 \begin{align}
     \label{formular:gd_multi_dim}
@@ -35,7 +35,7 @@ Diese Methode konvergiert, wenn alle Komponenten des Gradienten 0 sind.
 Je größer die Dimension des Eingabevektor ist, desto aufwendiger ist die Berechnung.
 \newline
 \newline
-SGD ist eine Approximation von GD. Es nutzt eine zufällige Teilmenge des Eingabevektors, der sogenannte \textit{Mini-Batch}.
+SGD ist eine Approximation von GD. Es nutzt eine zufällige Teilmenge des Eingabevektors, den sogenannten \textit{Mini-Batch}.
 Es wird angenommen, dass der Gradient des Mini-Batches ähnlich ist zu dem Gradienten des gesamten Eingabevektors.
 Folglich werden mit jedem Mini-Batch die Parameter des KNN aktualisiert, wodurch in jeder Epoche die Parameter mehr als einmal aktualisiert werden.
 Ziel dieser Approximierung ist eine Laufzeitverbesserung.
@@ -68,7 +68,7 @@ Dabei wird für $\epsilon$ eine kleine Zahl gewählt, um Teilen durch 0 zu verme
 \end{align}
 Das Problem an Adagrad ist, dass die Lernrate zu schnell gegen 0 konvergieren kann, wodurch das Zielextrema nicht erreicht wird \cite{bengio2017deep}.
 RMSprop \cite{hinton2012neural} (\ref{formular:rmsprop}) löst dieses Problem, indem anstatt die Gradienten zu summieren, ein
-exponentiell gewichteten gleitenden Mittelwert verwendet wird \cite{bengio2017deep}.
+exponentiell gewichteter gleitender Mittelwert verwendet wird \cite{bengio2017deep}.
 \begin{align}
     \label{formular:rmsprop}
     \textbf{w}_{-1} = \textbf{0}, \hspace{0.6cm}
@@ -76,8 +76,8 @@ exponentiell gewichteten gleitenden Mittelwert verwendet wird \cite{bengio2017de
     \textbf{w}_k = \textbf{w}_{k-1}\gamma + \textbf{g}_k^2 (1-\gamma), \hspace{0.6cm}
     \boldsymbol\theta_{k+1} = \boldsymbol\theta_k - \textbf{g}_k \circ \frac{\eta}{\sqrt{\textbf{w}_k + \epsilon}}
 \end{align}
-Gleichung \ref{formular:adam} zeigt, wie Adam RMSprop und (S)GD mit Momentum vereint, wobei $\gamma_1 < \gamma_2 < 1$ \cite{kingma2014adam}.
-Adam beinhaltet RMSprop und hat eine Momentum komponente, indem der Moment der ersten Ordnung mit exponentieller Gewichtung approximiert wird \cite{bengio2017deep}.
+Gleichung \ref{formular:adam} zeigt, wie Adam RMSprop und (S)GD mit Momentum vereint, wobei $\gamma_1 < \gamma_2 < 1$ \cite{kingma2014adam} ist.
+Adam beinhaltet RMSprop und hat eine Momentum Komponente, indem der Moment der ersten Ordnung mit exponentieller Gewichtung approximiert wird \cite{bengio2017deep}.
 Zudem korrigiert Adam den Bias der Momente der ersten und zweiten Ordnung der durch die Initialisierung entsteht.
 \begin{align}
     \label{formular:adam}
