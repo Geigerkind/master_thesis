@@ -1,0 +1,40 @@
+\section{Standortbestimmung mit maschinellen Lernen}
+TODO
+
+\subsection{Sensorbasierter Orientierungssinn mit FFNN}
+Dieser Arbeit ging die Arbeit von Mian voran, der sich zum gleichen Thema mit FFNN auseinander gesetzt hat \cite{naveedThesis}.
+Mian nutzte den Simulator CoppeliaSim, um Daten von verschieden komplexen Routen zu generieren.
+Die Routen unterschieden sich dabei in der Anzahl verschiedener Orte und Pfade die für einen Zyklus verwendet werden können.
+Die aufgenommenen Daten enthalten Sensorwerte für Beschleunigung, Gyroskop, Licht und Beschriftungen für die Standorte.
+Dabei werden als Standorte die Teilstücke der Routen bezeichnet aus denen die Route zusammengesetzt ist.
+\newline
+\newline
+Mian entschied sich die aufgenommen Sensordaten vorzuverarbeiten, aus denen er folgende Features extrahierte:
+\begin{itemize}
+    \item Median von allen Sensoren
+    \item Veränderung der Sensordaten zum vorherigen Wert
+    \item Wert der Sensorwertvektoren des Beschleunigungssensors und Gyroskops
+    \item Zuletzt besuchte Standorte, die über Zeit vergessen werden
+\end{itemize}
+Um Muster aus einer Folge von Feature-Mengen zu inferieren hat Mian ein Datenfenster eingeführt, über das
+hintereinander liegende Feature-Mengen zu einer Feature-Menge konkatiniert werden.
+\newline
+\newline
+Mit dieser Eingabe trainierte Mian ein FFNN mit einer Rückwärtskante, um den zuletzt bestimmten Standort als Feature nutzen zu können.
+Die Rückwärtskante wurde im Training simuliert, indem die Trainingsdaten in zwei Teilmengen partitioniert wurden.
+Mit der ersten Teilmenge wurde das FFNN mit korrekt beschrifteten Trainingsdaten trainiert.
+Das trainierte FFNN wurde dann genutzt, um die Standorte der zweiten Teilmenge zu bestimmen.
+Daraufhin wurde das FFNN mit der zweiten Teilmenge trainiert, bevor es auf einer Testmenge validiert wurde.
+\newline
+\newline
+Mian validierte sein Modell auf einer Testmenge die aus 6 distinkten Standorten besteht über fünf Zyklen.
+Mit einem Datenfenster ab 25 konnten Klassifizierungsgenauigkeiten von bis zu 96\% erreicht werden.
+
+
+
+
+\iffalse
+\begin{itemize}
+    \item Vision Based
+\end{itemize}
+\fi
