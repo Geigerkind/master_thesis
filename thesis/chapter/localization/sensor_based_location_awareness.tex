@@ -1,7 +1,7 @@
 \section{Sensorbasierter Orientierungssinn mit FFNN}
 Dieser Arbeit ging die Arbeit von Mian voran, der sich zum gleichen Thema mit FFNN auseinander gesetzt hat \cite{naveedThesis}.
 Mian nutzte den Simulator CoppeliaSim, um Daten von verschieden komplexen Routen zu generieren.
-Die Routen unterschieden sich dabei in der Anzahl verschiedener Orte und Pfade die für einen Zyklus verwendet werden können.
+Die Routen unterschieden sich dabei in der Anzahl verschiedener Orte und Pfade die für einen Zyklus einer Route verwendet werden können.
 Die aufgenommenen Daten enthalten Sensorwerte für Beschleunigung, Gyroskop, Licht und Beschriftungen für die Standorte.
 Dabei werden als Standorte die Teilstücke der Routen bezeichnet aus denen die Route zusammengesetzt ist.
 \newline
@@ -9,8 +9,8 @@ Dabei werden als Standorte die Teilstücke der Routen bezeichnet aus denen die R
 Mian entschied sich die aufgenommen Sensordaten vorzuverarbeiten, aus denen er folgende Features extrahierte:
 \begin{itemize}
     \item Median von allen Sensoren
-    \item Veränderung der Sensordaten zum vorherigen Wert
-    \item Wert der Sensorwertvektoren des Beschleunigungssensors und Gyroskops
+    \item Veränderung der Sensorwerte zum vorherigen Wert
+    \item Euklidische Norm der Sensorwertvektoren des Beschleunigungssensors und Gyroskops
     \item Zuletzt besuchte Standorte, die über Zeit vergessen werden
 \end{itemize}
 Um Muster aus einer Folge von Feature-Mengen zu inferieren hat Mian ein Datenfenster eingeführt, über das
