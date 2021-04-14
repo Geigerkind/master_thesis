@@ -1,46 +1,32 @@
 \chapter{Einleitung}
-Lokalisation is der Prozess die Position von einem Objekt zu bestimmen. Die Positionsbestimmung ist integral für viele technische System, z. B. Tracking, Navigation oder Überwachung.
-Ein sehr bekanntes und vielseitig genutztes Positionsbestimmungssystem ist das Global Positioning System (GPS). GPS trianguliert die Position des anfragenden Geräts mit Hilfe von mehreren
-Satelliten (TODO Quelle). Im freien ist eine Genauigkeit von X(TODO) m möglich. Für die Positionsbestimmung innerhalb von Gebäuden ist die Genauigkeit aber nicht ausreichend,
-außerdem wird sie erschwert durch die dicke Wände und Interferenzen. Dadurch ist GPS oft nicht ausreichend für Trackingsysteme innerhalb von Gebäuden, z. B. Lagerhallen. Aus diesem Grund
-werden andere Systeme für diesen Zweck verwendet. Je nach Bedarf der Genauigkeit können Objekte mit Sendern, RFID Tags oder Barcodes markiert werden (TODO Quellen). Diese Ansätze bedürfen
-eine Infrastruktur, die in den Gebäuden installiert und gewartet werden muss.
+Als Standortbestimmung, oder \textit{Lokalisierung}, wird der Prozess bezeichnet die Position von einem Gerät oder Nutzer in einem Koordinatensystem zu bestimmen \cite{bulusu2000gps}.
+Diese Information wird von technischen Systemen genutzt, um deren Dienste anzubieten, z. B. Tracking- oder Navigationssysteme.
+Ein bekanntes Beispiel ist das \textit{Global Positioning System} (GPS) \cite{kaplan2005understanding}.
+Bei GPS berechnet das empfangende Gerät seine Position basierend auf den empfangenden Signalen der Satelliten.
 \newline
 \newline
-In dieser Arbeit wird die diskrete Positionsbestimmung basierend auf Sensordaten untersucht. Dabei soll eine bestimmte Anzahl an Orten anhand von verschiedenen Sensorwerten unterschieden werden.
-Dies ist Vergleichbar mit dem Orientierungssinn von Tieren und Menschen. Zum Beispiel navigieren Honigbienen auf Basis von gelernten Orientierungspunkten, um Nahrungsquelle und Nest zu finden (TODO Quelle).
-Mit Hilfe maschinellen Lernens sollen künstliche neuronale Netze (KNN) und Entscheidungsbäume trainiert werden. Als Eingabedaten werden aus den gesammelten Sensordaten Features extrahiert,
-d. h. Attribute und Eigenschaften dieser Daten. Dieses System bedarf keine Infrastruktur muss aber für jedes Gebäude individuell trainiert werden.
+GPS bedarf aber direkten Kontakt zu den Satelliten, ansonsten ist die Signalstärke zu den Satelliten extrem eingeschränkt.
+Aus diesem Grund werden für \textit{Indoor}-Lokalisation andere Ansätze verfolgt.
+Je nach Genauigkeit können Objekte mit Sendern, RFID Tags oder Barcodes markiert werden \cite{xiao2016survey}.
+Meistens wird eine komplexe Infrastruktur benötigt, die diese Lokalisierungssysteme vergleichsweise teuer macht.
+\newline
+\newline
+In dieser Arbeit wird die diskrete Positionsbestimmung basierend auf Sensordaten untersucht.
+Dabei soll eine bestimmte Anzahl an Orten anhand verschiedener Sensorwerten unterschieden werden.
+Dies ist vergleichbar mit dem Orientierungssinn von Tieren und Menschen.
+Zum Beispiel navigieren Honigbienen auf Basis von gelernten Orientierungspunkten, um Nahrungsquelle und Nest zu finden \cite{menzel1996knowledge}.
+Mit Hilfe maschinellen Lernens sollen künstliche neuronale Netze (KNN) und Entscheidungsbäume trainiert werden.
+Als Eingabedaten werden aus den gesammelten Sensordaten Features extrahiert, d. h. Attribute und Eigenschaften dieser Daten.
+Dieses System bedarf keine Infrastruktur muss aber für jedes Gebäude individuell trainiert werden.
 \newline
 \newline
 TODO: Was wurde in dieser Arbeit gemacht.
 \newline
 \newline
-Kapitel 2 führt Entscheidungsbäume und Ensemble-Methoden ein. Kapitel 3 führt künstliche neuronale Netze (KNN) ein mit dem Fokus auf Feed Forward neuronale Netze (FFNN).
+Kapitel 2 führt Entscheidungsbäume und Ensemble-Methoden ein.
+Kapitel 3 führt künstliche neuronale Netze (KNN) ein mit dem Fokus auf Feed Forward neuronale Netze (FFNN).
 In Kapitel 4 wird auf den Stand der Forschung für Standortbestimmung mit Hilfe von maschinellen Lernen (ML) eingegangen.
 Die Generierung von Trainings- und Validationsdaten auf Basis von Simulationen wird in Kapitel 5 erläutert.
 Kapitel 6 stellt die trainierten ML Modelle mit Entscheidungsbäumen und FFNN vor.
 Darauf folgt die Evaluation der Klassifizierungsgenauigkeit, Fehlertoleranz und Resourcennutzung in Kapitel 7.
 Kapitel 8 enthält einen kritischen Rückblick auf die Entscheidungen dieser Arbeit, bevor Kapitel 9 Schlussfolgerungen zieht.
-
-\iffalse
-// Teil 1
-* Leite Lokalisation ein
-* Erkläre die Motivation dafür
-    * Tracking
-    *
-* Gehe auf bestehende Systeme ein, e.g. GPS, RFID, Indoor Triangulierung
-* Gehe auf deren Schwächen ein
-
-// Teil 2
-* Erkläre den untersuchten Ansatz
-    * Blinden Beispiel?
-    * Tier Beispiel: Honigbienen
-* Gehe auf die Vorteile gegenüber den anderen Ansätze ein
-
-// Teil 3
-* Sag was in dieser Arbeit gemacht wurde
-
-// Teil 4
-* Gib eine Kapitelübersicht
-\fi
