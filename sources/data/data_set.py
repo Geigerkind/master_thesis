@@ -6,3 +6,4 @@ class DataSet(Enum):
     ManyCorners = "many_corners.csv"
     LongRectangle = "long_rectangle.csv"
     RectangleWithRamp = "rectangle_with_ramp.csv"
+    Anomaly = "14L_3P.csv"

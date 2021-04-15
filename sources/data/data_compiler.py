@@ -218,6 +218,9 @@ class DataCompiler:
         self.features = features
         self.train_with_faulty_data = train_with_faulty_data
 
+        # Temporarily add anomaly data set so it gets processed
+        self.data_sets = data_sets + [DataSet.Anomaly]
+
         self.__data_sets = dict()
         location_offset = 0
         for data_set in self.data_sets:
@@ -276,11 +279,23 @@ class DataCompiler:
 
         self.__add_synthetic_sensor_data()
         self.__interrupt_based_selection()
+
+        # Remove anomaly data again
+        self.raw_anomaly_data_set = self.raw_data.pop(
+            len(self.raw_data) - 2) if self.tr_has_required_data_sets else self.raw_data.pop()
+        self.anomaly_features_dt = []
+        self.anomaly_features_knn = []
+        self.anomaly_labels_dt = []
+        self.anomaly_labels_knn = []
+
         self.__create_faulty_data_sets()
+
 
         # Remove test route from raw data again
         if self.tr_has_required_data_sets:
             self.raw_data.pop()
+
+        # Remo
 
         self.num_outputs = location_offset + 1
         self.__extract_features()
@@ -681,6 +696,14 @@ class DataCompiler:
             self.test_route_labels_knn = tr_labels_knn
             self.test_route_features_dt = tr_features_dt
             self.test_route_features_knn = tr_features_knn
+
+        print("Anomaly data...")
+        anomaly_features_dt, anomaly_features_knn, anomaly_labels_dt, anomaly_labels_knn = extract_from_data_sets(
+            self.raw_anomaly_data_set, self.window_size, self.features, self.num_outputs, self.lookback_window)
+        self.anomaly_labels_dt = anomaly_labels_dt
+        self.anomaly_labels_knn = anomaly_labels_knn
+        self.anomaly_features_dt = anomaly_features_dt
+        self.anomaly_features_knn = anomaly_features_knn
 
     def __glue_routes_together(self, data_set1, data_set2, glue_location, provided_route=None):
         pd.set_option('mode.chained_assignment', None)
