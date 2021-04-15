@@ -73,6 +73,7 @@ def calculate_features(args):
     # y_acc_col_list = window["y_acc"].tolist()
     # z_acc_col_list = window["z_acc"].tolist()
     acc_total_abs_col_list = (window["x_acc"] + window["y_acc"] + window["z_acc"]).abs().tolist()
+    ang_total_abs_col_list = (window["x_ang"] + window["y_ang"] + window["z_ang"]).abs().tolist()
     # x_ang_col_list = window["x_ang"].tolist()
     # y_ang_col_list = window["y_ang"].tolist()
     # z_ang_col_list = window["z_ang"].tolist()
@@ -80,39 +81,38 @@ def calculate_features(args):
     temperature_col_list = window["temperature"].tolist()
     heading_col_list = window["heading"].tolist()
     volume_col_list = window["volume"].tolist()
+    time_col_list = window["t_stamp"].tolist()
+
+    prev_location = 0
+    current_location = window.iloc[window_size - 1]["location"]
+    for j in range(i, 0):
+        if current_location != data.iloc[j]["location"] and data.iloc[j]["location"] > 0:
+            prev_location = data.iloc[j]["location"]
+            break
 
     result = []
     if Features.PreviousLocation in features:
         result.append(window.iloc[window_size - 2]["location"])
-
-        # if Features.LastDistinctLocation in features:
-        prev_location = 0
-        current_location = window.iloc[window_size - 1]["location"]
-        for j in range(i, 0):
-            if current_location != data.iloc[j]["location"] and data.iloc[j]["location"] > 0:
-                prev_location = data.iloc[j]["location"]
-                break
-
         result.append(prev_location)
 
     if Features.Acceleration in features:
         result.append(FeatureStandardDeviation(acc_total_abs_col_list).feature)
-        # result.append(FeatureMax(acc_total_abs_col_list).feature)
+        result.append(FeatureMax(acc_total_abs_col_list).feature)
         # result.append(FeatureMin(acc_total_abs_col_list).feature)
-        # result.append(FeatureMean(acc_total_abs_col_list).feature)
+        result.append(FeatureMean(acc_total_abs_col_list).feature)
 
     if Features.Light in features:
-        # result.append(FeatureStandardDeviation(light_col_list).feature)
+        result.append(FeatureStandardDeviation(light_col_list).feature)
         result.append(FeatureMax(light_col_list).feature)
-        result.append(FeatureMin(light_col_list).feature)
-        # result.append(FeatureMean(light_col_list).feature)
+        # result.append(FeatureMin(light_col_list).feature)
+        result.append(FeatureMean(light_col_list).feature)
 
     if Features.AccessPointDetection in features:
-        # result.append(int(window.iloc[window_size - 1]["access_point_0"]))
+        result.append(int(window.iloc[window_size - 1]["access_point_0"]))
         result.append(int(window.iloc[window_size - 1]["access_point_1"]))
-        # result.append(int(window.iloc[window_size - 1]["access_point_2"]))
+        result.append(int(window.iloc[window_size - 1]["access_point_2"]))
         result.append(int(window.iloc[window_size - 1]["access_point_3"]))
-        # result.append(int(window.iloc[window_size - 1]["access_point_4"]))
+        result.append(int(window.iloc[window_size - 1]["access_point_4"]))
 
     if Features.Temperature in features:
         result.append(FeatureStandardDeviation(temperature_col_list).feature)
@@ -131,6 +131,27 @@ def calculate_features(args):
         result.append(FeatureMax(volume_col_list).feature)
         # result.append(FeatureMin(volume_col_list).feature)
         # result.append(FeatureMean(volume_col_list).feature)
+
+    if Features.Time in features:
+        result.append(FeatureStandardDeviation(time_col_list).feature)
+        # Time since last interrupt
+        # result.append(time_col_list[window_size - 1] - time_col_list[window_size - 2])
+        # Time since last discrete position changed
+        # TODO: This requires changes to the prediction data relabeling algo
+        """
+        time_since = 0
+        for j in range(i, 0):
+            if prev_location == data.iloc[j]["location"]:
+                time_since = time_col_list[window_size - 1] - data.iloc[j]["t_stamp"]
+                break
+        result.append(time_since)
+        """
+
+    if Features.Angle in features:
+        result.append(FeatureStandardDeviation(ang_total_abs_col_list).feature)
+        result.append(FeatureMax(ang_total_abs_col_list).feature)
+        # result.append(FeatureMin(ang_total_abs_col_list).feature)
+        # result.append(FeatureMean(ang_total_abs_col_list).feature)
 
     return window.iloc[window_size - 1]["cycle"], window.iloc[window_size - 1]["location"], result
 
@@ -168,7 +189,7 @@ class DataCompiler:
         self.num_validation_cycles = 5
         self.num_warmup_cycles = 3
         self.window_size = 5
-        self.train_with_faulty_data = train_with_faulty_data
+        self.data_window_size = 5
 
         # Declarations
         self.num_outputs = 0
@@ -190,6 +211,7 @@ class DataCompiler:
         self.data_sets = data_sets
         self.use_synthetic_routes = use_synthetic_routes
         self.features = features
+        self.train_with_faulty_data = train_with_faulty_data
 
         self.__data_sets = dict()
         location_offset = 0

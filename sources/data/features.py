@@ -14,3 +14,6 @@ class Features(Enum):
     Acceleration = 9
     Light = 10
     Volume = 11
+    Time = 12
+    Angle = 13
+    DataWindow = 14
