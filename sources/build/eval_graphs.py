@@ -67,6 +67,11 @@ with open("/home/shino/Uni/master_thesis/bin/evaluation_data.pkl", 'rb') as file
         map_args = []
         model_dt = pickle.load(file)
 
+        try:
+            os.mkdir("/home/shino/Uni/master_thesis/bin/main_evaluation/")
+        except:
+            pass
+
         # Feature Importance
         GraphFeatureImportance("evaluation", model_dt)
 
@@ -96,38 +101,52 @@ with open("/home/shino/Uni/master_thesis/bin/evaluation_data.pkl", 'rb') as file
                                                                                     data.result_labels_knn[i])
 
             test_sets_dt.append(np.asarray(new_set_dt).copy())
-            new_labels_dt.append(np.asarray(new_labels_dt).copy())
+            test_labels_dt.append(np.asarray(new_labels_dt).copy())
             test_sets_knn.append(np.asarray(new_set_knn).copy())
             test_labels_knn.append(np.asarray(new_labels_knn).copy())
 
-        new_set_dt, new_labels_dt, new_set_knn, new_labels_knn = glue_test_sets(data.test_route_features_dt,
-                                                                                data.test_route_labels_dt,
-                                                                                data.test_route_features_knn,
-                                                                                data.test_route_labels_knn)
+        new_set_dt, new_labels_dt, new_set_knn, new_labels_knn = glue_test_sets(data.test_route_features_dt[0],
+                                                                                data.test_route_labels_dt[0],
+                                                                                data.test_route_features_knn[0],
+                                                                                data.test_route_labels_knn[0])
         test_sets_dt.append(np.asarray(new_set_dt).copy())
-        new_labels_dt.append(np.asarray(new_labels_dt).copy())
+        test_labels_dt.append(np.asarray(new_labels_dt).copy())
         test_sets_knn.append(np.asarray(new_set_knn).copy())
         test_labels_knn.append(np.asarray(new_labels_knn).copy())
 
-        try:
-            os.mkdir("/home/shino/Uni/master_thesis/bin/main_evaluation/")
-        except:
-            pass
+        for i in range(7):
+            new_set_dt, new_labels_dt, new_set_knn, new_labels_knn = glue_test_sets(data.faulty_features_dt[28 + i],
+                                                                                    data.faulty_labels_dt[28 + i],
+                                                                                    data.faulty_features_knn[28 + i],
+                                                                                    data.faulty_labels_knn[28 + i])
 
-        test_set_names = ["simple_square", "long_rectangle", "rectangle_with_ramp", "many_corners", "combination"]
-        for i in range(len(test_set_names)):
-            path = "/home/shino/Uni/master_thesis/bin/main_evaluation/" + test_set_names[i] + "/"
+            test_sets_dt.append(np.asarray(new_set_dt).copy())
+            test_labels_dt.append(np.asarray(new_labels_dt).copy())
+            test_sets_knn.append(np.asarray(new_set_knn).copy())
+            test_labels_knn.append(np.asarray(new_labels_knn).copy())
+
+        test_set_names = ["simple_square", "long_rectangle", "rectangle_with_ramp", "many_corners", "combination",
+                          "faulty_permuted_paths", "faulty_nulled_acceleration", "faulty_nulled_light",
+                          "faulty_nulled_access_point", "faulty_nulled_heading", "faulty_nulled_temperature",
+                          "faulty_nulled_voluime"]
+        for k in range(len(test_set_names)):
+            path = "/home/shino/Uni/master_thesis/bin/main_evaluation/" + test_set_names[k] + "/"
             # Create folder
             try:
                 os.mkdir(path)
             except:
                 pass
 
+            try:
+                os.mkdir(path + "evaluation/")
+            except:
+                pass
+
             # Valid set
-            test_set_features_dt = np.asarray(test_sets_dt[i]).copy()
-            test_set_features_knn = np.asarray(test_sets_knn[i]).copy()
-            test_set_labels_dt = np.asarray(test_labels_dt[i]).copy()
-            test_set_labels_knn = np.asarray(test_labels_knn[i]).copy()
+            test_set_features_dt = np.asarray(test_sets_dt[k]).copy()
+            test_set_features_knn = np.asarray(test_sets_knn[k]).copy()
+            test_set_labels_dt = np.asarray(test_labels_dt[k]).copy()
+            test_set_labels_knn = np.asarray(test_labels_knn[k]).copy()
 
             map_args.append([path, "evaluation_continued", model_dt, test_set_features_dt, test_set_features_knn,
                              test_set_labels_dt, test_set_labels_knn, data.num_outputs, True])
@@ -136,8 +155,8 @@ with open("/home/shino/Uni/master_thesis/bin/evaluation_data.pkl", 'rb') as file
                              test_set_labels_dt, test_set_labels_knn, data.num_outputs, False])
 
             # Previous Location with offset
-            test_set_features_dt_offset = np.asarray(test_sets_dt[i]).copy()
-            test_set_features_knn_offset = np.asarray(test_sets_knn[i]).copy()
+            test_set_features_dt_offset = np.asarray(test_sets_dt[k]).copy()
+            test_set_features_knn_offset = np.asarray(test_sets_knn[k]).copy()
 
             for i in range(10, len(test_set_features_dt)):
                 test_set_features_dt_offset[i][0] = test_set_features_dt_offset[i - 10][0]
@@ -150,8 +169,8 @@ with open("/home/shino/Uni/master_thesis/bin/evaluation_data.pkl", 'rb') as file
                              False])
 
             # Wrong previous location
-            test_set_features_dt_random_location = np.asarray(test_sets_dt[i]).copy()
-            test_set_features_knn_random_location = np.asarray(test_sets_knn[i]).copy()
+            test_set_features_dt_random_location = np.asarray(test_sets_dt[k]).copy()
+            test_set_features_knn_random_location = np.asarray(test_sets_knn[k]).copy()
 
             for i in range(len(test_set_features_dt)):
                 test_set_features_dt_random_location[i][0] = random.randint(0, data.num_outputs)
@@ -164,10 +183,10 @@ with open("/home/shino/Uni/master_thesis/bin/evaluation_data.pkl", 'rb') as file
                              data.num_outputs, False])
 
             # Continued prediction with faulty beginning
-            test_set_features_dt = np.asarray(test_sets_dt[i]).copy()
-            test_set_features_knn = np.asarray(test_sets_knn[i]).copy()
-            test_set_labels_dt = np.asarray(test_labels_dt[i]).copy()
-            test_set_labels_knn = np.asarray(test_labels_knn[i]).copy()
+            test_set_features_dt = np.asarray(test_sets_dt[k]).copy()
+            test_set_features_knn = np.asarray(test_sets_knn[k]).copy()
+            test_set_labels_dt = np.asarray(test_labels_dt[k]).copy()
+            test_set_labels_knn = np.asarray(test_labels_knn[k]).copy()
 
             test_set_features_dt[0][0] = 5
             test_set_features_dt[0][1] = 5
@@ -184,20 +203,21 @@ with open("/home/shino/Uni/master_thesis/bin/evaluation_data.pkl", 'rb') as file
                                "average_path_recognition_delay,times_not_found_path\n")
             log_compiled.close()
 
-            log_compiled = open("/home/shino/Uni/master_thesis/bin/main_evaluation/evaluation/log_compiled_location.csv", "w")
+            log_compiled = open(
+                "/home/shino/Uni/master_thesis/bin/main_evaluation/evaluation/log_compiled_location.csv", "w")
             log_compiled.write("location,times_misclassified_as,times_misclassified,total_location\n")
             log_compiled.close()
 
-            log_compiled = open("/home/shino/Uni/master_thesis/bin/main_evaluation/evaluation/log_compiled_path.csv", "w")
+            log_compiled = open("/home/shino/Uni/master_thesis/bin/main_evaluation/evaluation/log_compiled_path.csv",
+                                "w")
             log_compiled.write("path_segment,recognized_after,times_misclassified,path_len\n")
             log_compiled.close()
 
-            # Evaluate all graphs in parallel
-            with Pool(cpu_count()) as pool:
-                pool.map(exec_gen_graphs, map_args)
-                pool.close()
-                pool.join()
-
+        # Evaluate all graphs in parallel
+        with Pool(cpu_count()) as pool:
+            pool.map(exec_gen_graphs, map_args)
+            pool.close()
+            pool.join()
 
 # TODO
 """

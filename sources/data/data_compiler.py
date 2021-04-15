@@ -252,12 +252,15 @@ class DataCompiler:
             raw_data.append(data_set)
         raw_data = raw_data + synthetic_routes
 
+        # temporarily add it to raw data such that sensor data is added
+        self.raw_combined_test_route = self.__create_combined_test_route()
+        raw_data.append(self.raw_combined_test_route)
+
         self.__data_sets = 0
         synthetic_routes = 0
         self.raw_data = raw_data
         raw_data = 0
 
-        self.raw_combined_test_route = self.__create_combined_test_route()
         self.test_route_features_dt = []
         self.test_route_features_knn = []
         self.test_route_labels_dt = []
@@ -266,6 +269,9 @@ class DataCompiler:
         self.__add_synthetic_sensor_data()
         self.__interrupt_based_selection()
         self.__create_faulty_data_sets()
+
+        # Remove test route from raw data again
+        self.raw_data.pop()
 
         self.num_outputs = location_offset + 1
         self.__extract_features()
@@ -660,7 +666,7 @@ class DataCompiler:
 
         print("Combined test route data...")
         tr_features_dt, tr_features_knn, tr_labels_dt, tr_labels_knn = extract_from_data_sets(
-            self.raw_combined_test_route, self.window_size, self.features, self.num_outputs)
+            [self.raw_combined_test_route], self.window_size, self.features, self.num_outputs)
         self.test_route_labels_dt = tr_labels_dt
         self.test_route_labels_knn = tr_labels_knn
         self.test_route_features_dt = tr_features_dt
@@ -698,8 +704,9 @@ class DataCompiler:
                          "t_stamp"] + set2_time_between_start_and_end
 
             # Adjust timestamps of set1 remaining cycles
-            index = set1.query("cycle > " + str(cycle)).index[0]
-            set1.loc[index:, "t_stamp"] = set1.loc[index:, "t_stamp"] + set2_time_between_start_and_end
+            if cycle < self.num_cycles - 1:
+                index = set1.query("cycle > " + str(cycle)).index[0]
+                set1.loc[index:, "t_stamp"] = set1.loc[index:, "t_stamp"] + set2_time_between_start_and_end
 
             # Add routes in correct order into a new data_frame
             route = pd.concat(
