@@ -66,93 +66,98 @@ def apply_set_location_to_df(input_args):
 
 
 def calculate_features(args):
-    data, i, window_size, features = args
-    window = data.iloc[(i - window_size):i, :]
-
-    # x_acc_col_list = window["x_acc"].tolist()
-    # y_acc_col_list = window["y_acc"].tolist()
-    # z_acc_col_list = window["z_acc"].tolist()
-    acc_total_abs_col_list = (window["x_acc"] + window["y_acc"] + window["z_acc"]).abs().tolist()
-    ang_total_abs_col_list = (window["x_ang"] + window["y_ang"] + window["z_ang"]).abs().tolist()
-    # x_ang_col_list = window["x_ang"].tolist()
-    # y_ang_col_list = window["y_ang"].tolist()
-    # z_ang_col_list = window["z_ang"].tolist()
-    light_col_list = window["light"].tolist()
-    temperature_col_list = window["temperature"].tolist()
-    heading_col_list = window["heading"].tolist()
-    volume_col_list = window["volume"].tolist()
-    time_col_list = window["t_stamp"].tolist()
-
-    prev_location = 0
-    current_location = window.iloc[window_size - 1]["location"]
-    for j in range(i, 0):
-        if current_location != data.iloc[j]["location"] and data.iloc[j]["location"] > 0:
-            prev_location = data.iloc[j]["location"]
-            break
-
+    data, i, window_size, features, lookback_window = args
     result = []
-    if Features.PreviousLocation in features:
-        result.append(window.iloc[window_size - 2]["location"])
-        result.append(prev_location)
 
-    if Features.Acceleration in features:
-        result.append(FeatureStandardDeviation(acc_total_abs_col_list).feature)
-        result.append(FeatureMax(acc_total_abs_col_list).feature)
-        # result.append(FeatureMin(acc_total_abs_col_list).feature)
-        result.append(FeatureMean(acc_total_abs_col_list).feature)
+    for lw_i in range(lookback_window):
+        window_offset = int(window_size * (lw_i + 1))
+        window = data.iloc[(i - window_offset):(i - window_offset + window_size), :]
 
-    if Features.Light in features:
-        result.append(FeatureStandardDeviation(light_col_list).feature)
-        result.append(FeatureMax(light_col_list).feature)
-        # result.append(FeatureMin(light_col_list).feature)
-        result.append(FeatureMean(light_col_list).feature)
+        # x_acc_col_list = window["x_acc"].tolist()
+        # y_acc_col_list = window["y_acc"].tolist()
+        # z_acc_col_list = window["z_acc"].tolist()
+        acc_total_abs_col_list = (window["x_acc"] + window["y_acc"] + window["z_acc"]).abs().tolist()
+        ang_total_abs_col_list = (window["x_ang"] + window["y_ang"] + window["z_ang"]).abs().tolist()
+        # x_ang_col_list = window["x_ang"].tolist()
+        # y_ang_col_list = window["y_ang"].tolist()
+        # z_ang_col_list = window["z_ang"].tolist()
+        light_col_list = window["light"].tolist()
+        temperature_col_list = window["temperature"].tolist()
+        heading_col_list = window["heading"].tolist()
+        volume_col_list = window["volume"].tolist()
+        time_col_list = window["t_stamp"].tolist()
 
-    if Features.AccessPointDetection in features:
-        result.append(int(window.iloc[window_size - 1]["access_point_0"]))
-        result.append(int(window.iloc[window_size - 1]["access_point_1"]))
-        result.append(int(window.iloc[window_size - 1]["access_point_2"]))
-        result.append(int(window.iloc[window_size - 1]["access_point_3"]))
-        result.append(int(window.iloc[window_size - 1]["access_point_4"]))
-
-    if Features.Temperature in features:
-        result.append(FeatureStandardDeviation(temperature_col_list).feature)
-        result.append(FeatureMax(temperature_col_list).feature)
-        result.append(FeatureMin(temperature_col_list).feature)
-        result.append(FeatureMean(temperature_col_list).feature)
-
-    if Features.Heading in features:
-        result.append(FeatureStandardDeviation(heading_col_list).feature)
-        # result.append(FeatureMax(heading_col_list).feature)
-        # result.append(FeatureMin(heading_col_list).feature)
-        # result.append(FeatureMean(heading_col_list).feature)
-
-    if Features.Volume in features:
-        # result.append(FeatureStandardDeviation(volume_col_list).feature)
-        result.append(FeatureMax(volume_col_list).feature)
-        # result.append(FeatureMin(volume_col_list).feature)
-        # result.append(FeatureMean(volume_col_list).feature)
-
-    if Features.Time in features:
-        result.append(FeatureStandardDeviation(time_col_list).feature)
-        # Time since last interrupt
-        # result.append(time_col_list[window_size - 1] - time_col_list[window_size - 2])
-        # Time since last discrete position changed
-        # TODO: This requires changes to the prediction data relabeling algo
-        """
-        time_since = 0
-        for j in range(i, 0):
-            if prev_location == data.iloc[j]["location"]:
-                time_since = time_col_list[window_size - 1] - data.iloc[j]["t_stamp"]
+        prev_location = 0
+        current_location = window.iloc[window_size - 1]["location"]
+        for j in range(i - window_offset + window_size, 0):
+            if current_location != data.iloc[j]["location"] and data.iloc[j]["location"] > 0:
+                prev_location = data.iloc[j]["location"]
                 break
-        result.append(time_since)
-        """
 
-    if Features.Angle in features:
-        result.append(FeatureStandardDeviation(ang_total_abs_col_list).feature)
-        result.append(FeatureMax(ang_total_abs_col_list).feature)
-        # result.append(FeatureMin(ang_total_abs_col_list).feature)
-        # result.append(FeatureMean(ang_total_abs_col_list).feature)
+        if Features.PreviousLocation in features:
+            result.append(window.iloc[window_size - 2]["location"])
+            result.append(prev_location)
 
+        if Features.Acceleration in features:
+            result.append(FeatureStandardDeviation(acc_total_abs_col_list).feature)
+            result.append(FeatureMax(acc_total_abs_col_list).feature)
+            # result.append(FeatureMin(acc_total_abs_col_list).feature)
+            result.append(FeatureMean(acc_total_abs_col_list).feature)
+
+        if Features.Light in features:
+            result.append(FeatureStandardDeviation(light_col_list).feature)
+            result.append(FeatureMax(light_col_list).feature)
+            # result.append(FeatureMin(light_col_list).feature)
+            result.append(FeatureMean(light_col_list).feature)
+
+        if Features.AccessPointDetection in features:
+            result.append(int(window.iloc[window_size - 1]["access_point_0"]))
+            result.append(int(window.iloc[window_size - 1]["access_point_1"]))
+            result.append(int(window.iloc[window_size - 1]["access_point_2"]))
+            result.append(int(window.iloc[window_size - 1]["access_point_3"]))
+            result.append(int(window.iloc[window_size - 1]["access_point_4"]))
+
+        if Features.Temperature in features:
+            result.append(FeatureStandardDeviation(temperature_col_list).feature)
+            result.append(FeatureMax(temperature_col_list).feature)
+            result.append(FeatureMin(temperature_col_list).feature)
+            result.append(FeatureMean(temperature_col_list).feature)
+
+        if Features.Heading in features:
+            result.append(FeatureStandardDeviation(heading_col_list).feature)
+            # result.append(FeatureMax(heading_col_list).feature)
+            # result.append(FeatureMin(heading_col_list).feature)
+            # result.append(FeatureMean(heading_col_list).feature)
+
+        if Features.Volume in features:
+            # result.append(FeatureStandardDeviation(volume_col_list).feature)
+            result.append(FeatureMax(volume_col_list).feature)
+            # result.append(FeatureMin(volume_col_list).feature)
+            # result.append(FeatureMean(volume_col_list).feature)
+
+        if Features.Time in features:
+            result.append(FeatureStandardDeviation(time_col_list).feature)
+            # Time since last interrupt
+            # result.append(time_col_list[window_size - 1] - time_col_list[window_size - 2])
+            # Time since last discrete position changed
+            # TODO: This requires changes to the prediction data relabeling algo
+            """
+            time_since = 0
+            for j in range(i, 0):
+                if prev_location == data.iloc[j]["location"]:
+                    time_since = time_col_list[window_size - 1] - data.iloc[j]["t_stamp"]
+                    break
+            result.append(time_since)
+            """
+
+        if Features.Angle in features:
+            result.append(FeatureStandardDeviation(ang_total_abs_col_list).feature)
+            result.append(FeatureMax(ang_total_abs_col_list).feature)
+            # result.append(FeatureMin(ang_total_abs_col_list).feature)
+            # result.append(FeatureMean(ang_total_abs_col_list).feature)
+
+    # TODO: Ist das mitm lbwindow noch korrekt?
+    window = data.iloc[(i - window_size):i, :]
     return window.iloc[window_size - 1]["cycle"], window.iloc[window_size - 1]["location"], result
 
 
@@ -189,6 +194,7 @@ class DataCompiler:
         self.num_validation_cycles = 5
         self.num_warmup_cycles = 3
         self.window_size = 5
+        self.lookback_window = 1 # NOT FULLY IMPLEMENTED!
 
         # Declarations
         self.num_outputs = 0
@@ -253,8 +259,10 @@ class DataCompiler:
         raw_data = raw_data + synthetic_routes
 
         # temporarily add it to raw data such that sensor data is added
-        self.raw_combined_test_route = self.__create_combined_test_route()
-        raw_data.append(self.raw_combined_test_route)
+        self.tr_has_required_data_sets = DataSet.SimpleSquare in data_sets and DataSet.RectangleWithRamp in data_sets and DataSet.LongRectangle in data_sets and DataSet.ManyCorners in data_sets
+        if self.tr_has_required_data_sets:
+            self.raw_combined_test_route = self.__create_combined_test_route()
+            raw_data.append(self.raw_combined_test_route)
 
         self.__data_sets = 0
         synthetic_routes = 0
@@ -271,7 +279,8 @@ class DataCompiler:
         self.__create_faulty_data_sets()
 
         # Remove test route from raw data again
-        self.raw_data.pop()
+        if self.tr_has_required_data_sets:
+            self.raw_data.pop()
 
         self.num_outputs = location_offset + 1
         self.__extract_features()
@@ -564,7 +573,7 @@ class DataCompiler:
         print("Extracting features...")
         sc = StandardScaler()
 
-        def extract_from_data_sets(data_sets, window_size, input_features, input_num_outputs):
+        def extract_from_data_sets(data_sets, window_size, input_features, input_num_outputs, lookback_window):
             count = 1
             result_features_dt = []
             result_features_knn = []
@@ -578,8 +587,8 @@ class DataCompiler:
                 cycles = []
                 with Pool(processes=cpu_count()) as pool:
                     args = []
-                    for i in range(window_size + 1, len(data_set)):
-                        args.append([data_set, i, window_size, input_features])
+                    for i in range((window_size * lookback_window) + 1, len(data_set)):
+                        args.append([data_set, i, window_size, input_features, lookback_window])
                     result = pool.map(calculate_features, args)
                     for (cycle, label, features) in result:
                         cycles.append(cycle)
@@ -650,7 +659,7 @@ class DataCompiler:
 
         print("Raw data...")
         result_features_dt, result_features_knn, result_labels_dt, result_labels_knn = extract_from_data_sets(
-            self.raw_data, self.window_size, self.features, self.num_outputs)
+            self.raw_data, self.window_size, self.features, self.num_outputs, self.lookback_window)
         self.result_labels_dt = result_labels_dt
         self.result_labels_knn = result_labels_knn
         self.result_features_dt = result_features_dt
@@ -658,19 +667,20 @@ class DataCompiler:
 
         print("Faulty data...")
         faulty_features_dt, faulty_features_knn, faulty_labels_dt, faulty_labels_knn = extract_from_data_sets(
-            self.faulty_raw_data, self.window_size, self.features, self.num_outputs)
+            self.faulty_raw_data, self.window_size, self.features, self.num_outputs, self.lookback_window)
         self.faulty_labels_dt = faulty_labels_dt
         self.faulty_labels_knn = faulty_labels_knn
         self.faulty_features_dt = faulty_features_dt
         self.faulty_features_knn = faulty_features_knn
 
-        print("Combined test route data...")
-        tr_features_dt, tr_features_knn, tr_labels_dt, tr_labels_knn = extract_from_data_sets(
-            [self.raw_combined_test_route], self.window_size, self.features, self.num_outputs)
-        self.test_route_labels_dt = tr_labels_dt
-        self.test_route_labels_knn = tr_labels_knn
-        self.test_route_features_dt = tr_features_dt
-        self.test_route_features_knn = tr_features_knn
+        if self.tr_has_required_data_sets:
+            print("Combined test route data...")
+            tr_features_dt, tr_features_knn, tr_labels_dt, tr_labels_knn = extract_from_data_sets(
+                [self.raw_combined_test_route], self.window_size, self.features, self.num_outputs, self.lookback_window)
+            self.test_route_labels_dt = tr_labels_dt
+            self.test_route_labels_knn = tr_labels_knn
+            self.test_route_features_dt = tr_features_dt
+            self.test_route_features_knn = tr_features_knn
 
     def __glue_routes_together(self, data_set1, data_set2, glue_location, provided_route=None):
         pd.set_option('mode.chained_assignment', None)

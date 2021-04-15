@@ -24,9 +24,9 @@ NUM_EPOCHS_PER_CYCLE = 75
 
 features = [Features.PreviousLocation, Features.AccessPointDetection, Features.Temperature,
             Features.Heading, Features.Volume, Features.Time, Features.Angle, Features.Acceleration, Features.Light]
-# data = DataCompiler([DataSet.SimpleSquare], features, False)
-data = DataCompiler([DataSet.SimpleSquare, DataSet.LongRectangle, DataSet.RectangleWithRamp, DataSet.ManyCorners],
-                    features, False)
+data = DataCompiler([DataSet.SimpleSquare], features, False)
+# data = DataCompiler([DataSet.SimpleSquare, DataSet.LongRectangle, DataSet.RectangleWithRamp, DataSet.ManyCorners],
+#                    features, False)
 
 print("Saving data...")
 with open("/home/shino/Uni/master_thesis/bin/evaluation_data.pkl", 'wb') as file:
