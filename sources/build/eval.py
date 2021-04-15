@@ -25,8 +25,8 @@ NUM_EPOCHS_PER_CYCLE = 75
 features = [Features.PreviousLocation, Features.AccessPointDetection, Features.Temperature,
             Features.Heading, Features.Volume, Features.Time, Features.Angle, Features.Acceleration, Features.Light]
 data = DataCompiler([DataSet.SimpleSquare], features, False)
-# data = DataCompiler([DataSet.SimpleSquare, DataSet.LongRectangle, DataSet.RectangleWithRamp, DataSet.ManyCorners],
-#                    features, False)
+data = DataCompiler([DataSet.SimpleSquare, DataSet.LongRectangle, DataSet.RectangleWithRamp, DataSet.ManyCorners],
+                    features, True)
 
 print("Saving data...")
 with open("/home/shino/Uni/master_thesis/bin/evaluation_data.pkl", 'wb') as file:
@@ -77,7 +77,7 @@ for cycle in range(data.num_cycles - data.num_validation_cycles):
     print("Training cycle: {0}".format(cycle))
     print("Initializing...")
     # Reinitializing to make sure that there is no partial learning
-    model_dt = GenerateDecisionTree(EnsembleMethod.RandomForest, 16, 20)
+    model_dt = GenerateDecisionTree(EnsembleMethod.RandomForest, 24, 40)
     model_knn = GenerateFFNN(data.num_inputs, data.num_outputs)
 
     print("Preparing input data...")

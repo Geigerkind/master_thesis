@@ -94,7 +94,7 @@ with open("/home/shino/Uni/master_thesis/bin/evaluation_data.pkl", 'rb') as file
         test_labels_dt = []
         test_sets_knn = []
         test_labels_knn = []
-        for i in range(1):
+        for i in range(4):
             new_set_dt, new_labels_dt, new_set_knn, new_labels_knn = glue_test_sets(data.result_features_dt[i],
                                                                                     data.result_labels_dt[i],
                                                                                     data.result_features_knn[i],
@@ -115,7 +115,7 @@ with open("/home/shino/Uni/master_thesis/bin/evaluation_data.pkl", 'rb') as file
             test_sets_knn.append(np.asarray(new_set_knn).copy())
             test_labels_knn.append(np.asarray(new_labels_knn).copy())
 
-        for i in range(0):
+        for i in range(7):
             new_set_dt, new_labels_dt, new_set_knn, new_labels_knn = glue_test_sets(data.faulty_features_dt[28 + i],
                                                                                     data.faulty_labels_dt[28 + i],
                                                                                     data.faulty_features_knn[28 + i],
@@ -220,64 +220,3 @@ with open("/home/shino/Uni/master_thesis/bin/evaluation_data.pkl", 'rb') as file
             pool.map(exec_gen_graphs, map_args)
             pool.close()
             pool.join()
-
-# TODO
-"""
-# Nulled Acceleraton
-            test_set_features_dt_nulled = np.asarray(data.faulty_features_dt[1][19]).copy()
-            test_set_features_knn_nulled = np.asarray(data.faulty_features_knn[1][19]).copy()
-
-            map_args.append(["nulled_acceleration", model_dt, test_set_features_dt_nulled,
-                             test_set_features_knn_nulled, test_set_labels_dt, test_set_labels_knn, data.num_outputs,
-                             False])
-
-            # Nulled Light
-            test_set_features_dt_nulled = np.asarray(data.faulty_features_dt[2][19]).copy()
-            test_set_features_knn_nulled = np.asarray(data.faulty_features_knn[2][19]).copy()
-
-            map_args.append(["nulled_light", model_dt, test_set_features_dt_nulled,
-                             test_set_features_knn_nulled, test_set_labels_dt, test_set_labels_knn, data.num_outputs,
-                             False])
-
-            # Nulled Accesspoint
-            test_set_features_dt_nulled = np.asarray(data.faulty_features_dt[3][19]).copy()
-            test_set_features_knn_nulled = np.asarray(data.faulty_features_knn[3][19]).copy()
-
-            map_args.append(["nulled_access_point", model_dt, test_set_features_dt_nulled,
-                             test_set_features_knn_nulled, test_set_labels_dt, test_set_labels_knn, data.num_outputs,
-                             False])
-
-            # Nulled Temperature
-            test_set_features_dt_nulled = np.asarray(data.faulty_features_dt[5][19]).copy()
-            test_set_features_knn_nulled = np.asarray(data.faulty_features_knn[5][19]).copy()
-
-            map_args.append(["nulled_temperature", model_dt, test_set_features_dt_nulled,
-                             test_set_features_knn_nulled, test_set_labels_dt, test_set_labels_knn, data.num_outputs,
-                             False])
-
-            # Nulled Heading
-            test_set_features_dt_nulled = np.asarray(data.faulty_features_dt[4][19]).copy()
-            test_set_features_knn_nulled = np.asarray(data.faulty_features_knn[4][19]).copy()
-
-            map_args.append(["nulled_heading", model_dt, test_set_features_dt_nulled,
-                             test_set_features_knn_nulled, test_set_labels_dt, test_set_labels_knn, data.num_outputs,
-                             False])
-
-            # Nulled Volume
-            test_set_features_dt_nulled = np.asarray(data.faulty_features_dt[6][19]).copy()
-            test_set_features_knn_nulled = np.asarray(data.faulty_features_knn[6][19]).copy()
-
-            map_args.append(["nulled_volume", model_dt, test_set_features_dt_nulled,
-                             test_set_features_knn_nulled, test_set_labels_dt, test_set_labels_knn, data.num_outputs,
-                             False])
-
-            # Permuted path
-            test_set_features_dt_faulty = np.asarray(data.faulty_features_dt[0][18]).copy()
-            test_set_features_knn_faulty = np.asarray(data.faulty_features_knn[0][18]).copy()
-            test_set_labels_dt_faulty = np.asarray(data.faulty_labels_dt[0][18]).copy()
-            test_set_labels_knn_faulty = np.asarray(data.faulty_labels_knn[0][18]).copy()
-
-            map_args.append(["permuted_path", model_dt, test_set_features_dt_faulty,
-                             test_set_features_knn_faulty, test_set_labels_dt_faulty, test_set_labels_knn_faulty,
-                             data.num_outputs, False])
-"""
