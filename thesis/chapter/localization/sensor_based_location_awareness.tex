@@ -6,13 +6,11 @@ Die aufgenommenen Daten enthalten Sensorwerte für Beschleunigung, Gyroskop, Lic
 Dabei werden als Standorte die Teilstücke der Routen bezeichnet aus denen die Route zusammengesetzt ist.
 \newline
 \newline
-Mian entschied sich die aufgenommen Sensordaten vorzuverarbeiten, aus denen er folgende Features extrahierte:
-\begin{itemize}
-    \item Median von allen Sensoren
-    \item Veränderung der Sensorwerte zum vorherigen Wert
-    \item Euklidische Norm der Sensorwertvektoren des Beschleunigungssensors und Gyroskops
-    \item Zuletzt besuchte Standorte, die über Zeit vergessen werden
-\end{itemize}
+Mian entschied sich die aufgenommen Sensordaten vorzuverarbeiten.
+Zunächst werden die Sensoren über fünf Stichproben über den Median geglättet.
+Aus den resultierenden Sensorwerten wird die Veränderung zum vorherigen Sensorwert für jeden Sensor ermittelt.
+Daraus wird der Betrag gebildet, welches als Feature für jeden Sensor jeweils verwendet wird.
+Zudem werden die zuletzt besuchten Standorte in Form einer exponentiell fallenenden Funktion über Zeit als weiteres Feature hinzugefügt.
 Um Muster aus einer Folge von Feature-Mengen zu inferieren hat Mian ein Datenfenster eingeführt, über das
 hintereinander liegende Feature-Mengen zu einer Feature-Menge konkatiniert werden.
 \newline
