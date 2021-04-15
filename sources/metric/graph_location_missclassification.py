@@ -7,7 +7,7 @@ from sources.ffnn.gen_ffnn import GenerateFFNN
 
 
 class GraphLocationMisclassification:
-    def __init__(self, prefix, model, is_dt, test_features, test_labels, num_outputs, use_continued_prediction):
+    def __init__(self, path, prefix, model, is_dt, test_features, test_labels, num_outputs, use_continued_prediction):
         self.prefix = prefix
         self.model = model
         self.is_dt = is_dt
@@ -17,7 +17,7 @@ class GraphLocationMisclassification:
         self.use_continued_prediction = use_continued_prediction
 
         # Configuration
-        self.file_path = "/home/shino/Uni/master_thesis/bin/" + prefix + "/"
+        self.file_path = path + prefix + "/"
         try:
             os.mkdir(self.file_path)
         except:

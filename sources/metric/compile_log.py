@@ -3,10 +3,10 @@ import portalocker
 
 
 class CompileLog:
-    def __init__(self, folder_prefix):
+    def __init__(self, path, folder_prefix):
         self.folder_prefix = folder_prefix
 
-        path = "/home/shino/Uni/master_thesis/bin/" + folder_prefix
+        path = path + folder_prefix
         log_true_vs_predicted = pd.read_csv(path + "/log_true_vs_predicted.csv")
         log_recognized_path_segment = pd.read_csv(path + "/log_recognized_path_segment.csv")
         log_path_segment_misclassified = pd.read_csv(path + "/log_path_segment_misclassified.csv")

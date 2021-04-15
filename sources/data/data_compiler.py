@@ -189,7 +189,6 @@ class DataCompiler:
         self.num_validation_cycles = 5
         self.num_warmup_cycles = 3
         self.window_size = 5
-        self.data_window_size = 5
 
         # Declarations
         self.num_outputs = 0
@@ -258,6 +257,12 @@ class DataCompiler:
         self.raw_data = raw_data
         raw_data = 0
 
+        self.raw_combined_test_route = self.__create_combined_test_route()
+        self.test_route_features_dt = []
+        self.test_route_features_knn = []
+        self.test_route_labels_dt = []
+        self.test_route_labels_knn = []
+
         self.__add_synthetic_sensor_data()
         self.__interrupt_based_selection()
         self.__create_faulty_data_sets()
@@ -272,6 +277,11 @@ class DataCompiler:
             self.result_labels_knn = self.result_labels_knn + self.faulty_labels_knn
 
         self.num_inputs = len(self.result_features_knn[0][0][0])
+
+    def __create_combined_test_route(self):
+        glued = self.__glue_routes_together(DataSet.SimpleSquare, DataSet.ManyCorners, 3)
+        glued = self.__glue_routes_together(DataSet.SimpleSquare, DataSet.LongRectangle, 5, glued)
+        return self.__glue_routes_together(DataSet.SimpleSquare, DataSet.RectangleWithRamp, 2, glued)
 
     def __create_faulty_data_sets(self):
         print("Creating faulty data sets...")
@@ -648,9 +658,17 @@ class DataCompiler:
         self.faulty_features_dt = faulty_features_dt
         self.faulty_features_knn = faulty_features_knn
 
-    def __glue_routes_together(self, data_set1, data_set2, glue_location):
+        print("Combined test route data...")
+        tr_features_dt, tr_features_knn, tr_labels_dt, tr_labels_knn = extract_from_data_sets(
+            self.raw_combined_test_route, self.window_size, self.features, self.num_outputs)
+        self.test_route_labels_dt = tr_labels_dt
+        self.test_route_labels_knn = tr_labels_knn
+        self.test_route_features_dt = tr_features_dt
+        self.test_route_features_knn = tr_features_knn
+
+    def __glue_routes_together(self, data_set1, data_set2, glue_location, provided_route=None):
         pd.set_option('mode.chained_assignment', None)
-        set1 = self.__data_sets[data_set1].copy(deep=True)
+        set1 = self.__data_sets[data_set1].copy(deep=True) if provided_route is None else provided_route.copy(deep=True)
         set2 = self.__data_sets[data_set2].copy(deep=True)
 
         route = DataFrame()

@@ -10,7 +10,7 @@ class GraphFeatureImportance:
         self.model_dt = model_dt
 
         # Configuration
-        self.file_path = "/home/shino/Uni/master_thesis/bin/" + prefix + "/"
+        self.file_path = "/home/shino/Uni/master_thesis/bin/main_evaluation/" + prefix + "/"
         try:
             os.mkdir(self.file_path)
         except:
