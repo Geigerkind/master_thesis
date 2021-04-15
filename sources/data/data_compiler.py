@@ -188,7 +188,8 @@ def process_data_set(args):
 
 # TODO: Sag was das Ding macht.
 class DataCompiler:
-    def __init__(self, data_sets, features, train_with_faulty_data=False, use_synthetic_routes=False, proximity=0.1):
+    def __init__(self, data_sets, features, train_with_faulty_data=False, encode_paths_between_as_location=False,
+                 use_synthetic_routes=False, proximity=0.1):
         # Configuration
         self.num_cycles = 20
         self.num_validation_cycles = 5
@@ -217,6 +218,7 @@ class DataCompiler:
         self.use_synthetic_routes = use_synthetic_routes
         self.features = features
         self.train_with_faulty_data = train_with_faulty_data
+        self.encode_paths_between_as_location = encode_paths_between_as_location
 
         # Temporarily add anomaly data set so it gets processed
         self.data_sets = data_sets + [DataSet.Anomaly]
@@ -239,6 +241,21 @@ class DataCompiler:
                     initial_positions[row[1]["pos"]] = row[1]
             self.__data_sets[data_set] = parallelize(self.__data_sets[data_set], apply_set_location_to_df,
                                                      [initial_positions, proximity])
+
+            if self.encode_paths_between_as_location:
+                print("Label paths between locations...")
+                # IMPORTANT: This location mapping assumes Circles!
+                # The anomaly data set is ignored because the locations are not used anyway during evaluation!
+                location_map = dict()
+                previous_non_zero_pos = 0
+                for row in self.__data_sets[data_set].iterrows():
+                    if row[1]["pos"] == 0:
+                        row[1]["pos"] = location_map[previous_non_zero_pos]
+                    else:
+                        if not (row[1]["pos"] in location_map):
+                            location_offset = location_offset + 1
+                            location_map[row[1]["pos"]] = location_offset
+                        previous_non_zero_pos = row[1]["pos"]
 
         # Generate synthetic routes by gluing routes together and adjusting timestamps accordingly.
         synthetic_routes = []
@@ -289,7 +306,6 @@ class DataCompiler:
         self.anomaly_labels_knn = []
 
         self.__create_faulty_data_sets()
-
 
         # Remove test route from raw data again
         if self.tr_has_required_data_sets:

@@ -133,9 +133,6 @@ class GenerateDecisionTree:
             predictions.append(prediction)
         return predictions
 
-    def save_model_to_file(self, path):
-        raise Exception("Not implemented.")
-
     def evaluate_accuracy(self, prediction, reality):
         correct = 0
         for i in range(len(prediction)):
