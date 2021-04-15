@@ -19,7 +19,7 @@ session_conf = tf.compat.v1.ConfigProto(intra_op_parallelism_threads=16, inter_o
 sess = tf.compat.v1.Session(graph=tf.compat.v1.get_default_graph(), config=session_conf)
 tf.compat.v1.keras.backend.set_session(sess)
 
-FRACTION_PREDICTION_LABELED = 0.8
+FRACTION_PREDICTION_LABELED = 0.5
 NUM_EPOCHS_PER_CYCLE = 75
 
 features = [Features.PreviousLocation, Features.AccessPointDetection, Features.Temperature,
@@ -115,7 +115,13 @@ for cycle in range(data.num_cycles - data.num_validation_cycles):
         print("Relabeling next cycle's set...")
         last_distinct_location_dt = dt_next_cycle_features[0][1]
         last_distinct_location_knn = knn_next_cycle_features[0][1]
-        for i in range(1, int(len(dt_next_cycle_features) * FRACTION_PREDICTION_LABELED)):
+        permutation = np.random.permutation(len(dt_next_cycle_features))
+        frac_pred_labeled = min(1, FRACTION_PREDICTION_LABELED + (1 / 288) * (cycle ** 2))
+        for perm_index in range(1, int(len(dt_next_cycle_features) * frac_pred_labeled)):
+            i = permutation[perm_index]
+            if i == 0:
+                continue
+
             dt_pred = dt_prediction[i]
             dt_prev_pred = dt_prediction[i - 1]
 

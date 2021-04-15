@@ -94,7 +94,7 @@ with open("/home/shino/Uni/master_thesis/bin/evaluation_data.pkl", 'rb') as file
         test_labels_dt = []
         test_sets_knn = []
         test_labels_knn = []
-        for i in range(4):
+        for i in range(1):
             new_set_dt, new_labels_dt, new_set_knn, new_labels_knn = glue_test_sets(data.result_features_dt[i],
                                                                                     data.result_labels_dt[i],
                                                                                     data.result_features_knn[i],
@@ -105,16 +105,17 @@ with open("/home/shino/Uni/master_thesis/bin/evaluation_data.pkl", 'rb') as file
             test_sets_knn.append(np.asarray(new_set_knn).copy())
             test_labels_knn.append(np.asarray(new_labels_knn).copy())
 
-        new_set_dt, new_labels_dt, new_set_knn, new_labels_knn = glue_test_sets(data.test_route_features_dt[0],
-                                                                                data.test_route_labels_dt[0],
-                                                                                data.test_route_features_knn[0],
-                                                                                data.test_route_labels_knn[0])
-        test_sets_dt.append(np.asarray(new_set_dt).copy())
-        test_labels_dt.append(np.asarray(new_labels_dt).copy())
-        test_sets_knn.append(np.asarray(new_set_knn).copy())
-        test_labels_knn.append(np.asarray(new_labels_knn).copy())
+        if data.tr_has_required_data_sets:
+            new_set_dt, new_labels_dt, new_set_knn, new_labels_knn = glue_test_sets(data.test_route_features_dt[0],
+                                                                                    data.test_route_labels_dt[0],
+                                                                                    data.test_route_features_knn[0],
+                                                                                    data.test_route_labels_knn[0])
+            test_sets_dt.append(np.asarray(new_set_dt).copy())
+            test_labels_dt.append(np.asarray(new_labels_dt).copy())
+            test_sets_knn.append(np.asarray(new_set_knn).copy())
+            test_labels_knn.append(np.asarray(new_labels_knn).copy())
 
-        for i in range(7):
+        for i in range(0):
             new_set_dt, new_labels_dt, new_set_knn, new_labels_knn = glue_test_sets(data.faulty_features_dt[28 + i],
                                                                                     data.faulty_labels_dt[28 + i],
                                                                                     data.faulty_features_knn[28 + i],
@@ -125,10 +126,11 @@ with open("/home/shino/Uni/master_thesis/bin/evaluation_data.pkl", 'rb') as file
             test_sets_knn.append(np.asarray(new_set_knn).copy())
             test_labels_knn.append(np.asarray(new_labels_knn).copy())
 
-        test_set_names = ["simple_square", "long_rectangle", "rectangle_with_ramp", "many_corners", "combination",
-                          "faulty_permuted_paths", "faulty_nulled_acceleration", "faulty_nulled_light",
-                          "faulty_nulled_access_point", "faulty_nulled_heading", "faulty_nulled_temperature",
-                          "faulty_nulled_voluime"]
+        #test_set_names = ["simple_square", "long_rectangle", "rectangle_with_ramp", "many_corners", "combination",
+        #                  "faulty_permuted_paths", "faulty_nulled_acceleration", "faulty_nulled_light",
+        #                  "faulty_nulled_access_point", "faulty_nulled_heading", "faulty_nulled_temperature",
+        #                  "faulty_nulled_voluime"]
+        test_set_names = ["simple_square"]
         for k in range(len(test_set_names)):
             path = "/home/shino/Uni/master_thesis/bin/main_evaluation/" + test_set_names[k] + "/"
             # Create folder

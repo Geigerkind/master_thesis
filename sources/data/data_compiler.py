@@ -193,8 +193,8 @@ class DataCompiler:
         self.num_cycles = 20
         self.num_validation_cycles = 5
         self.num_warmup_cycles = 3
-        self.window_size = 5
-        self.lookback_window = 1 # NOT FULLY IMPLEMENTED!
+        self.window_size = 3
+        self.lookback_window = 1  # NOT FULLY IMPLEMENTED!
 
         # Declarations
         self.num_outputs = 0
