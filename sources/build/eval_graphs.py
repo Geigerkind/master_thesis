@@ -19,6 +19,12 @@ from sources.metric.graph_window_confidence import GraphWindowConfidence
 from sources.metric.graph_window_location_changes import GraphWindowLocationChanges
 from sources.metric.log_metrics import LogMetrics
 
+"""
+This file utilizes the evaluated and generated models in order to generate metrics and graphs
+that help to evaluate how good the models actually are
+Currently they are statically put into the path /home/shino/Uni/master_thesis/bin/main_evaluation
+So if you want to execute it, please change the paths first (In various files).
+"""
 
 def generate_graphs(path, prefix, model_dt, test_set_features_dt, test_set_features_knn, test_set_labels_dt,
                     test_set_labels_knn, num_outputs, use_continued_prediction):

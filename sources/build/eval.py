@@ -12,6 +12,11 @@ from sources.decision_tree.ensemble_method import EnsembleMethod
 from sources.decision_tree.gen_dt import GenerateDecisionTree
 from sources.ffnn.gen_ffnn import GenerateFFNN
 
+"""
+This file uses the Data Compiler in order to train the decision tree and FFNN 
+just like how it is described in the thesis.
+"""
+
 np.random.seed(0)
 os.environ['PYTHONHASHSEED'] = str(0)
 tf.random.set_seed(0)
@@ -24,7 +29,7 @@ NUM_EPOCHS_PER_CYCLE = 75
 
 features = [Features.PreviousLocation, Features.AccessPointDetection, Features.Temperature,
             Features.Heading, Features.Volume, Features.Time, Features.Angle, Features.Acceleration, Features.Light]
-data = DataCompiler([DataSet.SimpleSquare], features, False, True)
+data = DataCompiler([DataSet.SimpleSquare], features, False, False)
 #data = DataCompiler([DataSet.SimpleSquare, DataSet.LongRectangle, DataSet.RectangleWithRamp, DataSet.ManyCorners],
 #                    features, True, False)
 

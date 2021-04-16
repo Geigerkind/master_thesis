@@ -186,10 +186,17 @@ def process_data_set(args):
     return new_df
 
 
-# TODO: Sag was das Ding macht.
 class DataCompiler:
     def __init__(self, data_sets, features, train_with_faulty_data=False, encode_paths_between_as_location=False,
                  use_synthetic_routes=False, proximity=0.1):
+        """
+        :param data_sets: Array of data sets that should be processed, see "DataSet"-Enum
+        :param features: Set of features that should be used, see "Features"-Enum
+        :param train_with_faulty_data: If "True", adds faulty data to the training sets
+        :param encode_paths_between_as_location: Encodes the paths between locations as locations
+        :param use_synthetic_routes: Adds synthetic routes to the training data
+        :param proximity: The proximity in which a location around the first labeled location is considered this location
+        """
         # Configuration
         self.num_cycles = 20
         self.num_validation_cycles = 5

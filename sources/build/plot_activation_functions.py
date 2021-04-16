@@ -3,6 +3,11 @@ import math
 import matplotlib.pyplot as plt
 import numpy as np
 
+"""
+I have plotted some activation functions for the KNN part of the thesis.
+Nothing related to training.
+"""
+
 
 def relu(x):
     return max(x, 0)

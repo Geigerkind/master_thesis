@@ -1,6 +1,13 @@
+import math
+
 import matplotlib.pyplot as plt
 import numpy as np
-import math
+
+"""
+I plotted the learn algorithms with this file.
+You can find the plot in the theses at the KNN part of the learn algorithms.
+This is quite interesting to learn of optimization is actually done.
+"""
 
 
 def gradient_descent(max_iterations, w_init,
@@ -104,7 +111,7 @@ def rmsprop(max_iterations, w_init,
         grad_quad = np.asarray([
             grad[0] * grad[0],
             grad[1] * grad[1],
-            ])
+        ])
         w_saved = w_saved * gamma + grad_quad * (1 - gamma)
         w = w - grad * (learning_rate / math.sqrt(w_saved[0] ** 2 + w_saved[1] ** 2 + 0.000000001))
 
@@ -120,8 +127,8 @@ def rmsprop(max_iterations, w_init,
 
 
 def adam(max_iterations, w_init,
-            obj_func, grad_func, extra_param=[],
-            learning_rate=0.05, gamma=0.6, gamma2=0.7):
+         obj_func, grad_func, extra_param=[],
+         learning_rate=0.05, gamma=0.6, gamma2=0.7):
     w = w_init
     w_history = w
     f_history = obj_func(w, extra_param)
@@ -136,7 +143,7 @@ def adam(max_iterations, w_init,
         grad_quad = np.asarray([
             grad[0] * grad[0],
             grad[1] * grad[1],
-            ])
+        ])
         v_saved = (v_saved * gamma + grad * (1 - gamma)) / (1 - (gamma ** (i + 1)))
         w_saved = (w_saved * gamma2 + grad_quad * (1 - gamma2)) / (1 - (gamma2 ** (i + 1)))
         w = w - v_saved * (learning_rate / math.sqrt(w_saved[0] ** 2 + w_saved[1] ** 2 + 0.000000001))
@@ -150,6 +157,7 @@ def adam(max_iterations, w_init,
         i += 1
 
     return w_history, f_history
+
 
 # Objective function
 def f(w, extra=[]):
@@ -198,10 +206,14 @@ ax = plt.axes(projection='3d')
 ax.plot3D([x[0] for x in gd_w], [x[1] for x in gd_w], [f(x) for x in gd_w], c="red", zorder=3, label="GD")
 ax.plot3D([x[0] for x in sgd_w], [x[1] for x in sgd_w], [f(x) for x in sgd_w], c="yellow", zorder=3.1, label="SGD")
 ax.plot3D([x[0] for x in ada_w], [x[1] for x in ada_w], [f(x) for x in ada_w], c="cyan", zorder=3.4, label="Adagrad")
-ax.plot3D([x[0] for x in rmp_w], [x[1] for x in rmp_w], [f(x) for x in rmp_w], c="lightcoral", zorder=3.5, label="RMSprop")
-ax.plot3D([x[0] for x in adam_w], [x[1] for x in adam_w], [f(x) for x in adam_w], "--", c="black", zorder=3.6, label="Adam")
-ax.plot3D([x[0] for x in gd_m_w], [x[1] for x in gd_m_w], [f(x) for x in gd_m_w], "--", c="orange", zorder=3.2, label="GD + Momentum")
-ax.plot3D([x[0] for x in sgd_m_w], [x[1] for x in sgd_m_w], [f(x) for x in sgd_m_w], "--", c="green", zorder=3.3, label="SGD + Momentum")
+ax.plot3D([x[0] for x in rmp_w], [x[1] for x in rmp_w], [f(x) for x in rmp_w], c="lightcoral", zorder=3.5,
+          label="RMSprop")
+ax.plot3D([x[0] for x in adam_w], [x[1] for x in adam_w], [f(x) for x in adam_w], "--", c="black", zorder=3.6,
+          label="Adam")
+ax.plot3D([x[0] for x in gd_m_w], [x[1] for x in gd_m_w], [f(x) for x in gd_m_w], "--", c="orange", zorder=3.2,
+          label="GD + Momentum")
+ax.plot3D([x[0] for x in sgd_m_w], [x[1] for x in sgd_m_w], [f(x) for x in sgd_m_w], "--", c="green", zorder=3.3,
+          label="SGD + Momentum")
 ax.scatter3D(points_x, points_y, points_z, c=points_z, cmap="terrain", s=0.5, zorder=2.6)
 
 ax.set_xlim([-2, 2])

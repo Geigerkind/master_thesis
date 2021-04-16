@@ -1,6 +1,9 @@
 from enum import Enum
 
 
+# Features that are processed in the DataCompiler.
+# Despite its name, it adds several features of the topic,
+# eg. the standard deviation, max, min, mean of this kind of data
 class Features(Enum):
     PreviousLocation = 0
     # LastDistinctLocation = 1
@@ -16,4 +19,3 @@ class Features(Enum):
     Volume = 11
     Time = 12
     Angle = 13
-    DataWindow = 14

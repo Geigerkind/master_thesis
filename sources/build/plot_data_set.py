@@ -1,6 +1,13 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 
+"""
+Tool to plot recorded paths, for visualization.
+It just plots it on a xy plane. But this is sufficient to get an idea of the route and how the points are 
+relative to each other in terms of actual distance.
+I used this to put down the various sources for heat, sound, magnetic force etc.
+"""
+
 
 def plot_route(name, file_name):
     route = pd.read_csv("/home/shino/Uni/master_thesis/bin/data/" + file_name)
