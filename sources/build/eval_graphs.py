@@ -6,7 +6,7 @@ from multiprocessing import cpu_count, Pool
 import numpy as np
 from tensorflow import keras
 
-from sources.metric.log_metrics import LogMetrics
+from sources.metric.graph_window_confidence_not_zero import GraphWindowConfidenceNotZero
 from sources.metric.compile_log import CompileLog
 from sources.metric.graph_feature_importance import GraphFeatureImportance
 from sources.metric.graph_location_misclassified import GraphLocationMisclassified
@@ -15,6 +15,9 @@ from sources.metric.graph_location_missclassification import GraphLocationMiscla
 from sources.metric.graph_path_segment_misclassified import GraphPathSegmentMisclassified
 from sources.metric.graph_recognized_path_segment import GraphRecognizedPathSegment
 from sources.metric.graph_true_vs_predicted import GraphTrueVsPredicted
+from sources.metric.graph_window_confidence import GraphWindowConfidence
+from sources.metric.graph_window_location_changes import GraphWindowLocationChanges
+from sources.metric.log_metrics import LogMetrics
 
 
 def generate_graphs(path, prefix, model_dt, test_set_features_dt, test_set_features_knn, test_set_labels_dt,
@@ -50,6 +53,21 @@ def generate_graphs(path, prefix, model_dt, test_set_features_dt, test_set_featu
                                   test_set_labels_dt, num_outputs, use_continued_prediction)
     GraphPathSegmentMisclassified(path, prefix + "_knn", model_knn, False, test_set_features_knn,
                                   test_set_labels_knn, num_outputs, use_continued_prediction)
+
+    GraphWindowLocationChanges(path, prefix + "_dt", model_dt, True, test_set_features_dt,
+                               test_set_labels_dt, num_outputs, use_continued_prediction)
+    GraphWindowLocationChanges(path, prefix + "_knn", model_knn, False, test_set_features_knn,
+                               test_set_labels_knn, num_outputs, use_continued_prediction)
+
+    GraphWindowConfidence(path, prefix + "_dt", model_dt, True, test_set_features_dt,
+                          test_set_labels_dt, num_outputs, use_continued_prediction)
+    GraphWindowConfidence(path, prefix + "_knn", model_knn, False, test_set_features_knn,
+                          test_set_labels_knn, num_outputs, use_continued_prediction)
+
+    GraphWindowConfidenceNotZero(path, prefix + "_dt", model_dt, True, test_set_features_dt,
+                                 test_set_labels_dt, num_outputs, use_continued_prediction)
+    GraphWindowConfidenceNotZero(path, prefix + "_knn", model_knn, False, test_set_features_knn,
+                                 test_set_labels_knn, num_outputs, use_continued_prediction)
 
     LogMetrics(path, prefix + "_dt", model_dt, True, test_set_features_dt,
                test_set_labels_dt, num_outputs, use_continued_prediction)
@@ -143,7 +161,7 @@ with open("/home/shino/Uni/master_thesis/bin/evaluation_data.pkl", 'rb') as file
             test_sets_knn.append(np.asarray(new_set_knn).copy())
             test_labels_knn.append(np.asarray(new_labels_knn).copy())
 
-        #test_set_names = ["anomaly", "simple_square", "long_rectangle", "rectangle_with_ramp", "many_corners", "combination",
+        # test_set_names = ["anomaly", "simple_square", "long_rectangle", "rectangle_with_ramp", "many_corners", "combination",
         #                  "faulty_permuted_paths", "faulty_nulled_acceleration", "faulty_nulled_light",
         #                  "faulty_nulled_access_point", "faulty_nulled_heading", "faulty_nulled_temperature",
         #                  "faulty_nulled_volume"]
