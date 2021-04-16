@@ -249,13 +249,13 @@ class DataCompiler:
                 location_map = dict()
                 previous_non_zero_pos = 0
                 for row in self.__data_sets[data_set].iterrows():
-                    if row[1]["pos"] == 0:
-                        row[1]["pos"] = location_map[previous_non_zero_pos]
+                    if row[1]["location"] == 0:
+                        row[1]["location"] = location_map[previous_non_zero_pos]
                     else:
-                        if not (row[1]["pos"] in location_map):
+                        if not (row[1]["location"] in location_map):
                             location_offset = location_offset + 1
-                            location_map[row[1]["pos"]] = location_offset
-                        previous_non_zero_pos = row[1]["pos"]
+                            location_map[row[1]["location"]] = location_offset
+                        previous_non_zero_pos = row[1]["location"]
 
         # Generate synthetic routes by gluing routes together and adjusting timestamps accordingly.
         synthetic_routes = []
@@ -715,7 +715,7 @@ class DataCompiler:
 
         print("Anomaly data...")
         anomaly_features_dt, anomaly_features_knn, anomaly_labels_dt, anomaly_labels_knn = extract_from_data_sets(
-            self.raw_anomaly_data_set, self.window_size, self.features, self.num_outputs, self.lookback_window)
+            [self.raw_anomaly_data_set], self.window_size, self.features, self.num_outputs, self.lookback_window)
         self.anomaly_labels_dt = anomaly_labels_dt
         self.anomaly_labels_knn = anomaly_labels_knn
         self.anomaly_features_dt = anomaly_features_dt

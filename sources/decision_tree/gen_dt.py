@@ -1,6 +1,6 @@
+import math
 import multiprocessing
 import os
-import math
 
 import numpy as np
 from sklearn import tree
@@ -110,13 +110,25 @@ class GenerateDecisionTree:
     def predict(self, data):
         return self.result.predict(data)
 
+    def predict_proba(self, data):
+        return self.result.predict_proba(data)
+
+    def continued_predict_proba(self, data):
+        return self.__continued_predict(data, True)
+
     def continued_predict(self, data):
+        return self.__continued_predict(data, False)
+
+    def __continued_predict(self, data, use_predict_proba=False):
         # Assumes that feature 0 and 1 are previous locations
         data_copy = np.asarray(data).copy()
         predictions = []
         data_copy_len = len(data_copy)
         prediction = self.predict([data_copy[0]])[0]
-        predictions.append(prediction)
+        if use_predict_proba:
+            predictions.append(self.predict_proba([data_copy[0]])[0])
+        else:
+            predictions.append(prediction)
         prev_predicted_location = prediction
         last_distinct_location = 0
         for i in range(1, data_copy_len):
@@ -130,7 +142,11 @@ class GenerateDecisionTree:
                 data_copy[i + 1][0] = predicted_location
                 data_copy[i + 1][1] = last_distinct_location
                 prev_predicted_location = predicted_location
-            predictions.append(prediction)
+
+            if use_predict_proba:
+                predictions.append(self.predict_proba([data_copy[i]])[0])
+            else:
+                predictions.append(prediction)
         return predictions
 
     def evaluate_accuracy(self, prediction, reality):

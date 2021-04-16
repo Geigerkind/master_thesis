@@ -6,6 +6,7 @@ from multiprocessing import cpu_count, Pool
 import numpy as np
 from tensorflow import keras
 
+from sources.metric.log_metrics import LogMetrics
 from sources.metric.compile_log import CompileLog
 from sources.metric.graph_feature_importance import GraphFeatureImportance
 from sources.metric.graph_location_misclassified import GraphLocationMisclassified
@@ -49,6 +50,12 @@ def generate_graphs(path, prefix, model_dt, test_set_features_dt, test_set_featu
                                   test_set_labels_dt, num_outputs, use_continued_prediction)
     GraphPathSegmentMisclassified(path, prefix + "_knn", model_knn, False, test_set_features_knn,
                                   test_set_labels_knn, num_outputs, use_continued_prediction)
+
+    LogMetrics(path, prefix + "_dt", model_dt, True, test_set_features_dt,
+               test_set_labels_dt, num_outputs, use_continued_prediction)
+
+    LogMetrics(path, prefix + "_knn", model_knn, False, test_set_features_knn,
+               test_set_labels_knn, num_outputs, use_continued_prediction)
 
     CompileLog(path, prefix + "_dt")
     CompileLog(path, prefix + "_knn")
@@ -94,6 +101,16 @@ with open("/home/shino/Uni/master_thesis/bin/evaluation_data.pkl", 'rb') as file
         test_labels_dt = []
         test_sets_knn = []
         test_labels_knn = []
+
+        new_set_dt, new_labels_dt, new_set_knn, new_labels_knn = glue_test_sets(data.anomaly_features_dt[0],
+                                                                                data.anomaly_labels_dt[0],
+                                                                                data.anomaly_features_knn[0],
+                                                                                data.anomaly_labels_knn[0])
+        test_sets_dt.append(np.asarray(new_set_dt).copy())
+        test_labels_dt.append(np.asarray(new_labels_dt).copy())
+        test_sets_knn.append(np.asarray(new_set_knn).copy())
+        test_labels_knn.append(np.asarray(new_labels_knn).copy())
+
         for i in range(4):
             new_set_dt, new_labels_dt, new_set_knn, new_labels_knn = glue_test_sets(data.result_features_dt[i],
                                                                                     data.result_labels_dt[i],
@@ -126,11 +143,11 @@ with open("/home/shino/Uni/master_thesis/bin/evaluation_data.pkl", 'rb') as file
             test_sets_knn.append(np.asarray(new_set_knn).copy())
             test_labels_knn.append(np.asarray(new_labels_knn).copy())
 
-        #test_set_names = ["simple_square", "long_rectangle", "rectangle_with_ramp", "many_corners", "combination",
+        #test_set_names = ["anomaly", "simple_square", "long_rectangle", "rectangle_with_ramp", "many_corners", "combination",
         #                  "faulty_permuted_paths", "faulty_nulled_acceleration", "faulty_nulled_light",
         #                  "faulty_nulled_access_point", "faulty_nulled_heading", "faulty_nulled_temperature",
-        #                  "faulty_nulled_voluime"]
-        test_set_names = ["simple_square"]
+        #                  "faulty_nulled_volume"]
+        test_set_names = ["anomaly", "simple_square"]
         for k in range(len(test_set_names)):
             path = "/home/shino/Uni/master_thesis/bin/main_evaluation/" + test_set_names[k] + "/"
             # Create folder
