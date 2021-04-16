@@ -1,6 +1,7 @@
 import math
 import multiprocessing
 import os
+import copy
 
 import numpy as np
 from sklearn import tree
@@ -253,3 +254,36 @@ class GenerateDecisionTree:
         :return: self.result.feature_importances_
         """
         return self.result.feature_importances_
+
+    def permutation_importance(self, test_features, test_labels):
+        """
+        This was proposed by Leo Breiman in the Random Forest paper.
+        It calculates the accuracy for a provided data set.
+        We then shuffle a feature and see the error we get compared to the correct order.
+        The higher the error, the more important the feature is.
+
+        :param fitted_model: The fitted model
+        :param test_features: The feature sets to infer the importance on
+        :param test_labels: Labels for the feature sets
+        :return: Array of errors for each feature, higher is more important
+        """
+
+        test_predictions = self.predict(test_features)
+        test_accuracy = self.evaluate_accuracy(test_predictions, test_labels)
+
+        importances = []
+        test_len = len(test_features)
+        for i in range(len(test_features[0])):
+            # Shuffle column i
+            permutation = np.random.permutation(test_len)
+            copy_test_features = copy.deepcopy(test_features)
+            for ctf_index in range(test_len):
+                copy_test_features[ctf_index][i] = test_features[permutation[ctf_index]][i]
+
+            # Calculate accuracy
+            ctf_predictions = self.predict(copy_test_features)
+            ctf_accuracy = self.evaluate_accuracy(ctf_predictions, test_labels)
+
+            importances.append(abs(test_accuracy - ctf_accuracy))
+
+        return importances

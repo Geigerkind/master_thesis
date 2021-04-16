@@ -289,10 +289,8 @@ class DataCompiler:
         self.raw_anomaly2_data_set = self.__glue_routes_together(DataSet.SimpleSquare, DataSet.Anomaly, 5)
         raw_data.append(self.raw_anomaly2_data_set)
 
-        self.tr_has_required_data_sets = DataSet.SimpleSquare in data_sets and DataSet.RectangleWithRamp in data_sets and DataSet.LongRectangle in data_sets and DataSet.ManyCorners in data_sets
-        if self.tr_has_required_data_sets:
-            self.raw_combined_test_route = self.__create_combined_test_route()
-            raw_data.append(self.raw_combined_test_route)
+        self.raw_combined_test_route = self.__create_combined_test_route()
+        raw_data.append(self.raw_combined_test_route)
 
         self.__data_sets = 0
         synthetic_routes = 0
@@ -308,10 +306,8 @@ class DataCompiler:
         self.__interrupt_based_selection()
 
         # Remove anomaly data again
-        self.raw_anomaly_data_set = self.raw_data.pop(
-            len(self.raw_data) - 3) if self.tr_has_required_data_sets else self.raw_data.pop(len(self.raw_data) - 2)
-        self.raw_anomaly2_data_set = self.raw_data.pop(
-            len(self.raw_data) - 2) if self.tr_has_required_data_sets else self.raw_data.pop()
+        self.raw_anomaly_data_set = self.raw_data.pop(len(self.raw_data) - 3)
+        self.raw_anomaly2_data_set = self.raw_data.pop(len(self.raw_data) - 2)
 
         self.anomaly_features_dt = []
         self.anomaly_features_knn = []
@@ -321,8 +317,7 @@ class DataCompiler:
         self.__create_faulty_data_sets()
 
         # Remove test route from raw data again
-        if self.tr_has_required_data_sets:
-            self.raw_data.pop()
+        self.raw_data.pop()
 
         self.num_outputs = location_offset + 1
         self.__extract_features()
@@ -336,9 +331,11 @@ class DataCompiler:
         self.num_inputs = len(self.result_features_knn[0][0][0])
 
     def __create_combined_test_route(self):
-        glued = self.__glue_routes_together(DataSet.SimpleSquare, DataSet.ManyCorners, 3)
-        glued = self.__glue_routes_together(DataSet.SimpleSquare, DataSet.LongRectangle, 5, glued)
-        return self.__glue_routes_together(DataSet.SimpleSquare, DataSet.RectangleWithRamp, 2, glued)
+        if DataSet.ManyCorners in self.data_sets and DataSet.LongRectangle in self.data_sets and DataSet.ManyCorners in self.data_sets:
+            glued = self.__glue_routes_together(DataSet.SimpleSquare, DataSet.ManyCorners, 3)
+            glued = self.__glue_routes_together(DataSet.SimpleSquare, DataSet.LongRectangle, 5, glued)
+            return self.__glue_routes_together(DataSet.SimpleSquare, DataSet.RectangleWithRamp, 2, glued)
+        return self.__glue_routes_together(DataSet.SimpleSquare, DataSet.LongRectangle, 5)
 
     def __create_faulty_data_sets(self):
         print("Creating faulty data sets...")
@@ -738,14 +735,13 @@ class DataCompiler:
         self.faulty_features_dt = faulty_features_dt
         self.faulty_features_knn = faulty_features_knn
 
-        if self.tr_has_required_data_sets:
-            print("Combined test route data...")
-            tr_features_dt, tr_features_knn, tr_labels_dt, tr_labels_knn = extract_from_data_sets(
-                [self.raw_combined_test_route], self.window_size, self.features, self.num_outputs, self.lookback_window)
-            self.test_route_labels_dt = tr_labels_dt
-            self.test_route_labels_knn = tr_labels_knn
-            self.test_route_features_dt = tr_features_dt
-            self.test_route_features_knn = tr_features_knn
+        print("Combined test route data...")
+        tr_features_dt, tr_features_knn, tr_labels_dt, tr_labels_knn = extract_from_data_sets(
+            [self.raw_combined_test_route], self.window_size, self.features, self.num_outputs, self.lookback_window)
+        self.test_route_labels_dt = tr_labels_dt
+        self.test_route_labels_knn = tr_labels_knn
+        self.test_route_features_dt = tr_features_dt
+        self.test_route_features_knn = tr_features_knn
 
         print("Anomaly data...")
         anomaly_features_dt, anomaly_features_knn, anomaly_labels_dt, anomaly_labels_knn = extract_from_data_sets(

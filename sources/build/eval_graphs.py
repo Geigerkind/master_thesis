@@ -6,7 +6,6 @@ from multiprocessing import cpu_count, Pool
 import numpy as np
 from tensorflow import keras
 
-from sources.metric.graph_window_confidence_not_zero import GraphWindowConfidenceNotZero
 from sources.metric.compile_log import CompileLog
 from sources.metric.graph_feature_importance import GraphFeatureImportance
 from sources.metric.graph_location_misclassified import GraphLocationMisclassified
@@ -16,6 +15,7 @@ from sources.metric.graph_path_segment_misclassified import GraphPathSegmentMisc
 from sources.metric.graph_recognized_path_segment import GraphRecognizedPathSegment
 from sources.metric.graph_true_vs_predicted import GraphTrueVsPredicted
 from sources.metric.graph_window_confidence import GraphWindowConfidence
+from sources.metric.graph_window_confidence_not_zero import GraphWindowConfidenceNotZero
 from sources.metric.graph_window_location_changes import GraphWindowLocationChanges
 from sources.metric.log_metrics import LogMetrics
 
@@ -26,10 +26,14 @@ Currently they are statically put into the path /home/shino/Uni/master_thesis/bi
 So if you want to execute it, please change the paths first (In various files).
 """
 
+
 def generate_graphs(path, prefix, model_dt, test_set_features_dt, test_set_features_knn, test_set_labels_dt,
                     test_set_labels_knn, num_outputs, use_continued_prediction):
     # Loaded here cause it cant be pickled
     model_knn = keras.models.load_model("/home/shino/Uni/master_thesis/bin/evaluation_knn_model.h5")
+    GraphFeatureImportance(path, "evaluation", model_dt, model_knn, test_set_features_knn, test_set_labels_knn,
+                           test_set_features_dt, test_set_labels_dt)
+
     GraphTrueVsPredicted(path, prefix + "_dt", model_dt, True, test_set_features_dt,
                          test_set_labels_dt, num_outputs, use_continued_prediction)
     GraphTrueVsPredicted(path, prefix + "_knn", model_knn, False, test_set_features_knn,
@@ -103,9 +107,6 @@ with open("/home/shino/Uni/master_thesis/bin/evaluation_data.pkl", 'rb') as file
         except:
             pass
 
-        # Feature Importance
-        GraphFeatureImportance("evaluation", model_dt)
-
 
         def glue_test_sets(features_dt, labels_dt, features_knn, labels_knn):
             new_set_dt = []
@@ -155,15 +156,14 @@ with open("/home/shino/Uni/master_thesis/bin/evaluation_data.pkl", 'rb') as file
             test_sets_knn.append(np.asarray(new_set_knn).copy())
             test_labels_knn.append(np.asarray(new_labels_knn).copy())
 
-        if data.tr_has_required_data_sets:
-            new_set_dt, new_labels_dt, new_set_knn, new_labels_knn = glue_test_sets(data.test_route_features_dt[0],
-                                                                                    data.test_route_labels_dt[0],
-                                                                                    data.test_route_features_knn[0],
-                                                                                    data.test_route_labels_knn[0])
-            test_sets_dt.append(np.asarray(new_set_dt).copy())
-            test_labels_dt.append(np.asarray(new_labels_dt).copy())
-            test_sets_knn.append(np.asarray(new_set_knn).copy())
-            test_labels_knn.append(np.asarray(new_labels_knn).copy())
+        new_set_dt, new_labels_dt, new_set_knn, new_labels_knn = glue_test_sets(data.test_route_features_dt[0],
+                                                                                data.test_route_labels_dt[0],
+                                                                                data.test_route_features_knn[0],
+                                                                                data.test_route_labels_knn[0])
+        test_sets_dt.append(np.asarray(new_set_dt).copy())
+        test_labels_dt.append(np.asarray(new_labels_dt).copy())
+        test_sets_knn.append(np.asarray(new_set_knn).copy())
+        test_labels_knn.append(np.asarray(new_labels_knn).copy())
 
         for i in range(0):
             new_set_dt, new_labels_dt, new_set_knn, new_labels_knn = glue_test_sets(data.faulty_features_dt[36 + i],
@@ -180,7 +180,7 @@ with open("/home/shino/Uni/master_thesis/bin/evaluation_data.pkl", 'rb') as file
         #                  "faulty_permuted_paths", "faulty_nulled_acceleration", "faulty_nulled_light",
         #                  "faulty_nulled_access_point", "faulty_nulled_heading", "faulty_nulled_temperature",
         #                  "faulty_nulled_volume", "faulty_random_acceleration_deviation", "faulty_access_point_random_not_detect"]
-        test_set_names = ["anomaly", "anomaly2", "simple_square"]
+        test_set_names = ["anomaly", "anomaly2", "simple_square", "combination"]
         for k in range(len(test_set_names)):
             path = "/home/shino/Uni/master_thesis/bin/main_evaluation/" + test_set_names[k] + "/"
             # Create folder

@@ -1,3 +1,4 @@
+import copy
 import os
 import random
 from multiprocessing import cpu_count
@@ -45,7 +46,7 @@ class GenerateFFNN:
         self.history = self.keras_model.fit(np.asarray(training_data_x), np.asarray(training_data_y), batch_size=50,
                                             epochs=75, verbose=0,
                                             validation_data=(
-                                            np.asarray(validation_data_x), np.asarray(validation_data_y)))
+                                                np.asarray(validation_data_x), np.asarray(validation_data_y)))
 
     def predict(self, data):
         """
@@ -120,6 +121,10 @@ class GenerateFFNN:
         ])
 
     def evaluate_accuracy(self, prediction, reality):
+        return self.__evaluate_accuracy(prediction, reality)
+
+    @staticmethod
+    def __evaluate_accuracy(prediction, reality):
         """
         Compares predicted data and actual data.
 
@@ -146,3 +151,39 @@ class GenerateFFNN:
         Saves the model to the specified path.
         """
         self.keras_model.save(file_path)
+
+    @staticmethod
+    def feature_importances(fitted_model, test_features, test_labels):
+        """
+        In comparison to Decision Trees, Neural Networks dont provide such a function.
+        However there is something called "Permutation Importance".
+        This was proposed by Leo Breiman in the Random Forest paper.
+        It calculates the accuracy for a provided data set.
+        We then shuffle a feature and see the error we get compared to the correct order.
+        The higher the error, the more important the feature is.
+
+        :param fitted_model: The fitted FFNN
+        :param test_features: The feature sets to infer the importance on
+        :param test_labels: Labels for the feature sets
+        :return: Array of errors for each feature, higher is more important
+        """
+
+        test_predictions = fitted_model.predict(test_features)
+        test_accuracy = GenerateFFNN.__evaluate_accuracy(test_predictions, test_labels)
+
+        importances = []
+        test_len = len(test_features)
+        for i in range(len(test_features[0])):
+            # Shuffle column i
+            permutation = np.random.permutation(test_len)
+            copy_test_features = copy.deepcopy(test_features)
+            for ctf_index in range(test_len):
+                copy_test_features[ctf_index][i] = test_features[permutation[ctf_index]][i]
+
+            # Calculate accuracy
+            ctf_predictions = fitted_model.predict(copy_test_features)
+            ctf_accuracy = GenerateFFNN.__evaluate_accuracy(ctf_predictions, test_labels)
+
+            importances.append(abs(test_accuracy - ctf_accuracy))
+
+        return importances
