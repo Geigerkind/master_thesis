@@ -279,6 +279,9 @@ class DataCompiler:
         raw_data = raw_data + synthetic_routes
 
         # temporarily add it to raw data such that sensor data is added
+        self.raw_anomaly2_data_set = self.__glue_routes_together(DataSet.SimpleSquare, DataSet.Anomaly, 5)
+        raw_data.append(self.raw_anomaly2_data_set)
+
         self.tr_has_required_data_sets = DataSet.SimpleSquare in data_sets and DataSet.RectangleWithRamp in data_sets and DataSet.LongRectangle in data_sets and DataSet.ManyCorners in data_sets
         if self.tr_has_required_data_sets:
             self.raw_combined_test_route = self.__create_combined_test_route()
@@ -299,7 +302,10 @@ class DataCompiler:
 
         # Remove anomaly data again
         self.raw_anomaly_data_set = self.raw_data.pop(
+            len(self.raw_data) - 3) if self.tr_has_required_data_sets else self.raw_data.pop(len(self.raw_data) - 2)
+        self.raw_anomaly2_data_set = self.raw_data.pop(
             len(self.raw_data) - 2) if self.tr_has_required_data_sets else self.raw_data.pop()
+
         self.anomaly_features_dt = []
         self.anomaly_features_knn = []
         self.anomaly_labels_dt = []
@@ -310,8 +316,6 @@ class DataCompiler:
         # Remove test route from raw data again
         if self.tr_has_required_data_sets:
             self.raw_data.pop()
-
-        # Remo
 
         self.num_outputs = location_offset + 1
         self.__extract_features()
@@ -715,7 +719,8 @@ class DataCompiler:
 
         print("Anomaly data...")
         anomaly_features_dt, anomaly_features_knn, anomaly_labels_dt, anomaly_labels_knn = extract_from_data_sets(
-            [self.raw_anomaly_data_set], self.window_size, self.features, self.num_outputs, self.lookback_window)
+            [self.raw_anomaly_data_set, self.raw_anomaly2_data_set], self.window_size, self.features, self.num_outputs,
+            self.lookback_window)
         self.anomaly_labels_dt = anomaly_labels_dt
         self.anomaly_labels_knn = anomaly_labels_knn
         self.anomaly_features_dt = anomaly_features_dt
