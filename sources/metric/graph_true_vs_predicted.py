@@ -123,6 +123,8 @@ class GraphTrueVsPredicted:
                 total_prev_location_correct = total_prev_location_correct + 1
                 if y_true_position[i] == y_predicted_position[i]:
                     accuracy_given_previous_location_was_correct = accuracy_given_previous_location_was_correct + 1
+        if total_prev_location_correct == 0:
+            accuracy_given_previous_location_was_correct = -1
         accuracy_given_previous_location_was_correct = accuracy_given_previous_location_was_correct / total_prev_location_correct
 
         log_file = open(self.file_path + "log_true_vs_predicted.csv", "w")

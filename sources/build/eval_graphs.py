@@ -160,10 +160,10 @@ with open("/home/shino/Uni/master_thesis/bin/evaluation_data.pkl", 'rb') as file
             test_labels_knn.append(np.asarray(new_labels_knn).copy())
 
         for i in range(0):
-            new_set_dt, new_labels_dt, new_set_knn, new_labels_knn = glue_test_sets(data.faulty_features_dt[28 + i],
-                                                                                    data.faulty_labels_dt[28 + i],
-                                                                                    data.faulty_features_knn[28 + i],
-                                                                                    data.faulty_labels_knn[28 + i])
+            new_set_dt, new_labels_dt, new_set_knn, new_labels_knn = glue_test_sets(data.faulty_features_dt[36 + i],
+                                                                                    data.faulty_labels_dt[36 + i],
+                                                                                    data.faulty_features_knn[36 + i],
+                                                                                    data.faulty_labels_knn[36 + i])
 
             test_sets_dt.append(np.asarray(new_set_dt).copy())
             test_labels_dt.append(np.asarray(new_labels_dt).copy())
@@ -173,7 +173,7 @@ with open("/home/shino/Uni/master_thesis/bin/evaluation_data.pkl", 'rb') as file
         # test_set_names = ["anomaly", "anomaly2", "simple_square", "long_rectangle", "rectangle_with_ramp", "many_corners", "combination",
         #                  "faulty_permuted_paths", "faulty_nulled_acceleration", "faulty_nulled_light",
         #                  "faulty_nulled_access_point", "faulty_nulled_heading", "faulty_nulled_temperature",
-        #                  "faulty_nulled_volume"]
+        #                  "faulty_nulled_volume", "faulty_random_acceleration_deviation", "faulty_access_point_random_not_detect"]
         test_set_names = ["anomaly", "anomaly2", "simple_square"]
         for k in range(len(test_set_names)):
             path = "/home/shino/Uni/master_thesis/bin/main_evaluation/" + test_set_names[k] + "/"

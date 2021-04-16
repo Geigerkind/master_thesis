@@ -386,6 +386,29 @@ class DataCompiler:
             nulled_volume["volume"] = 0
             self.faulty_raw_data.append(nulled_volume)
 
+            print("Creating random acceleration deviations set...")
+            max_deviation = 10  # in percent
+            acc_deviation = data_set.copy(deep=True)
+            acc_deviation["x_acc"].apply(lambda x: x * ((100 + random.randint(-max_deviation, max_deviation)) / 100))
+            acc_deviation["y_acc"].apply(lambda x: x * ((100 + random.randint(-max_deviation, max_deviation)) / 100))
+            acc_deviation["z_acc"].apply(lambda x: x * ((100 + random.randint(-max_deviation, max_deviation)) / 100))
+            self.faulty_raw_data.append(acc_deviation)
+
+            print("Creating access point randomly not detected set...")
+            chance_to_detect = 80  # in percent
+            access_point_random_not_detect = data_set.copy(deep=True)
+            access_point_random_not_detect["access_point_0"].apply(
+                lambda x: x and random.randint(0, 100) <= chance_to_detect)
+            access_point_random_not_detect["access_point_1"].apply(
+                lambda x: x and random.randint(0, 100) <= chance_to_detect)
+            access_point_random_not_detect["access_point_2"].apply(
+                lambda x: x and random.randint(0, 100) <= chance_to_detect)
+            access_point_random_not_detect["access_point_3"].apply(
+                lambda x: x and random.randint(0, 100) <= chance_to_detect)
+            access_point_random_not_detect["access_point_4"].apply(
+                lambda x: x and random.randint(0, 100) <= chance_to_detect)
+            self.faulty_raw_data.append(nulled_access_point)
+
     def __add_synthetic_sensor_data(self):
         print("Adding synthetic sensor data...")
         #############################
