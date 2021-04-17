@@ -317,7 +317,7 @@ class DataCompiler:
         self.__create_faulty_data_sets()
 
         # Remove test route from raw data again
-        self.raw_data.pop()
+        self.raw_combined_test_route = self.raw_data.pop()
 
         self.num_outputs = location_offset + 1
         self.__extract_features()
@@ -335,7 +335,8 @@ class DataCompiler:
             glued = self.__glue_routes_together(DataSet.SimpleSquare, DataSet.ManyCorners, 3)
             glued = self.__glue_routes_together(DataSet.SimpleSquare, DataSet.LongRectangle, 5, glued)
             return self.__glue_routes_together(DataSet.SimpleSquare, DataSet.RectangleWithRamp, 2, glued)
-        return self.__glue_routes_together(DataSet.SimpleSquare, DataSet.LongRectangle, 5)
+        return self.__data_sets[DataSet.SimpleSquare].copy(deep=True)
+        # return self.__glue_routes_together(DataSet.SimpleSquare, DataSet.LongRectangle, 5)
 
     def __create_faulty_data_sets(self):
         print("Creating faulty data sets...")
