@@ -2,18 +2,11 @@ import os
 
 import numpy as np
 
-from sources.ffnn.gen_ffnn import GenerateFFNN
-
 
 class LogMetrics():
-    def __init__(self, path, prefix, model, is_dt, test_features, test_labels, num_outputs, use_continued_prediction):
+    def __init__(self, path, prefix, prediction):
         self.prefix = prefix
-        self.model = model
-        self.is_dt = is_dt
-        self.test_features = np.asarray(test_features)
-        self.test_labels = np.asarray(test_labels)
-        self.num_outputs = num_outputs
-        self.use_continued_prediction = use_continued_prediction
+        self.prediction = prediction
 
         # Configuration
         self.file_path = path + prefix + "/"
@@ -22,27 +15,16 @@ class LogMetrics():
         except:
             pass
 
-        # Predict
-        predicted = 0
-        if self.use_continued_prediction:
-            predicted = self.model.continued_predict_proba(
-                self.test_features) if self.is_dt else GenerateFFNN.static_continued_predict(self.model,
-                                                                                             self.test_features,
-                                                                                             self.num_outputs)
-        else:
-            predicted = self.model.predict_proba(self.test_features) if self.is_dt else self.model.predict(
-                self.test_features)
-
         # Write to the log file
         log_file = open(self.file_path + "log_general_metrics.csv", "w")
         log_file.write("location_change_frequency,location_change_frequency_not_zero,"
                        "average_confidence,average_confidence_not_zero,fraction_zero\n")
         log_file.write("{0},{1},{2},{3},{4}\n".format(
-            self.__location_change_frequency(predicted),
-            self.__location_change_frequency_not_zero(predicted),
-            self.__average_confidence(predicted),
-            self.__average_confidence_not_zero(predicted),
-            self.__fraction_zero(predicted),
+            self.__location_change_frequency(self.prediction),
+            self.__location_change_frequency_not_zero(self.prediction),
+            self.__average_confidence(self.prediction),
+            self.__average_confidence_not_zero(self.prediction),
+            self.__fraction_zero(self.prediction),
         ))
         log_file.close()
 

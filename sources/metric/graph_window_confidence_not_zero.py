@@ -7,14 +7,9 @@ from sources.ffnn.gen_ffnn import GenerateFFNN
 
 
 class GraphWindowConfidenceNotZero():
-    def __init__(self, path, prefix, model, is_dt, test_features, test_labels, num_outputs, use_continued_prediction):
+    def __init__(self, path, prefix, prediction):
         self.prefix = prefix
-        self.model = model
-        self.is_dt = is_dt
-        self.test_features = np.asarray(test_features)
-        self.test_labels = np.asarray(test_labels)
-        self.num_outputs = num_outputs
-        self.use_continued_prediction = use_continued_prediction
+        self.prediction = prediction
 
         # Configuration
         self.window_size = 25
@@ -24,24 +19,13 @@ class GraphWindowConfidenceNotZero():
         except:
             pass
 
-        # Predict
-        self.predicted = 0
-        if self.use_continued_prediction:
-            self.predicted = self.model.continued_predict_proba(
-                self.test_features) if self.is_dt else GenerateFFNN.static_continued_predict(self.model,
-                                                                                             self.test_features,
-                                                                                             self.num_outputs)
-        else:
-            self.predicted = self.model.predict_proba(self.test_features) if self.is_dt else self.model.predict(
-                self.test_features)
-
         self.__generate_graph()
 
     def __graph_name(self):
         return "{0}_window_confidence_not_zero.png".format(self.prefix)
 
     def __generate_graph(self):
-        location_changes_in_window = self.__get_window_confidence_data(self.predicted)
+        location_changes_in_window = self.__get_window_confidence_data(self.prediction)
 
         fig, ax1 = plt.subplots()
         ax1.plot(range(len(location_changes_in_window)), location_changes_in_window, "o-b")

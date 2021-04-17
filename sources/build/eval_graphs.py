@@ -6,6 +6,7 @@ from multiprocessing import cpu_count, Pool
 import numpy as np
 from tensorflow import keras
 
+from sources.ffnn.gen_ffnn import GenerateFFNN
 from sources.metric.compile_log import CompileLog
 from sources.metric.graph_feature_importance import GraphFeatureImportance
 from sources.metric.graph_location_misclassified import GraphLocationMisclassified
@@ -34,56 +35,46 @@ def generate_graphs(path, prefix, model_dt, test_set_features_dt, test_set_featu
     GraphFeatureImportance(path, "evaluation", model_dt, model_knn, test_set_features_knn, test_set_labels_knn,
                            test_set_features_dt, test_set_labels_dt)
 
-    GraphTrueVsPredicted(path, prefix + "_dt", model_dt, True, test_set_features_dt,
-                         test_set_labels_dt, num_outputs, use_continued_prediction)
-    GraphTrueVsPredicted(path, prefix + "_knn", model_knn, False, test_set_features_knn,
-                         test_set_labels_knn, num_outputs, use_continued_prediction)
+    predicted_dt = model_dt.continued_predict(test_set_features_dt) if use_continued_prediction else model_dt.predict(
+        test_set_features_dt)
+    predicted_knn = GenerateFFNN.static_continued_predict(model_knn, test_set_features_knn,
+                                                          num_outputs) if use_continued_prediction else model_knn.predict(
+        test_set_features_knn)
 
-    GraphRecognizedPathSegment(path, prefix + "_dt", model_dt, True, test_set_features_dt,
-                               test_set_labels_dt, num_outputs, use_continued_prediction)
-    GraphRecognizedPathSegment(path, prefix + "_knn", model_knn, False, test_set_features_knn,
-                               test_set_labels_knn, num_outputs, use_continued_prediction)
+    GraphTrueVsPredicted(path, prefix + "_dt", True, test_set_labels_dt, num_outputs, predicted_dt)
+    GraphTrueVsPredicted(path, prefix + "_knn", False, test_set_labels_knn, num_outputs, predicted_knn)
 
-    GraphLocationMisclassified(path, prefix + "_dt", model_dt, True, test_set_features_dt,
-                               test_set_labels_dt, num_outputs, use_continued_prediction)
-    GraphLocationMisclassified(path, prefix + "_knn", model_knn, False, test_set_features_knn,
-                               test_set_labels_knn, num_outputs, use_continued_prediction)
+    GraphRecognizedPathSegment(path, prefix + "_dt", True, test_set_labels_dt, predicted_dt)
+    GraphRecognizedPathSegment(path, prefix + "_knn", False, test_set_labels_knn, predicted_knn)
 
-    GraphLocationMisclassification(path, prefix + "_dt", model_dt, True, test_set_features_dt,
-                                   test_set_labels_dt, num_outputs, use_continued_prediction)
-    GraphLocationMisclassification(path, prefix + "_knn", model_knn, False, test_set_features_knn,
-                                   test_set_labels_knn, num_outputs, use_continued_prediction)
+    GraphLocationMisclassified(path, prefix + "_dt", True, test_set_labels_dt, num_outputs, predicted_dt)
+    GraphLocationMisclassified(path, prefix + "_knn", False, test_set_labels_knn, num_outputs, predicted_knn)
 
-    GraphLocationMisclassifiedDistribution(path, prefix + "_dt", model_dt, True, test_set_features_dt,
-                                           test_set_labels_dt, num_outputs, use_continued_prediction)
-    GraphLocationMisclassifiedDistribution(path, prefix + "_knn", model_knn, False, test_set_features_knn,
-                                           test_set_labels_knn, num_outputs, use_continued_prediction)
+    GraphLocationMisclassification(path, prefix + "_dt", True, test_set_labels_dt, num_outputs, predicted_dt)
+    GraphLocationMisclassification(path, prefix + "_knn", False, test_set_labels_knn, num_outputs, predicted_knn)
 
-    GraphPathSegmentMisclassified(path, prefix + "_dt", model_dt, True, test_set_features_dt,
-                                  test_set_labels_dt, num_outputs, use_continued_prediction)
-    GraphPathSegmentMisclassified(path, prefix + "_knn", model_knn, False, test_set_features_knn,
-                                  test_set_labels_knn, num_outputs, use_continued_prediction)
+    GraphLocationMisclassifiedDistribution(path, prefix + "_dt", True, test_set_labels_dt, num_outputs, predicted_dt)
+    GraphLocationMisclassifiedDistribution(path, prefix + "_knn", False, test_set_labels_knn, num_outputs,
+                                           predicted_knn)
 
-    GraphWindowLocationChanges(path, prefix + "_dt", model_dt, True, test_set_features_dt,
-                               test_set_labels_dt, num_outputs, use_continued_prediction)
-    GraphWindowLocationChanges(path, prefix + "_knn", model_knn, False, test_set_features_knn,
-                               test_set_labels_knn, num_outputs, use_continued_prediction)
+    GraphPathSegmentMisclassified(path, prefix + "_dt", True, test_set_labels_dt, predicted_dt)
+    GraphPathSegmentMisclassified(path, prefix + "_knn", False, test_set_labels_knn, predicted_knn)
 
-    GraphWindowConfidence(path, prefix + "_dt", model_dt, True, test_set_features_dt,
-                          test_set_labels_dt, num_outputs, use_continued_prediction)
-    GraphWindowConfidence(path, prefix + "_knn", model_knn, False, test_set_features_knn,
-                          test_set_labels_knn, num_outputs, use_continued_prediction)
+    predicted_dt = model_dt.continued_predict_proba(
+        test_set_features_dt) if use_continued_prediction else model_dt.predict_proba(
+        test_set_features_dt)
 
-    GraphWindowConfidenceNotZero(path, prefix + "_dt", model_dt, True, test_set_features_dt,
-                                 test_set_labels_dt, num_outputs, use_continued_prediction)
-    GraphWindowConfidenceNotZero(path, prefix + "_knn", model_knn, False, test_set_features_knn,
-                                 test_set_labels_knn, num_outputs, use_continued_prediction)
+    GraphWindowLocationChanges(path, prefix + "_dt", predicted_dt)
+    GraphWindowLocationChanges(path, prefix + "_knn", predicted_knn)
 
-    LogMetrics(path, prefix + "_dt", model_dt, True, test_set_features_dt,
-               test_set_labels_dt, num_outputs, use_continued_prediction)
+    GraphWindowConfidence(path, prefix + "_dt", predicted_dt)
+    GraphWindowConfidence(path, prefix + "_knn", predicted_knn)
 
-    LogMetrics(path, prefix + "_knn", model_knn, False, test_set_features_knn,
-               test_set_labels_knn, num_outputs, use_continued_prediction)
+    GraphWindowConfidenceNotZero(path, prefix + "_dt", predicted_dt)
+    GraphWindowConfidenceNotZero(path, prefix + "_knn", predicted_knn)
+
+    LogMetrics(path, prefix + "_dt", predicted_dt)
+    LogMetrics(path, prefix + "_knn", predicted_knn)
 
     CompileLog(path, prefix + "_dt")
     CompileLog(path, prefix + "_knn")
@@ -178,13 +169,11 @@ with open("/home/shino/Uni/master_thesis/bin/evaluation_data.pkl", 'rb') as file
             test_sets_knn.append(np.asarray(new_set_knn).copy())
             test_labels_knn.append(np.asarray(new_labels_knn).copy())
 
-        print(test_sets_knn[0])
-
         # test_set_names = ["anomaly", "anomaly2", "simple_square", "long_rectangle", "rectangle_with_ramp", "many_corners", "combination",
         #                  "faulty_permuted_paths", "faulty_nulled_acceleration", "faulty_nulled_light",
         #                  "faulty_nulled_access_point", "faulty_nulled_heading", "faulty_nulled_temperature",
         #                  "faulty_nulled_volume", "faulty_random_acceleration_deviation", "faulty_access_point_random_not_detect"]
-        #test_set_names = ["anomaly", "anomaly2", "simple_square", "combination"]
+        # test_set_names = ["anomaly", "anomaly2", "simple_square", "combination"]
         test_set_names = ["combination"]
         for k in range(len(test_set_names)):
             path = "/home/shino/Uni/master_thesis/bin/main_evaluation/" + test_set_names[k] + "/"

@@ -3,18 +3,14 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 
-from sources.ffnn.gen_ffnn import GenerateFFNN
-
 
 class GraphTrueVsPredicted:
-    def __init__(self, path, prefix, model, is_dt, test_features, test_labels, num_outputs, use_continued_prediction):
+    def __init__(self, path, prefix, is_dt, test_labels, num_outputs, prediction):
         self.prefix = prefix
-        self.model = model
         self.is_dt = is_dt
-        self.test_features = np.asarray(test_features)
         self.test_labels = np.asarray(test_labels)
         self.num_outputs = num_outputs
-        self.use_continued_prediction = use_continued_prediction
+        self.prediction = prediction
 
         # Configuration
         self.file_path = path + prefix + "/"
@@ -29,19 +25,11 @@ class GraphTrueVsPredicted:
         return "{0}_true_vs_predicted.png".format(self.prefix)
 
     def __generate_graph(self):
-        predicted = 0
-        if self.use_continued_prediction:
-            predicted = self.model.continued_predict(
-                self.test_features) if self.is_dt else GenerateFFNN.static_continued_predict(self.model,
-                                                                                             self.test_features,
-                                                                                             self.num_outputs)
-        else:
-            predicted = self.model.predict(self.test_features)
         y_true_position = self.test_labels
-        y_predicted_position = predicted
+        y_predicted_position = self.prediction
         if not self.is_dt:
             y_true_position = [np.asarray(x).argmax() for x in self.test_labels]
-            y_predicted_position = [np.asarray(x).argmax() for x in predicted]
+            y_predicted_position = [np.asarray(x).argmax() for x in self.prediction]
 
         accuracy = 0
         accuracy_given_location_is_cont_the_same_and_within_5_entries = 0
@@ -137,8 +125,8 @@ class GraphTrueVsPredicted:
         log_file.close()
 
         fig, ax1 = plt.subplots()
-        ax1.plot(range(len(predicted)), y_true_position, "o-g")
-        ax1.plot(range(len(predicted)), y_predicted_position, "*-b")
+        ax1.plot(range(len(self.prediction)), y_true_position, "o-g")
+        ax1.plot(range(len(self.prediction)), y_predicted_position, "*-b")
         ax1.set_xlabel("Pfadeintrag (Diskret)")
         ax1.set_ylabel("Position (Diskret)")
         ax1.set_ylim([0, self.num_outputs - 1])

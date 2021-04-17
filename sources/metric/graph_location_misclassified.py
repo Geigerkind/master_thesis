@@ -3,18 +3,14 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 
-from sources.ffnn.gen_ffnn import GenerateFFNN
-
 
 class GraphLocationMisclassified:
-    def __init__(self, path, prefix, model, is_dt, test_features, test_labels, num_outputs, use_continued_prediction):
+    def __init__(self, path, prefix, is_dt, test_labels, num_outputs, prediction):
         self.prefix = prefix
-        self.model = model
         self.is_dt = is_dt
-        self.test_features = np.asarray(test_features)
         self.test_labels = np.asarray(test_labels)
         self.num_outputs = num_outputs
-        self.use_continued_prediction = use_continued_prediction
+        self.prediction = prediction
 
         # Configuration
         self.file_path = path + prefix + "/"
@@ -39,15 +35,6 @@ class GraphLocationMisclassified:
         return self.__get_discrete_label(test) == self.__get_discrete_label(predicted)
 
     def __calculate_location_misclassified(self):
-        predicted = 0
-        if self.use_continued_prediction:
-            predicted = self.model.continued_predict(
-                self.test_features) if self.is_dt else GenerateFFNN.static_continued_predict(self.model,
-                                                                                             self.test_features,
-                                                                                             self.num_outputs)
-        else:
-            predicted = self.model.predict(self.test_features)
-
         result = dict()
         total = dict()
         for i in range(int(self.num_outputs)):
@@ -57,7 +44,7 @@ class GraphLocationMisclassified:
         for i in range(len(self.test_labels)):
             real_label = self.__get_discrete_label(self.test_labels[i])
             total[real_label] = total[real_label] + 1
-            if not self.__compare_predicted(self.test_labels[i], predicted[i]):
+            if not self.__compare_predicted(self.test_labels[i], self.prediction[i]):
                 result[real_label] = result[real_label] + 1
 
         log_file = open(self.file_path + "log_location_misclassified.csv", "w")

@@ -3,18 +3,13 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 
-from sources.ffnn.gen_ffnn import GenerateFFNN
-
 
 class GraphRecognizedPathSegment:
-    def __init__(self, path, prefix, model, is_dt, test_features, test_labels, num_outputs, use_continued_prediction):
+    def __init__(self, path, prefix, is_dt, test_labels, prediction):
         self.prefix = prefix
-        self.model = model
         self.is_dt = is_dt
-        self.test_features = np.asarray(test_features)
         self.test_labels = np.asarray(test_labels)
-        self.num_outputs = num_outputs
-        self.use_continued_prediction = use_continued_prediction
+        self.prediction = prediction
 
         # Configuration
         self.file_path = path + prefix + "/"
@@ -41,17 +36,9 @@ class GraphRecognizedPathSegment:
 
     def __calculate_path_segments(self):
         result = []
-        predicted = 0
-        if self.use_continued_prediction:
-            predicted = self.model.continued_predict(
-                self.test_features) if self.is_dt else GenerateFFNN.static_continued_predict(self.model,
-                                                                                             self.test_features,
-                                                                                             self.num_outputs)
-        else:
-            predicted = self.model.predict(self.test_features)
 
         current_location = self.__get_discrete_label(self.test_labels[0])
-        previous_prediction = self.__get_discrete_label(predicted[0])
+        previous_prediction = self.__get_discrete_label(self.prediction[0])
         current_location_guessed = False
         count = 0
         same_prediction_count = 1
@@ -68,7 +55,7 @@ class GraphRecognizedPathSegment:
                     result.append(-same_prediction_count)
                     same_prediction_count = 0
 
-            if self.__compare_predicted(self.test_labels[i], predicted[i]):
+            if self.__compare_predicted(self.test_labels[i], self.prediction[i]):
                 if not current_location_guessed:
                     result.append(count)
                     current_location_guessed = True
@@ -76,7 +63,7 @@ class GraphRecognizedPathSegment:
             else:
                 count = count + 1
                 same_prediction_count = 1
-            previous_prediction = self.__get_discrete_label(predicted[i])
+            previous_prediction = self.__get_discrete_label(self.prediction[i])
 
         return np.asarray(result)
 
