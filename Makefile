@@ -1,9 +1,15 @@
 ## Setup all variables
 PYTHON = python3
-GCC = gcc
+PDFLATEX = pdflatex
+BIBTEX = bibtex
+BASH = bash
 
-## Development tasks
+eval:
+	PYTHONPATH="/home/shino/Uni/master_thesis" $(PYTHON) sources/build/eval.py
 
-gen:
+graphs:
+	PYTHONPATH="/home/shino/Uni/master_thesis" $(PYTHON) sources/build/eval_graphs.py
 
-test:
+reeval:
+	PYTHONPATH="/home/shino/Uni/master_thesis" $(PYTHON) sources/build/eval.py
+	PYTHONPATH="/home/shino/Uni/master_thesis" $(PYTHON) sources/build/eval_graphs.py
