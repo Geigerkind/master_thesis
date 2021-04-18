@@ -29,12 +29,12 @@ NUM_EPOCHS_PER_CYCLE = 75
 
 features = [Features.PreviousLocation, Features.AccessPointDetection, Features.Temperature,
             Features.Heading, Features.Volume, Features.Time, Features.Angle, Features.Acceleration, Features.Light]
-# data = DataCompiler([DataSet.SimpleSquare], features, False, False)
+# data = DataCompiler([DataSet.SimpleSquare], features, True, True)
 data = DataCompiler([DataSet.SimpleSquare, DataSet.LongRectangle, DataSet.RectangleWithRamp, DataSet.ManyCorners],
-                    features, True, False)
+                    features, True, True)
 
 print("Saving data...")
-with open("/home/shino/Uni/master_thesis/bin/evaluation_data.pkl", 'wb') as file:
+with open("/home/shino/Uni/master_thesis/bin/main_evaluation/evaluation_data.pkl", 'wb') as file:
     pickle.dump(data, file)
 
 print("")
@@ -70,10 +70,10 @@ for data_set_index in range(len(data.result_features_dt)):
     knn_next_cycle_features = knn_next_cycle_features + data.result_features_knn[data_set_index][0]
     knn_next_cycle_labels = knn_next_cycle_labels + data.result_labels_knn[data_set_index][0]
 
-log_acc_per_cycle = open("/home/shino/Uni/master_thesis/bin/log_accuracy_per_cycle.csv", "w")
+log_acc_per_cycle = open("/home/shino/Uni/master_thesis/bin/main_evaluation/log_accuracy_per_cycle.csv", "w")
 log_acc_per_cycle.write("cycle,accuracy_dt,accuracy_knn\n")
 
-log_knn_hist = open("/home/shino/Uni/master_thesis/bin/log_knn_history.csv", "w")
+log_knn_hist = open("/home/shino/Uni/master_thesis/bin/main_evaluation/log_knn_history.csv", "w")
 log_knn_hist.write("cycle,index,loss,accuracy,val_loss,val_accuracy\n")
 
 model_knn = 0
@@ -165,10 +165,10 @@ log_acc_per_cycle.close()
 log_knn_hist.close()
 
 print("Saving models...")
-with open("/home/shino/Uni/master_thesis/bin/evaluation_dt_model.pkl", 'wb') as file:
+with open("/home/shino/Uni/master_thesis/bin/main_evaluation/evaluation_dt_model.pkl", 'wb') as file:
     pickle.dump(model_dt, file)
 
-model_knn.save("/home/shino/Uni/master_thesis/bin/evaluation_knn_model.h5")
+model_knn.save("/home/shino/Uni/master_thesis/bin/main_evaluation/evaluation_knn_model.h5")
 
 print("")
 
@@ -187,7 +187,7 @@ ax1.set_ylabel("Klassifizierungsgenauigkeit")
 ax1.set_ylim([0, 1])
 ax1.set_title("Klassifizierungsgenauigkeit über Trainingszyklen")
 fig.legend(['Entscheidungsbaum', 'Künstliches Neuronale Netzwerk'], loc='upper left')
-plt.savefig("/home/shino/Uni/master_thesis/bin/evaluation_acc_per_cycle.png")
+plt.savefig("/home/shino/Uni/master_thesis/bin/main_evaluation/evaluation_acc_per_cycle.png")
 plt.clf()
 plt.close(fig)
 
@@ -202,7 +202,7 @@ ax2.plot(range(NUM_EPOCHS_PER_CYCLE), knn_hist["accuracy"], "*-b")
 ax2.set_ylabel("Klassifizierungsgenauigkeit")
 ax2.set_ylim([0, 1])
 fig.legend(['Loss', 'Klassifizierungsgenauigkeit'], loc='upper left')
-plt.savefig("/home/shino/Uni/master_thesis/bin/evaluation_loss_acc_training.png")
+plt.savefig("/home/shino/Uni/master_thesis/bin/main_evaluation/evaluation_loss_acc_training.png")
 plt.clf()
 plt.close(fig)
 
@@ -217,6 +217,6 @@ ax2.plot(range(NUM_EPOCHS_PER_CYCLE), knn_hist["val_accuracy"], "*-b")
 ax2.set_ylabel("Klassifizierungsgenauigkeit")
 ax2.set_ylim([0, 1])
 fig.legend(['Loss', 'Klassifizierungsgenauigkeit'], loc='upper left')
-plt.savefig("/home/shino/Uni/master_thesis/bin/evaluation_loss_acc_validation.png")
+plt.savefig("/home/shino/Uni/master_thesis/bin/main_evaluation/evaluation_loss_acc_validation.png")
 plt.clf()
 plt.close(fig)

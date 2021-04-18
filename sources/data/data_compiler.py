@@ -15,57 +15,67 @@ from sources.feature.mean import FeatureMean
 from sources.feature.min import FeatureMin
 from sources.feature.standard_deviation import FeatureStandardDeviation
 
+# Random seed initialization
 np.random.seed(0)
 os.environ['PYTHONHASHSEED'] = str(0)
 
 
-def parallelize(data, func, args):
-    cores = cpu_count()
-    map_args = []
-    data_split = np.array_split(data, cores)
-    for split in data_split:
-        map_args.append([split, args])
-    pool = Pool(cores)
-    data = pd.concat(pool.map(func, map_args))
-    pool.close()
-    pool.join()
-    return data
+####################################
+# Methods used for parallelization #
+####################################
+# Those have been added here,
+# because they cant be pickled
+# as class object
+
+def par_ibs_process_data_set_row(args):
+    data_set, row_index_before, row_index_after = args
+    row_before = data_set.iloc[row_index_before]
+    row_after = data_set.iloc[row_index_after]
+    pir_total_acc = abs(row_before["x_acc"] + row_before["y_acc"] + row_before["z_acc"])
+    return (abs(
+        abs(row_after["x_acc"] + row_after["y_acc"] + row_after["z_acc"]) - pir_total_acc) >= 0.05 * pir_total_acc) \
+           or (abs(row_before["heading"] - row_after["heading"]) >= 20) \
+           or (abs(row_before["temperature"] - row_after["temperature"]) >= 0.15 * row_before["temperature"]) \
+           or (abs(row_before["light"] - row_after["light"]) >= 0.1 * row_before["light"]) \
+           or (row_before["access_point_0"] != row_after["access_point_0"]) \
+           or (row_before["access_point_1"] != row_after["access_point_1"]) \
+           or (row_before["access_point_2"] != row_after["access_point_2"]) \
+           or (row_before["access_point_3"] != row_after["access_point_3"]) \
+           or (row_before["access_point_4"] != row_after["access_point_4"])
 
 
-def adjust_pos(ad_row, offset):
-    ad_row["pos"] = ad_row["pos"] + 1
-    ad_row["original_pos"] = ad_row["pos"]
-    ad_row["pos"] = ad_row["pos"] + offset
-    return ad_row
+def par_lrd_adjust_pos(input_args):
+    def adjust_pos(ad_row, offset):
+        ad_row["pos"] = ad_row["pos"] + 1
+        ad_row["original_pos"] = ad_row["pos"]
+        ad_row["pos"] = ad_row["pos"] + offset
+        return ad_row
 
-
-def apply_adjust_pos_to_df(input_args):
     df, offset = input_args
     return df.apply(lambda i_row: adjust_pos(i_row, offset), axis=1)
 
 
-def set_location(row, args):
-    initial_positions, proximity = args
-    pt = None
-    for point in initial_positions.values():
-        distance = math.sqrt((row["x_pos"] - point["x_pos"]) ** 2 + (row["y_pos"] - point["y_pos"]) ** 2)
-        if distance <= proximity:
-            pt = point
-            break
+def par_lrd_set_location(input_args):
+    def set_location(row, args):
+        initial_positions, proximity = args
+        pt = None
+        for point in initial_positions.values():
+            distance = math.sqrt((row["x_pos"] - point["x_pos"]) ** 2 + (row["y_pos"] - point["y_pos"]) ** 2)
+            if distance <= proximity:
+                pt = point
+                break
 
-    if pt is None:
-        row["location"] = 0
-    else:
-        row["location"] = pt["pos"]
-    return row
+        if pt is None:
+            row["location"] = 0
+        else:
+            row["location"] = pt["pos"]
+        return row
 
-
-def apply_set_location_to_df(input_args):
     df, args = input_args
     return df.apply(lambda i_row: set_location(i_row, args), axis=1)
 
 
-def calculate_features(args):
+def par_ef_calculate_features(args):
     data, i, window_size, features, lookback_window = args
     result = []
 
@@ -161,35 +171,15 @@ def calculate_features(args):
     return window.iloc[window_size - 1]["cycle"], window.iloc[window_size - 1]["location"], result
 
 
-def process_data_set(args):
-    data_set, count, total_len = args
-    print("Processing data set {0} of {1}".format(count, total_len))
-    # previous interrupt row
-    pir = data_set.iloc[0]
-    new_df = DataFrame(columns=data_set.keys())
-    for row in data_set.iterrows():
-        pir_total_acc = abs(pir["x_acc"] + pir["y_acc"] + pir["z_acc"])
-        if (abs(abs(row[1]["x_acc"] + row[1]["y_acc"] + row[1]["z_acc"]) - pir_total_acc) >= 0.05 * pir_total_acc) \
-                or (abs(pir["heading"] - row[1]["heading"]) >= 20) \
-                or (abs(pir["temperature"] - row[1]["temperature"]) >= 0.15 * pir["temperature"]) \
-                or (abs(pir["light"] - row[1]["light"]) >= 0.1 * pir["light"]) \
-                or (pir["access_point_0"] != row[1]["access_point_0"]) \
-                or (pir["access_point_1"] != row[1]["access_point_1"]) \
-                or (pir["access_point_2"] != row[1]["access_point_2"]) \
-                or (pir["access_point_3"] != row[1]["access_point_3"]) \
-                or (pir["access_point_4"] != row[1]["access_point_4"]):
-            pir = row[1]
-            new_df = new_df.append(row[1], ignore_index=True)
-
-    print("Reduced the data set " + str(count) + " by: %.2f Percent" % (100 * (1 - (len(new_df) / len(data_set)))))
-    print("Finished processing data set {0} of {1}".format(count, total_len))
-    return new_df
-
-
 class DataCompiler:
     def __init__(self, data_sets, features, train_with_faulty_data=False, encode_paths_between_as_location=False,
                  use_synthetic_routes=False, proximity=0.1):
         """
+        This tool compiles provided data sets with given features into training data for decision trees and knn.
+        It extracts features, encodes the locations, creates faulty sets and creates synthetic routes.
+        It attempts to utilize all processing power available to cope for the massive influx of data as
+        fast as possible.
+
         :param data_sets: Array of data sets that should be processed, see "DataSet"-Enum
         :param features: Set of features that should be used, see "Features"-Enum
         :param train_with_faulty_data: If "True", adds faulty data to the training sets
@@ -197,6 +187,14 @@ class DataCompiler:
         :param use_synthetic_routes: Adds synthetic routes to the training data
         :param proximity: The proximity in which a location around the first labeled location is considered this location
         """
+        # Input variables
+        self.data_sets = data_sets
+        self.use_synthetic_routes = use_synthetic_routes
+        self.features = features
+        self.train_with_faulty_data = train_with_faulty_data
+        self.encode_paths_between_as_location = encode_paths_between_as_location
+        self.proximity = proximity
+
         # Configuration
         self.num_cycles = 20
         self.num_validation_cycles = 5
@@ -204,11 +202,17 @@ class DataCompiler:
         self.window_size = 3
         self.lookback_window = 1  # NOT FULLY IMPLEMENTED!
 
+        # Internal configuration
+        self.__num_temporary_test_sets = 3  # Note the anomaly set added at the load
+
         # Declarations
+        self.__data_sets = dict()
+        self.__raw_data = []
+
         self.num_outputs = 0
         self.num_inputs = 0
-        self.raw_data = []
 
+        self.result_raw_data = []
         self.result_features_dt = []
         self.result_features_knn = []
         self.result_labels_dt = []
@@ -220,24 +224,84 @@ class DataCompiler:
         self.faulty_labels_dt = []
         self.faulty_labels_knn = []
 
-        # Input variables
-        self.data_sets = data_sets
-        self.use_synthetic_routes = use_synthetic_routes
-        self.features = features
-        self.train_with_faulty_data = train_with_faulty_data
-        self.encode_paths_between_as_location = encode_paths_between_as_location
+        self.temporary_test_set_raw_data = []
+        self.temporary_test_set_features_dt = []
+        self.temporary_test_set_features_knn = []
+        self.temporary_test_set_labels_dt = []
+        self.temporary_test_set_labels_knn = []
 
-        # Temporarily add anomaly data set so it gets processed
-        self.data_sets = data_sets + [DataSet.Anomaly]
+        # Execute the compiler steps
+        self.num_outputs = self.__load_raw_data() + 1
+        self.__raw_data = [x for x in self.__data_sets.values()] + self.__generate_synthetic_routes()
+        self.__create_temporary_test_sets()
+        self.__add_synthetic_sensor_data()
+        self.__interrupt_based_selection()
+        self.__remove_temporary_test_sets()
+        self.__create_faulty_data_sets()
+        self.__extract_features()
+        self.__configure_variables()
 
-        self.__data_sets = dict()
+    def __configure_variables(self):
+        self.result_raw_data = self.__raw_data
+        self.__raw_data = 0
+        self.__data_sets = 0
+
+        self.num_inputs = len(self.result_features_knn[0][0][0])
+        if self.train_with_faulty_data:
+            self.result_features_dt = self.result_features_dt + self.faulty_features_dt
+            self.result_features_knn = self.result_features_knn + self.faulty_features_knn
+            self.result_labels_dt = self.result_labels_dt + self.faulty_labels_dt
+            self.result_labels_knn = self.result_labels_knn + self.faulty_labels_knn
+
+    def __remove_temporary_test_sets(self):
+        for _ in range(self.__num_temporary_test_sets):
+            self.temporary_test_set_raw_data.append(self.__raw_data.pop())
+
+    def __create_temporary_test_sets(self):
+        set1 = self.__glue_routes_together(DataSet.SimpleSquare, DataSet.Anomaly, 5)
+        set2 = self.__create_combined_test_route()
+
+        # temporarily add it to raw data such that sensor data is added
+        self.__raw_data.append(set1)
+        self.__raw_data.append(set2)
+
+    def __generate_synthetic_routes(self):
+        # Generate synthetic routes by gluing routes together and adjusting timestamps accordingly.
+        synthetic_routes = []
+        # NOTE: xyz-pos has not been adjusted!
+        if self.use_synthetic_routes:
+            if DataSet.SimpleSquare in self.data_sets:
+                if DataSet.ManyCorners in self.data_sets:
+                    synthetic_routes.append(self.__glue_routes_together(DataSet.SimpleSquare, DataSet.ManyCorners, 3))
+
+                if DataSet.LongRectangle in self.data_sets:
+                    synthetic_routes.append(self.__glue_routes_together(DataSet.SimpleSquare, DataSet.LongRectangle, 5))
+
+                if DataSet.RectangleWithRamp in self.data_sets:
+                    synthetic_routes.append(
+                        self.__glue_routes_together(DataSet.SimpleSquare, DataSet.RectangleWithRamp, 2))
+        return synthetic_routes
+
+    def __load_raw_data(self):
+        def parallelize(data, func, args):
+            cores = cpu_count()
+            map_args = []
+            data_split = np.array_split(data, cores)
+            for split in data_split:
+                map_args.append([split, args])
+            pool = Pool(cores)
+            data = pd.concat(pool.map(func, map_args))
+            pool.close()
+            pool.join()
+            return data
+
         location_offset = 0
-        for data_set in self.data_sets:
+        for data_set in self.data_sets + [DataSet.Anomaly]:
             print("Loading Dataset: {0}".format(data_set.value))
             self.__data_sets[data_set] = pd.read_csv("/home/shino/Uni/master_thesis/bin/data/" + data_set.value)
 
             print("Adjusting pos...")
-            self.__data_sets[data_set] = parallelize(self.__data_sets[data_set], apply_adjust_pos_to_df,
+            self.__data_sets[data_set] = parallelize(self.__data_sets[data_set], par_lrd_adjust_pos,
                                                      location_offset)
             location_offset = self.__data_sets[data_set]["pos"].max()
 
@@ -246,8 +310,8 @@ class DataCompiler:
             for row in self.__data_sets[data_set].iterrows():
                 if not (row[1]["pos"] in initial_positions):
                     initial_positions[row[1]["pos"]] = row[1]
-            self.__data_sets[data_set] = parallelize(self.__data_sets[data_set], apply_set_location_to_df,
-                                                     [initial_positions, proximity])
+            self.__data_sets[data_set] = parallelize(self.__data_sets[data_set], par_lrd_set_location,
+                                                     [initial_positions, self.proximity])
 
             if self.encode_paths_between_as_location:
                 print("Label paths between locations...")
@@ -263,72 +327,7 @@ class DataCompiler:
                             location_offset = location_offset + 1
                             location_map[row[1]["location"]] = location_offset
                         previous_non_zero_pos = row[1]["location"]
-
-        # Generate synthetic routes by gluing routes together and adjusting timestamps accordingly.
-        synthetic_routes = []
-        # NOTE: xyz-pos has not been adjusted!
-        if self.use_synthetic_routes:
-            if DataSet.SimpleSquare in data_sets:
-                if DataSet.ManyCorners in data_sets:
-                    synthetic_routes.append(self.__glue_routes_together(DataSet.SimpleSquare, DataSet.ManyCorners, 3))
-
-                if DataSet.LongRectangle in data_sets:
-                    synthetic_routes.append(self.__glue_routes_together(DataSet.SimpleSquare, DataSet.LongRectangle, 5))
-
-                if DataSet.RectangleWithRamp in data_sets:
-                    synthetic_routes.append(
-                        self.__glue_routes_together(DataSet.SimpleSquare, DataSet.RectangleWithRamp, 2))
-
-        # Set raw data array
-        raw_data = []
-        for data_set in self.__data_sets.values():
-            raw_data.append(data_set)
-        raw_data = raw_data + synthetic_routes
-
-        # temporarily add it to raw data such that sensor data is added
-        self.raw_anomaly2_data_set = self.__glue_routes_together(DataSet.SimpleSquare, DataSet.Anomaly, 5)
-        raw_data.append(self.raw_anomaly2_data_set)
-
-        self.raw_combined_test_route = self.__create_combined_test_route()
-        raw_data.append(self.raw_combined_test_route)
-
-        self.__data_sets = 0
-        synthetic_routes = 0
-        self.raw_data = raw_data
-        raw_data = 0
-
-        self.test_route_features_dt = []
-        self.test_route_features_knn = []
-        self.test_route_labels_dt = []
-        self.test_route_labels_knn = []
-
-        self.__add_synthetic_sensor_data()
-        self.__interrupt_based_selection()
-
-        # Remove anomaly data again
-        self.raw_anomaly_data_set = self.raw_data.pop(len(self.raw_data) - 3)
-        self.raw_anomaly2_data_set = self.raw_data.pop(len(self.raw_data) - 2)
-
-        self.anomaly_features_dt = []
-        self.anomaly_features_knn = []
-        self.anomaly_labels_dt = []
-        self.anomaly_labels_knn = []
-
-        self.__create_faulty_data_sets()
-
-        # Remove test route from raw data again
-        self.raw_combined_test_route = self.raw_data.pop()
-
-        self.num_outputs = location_offset + 1
-        self.__extract_features()
-
-        if self.train_with_faulty_data:
-            self.result_features_dt = self.result_features_dt + self.faulty_features_dt
-            self.result_features_knn = self.result_features_knn + self.faulty_features_knn
-            self.result_labels_dt = self.result_labels_dt + self.faulty_labels_dt
-            self.result_labels_knn = self.result_labels_knn + self.faulty_labels_knn
-
-        self.num_inputs = len(self.result_features_knn[0][0][0])
+        return location_offset
 
     def __create_combined_test_route(self):
         if DataSet.ManyCorners in self.data_sets and DataSet.LongRectangle in self.data_sets and DataSet.ManyCorners in self.data_sets:
@@ -340,8 +339,7 @@ class DataCompiler:
 
     def __create_faulty_data_sets(self):
         print("Creating faulty data sets...")
-        for data_set in self.raw_data:
-
+        for data_set in self.__raw_data:
             # Permute paths randomly
             print("Creating permuted paths set...")
             result_permutation = DataFrame()
@@ -434,7 +432,7 @@ class DataCompiler:
             [3, 3]
         ]
 
-        for data_set in self.raw_data:
+        for data_set in self.__raw_data:
             for ap in range(len(access_point_positions)):
                 data_set["access_point_{0}".format(ap)] = ((data_set["x_pos"] - access_point_positions[ap][0]) ** 2 + (
                         data_set["y_pos"] - access_point_positions[ap][1]) ** 2).apply(
@@ -471,7 +469,7 @@ class DataCompiler:
 
             return temps[np.asarray([abs(x - ambient_temperature) for x in temps]).argmax()]
 
-        for data_set in self.raw_data:
+        for data_set in self.__raw_data:
             data_set["temperature"] = data_set.apply(calculate_temperature, axis=1)
 
         ############################
@@ -552,7 +550,7 @@ class DataCompiler:
 
             return facing
 
-        for data_set in self.raw_data:
+        for data_set in self.__raw_data:
             data_set["heading"] = data_set.apply(calculate_heading, axis=1)
 
         #################
@@ -615,21 +613,31 @@ class DataCompiler:
                         return background_noise
             return background_noise
 
-        for data_set in self.raw_data:
+        for data_set in self.__raw_data:
             data_set["volume"] = data_set.apply(calculate_volume, axis=1)
 
     def __interrupt_based_selection(self):
         # We collect data from all sensors if any of the sensors sends an interrupt
         # Therefore we define here for each row if it should fire an "interrupt"
         # compared to the previous row that fired an interrupt
+
         print("Filtering raw data by synthetic interrupts...")
         with Pool(processes=cpu_count()) as pool:
-            args = []
+            new_raw_data = []
             count = 1
-            for data_set in self.raw_data:
-                args.append([data_set, count, len(self.raw_data)])
+            for data_set in self.__raw_data:
+                print("Processing data set {0} of {1}".format(count, len(self.__raw_data)))
+                args = []
+                for i in range(1, len(data_set)):
+                    args.append([data_set, i - 1, i])
+                new_raw_data.append(data_set[[True] + pool.map(par_ibs_process_data_set_row, args)])
+
+                print("Reduced the data set " + str(count) + " by: %.2f Percent" % (
+                            100 * (1 - (len(new_raw_data[count - 1]) / len(data_set)))))
+                print("Finished processing data set {0} of {1}".format(count, len(self.__raw_data)))
                 count = count + 1
-            self.raw_data = pool.map(process_data_set, args)
+
+            self.__raw_data = new_raw_data
 
     def __extract_features(self):
         # For each entry in the raw data array, extract features
@@ -652,7 +660,7 @@ class DataCompiler:
                     args = []
                     for i in range((window_size * lookback_window) + 1, len(data_set)):
                         args.append([data_set, i, window_size, input_features, lookback_window])
-                    result = pool.map(calculate_features, args)
+                    result = pool.map(par_ef_calculate_features, args)
                     for (cycle, label, features) in result:
                         cycles.append(cycle)
                         labels_tmp.append(int(label))
@@ -722,7 +730,7 @@ class DataCompiler:
 
         print("Raw data...")
         result_features_dt, result_features_knn, result_labels_dt, result_labels_knn = extract_from_data_sets(
-            self.raw_data, self.window_size, self.features, self.num_outputs, self.lookback_window)
+            self.__raw_data, self.window_size, self.features, self.num_outputs, self.lookback_window)
         self.result_labels_dt = result_labels_dt
         self.result_labels_knn = result_labels_knn
         self.result_features_dt = result_features_dt
@@ -736,22 +744,13 @@ class DataCompiler:
         self.faulty_features_dt = faulty_features_dt
         self.faulty_features_knn = faulty_features_knn
 
-        print("Combined test route data...")
+        print("Temporary test sets data...")
         tr_features_dt, tr_features_knn, tr_labels_dt, tr_labels_knn = extract_from_data_sets(
-            [self.raw_combined_test_route], self.window_size, self.features, self.num_outputs, self.lookback_window)
+            self.temporary_test_set_raw_data, self.window_size, self.features, self.num_outputs, self.lookback_window)
         self.test_route_labels_dt = tr_labels_dt
         self.test_route_labels_knn = tr_labels_knn
         self.test_route_features_dt = tr_features_dt
         self.test_route_features_knn = tr_features_knn
-
-        print("Anomaly data...")
-        anomaly_features_dt, anomaly_features_knn, anomaly_labels_dt, anomaly_labels_knn = extract_from_data_sets(
-            [self.raw_anomaly_data_set, self.raw_anomaly2_data_set], self.window_size, self.features, self.num_outputs,
-            self.lookback_window)
-        self.anomaly_labels_dt = anomaly_labels_dt
-        self.anomaly_labels_knn = anomaly_labels_knn
-        self.anomaly_features_dt = anomaly_features_dt
-        self.anomaly_features_knn = anomaly_features_knn
 
     def __glue_routes_together(self, data_set1, data_set2, glue_location, provided_route=None):
         pd.set_option('mode.chained_assignment', None)

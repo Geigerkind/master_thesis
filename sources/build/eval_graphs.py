@@ -87,9 +87,9 @@ def exec_gen_graphs(args):
                     test_set_labels_knn, num_outputs, use_continued_prediction)
 
 
-with open("/home/shino/Uni/master_thesis/bin/evaluation_data.pkl", 'rb') as file:
+with open("/home/shino/Uni/master_thesis/bin/main_evaluation/evaluation_data.pkl", 'rb') as file:
     data = pickle.load(file)
-    with open("/home/shino/Uni/master_thesis/bin/evaluation_dt_model.pkl", 'rb') as file:
+    with open("/home/shino/Uni/master_thesis/bin/main_evaluation/evaluation_dt_model.pkl", 'rb') as file:
         map_args = []
         model_dt = pickle.load(file)
 
