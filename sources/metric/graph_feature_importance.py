@@ -37,7 +37,8 @@ class GraphFeatureImportance:
 
     def __generate_graph(self, importances, suffix):
         fig, ax1 = plt.subplots()
-        ax1.bar(self.feature_name_map, importances)
+        ax1.bar(range(len(importances)), importances, align='center')
+        plt.xticks(range(len(importances)), self.feature_name_map, size='small')
         ax1.set_xlabel("Feature (Diskret)")
         if suffix == "dt":
             ax1.set_ylabel("Anteil")

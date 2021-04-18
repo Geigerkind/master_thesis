@@ -278,6 +278,12 @@ class DataCompiler:
             self.name_map_features.append("temperature_min")
             self.name_map_features.append("temperature_mean")
 
+        if Features.Heading in self.features:
+            self.name_map_features.append("heading_std")
+            # self.name_map_features.append("heading_max")
+            # self.name_map_features.append("heading_min")
+            # self.name_map_features.append("heading_mean")
+
         if Features.Volume in self.features:
             self.name_map_features.append("volume_std")
             # self.name_map_features.append("volume_max")

@@ -30,7 +30,7 @@ that help to evaluate how good the models actually are
 def generate_graphs(path, prefix, model_dt, test_set_features_dt, test_set_features_knn, test_set_labels_dt,
                     test_set_labels_knn, num_outputs, use_continued_prediction, feature_name_map):
     # Loaded here cause it cant be pickled
-    model_knn = keras.models.load_model(BIN_FOLDER_PATH + "/evaluation_knn_model.h5")
+    model_knn = keras.models.load_model(BIN_FOLDER_PATH + "/main_evaluation/evaluation_knn_model.h5")
     GraphFeatureImportance(path, "evaluation", model_dt, model_knn, test_set_features_knn, test_set_labels_knn,
                            test_set_features_dt, test_set_labels_dt, feature_name_map)
 
