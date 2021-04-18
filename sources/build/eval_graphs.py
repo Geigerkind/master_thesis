@@ -98,7 +98,7 @@ with open(BIN_FOLDER_PATH + "/main_evaluation/evaluation_data.pkl", 'rb') as fil
             new_labels_dt = []
             new_set_knn = []
             new_labels_knn = []
-            offset = data.num_cylces - data.num_validation_cycles
+            offset = data.num_cycles - data.num_validation_cycles
             for j in range(data.num_validation_cycles):
                 new_set_dt = new_set_dt + features_dt[offset + j]
                 new_labels_dt = new_labels_dt + labels_dt[offset + j]
@@ -222,18 +222,18 @@ with open(BIN_FOLDER_PATH + "/main_evaluation/evaluation_data.pkl", 'rb') as fil
                              test_set_features_knn, test_set_labels_dt, test_set_labels_knn, data.num_outputs,
                              True, data.name_map_features])
 
-            log_compiled = open(BIN_FOLDER_PATH + "/main_evaluation/evaluation/log_compiled.csv", "w")
+            log_compiled = open(path + "evaluation/log_compiled.csv", "w")
             log_compiled.write("accuracy,accuracy_given_previous_location_was_correct,"
                                "accuracy_given_location_is_cont_the_same_and_within_5_entries,"
                                "accuracy_given_location_is_cont_the_same_and_within_10_entries,"
                                "average_path_recognition_delay,times_not_found_path\n")
             log_compiled.close()
 
-            log_compiled = open(BIN_FOLDER_PATH + "/main_evaluation/evaluation/log_compiled_location.csv", "w")
+            log_compiled = open(path + "evaluation/log_compiled_location.csv", "w")
             log_compiled.write("location,times_misclassified_as,times_misclassified,total_location\n")
             log_compiled.close()
 
-            log_compiled = open(BIN_FOLDER_PATH + "/main_evaluation/evaluation/log_compiled_path.csv", "w")
+            log_compiled = open(path + "evaluation/log_compiled_path.csv", "w")
             log_compiled.write("path_segment,recognized_after,times_misclassified,path_len\n")
             log_compiled.close()
 
