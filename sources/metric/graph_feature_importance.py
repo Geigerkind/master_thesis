@@ -8,7 +8,7 @@ from sources.ffnn.gen_ffnn import GenerateFFNN
 
 class GraphFeatureImportance:
     def __init__(self, path, prefix, model_dt, model_knn, test_features_knn, test_labels_knn, test_features_dt,
-                 test_labels_dt):
+                 test_labels_dt, feature_name_map):
         self.prefix = prefix
         self.model_dt = model_dt
         self.model_knn = model_knn
@@ -17,6 +17,7 @@ class GraphFeatureImportance:
         self.test_features_dt = test_features_dt
         self.test_labels_dt = test_labels_dt
         self.path = path
+        self.feature_name_map = feature_name_map
 
         # Configuration
         self.file_path = path + prefix + "/"
@@ -36,7 +37,7 @@ class GraphFeatureImportance:
 
     def __generate_graph(self, importances, suffix):
         fig, ax1 = plt.subplots()
-        ax1.bar(range(len(importances)), importances)
+        ax1.bar(self.feature_name_map, importances)
         ax1.set_xlabel("Feature (Diskret)")
         if suffix == "dt":
             ax1.set_ylabel("Anteil")

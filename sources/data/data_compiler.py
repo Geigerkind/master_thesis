@@ -8,6 +8,7 @@ import pandas as pd
 from pandas import DataFrame
 from sklearn.preprocessing import StandardScaler
 
+from sources.config import BIN_FOLDER_PATH
 from sources.data.data_set import DataSet
 from sources.data.features import Features
 from sources.feature.max import FeatureMax
@@ -104,6 +105,7 @@ def par_ef_calculate_features(args):
                 prev_location = data.iloc[j]["location"]
                 break
 
+        # NOTE: Changes to the features also require changes in __populate_feature_name_map()
         if Features.PreviousLocation in features:
             result.append(window.iloc[window_size - 2]["location"])
             result.append(prev_location)
@@ -166,7 +168,7 @@ def par_ef_calculate_features(args):
             # result.append(FeatureMin(ang_total_abs_col_list).feature)
             # result.append(FeatureMean(ang_total_abs_col_list).feature)
 
-    # TODO: Ist das mitm lbwindow noch korrekt?
+    # TODO: Ist das mitm lbwindow > 1 noch korrekt?
     window = data.iloc[(i - window_size):i, :]
     return window.iloc[window_size - 1]["cycle"], window.iloc[window_size - 1]["location"], result
 
@@ -211,6 +213,11 @@ class DataCompiler:
 
         self.num_outputs = 0
         self.num_inputs = 0
+        self.name_map_features = []
+        self.name_map_data_sets_result = []
+        self.name_map_data_sets_faulty = []
+        self.name_map_data_sets_temporary = []
+        self.__populate_features_name_map()
 
         self.result_raw_data = []
         self.result_features_dt = []
@@ -241,6 +248,51 @@ class DataCompiler:
         self.__extract_features()
         self.__configure_variables()
 
+    def __populate_features_name_map(self):
+        if Features.PreviousLocation in self.features:
+            self.name_map_features.append("previous_location")
+            self.name_map_features.append("previous_distinct_location")
+
+        if Features.Acceleration in self.features:
+            self.name_map_features.append("acc_std")
+            self.name_map_features.append("acc_max")
+            # self.name_map_features.append("acc_min")
+            self.name_map_features.append("acc_mean")
+
+        if Features.Light in self.features:
+            self.name_map_features.append("light_std")
+            self.name_map_features.append("light_max")
+            # self.name_map_features.append("light_min")
+            self.name_map_features.append("light_mean")
+
+        if Features.AccessPointDetection in self.features:
+            self.name_map_features.append("ap_0")
+            self.name_map_features.append("ap_1")
+            self.name_map_features.append("ap_2")
+            self.name_map_features.append("ap_3")
+            self.name_map_features.append("ap_4")
+
+        if Features.Temperature in self.features:
+            self.name_map_features.append("temperature_std")
+            self.name_map_features.append("temperature_max")
+            self.name_map_features.append("temperature_min")
+            self.name_map_features.append("temperature_mean")
+
+        if Features.Volume in self.features:
+            self.name_map_features.append("volume_std")
+            # self.name_map_features.append("volume_max")
+            # self.name_map_features.append("volume_min")
+            # self.name_map_features.append("volume_mean")
+
+        if Features.Time in self.features:
+            self.name_map_features.append("time_std")
+
+        if Features.Angle in self.features:
+            self.name_map_features.append("ang_std")
+            self.name_map_features.append("ang_max")
+            # self.name_map_features.append("ang_min")
+            # self.name_map_features.append("ang_mean")
+
     def __configure_variables(self):
         self.result_raw_data = self.__raw_data
         self.__raw_data = 0
@@ -258,6 +310,10 @@ class DataCompiler:
             self.temporary_test_set_raw_data.append(self.__raw_data.pop())
 
     def __create_temporary_test_sets(self):
+        self.name_map_data_sets_temporary.append("anomaly1")
+        self.name_map_data_sets_temporary.append("anomaly2")
+        self.name_map_data_sets_temporary.append("combined_test_route")
+
         set1 = self.__glue_routes_together(DataSet.SimpleSquare, DataSet.Anomaly, 5)
         set2 = self.__create_combined_test_route()
 
@@ -297,8 +353,11 @@ class DataCompiler:
 
         location_offset = 0
         for data_set in self.data_sets + [DataSet.Anomaly]:
-            print("Loading Dataset: {0}".format(data_set.value))
-            self.__data_sets[data_set] = pd.read_csv("/home/shino/Uni/master_thesis/bin/data/" + data_set.value)
+            print("Loading Dataset: {0}".format(data_set.value[0]))
+            self.__data_sets[data_set] = pd.read_csv(BIN_FOLDER_PATH + "/data/" + data_set.value[0])
+
+            if data_set != DataSet.Anomaly:
+                self.name_map_data_sets_result.append(data_set.value[1])
 
             print("Adjusting pos...")
             self.__data_sets[data_set] = parallelize(self.__data_sets[data_set], par_lrd_adjust_pos,
@@ -339,6 +398,7 @@ class DataCompiler:
 
     def __create_faulty_data_sets(self):
         print("Creating faulty data sets...")
+        count = 0
         for data_set in self.__raw_data:
             # Permute paths randomly
             print("Creating permuted paths set...")
@@ -351,6 +411,7 @@ class DataCompiler:
                     result_permutation = result_permutation.append(split_dataset[index], ignore_index=False)
 
             self.faulty_raw_data.append(result_permutation)
+            self.name_map_data_sets_faulty.append("faulty_" + self.name_map_data_sets_result[count] + "_permuted_paths")
 
             # Set sensor values 0
             print("Creating nulled acceleration set...")
@@ -359,11 +420,14 @@ class DataCompiler:
             nulled_acceleration["y_acc"] = 0
             nulled_acceleration["z_acc"] = 0
             self.faulty_raw_data.append(nulled_acceleration)
+            self.name_map_data_sets_faulty.append(
+                "faulty_" + self.name_map_data_sets_result[count] + "_nulled_acceleration")
 
             print("Creating nulled light set...")
             nulled_light = data_set.copy(deep=True)
             nulled_light["light"] = 0
             self.faulty_raw_data.append(nulled_light)
+            self.name_map_data_sets_faulty.append("faulty_" + self.name_map_data_sets_result[count] + "_nulled_light")
 
             print("Creating nulled access point set...")
             nulled_access_point = data_set.copy(deep=True)
@@ -373,21 +437,27 @@ class DataCompiler:
             nulled_access_point["access_point_3"] = False
             nulled_access_point["access_point_4"] = False
             self.faulty_raw_data.append(nulled_access_point)
+            self.name_map_data_sets_faulty.append(
+                "faulty_" + self.name_map_data_sets_result[count] + "_nulled_access_point")
 
             print("Creating nulled heading set...")
             nulled_heading = data_set.copy(deep=True)
             nulled_heading["heading"] = 0
             self.faulty_raw_data.append(nulled_heading)
+            self.name_map_data_sets_faulty.append("faulty_" + self.name_map_data_sets_result[count] + "_nulled_heading")
 
             print("Creating nulled temperature set...")
             nulled_temperature = data_set.copy(deep=True)
             nulled_temperature["temperature"] = 0
             self.faulty_raw_data.append(nulled_temperature)
+            self.name_map_data_sets_faulty.append(
+                "faulty_" + self.name_map_data_sets_result[count] + "_nulled_temperature")
 
             print("Creating nulled volume set...")
             nulled_volume = data_set.copy(deep=True)
             nulled_volume["volume"] = 0
             self.faulty_raw_data.append(nulled_volume)
+            self.name_map_data_sets_faulty.append("faulty_" + self.name_map_data_sets_result[count] + "_nulled_volume")
 
             print("Creating random acceleration deviations set...")
             max_deviation = 10  # in percent
@@ -396,6 +466,8 @@ class DataCompiler:
             acc_deviation["y_acc"].apply(lambda x: x * ((100 + random.randint(-max_deviation, max_deviation)) / 100))
             acc_deviation["z_acc"].apply(lambda x: x * ((100 + random.randint(-max_deviation, max_deviation)) / 100))
             self.faulty_raw_data.append(acc_deviation)
+            self.name_map_data_sets_faulty.append(
+                "faulty_" + self.name_map_data_sets_result[count] + "_random_acceleration_deviation")
 
             print("Creating access point randomly not detected set...")
             chance_to_detect = 80  # in percent
@@ -410,7 +482,11 @@ class DataCompiler:
                 lambda x: x and random.randint(0, 100) <= chance_to_detect)
             access_point_random_not_detect["access_point_4"].apply(
                 lambda x: x and random.randint(0, 100) <= chance_to_detect)
-            self.faulty_raw_data.append(nulled_access_point)
+            self.faulty_raw_data.append(access_point_random_not_detect)
+            self.name_map_data_sets_faulty.append(
+                "faulty_" + self.name_map_data_sets_result[count] + "_random_access_point_not_detect")
+
+            count = count + 1
 
     def __add_synthetic_sensor_data(self):
         print("Adding synthetic sensor data...")
@@ -633,7 +709,7 @@ class DataCompiler:
                 new_raw_data.append(data_set[[True] + pool.map(par_ibs_process_data_set_row, args)])
 
                 print("Reduced the data set " + str(count) + " by: %.2f Percent" % (
-                            100 * (1 - (len(new_raw_data[count - 1]) / len(data_set)))))
+                        100 * (1 - (len(new_raw_data[count - 1]) / len(data_set)))))
                 print("Finished processing data set {0} of {1}".format(count, len(self.__raw_data)))
                 count = count + 1
 

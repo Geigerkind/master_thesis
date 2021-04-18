@@ -3,6 +3,8 @@ import math
 import matplotlib.pyplot as plt
 import numpy as np
 
+from sources.config import BIN_FOLDER_PATH
+
 """
 I plotted the learn algorithms with this file.
 You can find the plot in the theses at the KNN part of the learn algorithms.
@@ -222,5 +224,5 @@ ax.set_ylim([-2, 2])
 ax.legend(loc=(0.88, 0))
 
 plt.tight_layout()
-plt.savefig("/home/shino/Uni/master_thesis/bin/learn_algorithms.png")
+plt.savefig(BIN_FOLDER_PATH + "/learn_algorithms.png")
 plt.clf()

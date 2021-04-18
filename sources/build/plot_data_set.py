@@ -1,6 +1,8 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 
+from sources.config import BIN_FOLDER_PATH
+
 """
 Tool to plot recorded paths, for visualization.
 It just plots it on a xy plane. But this is sufficient to get an idea of the route and how the points are 
@@ -10,7 +12,7 @@ I used this to put down the various sources for heat, sound, magnetic force etc.
 
 
 def plot_route(name, file_name):
-    route = pd.read_csv("/home/shino/Uni/master_thesis/bin/data/" + file_name)
+    route = pd.read_csv(BIN_FOLDER_PATH + "/data/" + file_name)
     xyz = route[["x_pos", "y_pos", "z_pos"]]
 
     fig, ax = plt.subplots()
@@ -23,7 +25,7 @@ def plot_route(name, file_name):
     ax.grid(True)
     fig.tight_layout()
 
-    plt.savefig("/home/shino/Uni/master_thesis/bin/route_{0}.png".format(name))
+    plt.savefig(BIN_FOLDER_PATH + "/route_{0}.png".format(name))
 
 
 plot_route("simple_square", "simple_square.csv")

@@ -44,7 +44,7 @@ class GenerateFFNN:
         Uses the keras model fit function on the compiled model.
         """
         self.history = self.keras_model.fit(np.asarray(training_data_x), np.asarray(training_data_y), batch_size=50,
-                                            epochs=75, verbose=0,
+                                            epochs=150, verbose=0,
                                             validation_data=(
                                                 np.asarray(validation_data_x), np.asarray(validation_data_y)))
 
@@ -116,6 +116,8 @@ class GenerateFFNN:
         """
         return keras.Sequential([
             layers.Dense(self.input_size, input_dim=self.input_size, activation="relu"),
+            layers.Dense(self.intermediate_size, activation="relu"),
+            layers.Dense(self.intermediate_size, activation="relu"),
             layers.Dense(self.intermediate_size, activation="relu"),
             layers.Dense(self.output_size, activation="sigmoid"),
         ])

@@ -3,6 +3,8 @@ import math
 import matplotlib.pyplot as plt
 import numpy as np
 
+from sources.config import BIN_FOLDER_PATH
+
 """
 I have plotted some activation functions for the KNN part of the thesis.
 Nothing related to training.
@@ -56,7 +58,7 @@ plt.ylim([-1, 5])
 plt.legend(loc="lower right", fontsize=14)
 
 plt.tight_layout()
-plt.savefig("/home/shino/Uni/master_thesis/bin/activation_function_{0}.png".format("relu_varianten"))
+plt.savefig(BIN_FOLDER_PATH + "/activation_function_{0}.png".format("relu_varianten"))
 plt.clf()
 
 # Heaviside Varianten
@@ -67,5 +69,5 @@ plt.xlim([-5, 5])
 plt.ylim([0, 1])
 
 plt.tight_layout()
-plt.savefig("/home/shino/Uni/master_thesis/bin/activation_function_{0}.png".format("heaviside"))
+plt.savefig(BIN_FOLDER_PATH + "/activation_function_{0}.png".format("heaviside"))
 plt.clf()
