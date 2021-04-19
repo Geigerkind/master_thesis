@@ -225,7 +225,7 @@ with open(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_data.pkl", 'rb'
 
             map_args.append([path, "continued_pred_with_faulty_start", model_dt, test_set_features_dt,
                              test_set_features_knn, test_set_labels_dt, test_set_labels_knn, data.num_outputs,
-                             True, data.name_map_features])
+                             True, data.name_map_features, evaluation_name])
 
             log_compiled = open(path + "evaluation/log_compiled.csv", "w")
             log_compiled.write("accuracy,accuracy_given_previous_location_was_correct,"
