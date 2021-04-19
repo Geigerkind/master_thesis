@@ -124,7 +124,7 @@ class GenerateFFNN:
         model.add(layers.Dense(self.input_size, input_dim=self.input_size, activation="relu"))
         for _ in range(self.num_hidden_layers):
             model.add(layers.Dense(self.intermediate_size, activation="relu"))
-        model.add(layers.Dense(self.output_size, activation="sigmoid"))
+        model.add(layers.Dense(self.output_size, activation="softmax"))
         return model
 
     def evaluate_accuracy(self, prediction, reality):

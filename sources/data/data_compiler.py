@@ -829,10 +829,10 @@ class DataCompiler:
         print("Temporary test sets data...")
         tr_features_dt, tr_features_knn, tr_labels_dt, tr_labels_knn = extract_from_data_sets(
             self.temporary_test_set_raw_data, self.window_size, self.features, self.num_outputs, self.lookback_window)
-        self.test_route_labels_dt = tr_labels_dt
-        self.test_route_labels_knn = tr_labels_knn
-        self.test_route_features_dt = tr_features_dt
-        self.test_route_features_knn = tr_features_knn
+        self.temporary_test_set_labels_dt = tr_labels_dt
+        self.temporary_test_set_labels_knn = tr_labels_knn
+        self.temporary_test_set_features_dt = tr_features_dt
+        self.temporary_test_set_features_knn = tr_features_knn
 
     def __glue_routes_together(self, data_set1, data_set2, glue_location, provided_route=None):
         pd.set_option('mode.chained_assignment', None)

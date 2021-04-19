@@ -1,0 +1,26 @@
+\section{Feed Forward neuronales Netzwerk}
+Für das KNN wird ein Feed Forward neuronales Netzwerk verwendet.
+Das FFNN besteht aus drei bis sechs Schichten.
+Alle Schichten, außer der letzten, verwenden ReLU als Aktivierungsfunktion.
+Die letzte Schicht verwendet SoftMax.
+\newline
+\newline
+Die Größe der Eingabeschicht ist abhängig von der Anzahl der verwendeten Features.
+Die Größe der Ausgabeschicht ist die Anzahl der verschieden diskreten Standorte, die unterschieden werden.
+Je nach Konfiguration gibt es 1, 2 oder 4 verdeckte Schichten, die jeweils 16, 32, 64 oder 128 Neuronen haben.
+\newline
+\newline
+Die Standorte sind kategorische Daten, d. h. ihr Wert hate keine Aussage über die Beziehung der Standorte zueinander.
+Aus diesem Grund werden sie kategorische Enkodiert, d. h. aus einem Wert $i$ aus $N$ möglichen Werten wird eine Liste der Größe $N$,
+die überall 0 ist außer an der Stelle $i$, der 1 ist.
+Folglich wird als Kostenfunktion \textit{kategorische Crossentropy} verwendet.
+\newline
+\newline
+Als Lernalgorithmus wird Adam verwendet mit einer Batch-Größe von 50.
+Trainiert wird über 75 Epochen.
+
+\iffalse
+\begin{itemize}
+    \item Braucht man mehr Neuronen/Hidden Layer mit steigender Ort Anzahl?
+\end{itemize}
+\fi

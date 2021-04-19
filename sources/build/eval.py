@@ -38,7 +38,7 @@ NUM_EPOCHS_PER_CYCLE = ffnn_num_epochs
 
 features = [Features.PreviousLocation, Features.AccessPointDetection, Features.Temperature,
             Features.Heading, Features.Volume, Features.Time, Features.Angle, Features.Acceleration, Features.Light]
-data = DataCompiler([DataSet.SimpleSquare], features, True, encode_paths_between_as_location)
+data = DataCompiler([DataSet.SimpleSquare], features, False, encode_paths_between_as_location)
 # data = DataCompiler([DataSet.SimpleSquare, DataSet.LongRectangle, DataSet.RectangleWithRamp, DataSet.ManyCorners],
 #                     features, True, encode_paths_between_as_location)
 
