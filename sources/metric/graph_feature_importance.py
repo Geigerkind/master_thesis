@@ -38,7 +38,7 @@ class GraphFeatureImportance:
     def __generate_graph(self, importances, suffix):
         fig, ax1 = plt.subplots()
         ax1.bar(range(len(importances)), importances, align='center')
-        plt.xticks(range(len(importances)), self.feature_name_map, size='small')
+        plt.xticks(range(len(importances)), self.feature_name_map, size='small', rotation=90)
         ax1.set_xlabel("Feature (Diskret)")
         if suffix == "dt":
             ax1.set_ylabel("Anteil")
@@ -46,6 +46,7 @@ class GraphFeatureImportance:
             ax1.set_ylabel("Klassifizierungsfehler")
         ax1.set_ylim([0, min(1, 2 * np.asarray(importances).max())])
         ax1.set_title("Wichtigkeit der Features")
+        fig.tight_layout()
         plt.savefig("{0}{1}".format(self.file_path, self.__graph_name(suffix)))
         plt.clf()
         plt.close(fig)
