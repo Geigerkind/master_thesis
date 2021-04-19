@@ -10,13 +10,16 @@ from tensorflow.keras import layers
 
 
 class GenerateFFNN:
-    def __init__(self, input_size, output_size):
+    def __init__(self, input_size, output_size, num_hidden_layers, nodes_hidden_layer, num_epochs):
         """
         Generates an FFNN with one hidden layer.
         It uses ReLU and SoftMax for the last layer.
 
         :param input_size: Length of the feature sets
         :param output_size: Amount of classes to be predicted
+        :param num_hidden_layers: The number of hidden layers in the model structure
+        :param nodes_hidden_layer: Amount of neurons per hidden layer
+        :param num_epochs: Number of epochs to be trained
         """
         self.history = 0
 
@@ -31,8 +34,11 @@ class GenerateFFNN:
 
         # Configuration
         self.input_size = input_size
-        self.intermediate_size = 60
+        self.intermediate_size = nodes_hidden_layer
         self.output_size = output_size
+        self.num_hidden_layers = num_hidden_layers
+        self.num_epochs = num_epochs
+        self.batch_size = 50
 
         # Train the model
         self.keras_model = self.model()
@@ -43,8 +49,8 @@ class GenerateFFNN:
         """
         Uses the keras model fit function on the compiled model.
         """
-        self.history = self.keras_model.fit(np.asarray(training_data_x), np.asarray(training_data_y), batch_size=50,
-                                            epochs=150, verbose=0,
+        self.history = self.keras_model.fit(np.asarray(training_data_x), np.asarray(training_data_y),
+                                            batch_size=self.batch_size, epochs=self.num_epochs, verbose=0,
                                             validation_data=(
                                                 np.asarray(validation_data_x), np.asarray(validation_data_y)))
 
@@ -114,13 +120,12 @@ class GenerateFFNN:
 
         :return: Returns the model template.
         """
-        return keras.Sequential([
-            layers.Dense(self.input_size, input_dim=self.input_size, activation="relu"),
-            layers.Dense(self.intermediate_size, activation="relu"),
-            layers.Dense(self.intermediate_size, activation="relu"),
-            layers.Dense(self.intermediate_size, activation="relu"),
-            layers.Dense(self.output_size, activation="sigmoid"),
-        ])
+        model = keras.Sequential()
+        model.add(layers.Dense(self.input_size, input_dim=self.input_size, activation="relu"))
+        for _ in range(self.num_hidden_layers):
+            model.add(layers.Dense(self.intermediate_size, activation="relu"))
+        model.add(layers.Dense(self.output_size, activation="sigmoid"))
+        return model
 
     def evaluate_accuracy(self, prediction, reality):
         return self.__evaluate_accuracy(prediction, reality)

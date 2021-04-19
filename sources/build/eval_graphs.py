@@ -1,6 +1,7 @@
 import os
 import pickle
 import random
+import sys
 from multiprocessing import cpu_count, Pool
 
 import numpy as np
@@ -26,11 +27,13 @@ This file utilizes the evaluated and generated models in order to generate metri
 that help to evaluate how good the models actually are
 """
 
+_, evaluation_name = sys.argv
+
 
 def generate_graphs(path, prefix, model_dt, test_set_features_dt, test_set_features_knn, test_set_labels_dt,
-                    test_set_labels_knn, num_outputs, use_continued_prediction, feature_name_map):
+                    test_set_labels_knn, num_outputs, use_continued_prediction, feature_name_map, evaluation_name):
     # Loaded here cause it cant be pickled
-    model_knn = keras.models.load_model(BIN_FOLDER_PATH + "/main_evaluation/evaluation_knn_model.h5")
+    model_knn = keras.models.load_model(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_knn_model.h5")
     GraphFeatureImportance(path, "evaluation", model_dt, model_knn, test_set_features_knn, test_set_labels_knn,
                            test_set_features_dt, test_set_labels_dt, feature_name_map)
 
@@ -81,14 +84,14 @@ def generate_graphs(path, prefix, model_dt, test_set_features_dt, test_set_featu
 
 def exec_gen_graphs(args):
     path, prefix, model_dt, test_set_features_dt, test_set_features_knn, test_set_labels_dt, \
-    test_set_labels_knn, num_outputs, use_continued_prediction, feature_name_map = args
+    test_set_labels_knn, num_outputs, use_continued_prediction, feature_name_map, evaluation_name = args
     generate_graphs(path, prefix, model_dt, test_set_features_dt, test_set_features_knn, test_set_labels_dt,
-                    test_set_labels_knn, num_outputs, use_continued_prediction, feature_name_map)
+                    test_set_labels_knn, num_outputs, use_continued_prediction, feature_name_map, evaluation_name)
 
 
-with open(BIN_FOLDER_PATH + "/main_evaluation/evaluation_data.pkl", 'rb') as file:
+with open(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_data.pkl", 'rb') as file:
     data = pickle.load(file)
-    with open(BIN_FOLDER_PATH + "/main_evaluation/evaluation_dt_model.pkl", 'rb') as file:
+    with open(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_dt_model.pkl", 'rb') as file:
         map_args = []
         model_dt = pickle.load(file)
 
@@ -155,7 +158,7 @@ with open(BIN_FOLDER_PATH + "/main_evaluation/evaluation_data.pkl", 'rb') as fil
             test_labels_knn.append(np.asarray(new_labels_knn).copy())
 
         for k in range(len(test_set_names)):
-            path = BIN_FOLDER_PATH + "/main_evaluation/" + test_set_names[k] + "/"
+            path = BIN_FOLDER_PATH + "/" + evaluation_name + "/" + test_set_names[k] + "/"
             # Create folder
             try:
                 os.mkdir(path)
@@ -174,10 +177,12 @@ with open(BIN_FOLDER_PATH + "/main_evaluation/evaluation_data.pkl", 'rb') as fil
             test_set_labels_knn = np.asarray(test_labels_knn[k]).copy()
 
             map_args.append([path, "evaluation_continued", model_dt, test_set_features_dt, test_set_features_knn,
-                             test_set_labels_dt, test_set_labels_knn, data.num_outputs, True, data.name_map_features])
+                             test_set_labels_dt, test_set_labels_knn, data.num_outputs, True, data.name_map_features,
+                             evaluation_name])
 
             map_args.append([path, "evaluation", model_dt, test_set_features_dt, test_set_features_knn,
-                             test_set_labels_dt, test_set_labels_knn, data.num_outputs, False, data.name_map_features])
+                             test_set_labels_dt, test_set_labels_knn, data.num_outputs, False, data.name_map_features,
+                             evaluation_name])
 
             # Previous Location with offset
             test_set_features_dt_offset = np.asarray(test_sets_dt[k]).copy()
@@ -191,7 +196,7 @@ with open(BIN_FOLDER_PATH + "/main_evaluation/evaluation_data.pkl", 'rb') as fil
 
             map_args.append([path, "prev_location_offset", model_dt, test_set_features_dt_offset,
                              test_set_features_knn_offset, test_set_labels_dt, test_set_labels_knn, data.num_outputs,
-                             False, data.name_map_features])
+                             False, data.name_map_features, evaluation_name])
 
             # Wrong previous location
             test_set_features_dt_random_location = np.asarray(test_sets_dt[k]).copy()
@@ -205,7 +210,7 @@ with open(BIN_FOLDER_PATH + "/main_evaluation/evaluation_data.pkl", 'rb') as fil
 
             map_args.append([path, "random_prev_location", model_dt, test_set_features_dt_random_location,
                              test_set_features_knn_random_location, test_set_labels_dt, test_set_labels_knn,
-                             data.num_outputs, False, data.name_map_features])
+                             data.num_outputs, False, data.name_map_features, evaluation_name])
 
             # Continued prediction with faulty beginning
             test_set_features_dt = np.asarray(test_sets_dt[k]).copy()

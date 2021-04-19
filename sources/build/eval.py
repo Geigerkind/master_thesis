@@ -1,9 +1,9 @@
 import os
 import pickle
+import sys
 
 import matplotlib.pyplot as plt
 import numpy as np
-import tensorflow as tf
 
 from sources.config import BIN_FOLDER_PATH
 from sources.data.data_compiler import DataCompiler
@@ -18,29 +18,37 @@ This file uses the Data Compiler in order to train the decision tree and FFNN
 just like how it is described in the thesis.
 """
 
+_, encode_paths_between_as_location, dt_forest_size, dt_max_height, ffnn_num_hidden_layers, ffnn_num_nodes_per_hidden_layer, ffnn_num_epochs = sys.argv
+evaluation_name = "eval_{0}_DT_{1}_{2}_KNN_{3}_{4}_{5}".format(encode_paths_between_as_location, dt_forest_size,
+                                                               dt_max_height, ffnn_num_hidden_layers,
+                                                               ffnn_num_nodes_per_hidden_layer, ffnn_num_epochs)
+
+encode_paths_between_as_location = 1 == int(encode_paths_between_as_location)
+dt_forest_size = int(dt_forest_size)
+dt_max_height = int(dt_max_height)
+ffnn_num_hidden_layers = int(ffnn_num_hidden_layers)
+ffnn_num_nodes_per_hidden_layer = int(ffnn_num_nodes_per_hidden_layer)
+ffnn_num_epochs = int(ffnn_num_epochs)
+
 np.random.seed(0)
 os.environ['PYTHONHASHSEED'] = str(0)
-tf.random.set_seed(0)
-session_conf = tf.compat.v1.ConfigProto(intra_op_parallelism_threads=16, inter_op_parallelism_threads=16)
-sess = tf.compat.v1.Session(graph=tf.compat.v1.get_default_graph(), config=session_conf)
-tf.compat.v1.keras.backend.set_session(sess)
 
 FRACTION_PREDICTION_LABELED = 0.5
-NUM_EPOCHS_PER_CYCLE = 150
+NUM_EPOCHS_PER_CYCLE = ffnn_num_epochs
 
 features = [Features.PreviousLocation, Features.AccessPointDetection, Features.Temperature,
             Features.Heading, Features.Volume, Features.Time, Features.Angle, Features.Acceleration, Features.Light]
-# data = DataCompiler([DataSet.SimpleSquare], features, True, True)
-data = DataCompiler([DataSet.SimpleSquare, DataSet.LongRectangle, DataSet.RectangleWithRamp, DataSet.ManyCorners],
-                    features, True, True)
+data = DataCompiler([DataSet.SimpleSquare], features, True, encode_paths_between_as_location)
+# data = DataCompiler([DataSet.SimpleSquare, DataSet.LongRectangle, DataSet.RectangleWithRamp, DataSet.ManyCorners],
+#                     features, True, encode_paths_between_as_location)
 
 print("Saving data...")
 try:
-    os.mkdir(BIN_FOLDER_PATH + "/main_evaluation/")
+    os.mkdir(BIN_FOLDER_PATH + "/" + evaluation_name + "/")
 except:
     pass
 
-with open(BIN_FOLDER_PATH + "/main_evaluation/evaluation_data.pkl", 'wb') as file:
+with open(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_data.pkl", 'wb') as file:
     pickle.dump(data, file)
 
 print("")
@@ -76,10 +84,10 @@ for data_set_index in range(len(data.result_features_dt)):
     knn_next_cycle_features = knn_next_cycle_features + data.result_features_knn[data_set_index][0]
     knn_next_cycle_labels = knn_next_cycle_labels + data.result_labels_knn[data_set_index][0]
 
-log_acc_per_cycle = open(BIN_FOLDER_PATH + "/main_evaluation/log_accuracy_per_cycle.csv", "w")
+log_acc_per_cycle = open(BIN_FOLDER_PATH + "/" + evaluation_name + "/log_accuracy_per_cycle.csv", "w")
 log_acc_per_cycle.write("cycle,accuracy_dt,accuracy_knn\n")
 
-log_knn_hist = open(BIN_FOLDER_PATH + "/main_evaluation/log_knn_history.csv", "w")
+log_knn_hist = open(BIN_FOLDER_PATH + "/" + evaluation_name + "/log_knn_history.csv", "w")
 log_knn_hist.write("cycle,index,loss,accuracy,val_loss,val_accuracy\n")
 
 model_knn = 0
@@ -88,8 +96,9 @@ for cycle in range(data.num_cycles - data.num_validation_cycles):
     print("Training cycle: {0}".format(cycle))
     print("Initializing...")
     # Reinitializing to make sure that there is no partial learning
-    model_dt = GenerateDecisionTree(EnsembleMethod.RandomForest, 24, 40)
-    model_knn = GenerateFFNN(data.num_inputs, data.num_outputs)
+    model_dt = GenerateDecisionTree(EnsembleMethod.RandomForest, dt_forest_size, dt_max_height)
+    model_knn = GenerateFFNN(data.num_inputs, data.num_outputs, ffnn_num_hidden_layers, ffnn_num_nodes_per_hidden_layer,
+                             ffnn_num_epochs)
 
     print("Preparing input data...")
     dt_data_features = dt_data_features + dt_next_cycle_features
@@ -171,10 +180,10 @@ log_acc_per_cycle.close()
 log_knn_hist.close()
 
 print("Saving models...")
-with open(BIN_FOLDER_PATH + "/main_evaluation/evaluation_dt_model.pkl", 'wb') as file:
+with open(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_dt_model.pkl", 'wb') as file:
     pickle.dump(model_dt, file)
 
-model_knn.save(BIN_FOLDER_PATH + "/main_evaluation/evaluation_knn_model.h5")
+model_knn.save(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_knn_model.h5")
 
 print("")
 
@@ -193,7 +202,7 @@ ax1.set_ylabel("Klassifizierungsgenauigkeit")
 ax1.set_ylim([0, 1])
 ax1.set_title("Klassifizierungsgenauigkeit über Trainingszyklen")
 fig.legend(['Entscheidungsbaum', 'Künstliches Neuronale Netzwerk'], loc='upper left')
-plt.savefig(BIN_FOLDER_PATH + "/main_evaluation/evaluation_acc_per_cycle.png")
+plt.savefig(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_acc_per_cycle.png")
 plt.clf()
 plt.close(fig)
 
@@ -208,7 +217,7 @@ ax2.plot(range(NUM_EPOCHS_PER_CYCLE), knn_hist["accuracy"], "*-b")
 ax2.set_ylabel("Klassifizierungsgenauigkeit")
 ax2.set_ylim([0, 1])
 fig.legend(['Loss', 'Klassifizierungsgenauigkeit'], loc='upper left')
-plt.savefig(BIN_FOLDER_PATH + "/main_evaluation/evaluation_loss_acc_training.png")
+plt.savefig(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_loss_acc_training.png")
 plt.clf()
 plt.close(fig)
 
@@ -223,6 +232,6 @@ ax2.plot(range(NUM_EPOCHS_PER_CYCLE), knn_hist["val_accuracy"], "*-b")
 ax2.set_ylabel("Klassifizierungsgenauigkeit")
 ax2.set_ylim([0, 1])
 fig.legend(['Loss', 'Klassifizierungsgenauigkeit'], loc='upper left')
-plt.savefig(BIN_FOLDER_PATH + "/main_evaluation/evaluation_loss_acc_validation.png")
+plt.savefig(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_loss_acc_validation.png")
 plt.clf()
 plt.close(fig)
