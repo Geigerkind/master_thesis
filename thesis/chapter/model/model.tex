@@ -27,26 +27,7 @@ Aber in dieser Arbeit wurde sich dagegen entschieden, da diese sehr rechenaufwä
 weshalb diese suboptimal für kleine Mikrocontroller sind (TODO: Quelle).
 \fi
 
-\section{Standortenkodierung}
-\begin{itemize}
-    \item Was ist ein Standort? Wie ist er Definiert?
-    \item Enumeriere alle 3 Optionen, sag, dass Naveed schon eine gemacht hat.
-    \item Können diese Ansätze automatisch gelabelt werden? => Proximity Ansatz über mit Koordinaten festgelegten Orten
-    \item Wie werden Orte modelliert?
-    \item Warum wurden die Orte so modelliert?
-    \item Wie werden Pfade zwischen Orten modelliert?
-    \item Sollte das Modell ausgeben können, dass kein Ort erkannt wurde? => Das ist eines der Enkodierungansätze?
-    \item Sollten Pfade erkannt werden können? => Eig Konsequenz aus der Evaluation, aber hier kann man davon reden, dass das Problem damit signifikant komplexer wird,
-          weil nicht nur die Knoten des Graphen erkannt werden, sondern auch die Kanten
-    \item Wie hilft es bei der Anomalieerkennung? => Weg verlassen
-    \begin{itemize}
-        \item Was ist Anomalieerkennung?
-        \item Kann man ausgeben, dass eine Anomalieerkannt wurde?
-        \item Vor- und Nachteile verschiedener Ansätze
-        \item Nicht in ML lösen, sondern Post-Processing (Auf Evaluationskapitel verweisen)
-        \item Actually: Man könnte es simulieren mit den Metriken als Features für ein Modell. KABOOF!  => Diskutiere Analyse Ansatz vs. ML-Ansatz! :D
-    \end{itemize}
-\end{itemize}
+\input{chapter/model/location_encoding}
 
 \section{Entscheidungswald}
 \begin{itemize}
@@ -73,6 +54,12 @@ weshalb diese suboptimal für kleine Mikrocontroller sind (TODO: Quelle).
     \item Wofür ist das Relevant?
     \item Wie funktioniert es?
     \item Wie wird das Problem umformuliert, für künstliche Rekurenz?
+\end{itemize}
+
+\section{Modell der Anomalieerkennung}
+\begin{itemize}
+    \item Wie funktioniert es?
+    \item Welche Metriken werden verwendet?
 \end{itemize}
 
 \section{Training der Modelle}
