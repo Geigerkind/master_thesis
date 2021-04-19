@@ -1,0 +1,15 @@
+\section{Entscheidungswald}
+Entscheidungsbaum basierte Klassifizierer sind sehr effizient und können trotzdem hohe Klassifizierungsgenauigkeiten bei hohe Fehlertoleranzen erreichen \cite{dymelThesis}.
+Entscheidungswälder erhöhen die Klassifizierungsgenauigkeit während die Varianz reduziert wird, dafür wird aber der Speicherbedarf mit jedem Baum linear erhöht.
+Der Klassifizierer soll zukünftig auf einem Mikrocontroller ausgeführt werden, d. h. die Größe des Entscheidungswaldes ist durch den Programmspeicher des Mikrocontrollers limitiert.
+Zu dem Zeitpunkt, wo diese Arbeit verfasst verfasst wird, sind die Limitierungen des Mikrocontrollers noch nicht bekannt.
+Für gewöhnlich sind die Programmspeicher aber auf wenige Kilo-Byte beschränkt \cite{dymelThesis}.
+\newline
+\newline
+Als Ensemble-Methode wird \textit{RandomForest} benutzt, da dieser Entscheidungsbäume auf Basis von zufälligen Teilmengen der Feature-Menge konstruiert.
+Dadurch ist eine erhöhte Toleranz gegenüber Fehlern, wie fehlerhafte Sensorwerte oder anderen Features zu erwarten.
+\newline
+\newline
+Um den Einfluss von verschiedenen Wald- und Baumgrößen auf die Fehlertoleranz und Klassifizierungsgenauigkeit hin zu untersuchen, werden verschiedene Größen
+trainiert und auf den Testmengen evaluiert. Trotzdem wurden Dimensionen in einem Bereich gewählt, der für einen Mikrocontroller realistisch ist.
+Es wurden jeweils Bäume und Wälder der Größe 8, 16, 32, und 64 untersucht.
