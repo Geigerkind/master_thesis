@@ -1,14 +1,31 @@
 \chapter{ML-Modelle}
-\begin{itemize}
-    \item Was hat man eigentlich vor?
-    \begin{itemize}
-        \item Diskrete Orte anhand von Sensoren unterscheiden, inspiriert von dem Orientierungssinn von Mensch und Tier
-        \item Warum Entscheidungsbäume?
-        \item Warum FFNN? => Warum kein LSTM NN?
-    \end{itemize}
-    \item Generelles Modell erklären (Sollte Anomalie Post-Processing Step enthalten)
-    \item Abweichung zu Naveeds (Originalmodell), letzte Pos geht in die Feature Processing mit rein und Anomalieerkennungsschritt
-\end{itemize}
+In dieser Arbeit wird die Device-Based Indoor-Lokalisation auf basis von Sensorwerten untersucht.
+Das ist inspiriert von dem Orientierungssinn von Mensch und Tier.
+Dabei werden diskrete Standorte unterschieden, sowie ob eine Anomalie entdeckt wurde,
+d. h. ob das Modell sich an einem unbekannten Standort oder auf einem unbekannten Pfad befindet.
+\newline
+\newline
+Abbildung \ref{fig:model_idea} zeigt die Architektur des verfolgten Ansatzes.
+Zunächst werden aus den Sensorwerten Features extrahiert.
+Die resultierende Feature-Menge wird dann von dem ML-Modell genutzt, um den Standort zu klassifizieren.
+Zuletzt wird auf basis historischer Daten und dem Klassifizierungsergebnis in einem Analyseschritt (TODO: ML Ansatz?) bestimmt, ob eine Anomalie vorliegt.
+Im Vergleich zu der Architektur von Mian \cite{naveedThesis} können die Klassifizierungsergebnisse bei der Feature-Extrahierung weiter verarbeitet werden.
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\linewidth]{images/model_idea.png}
+    \caption{Architektur des verfolgten Ansatzes.}
+    \label{fig:model_idea}
+\end{figure}
+\newline
+In dieser Arbeit Entscheidungsbaum basierte Klassifizierer mit KNN verglichen, insbesondere den von Mian verwendeten Ansatz mit FFNN.
+Entscheidungsbäume sind deutlich effizienter als KNN, weswegen diese bei vergleichbarer Klassifizierungsgenauigkeit und Fehlertoleranz die preferierte Wahl sind.
+
+\iffalse
+Eigentlich eignen sich \textit{rekurrente neuronale Netze} (RNN) gut für diese Aufgabe, da serielle Daten verarbeitet werden
+und zeitliche Abhängigkeiten für die Klassifizierung wichtig sind (TODO: Quelle).
+Aber in dieser Arbeit wurde sich dagegen entschieden, da diese sehr rechenaufwändig sind und viel Speicher benötigen im Vergleich zu FFNN oder Entscheidungswälder,
+weshalb diese suboptimal für kleine Mikrocontroller sind (TODO: Quelle).
+\fi
 
 \section{Standortenkodierung}
 \begin{itemize}
@@ -27,6 +44,7 @@
         \item Kann man ausgeben, dass eine Anomalieerkannt wurde?
         \item Vor- und Nachteile verschiedener Ansätze
         \item Nicht in ML lösen, sondern Post-Processing (Auf Evaluationskapitel verweisen)
+        \item Actually: Man könnte es simulieren mit den Metriken als Features für ein Modell. KABOOF!  => Diskutiere Analyse Ansatz vs. ML-Ansatz! :D
     \end{itemize}
 \end{itemize}
 
@@ -53,7 +71,8 @@
 \begin{itemize}
     \item Was ist das?
     \item Wofür ist das Relevant?
-    \item Wie funktionier es?
+    \item Wie funktioniert es?
+    \item Wie wird das Problem umformuliert, für künstliche Rekurenz?
 \end{itemize}
 
 \section{Training der Modelle}
