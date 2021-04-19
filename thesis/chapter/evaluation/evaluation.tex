@@ -1,5 +1,5 @@
 \chapter{Evaluation}
-TODO
+TODO: Erkläre irgendwo die Metriken, die verwendet werden
 
 \section{Klassifizierungsgenauigkeit}
 \begin{itemize}
@@ -14,12 +14,15 @@ TODO
 
 \section{Fehlertoleranz}
 \begin{itemize}
+    \item Irgendwas über Robustheit
     \item Metriken => Insbesondere continued\_predict hier erwähnen
-    \item Wenn falscher Ort erkannt wurde, wie lange dauert es um wieder den korrekten Ort zu finden?
-    \item Was passiert wenn Sensoren ausfallen?
-    \item Transportbox nicht dem trainierten Pfad folgt?
+    \item Wenn falscher Ort erkannt wurde, wie lange dauert es um wieder den korrekten Ort zu finden? Was ist die Wahrscheinlichkeit dafür? Wovon hängt es ab, dass wieder der richtige Ort erkannt wurde?
+    \item Was passiert wenn Sensoren ausfallen? Wie robust ist es dagegen?
+    \item Transportbox nicht dem trainierten Pfad folgt? Wie Robust ist sie dagegen? => Sezenarien enumiereren, wo sowas passieren kann, dann Testszenario erklären.
     \item Änderungen der Fabrik, e.g. Licht, Wärme, Magnet, Schnelligkeit der Fließbänder
     \item Einfluss von einzelnen Features für die Fehlertoleranz(?)
+    \item In welchen Fällen ist die Ortung unzuverlässig? => Welche Fälle sind schwierig?
+    \item Schlussfolgerung: Wie Fehlertolerant ist die Ortung? => Zusammenfassende Metriken über alle Testsets?
 \end{itemize}
 
 \section{Ressourcennutzung}
@@ -33,4 +36,16 @@ TODO
     \end{itemize}
     \item Daten Sammlung => Interrupts (Wakeups)
     \item Einfluss von einzelnen Features für den Ressourcenverbrauch(?)
+\end{itemize}
+
+\section{Anomalieerkennung}
+\begin{itemize}
+    \item Was ist das?
+    \item Zusammenhang zu Enkodierungsansatz
+    \item Schwierig zu trainieren, da man einerseits Robust sein will und andererseits nicht weiß was trainiert werden soll
+    \item Post Processing
+    \item Metriken: Location Change Frequency, Accumulated Confididence, Fraction Zero
+    \item Sag Motivation, warum diese Metriken (Indikatoren)
+    \item Beispiele
+    \item Wie zuverlässig können Anomalien erkannt werden?
 \end{itemize}

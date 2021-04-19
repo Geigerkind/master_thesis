@@ -1,13 +1,44 @@
 \chapter{ML-Modelle}
-TODO
+\begin{itemize}
+    \item Was hat man eigentlich vor?
+    \begin{itemize}
+        \item Diskrete Orte anhand von Sensoren unterscheiden, inspiriert von dem Orientierungssinn von Mensch und Tier
+        \item Warum Entscheidungsbäume?
+        \item Warum FFNN? => Warum kein LSTM NN?
+    \end{itemize}
+    \item Generelles Modell erklären (Sollte Anomalie Post-Processing Step enthalten)
+    \item Abweichung zu Naveeds (Originalmodell), letzte Pos geht in die Feature Processing mit rein und Anomalieerkennungsschritt
+\end{itemize}
+
+\section{Standortenkodierung}
+\begin{itemize}
+    \item Was ist ein Standort? Wie ist er Definiert?
+    \item Enumeriere alle 3 Optionen, sag, dass Naveed schon eine gemacht hat.
+    \item Können diese Ansätze automatisch gelabelt werden? => Proximity Ansatz über mit Koordinaten festgelegten Orten
+    \item Wie werden Orte modelliert?
+    \item Warum wurden die Orte so modelliert?
+    \item Wie werden Pfade zwischen Orten modelliert?
+    \item Sollte das Modell ausgeben können, dass kein Ort erkannt wurde? => Das ist eines der Enkodierungansätze?
+    \item Sollten Pfade erkannt werden können? => Eig Konsequenz aus der Evaluation, aber hier kann man davon reden, dass das Problem damit signifikant komplexer wird,
+          weil nicht nur die Knoten des Graphen erkannt werden, sondern auch die Kanten
+    \item Wie hilft es bei der Anomalieerkennung? => Weg verlassen
+    \begin{itemize}
+        \item Was ist Anomalieerkennung?
+        \item Kann man ausgeben, dass eine Anomalieerkannt wurde?
+        \item Vor- und Nachteile verschiedener Ansätze
+        \item Nicht in ML lösen, sondern Post-Processing (Auf Evaluationskapitel verweisen)
+    \end{itemize}
+\end{itemize}
 
 \section{Entscheidungswald}
 \begin{itemize}
+    \item Rede über Entscheidungswälder => Warum wurde ein Wald und kein Baum verwendet? Können wir uns so viele Bäume leisten? (HMM, wurd das nicht schon im Grundlagen Kapitel geklärt?)
     \item Wie wird automatisch das beste Modell gefunden?
     \item Warum trainieren wir es so => Um die beste Konfiguration zu finden unter den bestehenden Restriktionen.
     \item Welche Restriktionen werden eingefordert?
     \item Warum gibt es diese Restriktionen?
     \item Welchen Einfluss hätte es, gäbe es diese nicht?
+    \item Warum wurde diese Ensemble-Methode benutzt?
 \end{itemize}
 
 \section{Feed Forward Neuronales Netzwerk}
@@ -15,6 +46,7 @@ TODO
     \item Wie viele Hidden Layers und Neuronen sollte es haben?
     \item Welche Aktivierungsfunktionen werden verwendet?
     \item Braucht man mehr Neuronen/Hidden Layer mit steigender Ort Anzahl?
+    \item OneHot Encoding der Daten => Kategorische Daten
 \end{itemize}
 
 \section{Feedback Kanten}
@@ -27,7 +59,11 @@ TODO
 \section{Training der Modelle}
 \begin{itemize}
     \item Trainieren in Phasen => Erklären wie es genau funktioniert?
-    \item Warum trainieren wir in Phasen?
+    \item Warum trainieren wir in Phasen? => Erkläre, dass wir Klassifizierungsfehler lernen wollen, damit wir wieder zurückfinden.
     \item Sag das wir die Zyklen der einzelnen Pfade nutzen
     \item Werden mehr Trainingsdaten benötigt mit steigender Ort Anzahl? Wenn ja wie viel?
+    \item Doppeltes Trainieren nach Analyse der Feature Importance.
+    \item Warum machen wir das so?
+    \item Zufälliges Relabeling im Training? Warum und wie funktionierts?
+    \item Anteil der Daten der gerelabelt wird steigt mit Anzahl der Zyklen
 \end{itemize}

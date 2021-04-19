@@ -8,6 +8,8 @@
     \item Wie wurde es aufgenommen?
     \item Welche Sensoren
     \item Aufgenommene Routen
+    \item Rede über Zyklen pro Route in den aufgenommenen Daten
+    \item Mit welcher sampling frequency
 \end{itemize}
 
 \section{Künstlichen Sensordaten}
@@ -48,30 +50,33 @@
     \item Motivation => Energieverbrauch, Spiegelung der echten Datenaufnahme, Reduzierung der Trainingsdaten
     \item Wie funktioniert ist?
     \item Wie und Wann bei der Datenverarbeitung wird es gemacht?
-\end{itemize}
-
-\section{Standortenkodierung}
-\begin{itemize}
-    \item Wie werden Orte modelliert?
-    \item Warum wurden die Orte so modelliert?
-    \item Wie werden Pfade zwischen Orten modelliert?
-    \item Sollte das Modell ausgeben können, dass kein Ort erkannt wurde?
-    \item Sollten Pfade erkannt werden können?
+    \item So wird bei einer Idle Box auch kein Interrupt erzeugt. (Sneaky Beispiel)
 \end{itemize}
 
 \section{Feature-Extrahierung}
 \begin{itemize}
-    \item Datenfenster: Realzeit vs. Diskret mittels Wakeups
-    \item Relevanz von Zeit
-    \item Welche Feature werden genutzt?
+    \item Datenfenster: Realzeit vs. Diskret mittels Wakeups => Es werden immer die letzten 3 Behalten über die die Werte geglättet werden
+    \item Relevanz von Zeit => Interrupts, Zeit als Feature, Feature können Zeit Abhängig und Unabhängig sein
+    \item Welche Feature werden genutzt? => Abhängig von Feature Importance und wie günstig zu berechnen
     \item Wie werden diese extrahiert?
     \item Welchen Mehrwert verschaffen diese Features?
     \item Welchen Einfluss haben Sie im Hinblick auf Ressourcenbedarf(?), Klassifizierungsgenauigkeit(?), Fehlertoleranz(?)
+    \item Rede über Feature Importance, insb. über Permutation Importance => Wie nützlich ist ein Sensor?
+    \item Diskrete Distinct Location wird außerhalb verarbeitet => Modell verändern, dass die prev loc in Feature Processing step mit rein geht?
+    \item Previous Location, Prev. Distinct Location vs. exponentiell abfallene letzte Orte diskutieren
+\end{itemize}
+
+\section{Fehlerhafte/Anomalie Daten}
+\begin{itemize}
+    \item Warum und Wieso?
+    \item Welche Fehlerdaten werden eingebaut, was ist deren Begründung?
+    \item Was ist eine Anomaly?
+    \item Welche Anomalydaten wurden eingebaut?
 \end{itemize}
 
 \section{Aufteilung der Daten}
 \begin{itemize}
-    \item Kurz und knapp wie und warum werden die Daten aufgeteilt.
+    \item Kurz und knapp wie und warum werden die Daten aufgeteilt. => Zyklen
     \item Sollten Trainingsdaten um synthetische Daten ergänzt werden?
     \begin{itemize}
         \item Fault Daten, um das Modell Robuster zu machen
@@ -82,5 +87,6 @@
         \item Um KNN zu trainieren?
         \item Um Entscheidungsbaum zu trainieren?
         \item Ggf. Unterschiede klären
+        \item (Gehört das schon in eine Evaluation, oder ist das hier okay?)
     \end{itemize}
 \end{itemize}
