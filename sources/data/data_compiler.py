@@ -172,6 +172,7 @@ def par_ef_calculate_features(args):
     window = data.iloc[(i - window_size):i, :]
     return window.iloc[window_size - 1]["cycle"], window.iloc[window_size - 1]["location"], result
 
+
 def par_process_data_set(args):
     data_set, count, total_len = args
     print("Processing data set {0} of {1}".format(count, total_len))
@@ -197,7 +198,6 @@ def par_process_data_set(args):
     return new_df
 
 
-
 class DataCompiler:
     def __init__(self, data_sets, features, train_with_faulty_data=False, encode_paths_between_as_location=False,
                  use_synthetic_routes=False, proximity=0.1):
@@ -221,6 +221,9 @@ class DataCompiler:
         self.train_with_faulty_data = train_with_faulty_data
         self.encode_paths_between_as_location = encode_paths_between_as_location
         self.proximity = proximity
+
+        if not (DataSet.SimpleSquare in self.data_sets):
+            raise Exception("At least Simple Square must be in the data sets!")
 
         # Configuration
         self.num_cycles = 20
@@ -421,12 +424,14 @@ class DataCompiler:
         return location_offset
 
     def __create_combined_test_route(self):
-        if DataSet.ManyCorners in self.data_sets and DataSet.LongRectangle in self.data_sets and DataSet.ManyCorners in self.data_sets:
-            glued = self.__glue_routes_together(DataSet.SimpleSquare, DataSet.ManyCorners, 3)
+        glued = self.__data_sets[DataSet.SimpleSquare].copy(deep=True)
+        if DataSet.ManyCorners in self.data_sets:
+            glued = self.__glue_routes_together(DataSet.SimpleSquare, DataSet.ManyCorners, 3, glued)
+        if DataSet.LongRectangle in self.data_sets:
             glued = self.__glue_routes_together(DataSet.SimpleSquare, DataSet.LongRectangle, 5, glued)
-            return self.__glue_routes_together(DataSet.SimpleSquare, DataSet.RectangleWithRamp, 2, glued)
-        return self.__data_sets[DataSet.SimpleSquare].copy(deep=True)
-        # return self.__glue_routes_together(DataSet.SimpleSquare, DataSet.LongRectangle, 5)
+        if DataSet.ManyCorners in self.data_sets:
+            glued = self.__glue_routes_together(DataSet.SimpleSquare, DataSet.RectangleWithRamp, 2, glued)
+        return glued
 
     def __create_faulty_data_sets(self):
         print("Creating faulty data sets...")
