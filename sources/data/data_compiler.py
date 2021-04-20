@@ -172,6 +172,31 @@ def par_ef_calculate_features(args):
     window = data.iloc[(i - window_size):i, :]
     return window.iloc[window_size - 1]["cycle"], window.iloc[window_size - 1]["location"], result
 
+def par_process_data_set(args):
+    data_set, count, total_len = args
+    print("Processing data set {0} of {1}".format(count, total_len))
+    # previous interrupt row
+    pir = data_set.iloc[0]
+    new_df = DataFrame(columns=data_set.keys())
+    for row in data_set.iterrows():
+        pir_total_acc = abs(pir["x_acc"] + pir["y_acc"] + pir["z_acc"])
+        if (abs(abs(row[1]["x_acc"] + row[1]["y_acc"] + row[1]["z_acc"]) - pir_total_acc) >= 0.05 * pir_total_acc) \
+                or (abs(pir["heading"] - row[1]["heading"]) >= 20) \
+                or (abs(pir["temperature"] - row[1]["temperature"]) >= 0.15 * pir["temperature"]) \
+                or (abs(pir["light"] - row[1]["light"]) >= 0.1 * pir["light"]) \
+                or (pir["access_point_0"] != row[1]["access_point_0"]) \
+                or (pir["access_point_1"] != row[1]["access_point_1"]) \
+                or (pir["access_point_2"] != row[1]["access_point_2"]) \
+                or (pir["access_point_3"] != row[1]["access_point_3"]) \
+                or (pir["access_point_4"] != row[1]["access_point_4"]):
+            pir = row[1]
+            new_df = new_df.append(row[1], ignore_index=True)
+
+    print("Reduced the data set " + str(count) + " by: %.2f Percent" % (100 * (1 - (len(new_df) / len(data_set)))))
+    print("Finished processing data set {0} of {1}".format(count, total_len))
+    return new_df
+
+
 
 class DataCompiler:
     def __init__(self, data_sets, features, train_with_faulty_data=False, encode_paths_between_as_location=False,
@@ -242,7 +267,8 @@ class DataCompiler:
         self.__raw_data = [x for x in self.__data_sets.values()] + self.__generate_synthetic_routes()
         self.__create_temporary_test_sets()
         self.__add_synthetic_sensor_data()
-        self.__interrupt_based_selection()
+        self.__interrupt_based_selection_cmp_prev_interrupt()
+        # self.__interrupt_based_selection_cmp_prev_value()
         self.__remove_temporary_test_sets()
         self.__create_faulty_data_sets()
         self.__extract_features()
@@ -698,7 +724,20 @@ class DataCompiler:
         for data_set in self.__raw_data:
             data_set["volume"] = data_set.apply(calculate_volume, axis=1)
 
-    def __interrupt_based_selection(self):
+    def __interrupt_based_selection_cmp_prev_interrupt(self):
+        # We collect data from all sensors if any of the sensors sends an interrupt
+        # Therefore we define here for each row if it should fire an "interrupt"
+        # compared to the previous row that fired an interrupt
+        print("Filtering raw data by synthetic interrupts...")
+        with Pool(processes=cpu_count()) as pool:
+            args = []
+            count = 1
+            for data_set in self.__raw_data:
+                args.append([data_set, count, len(self.__raw_data)])
+                count = count + 1
+            self.__raw_data = pool.map(par_process_data_set, args)
+
+    def __interrupt_based_selection_cmp_prev_value(self):
         # We collect data from all sensors if any of the sensors sends an interrupt
         # Therefore we define here for each row if it should fire an "interrupt"
         # compared to the previous row that fired an interrupt
