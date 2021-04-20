@@ -422,6 +422,8 @@ class DataCompiler:
                             location_offset = location_offset + 1
                             location_map[row[1]["location"]] = location_offset
                         previous_non_zero_pos = row[1]["location"]
+
+            self.__data_sets[data_set]["is_anomaly"] = data_set == DataSet.Anomaly
         return location_offset
 
     def __create_combined_test_route(self):
