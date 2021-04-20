@@ -1,10 +1,23 @@
-\section{Training der Modelle}
+\section{Training der ML-Modelle}
 Typischerweise haben weder Entscheidungsbaum basierte Klassifizierer noch FFNN Rückwärtskanten.
 Neuronale Netze mit Rückwärtskanten werden als \textit{rekurrente Netze} (RNN) bezeichnet.
 Abbildung \ref{fig:model_idea} zeigt, dass die Rückwärtskante genutzt wird, um das Klassifizierungsergebnis,
 also den letzten Standort, bei der Feature-Extrahierung zu nutzen.
+Das Klassifizierungsergebnis ist aber nicht immer korrekt, wodurch fehlerhafte Features im Zusammenhang
+mit dem Klassifizierungsergebnis als Eingabe in das ML-Modell verwendet werden können.
+Damit das ML-Modell lernt mit diesem Fehler umzugehen, ist es notwendig, dass das ML-Modell Trainingsbeispiele mit
+Features auf Basis eigener Klassifizierungsbeispiele zur Verfügung hat.
 \newline
 \newline
+Abbildung \ref{fig:training_explained} illustriert den Trainingsablauf.
+Die simulierten Daten der aufgenommenen Routen ist unterteilt in Partitionen basierend auf deren Zyklusbeschriftung.
+Der Zyklus ist ein Umlauf einer Route, bevor sie wiederholt wird.
+Insgesamt besteht die Datenmenge aus 20 Zyklen.
+Die ersten fünf Zyklen werden zum \glqq Aufwärmen \grqq\ verwendet,
+d. h. das ML-Modell wird mit korrekt beschrifteten Daten trainiert, welche es nicht selbst beschriftet hat.
+In den folgenden zehn Zyklen werden weitere Partitionen zur Trainingsmenge hinzugefügt, die mit quadratisch steigendem Anteil beschriftet sind.
+Zunächst werden 50\% der Partition $i$ vom ML-Modell beschriftet, bis beim 13. Zyklus schließlich 100\% beschriftet wird.
+Die Beschriftung ist zufällig, damit der Klassifizierungsfehler auf allen Teilstücken der Route gelernt werden kann.
 \begin{figure}[h!]
     \centering
     \includegraphics[width=\linewidth]{images/training_explained.png}
@@ -12,14 +25,9 @@ also den letzten Standort, bei der Feature-Extrahierung zu nutzen.
     \label{fig:training_explained}
 \end{figure}
 \newline
-\begin{itemize}
-    \item Zusammenhang zur Feedback Edge deutlich machen => Bessere Einleitung finden
-    \item Trainieren in Phasen => Erklären wie es genau funktioniert?
-    \item Warum trainieren wir in Phasen? => Erkläre, dass wir Klassifizierungsfehler lernen wollen, damit wir wieder zurückfinden.
-    \item Sag das wir die Zyklen der einzelnen Pfade nutzen
-    \item Werden mehr Trainingsdaten benötigt mit steigender Ort Anzahl? Wenn ja wie viel?
-    \item Doppeltes Trainieren nach Analyse der Feature Importance.
-    \item Warum machen wir das so?
-    \item Zufälliges Relabeling im Training? Warum und wie funktionierts?
-    \item Anteil der Daten der gerelabelt wird steigt mit Anzahl der Zyklen
-\end{itemize}
+Die erste Trainingsphase ist abgeschlossen, nachdem das ML-Modell mit einer Trainingsmenge von 15 Zyklen trainiert wurde.
+Anschließend wird einmalig einer Feature-Auswahl betrieben, in der insignifikante Features aus der Feature-Menge entfernt werden.
+Insignifikante Features sind Feature, die eine geringe Permutationswichtigkeit aufweisen, d. h. Feature die einen sehr geringen
+Klassifizierungsfehler erzeugen, wenn ihre Einträge in der Trainingsmenge permutiert werden \cite{breiman2001random}.
+Dies ermöglicht kleinere ML-Modelle zu verwenden und verringert die Dimensionen des Suchraumes, wodurch das Trainieren erleichtert wird.
+Anschließend wird das ML-Modell erneut auf den Partitionen trainiert, bis es validiert und evaluiert werden kann.
