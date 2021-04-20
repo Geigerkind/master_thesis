@@ -11,10 +11,15 @@ Zunächst werden, wie im ersten Ansatz, alle Punkte im Umkreis von bestimmten Pu
 Dann werden die übrigen Punkte, also die Pfade zwischen zwei Standorten, als Standorte definiert.
 \newline
 \newline
-Der Zusammenhang dieser Ansätze wird deutlich, wenn man eine Route als zyklischen Graphen betrachtet.
+Der Zusammenhang dieser Ansätze wird deutlich, wenn man eine Route als zyklischen Graphen betrachtet, wie in Abbildung \ref{fig:location_encoding}.
 Einzigartige diskrete Punkte, die von interesse sind, bilden die Knoten und die Pfade zwischen diesen Punkten, die Kanten.
 Mian's Ansatz nutzt nur die Kanten und folglich die anderen Ansätze jeweils die Knoten und die Knoten und Kanten.
-\newline
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\linewidth]{images/location_encoding.png}
+    \caption{Standortenkodierung der Orte und Pfade.}
+    \label{fig:location_encoding}
+\end{figure}
 \newline
 Daraus wird die Komplexität und Genauigkeit dieser Ansätze deutlich.
 Der Kantenansatz ist ein Kompromiss zwischen Genauigkeit und Komplexität.
