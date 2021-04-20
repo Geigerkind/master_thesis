@@ -149,7 +149,7 @@ for cycle in range(data.num_cycles - data.num_validation_cycles):
         last_distinct_location_dt = dt_next_cycle_features[0][1]
         last_distinct_location_knn = knn_next_cycle_features[0][1]
         permutation = np.random.permutation(len(dt_next_cycle_features))
-        frac_pred_labeled = min(1, FRACTION_PREDICTION_LABELED + (1 / 288) * (cycle ** 2))
+        frac_pred_labeled = min(1, FRACTION_PREDICTION_LABELED + (1 / 128) * ((cycle - data.num_warmup_cycles) ** 2))
         for perm_index in range(1, int(len(dt_next_cycle_features) * frac_pred_labeled)):
             i = permutation[perm_index]
             if i == 0:
