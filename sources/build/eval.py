@@ -130,7 +130,7 @@ for cycle in range(data.num_cycles - data.num_validation_cycles):
         knn_next_cycle_labels = knn_next_cycle_labels + data.result_labels_knn[data_set_index][cycle + 1]
 
     print("Training Decision Tree Model...")
-    model_dt.fit(dt_data_features, dt_data_labels, 0.5)
+    model_dt.fit(dt_data_features, dt_data_labels, 0.25)
     dt_prediction = model_dt.predict(dt_next_cycle_features)
     print("Accuracy: {0}".format(
         model_dt.evaluate_accuracy(dt_prediction, dt_next_cycle_labels)))

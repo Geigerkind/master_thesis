@@ -26,8 +26,8 @@ Die Beschriftung ist zufällig, damit der Klassifizierungsfehler auf allen Teils
 \end{figure}
 \newline
 Die erste Trainingsphase ist abgeschlossen, nachdem das ML-Modell mit einer Trainingsmenge von 15 Zyklen trainiert wurde.
-Anschließend wird einmalig einer Feature-Auswahl betrieben, in der insignifikante Features aus der Feature-Menge entfernt werden.
+Anschließend wird einmalig eine Feature-Auswahl betrieben, in der insignifikante Features aus der Feature-Menge entfernt werden.
 Insignifikante Features sind Feature, die eine geringe Permutationswichtigkeit aufweisen, d. h. Feature die einen sehr geringen
-Klassifizierungsfehler erzeugen, wenn ihre Einträge in der Trainingsmenge permutiert werden \cite{breiman2001random}.
+Klassifizierungsfehler erzeugen, wenn ihre Einträge in der Validationsmenge permutiert werden \cite{breiman2001random}.
 Dies ermöglicht kleinere ML-Modelle zu verwenden und verringert die Dimensionen des Suchraumes, wodurch das Trainieren erleichtert wird.
 Anschließend wird das ML-Modell erneut auf den Partitionen trainiert, bis es validiert und evaluiert werden kann.
