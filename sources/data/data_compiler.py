@@ -345,9 +345,10 @@ class DataCompiler:
             self.temporary_test_set_raw_data.append(self.__raw_data.pop())
 
     def __create_temporary_test_sets(self):
-        self.name_map_data_sets_temporary.append("anomaly1")
-        self.name_map_data_sets_temporary.append("anomaly2")
+        # Reverse ordering because its removed in reverse order
         self.name_map_data_sets_temporary.append("combined_test_route")
+        self.name_map_data_sets_temporary.append("anomaly2")
+        self.name_map_data_sets_temporary.append("anomaly1")
 
         set1 = self.__glue_routes_together(DataSet.SimpleSquare, DataSet.Anomaly, 5)
         set2 = self.__create_combined_test_route()
