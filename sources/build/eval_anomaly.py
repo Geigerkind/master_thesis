@@ -2,6 +2,7 @@ import pickle
 import sys
 from multiprocessing import Pool
 
+import matplotlib.pyplot as plt
 import numpy as np
 from tensorflow import keras
 
@@ -18,15 +19,14 @@ Requires the classification model to be trained before.
 # For some magical reason required by get_context method of multiprocessing
 if __name__ == "__main__":
     _, evaluation_name = sys.argv
-    NUM_EPOCHS_PER_CYCLE = 75
-    WINDOW_SIZE = 25
+    NUM_EPOCHS_PER_CYCLE = 150
+    WINDOW_SIZE = 50
 
 
     def calculate_anomaly_features_and_labels(predicted_dt, predicted_knn, data_set_index):
         res_features_dt = []
         res_features_knn = []
-        res_labels_dt = []
-        res_labels_knn = []
+        res_labels = []
 
         location_changes_dt = []
         location_changes_knn = []
@@ -39,11 +39,9 @@ if __name__ == "__main__":
         for i in range(len(predicted_dt)):
             # Preparing the labels
             if data.temporary_test_set_raw_data[data_set_index].iloc[i]["is_anomaly"]:
-                res_labels_dt.append(1)
-                res_labels_knn.append([0, 1])
+                res_labels.append(1)
             else:
-                res_labels_dt.append(0)
-                res_labels_knn.append([1, 0])
+                res_labels.append(0)
 
             # Preparing the features
             features_dt = []
@@ -114,20 +112,20 @@ if __name__ == "__main__":
             res_features_dt.append(features_dt)
             res_features_knn.append(features_knn)
 
-        return res_features_dt, res_labels_dt, res_features_knn, res_labels_knn
+        return res_features_dt, res_labels, res_features_knn
 
 
-    def calculate_data_set(data_set_index, data, model_dt):
+    def calculate_data_set(args):
+        data_set_index, data, model_dt = args
+
         model_knn = keras.models.load_model(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_knn_model.h5")
         af_dt = []
         af_knn = []
-        al_dt = []
-        al_knn = []
+        al = []
 
         af_dt_val = []
         af_knn_val = []
-        al_dt_val = []
-        al_knn_val = []
+        al_val = []
 
         # Training set
         data_set_features_dt = []
@@ -137,15 +135,14 @@ if __name__ == "__main__":
             data_set_features_knn = data_set_features_knn + data.temporary_test_set_features_knn[data_set_index][cycle]
 
         predicted_dt = model_dt.continued_predict_proba(data_set_features_dt)
-        predicted_knn = model_knn.continued_predict(data_set_features_knn)
+        predicted_knn = GenerateFFNN.static_continued_predict(model_knn, data_set_features_knn, data.num_outputs)
 
-        res_features_dt, res_labels_dt, res_features_knn, res_labels_knn = calculate_anomaly_features_and_labels(
+        res_features_dt, res_labels, res_features_knn = calculate_anomaly_features_and_labels(
             predicted_dt, predicted_knn, data_set_index)
 
         af_dt = af_dt + res_features_dt
         af_knn = af_knn + res_features_knn
-        al_dt = al_dt + res_labels_dt
-        al_knn = al_knn + res_labels_knn
+        al = al + res_labels
 
         # Validation set
         data_set_features_dt = []
@@ -155,17 +152,16 @@ if __name__ == "__main__":
             data_set_features_knn = data_set_features_knn + data.temporary_test_set_features_knn[data_set_index][cycle]
 
         predicted_dt = model_dt.continued_predict_proba(data_set_features_dt)
-        predicted_knn = model_knn.continued_predict(data_set_features_knn)
+        predicted_knn = GenerateFFNN.static_continued_predict(model_knn, data_set_features_knn, data.num_outputs)
 
-        res_features_dt, res_labels_dt, res_features_knn, res_labels_knn = calculate_anomaly_features_and_labels(
+        res_features_dt, res_labels, res_features_knn = calculate_anomaly_features_and_labels(
             predicted_dt, predicted_knn, data_set_index)
 
         af_dt_val = af_dt_val + res_features_dt
         af_knn_val = af_knn_val + res_features_knn
-        al_dt_val = al_dt_val + res_labels_dt
-        al_knn_val = al_knn_val + res_labels_knn
+        al_val = al_val + res_labels
 
-        return af_dt, al_dt, af_dt_val, al_dt_val, af_knn, al_knn, af_knn_val, al_knn_val
+        return af_dt, al, af_dt_val, al_val, af_knn, af_knn_val
 
 
     print("Loading data and models...")
@@ -179,46 +175,41 @@ if __name__ == "__main__":
             args = []
 
             for data_set_index in range(len(data.temporary_test_set_features_dt)):
-                args.append(data_set_index, data, model_dt)
+                args.append([data_set_index, data, model_dt])
 
             anomaly_features_dt = []
-            anomaly_labels_dt = []
             anomaly_features_knn = []
-            # TODO: binary_crossentropy + Sigmoid
-            anomaly_labels_knn = []
+            anomaly_labels = []
 
             anomaly_features_dt_val = []
-            anomaly_labels_dt_val = []
             anomaly_features_knn_val = []
-            anomaly_labels_knn_val = []
+            anomaly_labels_val = []
 
             with Pool(processes=NUM_CORES) as pool:
                 for res in pool.map(calculate_data_set, args):
-                    af_dt, al_dt, af_dt_val, al_dt_val, af_knn, al_knn, af_knn_val, al_knn_val = res
+                    af_dt, al, af_dt_val, al_val, af_knn, af_knn_val = res
 
                     anomaly_features_dt = anomaly_features_dt + af_dt
-                    anomaly_labels_dt = anomaly_labels_dt + al_dt
+                    anomaly_labels = anomaly_labels + al
                     anomaly_features_dt_val = anomaly_features_dt_val + af_dt_val
-                    anomaly_labels_dt_val = anomaly_labels_dt_val + al_dt_val
+                    anomaly_labels_val = anomaly_labels_val + al_val
 
                     anomaly_features_knn = anomaly_features_knn + af_knn
-                    anomaly_labels_knn = anomaly_labels_knn + al_knn
                     anomaly_features_knn_val = anomaly_features_knn_val + af_knn_val
-                    anomaly_labels_knn_val = anomaly_labels_knn_val + al_knn_val
 
             print("Training the anomaly detection models....")
             model_anomaly_dt = GenerateDecisionTree(EnsembleMethod.RandomForest, 8, 20)
-            model_anomaly_knn = GenerateFFNN(5, 2, 1, 16, 75)
+            model_anomaly_knn = GenerateFFNN(5, 2, 1, 16, NUM_EPOCHS_PER_CYCLE, True)
 
-            model_anomaly_dt.fit(anomaly_features_dt, anomaly_labels_dt, 0.25)
-            model_anomaly_knn.fit(anomaly_features_knn, anomaly_labels_knn, anomaly_features_knn_val,
-                                  anomaly_labels_knn_val)
+            model_anomaly_dt.fit(anomaly_features_dt, anomaly_labels, 0.25)
+            model_anomaly_knn.fit(anomaly_features_knn, anomaly_labels, anomaly_features_knn_val,
+                                  anomaly_labels_val)
 
             print("Validating the models...")
             dt_acc = model_anomaly_dt.evaluate_accuracy(model_anomaly_dt.predict(anomaly_features_dt_val),
-                                                        anomaly_labels_dt_val)
+                                                        anomaly_labels_val)
             knn_acc = model_anomaly_knn.evaluate_accuracy(model_anomaly_knn.predict(anomaly_features_knn_val),
-                                                          anomaly_labels_knn_val)
+                                                          anomaly_labels_val)
 
             print("Accuracy DT: {0}".format(dt_acc))
             print("Accuracy KNN: {0}".format(knn_acc))

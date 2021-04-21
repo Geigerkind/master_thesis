@@ -11,7 +11,7 @@ from sources.config import NUM_CORES
 
 
 class GenerateFFNN:
-    def __init__(self, input_size, output_size, num_hidden_layers, nodes_hidden_layer, num_epochs):
+    def __init__(self, input_size, output_size, num_hidden_layers, nodes_hidden_layer, num_epochs, is_binary=False):
         """
         Generates an FFNN with one hidden layer.
         It uses ReLU and SoftMax for the last layer.
@@ -21,6 +21,7 @@ class GenerateFFNN:
         :param num_hidden_layers: The number of hidden layers in the model structure
         :param nodes_hidden_layer: Amount of neurons per hidden layer
         :param num_epochs: Number of epochs to be trained
+        :param is_binary: Uses improved loss function and sigmoid in the output then
         """
         self.history = 0
 
@@ -40,10 +41,14 @@ class GenerateFFNN:
         self.num_hidden_layers = num_hidden_layers
         self.num_epochs = num_epochs
         self.batch_size = 50
+        self.is_binary = is_binary
 
         # Train the model
         self.keras_model = self.model()
-        self.keras_model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=["accuracy"])
+        if self.is_binary:
+            self.keras_model.compile(optimizer='adam', loss='binary_crossentropy', metrics=["accuracy"])
+        else:
+            self.keras_model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=["accuracy"])
         # self.keras_model.summary()
 
     def fit(self, training_data_x, training_data_y, validation_data_x, validation_data_y):
@@ -125,26 +130,36 @@ class GenerateFFNN:
         model.add(layers.Dense(self.input_size, input_dim=self.input_size, activation="relu"))
         for _ in range(self.num_hidden_layers):
             model.add(layers.Dense(self.intermediate_size, activation="relu"))
-        model.add(layers.Dense(self.output_size, activation="softmax"))
+        if self.is_binary:
+            model.add(layers.Dense(1, activation="sigmoid"))
+        else:
+            model.add(layers.Dense(self.output_size, activation="softmax"))
         return model
 
     def evaluate_accuracy(self, prediction, reality):
-        return self.__evaluate_accuracy(prediction, reality)
+        return self.__evaluate_accuracy(prediction, reality, self.is_binary)
 
     @staticmethod
-    def __evaluate_accuracy(prediction, reality):
+    def __evaluate_accuracy(prediction, reality, is_binary=False):
         """
         Compares predicted data and actual data.
 
         :param prediction: Array of predictions
         :param reality: Array of actual labels
+        :param is_binary: If the model is a binary model
         :return: Accuracy (float)
         """
 
         correct = 0
-        for i in range(len(prediction)):
-            if np.array(prediction[i]).argmax() == np.array(reality[i]).argmax():
-                correct = correct + 1
+        if is_binary:
+            for i in range(len(prediction)):
+                pred_label = 1 if prediction[i][0] >= 0.5 else 0
+                if pred_label == reality[i]:
+                    correct = correct + 1
+        else:
+            for i in range(len(prediction)):
+                if np.array(prediction[i]).argmax() == np.array(reality[i]).argmax():
+                    correct = correct + 1
 
         return correct / len(prediction)
 
