@@ -1,134 +1,50 @@
 export PYTHONPATH="/home/shino/Uni/master_thesis"
 
-bool_arr=(0 1)
-# Simple Square only
-for encode_path_as_locations in "${bool_arr}"; do
-  # Max height and num neurons
-  python3 sources/build/eval.py ${encode_path_as_locations} 16 8 1 16 75 1
-  python3 sources/build/eval_graphs.py eval_${encode_path_as_locations}_DT_16_8_KNN_1_16_75_DS_1
+NUM_ALLOWED_JOBS=4
 
-  python3 sources/build/eval.py ${encode_path_as_locations} 16 16 1 32 75 1
-  python3 sources/build/eval_graphs.py eval_${encode_path_as_locations}_DT_16_16_KNN_1_32_75_DS_1
+function eval_model {
+  python3 sources/build/eval.py ${1} ${2} ${3} ${4} ${5} ${6} ${7}
+  python3 sources/build/eval_anomaly.py eval_${1}_DT_${2}_${3}_KNN_${4}_${5}_${6}_DS_${8}
+  python3 sources/build/eval_graphs.py eval_${1}_DT_${2}_${3}_KNN_${4}_${5}_${6}_DS_${8}
+}
 
-  python3 sources/build/eval.py ${encode_path_as_locations} 16 32 1 64 75 1
-  python3 sources/build/eval_graphs.py eval_${encode_path_as_locations}_DT_16_32_KNN_1_64_75_DS_1
+function exec_model_in_parallel {
+  eval_model ${1} ${2} ${3} ${4} ${5} ${6} ${7} ${8} &
 
-  python3 sources/build/eval.py ${encode_path_as_locations} 16 64 1 128 75 1
-  python3 sources/build/eval_graphs.py eval_${encode_path_as_locations}_DT_16_64_KNN_1_128_75_DS_1
+  # Block until more jobs may be started
+  runningJobs=$(jobs | wc -l | xargs)
+  while (( runningJobs >= NUM_ALLOWED_JOBS )); do
+    sleep 1s
+    runningJobs=$(jobs | wc -l | xargs)
+  done
+}
 
-  # forest size and num hidden layer
-  python3 sources/build/eval.py ${encode_path_as_locations} 8 32 1 32 75 1
-  python3 sources/build/eval_graphs.py eval_${encode_path_as_locations}_DT_8_32_KNN_1_32_75_DS_1
+function eval_data_sets {
+  bool_arr=(0 1)
+  # Simple Square only
+  for encode_path_as_locations in "${bool_arr}"; do
+    # Max height and num neurons
+    exec_model_in_parallel ${encode_path_as_locations} 16 8 1 16 75 ${1} ${2}
+    exec_model_in_parallel ${encode_path_as_locations} 16 16 1 32 75 ${1} ${2}
+    exec_model_in_parallel ${encode_path_as_locations} 16 32 1 64 75 ${1} ${2}
+    exec_model_in_parallel ${encode_path_as_locations} 16 64 1 128 75 ${1} ${2}
 
-  python3 sources/build/eval.py ${encode_path_as_locations} 16 32 2 32 75 1
-  python3 sources/build/eval_graphs.py eval_${encode_path_as_locations}_DT_32_32_KNN_2_32_75_DS_1
+    # forest size and num hidden layer
+    exec_model_in_parallel ${encode_path_as_locations} 8 32 1 32 75 ${1} ${2}
+    exec_model_in_parallel ${encode_path_as_locations} 16 32 2 32 75 ${1} ${2}
+    exec_model_in_parallel ${encode_path_as_locations} 32 32 4 32 75 ${1} ${2}
+    exec_model_in_parallel ${encode_path_as_locations} 64 32 8 32 75 ${1} ${2}
 
-  python3 sources/build/eval.py ${encode_path_as_locations} 32 32 4 32 75 1
-  python3 sources/build/eval_graphs.py eval_${encode_path_as_locations}_DT_32_32_KNN_4_32_75_DS_1
+    # Useful combinations
+    exec_model_in_parallel ${encode_path_as_locations} 32 64 4 64 75 ${1} ${2}
+  done
+}
 
-  python3 sources/build/eval.py ${encode_path_as_locations} 64 32 8 32 75 1
-  python3 sources/build/eval_graphs.py eval_${encode_path_as_locations}_DT_64_32_KNN_8_32_75_DS_1
+function do_evaluation {
+  eval_data_sets 1 1
+  eval_data_sets 1,2 12
+  eval_data_sets 1,2,3 123
+  eval_data_sets 1,2,3,4 1234
+}
 
-  # Useful combinations
-  python3 sources/build/eval.py ${encode_path_as_locations} 32 64 4 64 100 1
-  python3 sources/build/eval_graphs.py eval_${encode_path_as_locations}_DT_32_64_KNN_4_64_100_DS_1
-done
-
-# Simple Square and Long Rectangle
-for encode_path_as_locations in "${bool_arr}"; do
-  # Max height and num neurons
-  python3 sources/build/eval.py ${encode_path_as_locations} 16 8 1 16 75 1,2
-  python3 sources/build/eval_graphs.py eval_${encode_path_as_locations}_DT_16_8_KNN_1_16_75_DS_12
-
-  python3 sources/build/eval.py ${encode_path_as_locations} 16 16 1 32 75 1,2
-  python3 sources/build/eval_graphs.py eval_${encode_path_as_locations}_DT_16_16_KNN_1_32_75_DS_12
-
-  python3 sources/build/eval.py ${encode_path_as_locations} 16 32 1 64 75 1,2
-  python3 sources/build/eval_graphs.py eval_${encode_path_as_locations}_DT_16_32_KNN_1_64_75_DS_12
-
-  python3 sources/build/eval.py ${encode_path_as_locations} 16 64 1 128 75 1,2
-  python3 sources/build/eval_graphs.py eval_${encode_path_as_locations}_DT_16_64_KNN_1_128_75_DS_12
-
-  # forest size and num hidden layer
-  python3 sources/build/eval.py ${encode_path_as_locations} 8 32 1 32 75 1,2
-  python3 sources/build/eval_graphs.py eval_${encode_path_as_locations}_DT_8_32_KNN_1_32_75_DS_12
-
-  python3 sources/build/eval.py ${encode_path_as_locations} 16 32 2 32 75 1,2
-  python3 sources/build/eval_graphs.py eval_${encode_path_as_locations}_DT_32_32_KNN_2_32_75_DS_12
-
-  python3 sources/build/eval.py ${encode_path_as_locations} 32 32 4 32 75 1,2
-  python3 sources/build/eval_graphs.py eval_${encode_path_as_locations}_DT_32_32_KNN_4_32_75_DS_12
-
-  python3 sources/build/eval.py ${encode_path_as_locations} 64 32 8 32 75 1,2
-  python3 sources/build/eval_graphs.py eval_${encode_path_as_locations}_DT_64_32_KNN_8_32_75_DS_12
-
-  # Useful combinations
-  python3 sources/build/eval.py ${encode_path_as_locations} 32 64 4 64 100 1,2
-  python3 sources/build/eval_graphs.py eval_${encode_path_as_locations}_DT_32_64_KNN_4_64_100_DS_12
-done
-
-# Simple Square and Long Rectangle and Rectangle with Ramp
-for encode_path_as_locations in "${bool_arr}"; do
-  # Max height and num neurons
-  python3 sources/build/eval.py ${encode_path_as_locations} 16 8 1 16 75 1,2,3
-  python3 sources/build/eval_graphs.py eval_${encode_path_as_locations}_DT_16_8_KNN_1_16_75_DS_123
-
-  python3 sources/build/eval.py ${encode_path_as_locations} 16 16 1 32 75 1,2,3
-  python3 sources/build/eval_graphs.py eval_${encode_path_as_locations}_DT_16_16_KNN_1_32_75_DS_123
-
-  python3 sources/build/eval.py ${encode_path_as_locations} 16 32 1 64 75 1,2,3
-  python3 sources/build/eval_graphs.py eval_${encode_path_as_locations}_DT_16_32_KNN_1_64_75_DS_123
-
-  python3 sources/build/eval.py ${encode_path_as_locations} 16 64 1 128 75 1,2,3
-  python3 sources/build/eval_graphs.py eval_${encode_path_as_locations}_DT_16_64_KNN_1_128_75_DS_123
-
-  # forest size and num hidden layer
-  python3 sources/build/eval.py ${encode_path_as_locations} 8 32 1 32 75 1,2,3
-  python3 sources/build/eval_graphs.py eval_${encode_path_as_locations}_DT_8_32_KNN_1_32_75_DS_123
-
-  python3 sources/build/eval.py ${encode_path_as_locations} 16 32 2 32 75 1,2,3
-  python3 sources/build/eval_graphs.py eval_${encode_path_as_locations}_DT_32_32_KNN_2_32_75_DS_123
-
-  python3 sources/build/eval.py ${encode_path_as_locations} 32 32 4 32 75 1,2,3
-  python3 sources/build/eval_graphs.py eval_${encode_path_as_locations}_DT_32_32_KNN_4_32_75_DS_123
-
-  python3 sources/build/eval.py ${encode_path_as_locations} 64 32 8 32 75 1,2,3
-  python3 sources/build/eval_graphs.py eval_${encode_path_as_locations}_DT_64_32_KNN_8_32_75_DS_123
-
-  # Useful combinations
-  python3 sources/build/eval.py ${encode_path_as_locations} 32 64 4 64 100 1,2,3
-  python3 sources/build/eval_graphs.py eval_${encode_path_as_locations}_DT_32_64_KNN_4_64_100_DS_123
-done
-
-# Simple Square and Long Rectangle and Rectangle with Ramp and Many Corners
-for encode_path_as_locations in "${bool_arr}"; do
-  # Max height and num neurons
-  python3 sources/build/eval.py ${encode_path_as_locations} 16 8 1 16 75 1,2,3,4
-  python3 sources/build/eval_graphs.py eval_${encode_path_as_locations}_DT_16_8_KNN_1_16_75_DS_1234
-
-  python3 sources/build/eval.py ${encode_path_as_locations} 16 16 1 32 75 1,2,3,4
-  python3 sources/build/eval_graphs.py eval_${encode_path_as_locations}_DT_16_16_KNN_1_32_75_DS_1234
-
-  python3 sources/build/eval.py ${encode_path_as_locations} 16 32 1 64 75 1,2,3,4
-  python3 sources/build/eval_graphs.py eval_${encode_path_as_locations}_DT_16_32_KNN_1_64_75_DS_1234
-
-  python3 sources/build/eval.py ${encode_path_as_locations} 16 64 1 128 75 1,2,3,4
-  python3 sources/build/eval_graphs.py eval_${encode_path_as_locations}_DT_16_64_KNN_1_128_75_DS_1234
-
-  # forest size and num hidden layer
-  python3 sources/build/eval.py ${encode_path_as_locations} 8 32 1 32 75 1,2,3,4
-  python3 sources/build/eval_graphs.py eval_${encode_path_as_locations}_DT_8_32_KNN_1_32_75_DS_1234
-
-  python3 sources/build/eval.py ${encode_path_as_locations} 16 32 2 32 75 1,2,3,4
-  python3 sources/build/eval_graphs.py eval_${encode_path_as_locations}_DT_32_32_KNN_2_32_75_DS_1234
-
-  python3 sources/build/eval.py ${encode_path_as_locations} 32 32 4 32 75 1,2,3,4
-  python3 sources/build/eval_graphs.py eval_${encode_path_as_locations}_DT_32_32_KNN_4_32_75_DS_1234
-
-  python3 sources/build/eval.py ${encode_path_as_locations} 64 32 8 32 75 1,2,3,4
-  python3 sources/build/eval_graphs.py eval_${encode_path_as_locations}_DT_64_32_KNN_8_32_75_DS_1234
-
-  # Useful combinations
-  python3 sources/build/eval.py ${encode_path_as_locations} 32 64 4 64 100 1,2,3,4
-  python3 sources/build/eval_graphs.py eval_${encode_path_as_locations}_DT_32_64_KNN_4_64_100_DS_1234
-done
+do_evaluation
