@@ -1,15 +1,16 @@
+import copy
 import math
 import multiprocessing
 import os
-import copy
 
 import numpy as np
 from sklearn import tree
 from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier, BaggingClassifier, ExtraTreesClassifier
 from sklearn.model_selection import train_test_split
 
-from sources.config import NUM_CORES
 from sources.decision_tree.ensemble_method import EnsembleMethod
+from sources.config import NUM_CORES
+
 
 
 class GenerateDecisionTree:
@@ -62,22 +63,23 @@ class GenerateDecisionTree:
 
         :return: Best model from the monte carlo optimization
         """
-        pool = multiprocessing.Pool(processes=self.num_cores)
         best_classifier = None
-        for j in range(int(math.ceil(self.cherry_pick_iterations / self.num_cores))):
-            args = []
-            for i in range(self.num_cores):
-                args.append(self.model(i))
-            classifier = pool.map(self.evaluate_classifier, args)
-            classifier.sort(key=lambda x: x[1], reverse=True)
-            if best_classifier is None or best_classifier[1] < classifier[0][1]:
-                best_classifier = classifier[0]
+        num_iterations = int(math.ceil(self.cherry_pick_iterations / self.num_cores))
+        with multiprocessing.get_context("spawn").Pool(processes=self.num_cores) as pool:
+            for j in range(num_iterations):
+                args = []
+                for i in range(self.num_cores):
+                    args.append(self.model(i + j * self.num_cores))
+                classifier = pool.map(self.evaluate_classifier, args)
+                classifier.sort(key=lambda x: x[1], reverse=True)
+                if best_classifier is None or best_classifier[1] < classifier[0][1]:
+                    best_classifier = classifier[0]
         return best_classifier[0]
 
     def evaluate_classifier(self, clf):
         """
         Helper method for cherry_pick.
-        Evaluates a classfier based on the fraction_opt provided in fit.
+        Evaluates a classifier based on the fraction_opt provided in fit.
 
         :param clf: model to be evaluated
         :return: model and its accuracy on the optimization test set
