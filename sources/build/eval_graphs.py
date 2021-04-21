@@ -2,12 +2,12 @@ import os
 import pickle
 import random
 import sys
-from multiprocessing import cpu_count, Pool
+from multiprocessing import Pool
 
 import numpy as np
 from tensorflow import keras
 
-from sources.config import BIN_FOLDER_PATH
+from sources.config import BIN_FOLDER_PATH, NUM_CORES
 from sources.ffnn.gen_ffnn import GenerateFFNN
 from sources.metric.compile_log import CompileLog
 from sources.metric.graph_feature_importance import GraphFeatureImportance
@@ -243,7 +243,7 @@ with open(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_data.pkl", 'rb'
             log_compiled.close()
 
         # Evaluate all graphs in parallel
-        with Pool(cpu_count()) as pool:
+        with Pool(NUM_CORES) as pool:
             pool.map(exec_gen_graphs, map_args)
             pool.close()
             pool.join()

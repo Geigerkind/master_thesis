@@ -1,14 +1,14 @@
 import math
 import os
 import random
-from multiprocessing import cpu_count, Pool
+from multiprocessing import Pool
 
 import numpy as np
 import pandas as pd
 from pandas import DataFrame
 from sklearn.preprocessing import StandardScaler
 
-from sources.config import BIN_FOLDER_PATH
+from sources.config import BIN_FOLDER_PATH, NUM_CORES
 from sources.data.data_set import DataSet
 from sources.data.features import Features
 from sources.feature.max import FeatureMax
@@ -376,7 +376,7 @@ class DataCompiler:
 
     def __load_raw_data(self):
         def parallelize(data, func, args):
-            cores = cpu_count()
+            cores = NUM_CORES
             map_args = []
             data_split = np.array_split(data, cores)
             for split in data_split:
@@ -737,7 +737,7 @@ class DataCompiler:
         # Therefore we define here for each row if it should fire an "interrupt"
         # compared to the previous row that fired an interrupt
         print("Filtering raw data by synthetic interrupts...")
-        with Pool(processes=cpu_count()) as pool:
+        with Pool(processes=NUM_CORES) as pool:
             args = []
             count = 1
             for data_set in self.__raw_data:
@@ -751,7 +751,7 @@ class DataCompiler:
         # compared to the previous row that fired an interrupt
 
         print("Filtering raw data by synthetic interrupts...")
-        with Pool(processes=cpu_count()) as pool:
+        with Pool(processes=NUM_CORES) as pool:
             new_raw_data = []
             count = 1
             for data_set in self.__raw_data:
@@ -785,7 +785,7 @@ class DataCompiler:
                 features_tmp = []
                 labels_tmp = []
                 cycles = []
-                with Pool(processes=cpu_count()) as pool:
+                with Pool(processes=NUM_CORES) as pool:
                     args = []
                     for i in range((window_size * lookback_window) + 1, len(data_set)):
                         args.append([data_set, i, window_size, input_features, lookback_window])

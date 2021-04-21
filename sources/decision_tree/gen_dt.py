@@ -8,6 +8,7 @@ from sklearn import tree
 from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier, BaggingClassifier, ExtraTreesClassifier
 from sklearn.model_selection import train_test_split
 
+from sources.config import NUM_CORES
 from sources.decision_tree.ensemble_method import EnsembleMethod
 
 
@@ -31,7 +32,7 @@ class GenerateDecisionTree:
         # Configuration
         self.debug_mode = False
         self.cherry_pick_iterations = 128
-        self.num_cores = multiprocessing.cpu_count()
+        self.num_cores = NUM_CORES
 
         # Tree related
         self.ccp_alpha = 0.0001

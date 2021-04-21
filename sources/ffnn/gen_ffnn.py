@@ -1,12 +1,13 @@
 import copy
 import os
 import random
-from multiprocessing import cpu_count
 
 import numpy as np
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
+
+from sources.config import NUM_CORES
 
 
 class GenerateFFNN:
@@ -26,9 +27,9 @@ class GenerateFFNN:
         # Set random seeds for reproducible results
         os.environ['PYTHONHASHSEED'] = str(0)
         random.seed(0)
-        tf.random.set_seed(0)
-        session_conf = tf.compat.v1.ConfigProto(intra_op_parallelism_threads=cpu_count(),
-                                                inter_op_parallelism_threads=cpu_count())
+        # tf.random.set_seed(0)
+        session_conf = tf.compat.v1.ConfigProto(intra_op_parallelism_threads=NUM_CORES,
+                                                inter_op_parallelism_threads=NUM_CORES)
         sess = tf.compat.v1.Session(graph=tf.compat.v1.get_default_graph(), config=session_conf)
         tf.compat.v1.keras.backend.set_session(sess)
 
