@@ -1,6 +1,6 @@
 export PYTHONPATH="/home/shino/Uni/master_thesis"
 
-NUM_ALLOWED_JOBS=4
+NUM_ALLOWED_JOBS=3
 
 function eval_model {
   python3 sources/build/eval.py ${1} ${2} ${3} ${4} ${5} ${6} ${7}
