@@ -10,7 +10,7 @@ mit Momentum und \textit{RMSprop} vereinigt \cite{kingma2014adam, higham2019deep
 \end{figure}
 \newline
 SGD ist eine Approximation von \textit{Gradient Descent} (GD) \cite{bengio2017deep}.
-GD ist ein iterativer Algorithmus, der den Gradienten in Richtung des Extrema folgt und dementsprechend die Eingabeparameter aktualisiert.
+GD ist ein iterativer Algorithmus, der den Gradienten in Richtung des Extremum folgt und dementsprechend die Eingabeparameter aktualisiert.
 \begin{align}
     \label{formular:gradient_descent}
     \theta_{k+1} := \theta_k - \text{sign}(C^{\prime}(\theta_k))\eta
@@ -20,11 +20,11 @@ wobei $\eta > 0$ eine angemessene \textit{Lernrate}, $\theta$ der Eingabeparamet
 Ist die Lernrate zu groß könnte keine Verbesserung beobachtet werden, da das Maxima immer übersprungen wird.
 Ist die Lernrate zu klein könnte die Konvergenz sehr langsam sein.
 Wenn ein Sattelpunkt erreicht wird ist der Gradient 0.
-Aus diesem Grund können mit dieser Technik globale Extrema verfehlt werden.
+Aus diesem Grund können mit dieser Technik globale Extremum verfehlt werden.
 \newline
 \newline
 Im mehrdimensionalen Fall wird für jede Komponente des Eingabevektors dieser Prozess durchgeführt, sodass für jede Komponente
-die Richtung des Extrema verfolgt wird.
+die Richtung des Extremum verfolgt wird.
 Dies impliziert, dass GD für Eingabevektoren mit hohen Dimensionen sehr aufwendig zu berechnen ist.
 Gleichung \ref{formular:gd_multi_dim} zeigt die iterative Berechnung im mehrdimensionalen Fall.
 \begin{align}
@@ -36,13 +36,13 @@ Je größer die Dimension des Eingabevektor ist, desto aufwendiger ist die Berec
 \newline
 \newline
 SGD ist eine Approximation von GD. Es nutzt eine zufällige Teilmenge des Eingabevektors, den sogenannten \textit{Mini-Batch}.
-Es wird angenommen, dass der Gradient des Mini-Batches ähnlich ist zu dem Gradienten des gesamten Eingabevektors.
+Es wird angenommen, dass der Gradient des Mini-Batches ähnlich zu dem Gradienten des gesamten Eingabevektors ist.
 Folglich werden mit jedem Mini-Batch die Parameter des KNN aktualisiert, wodurch in jeder Epoche die Parameter mehr als einmal aktualisiert werden.
 Ziel dieser Approximierung ist eine Laufzeitverbesserung.
 \newline
 \newline
-(S)GD mit Momentum versucht zu vermeiden, dass lokale Extrema gefunden werden anstatt globale Extrema, indem Momentum aus
-vorherigen Gradienten beibehalten wird, um aus lokalen Extrema wieder raus zu finden \cite{higham2019deep}.
+(S)GD mit Momentum versucht zu vermeiden, dass lokale Extremum gefunden werden anstatt globale Extremum, indem Momentum aus
+vorherigen Gradienten beibehalten wird, um aus lokalen Extremum wieder raus zu finden \cite{higham2019deep}.
 Gleichung \ref{formular:sgd_momentum} zeigt die iterative Berechnung.
 \begin{align}
     \label{formular:sgd_momentum}
@@ -77,8 +77,8 @@ exponentiell gewichteter gleitender Mittelwert verwendet wird \cite{bengio2017de
     \boldsymbol\theta_{k+1} = \boldsymbol\theta_k - \textbf{g}_k \circ \frac{\eta}{\sqrt{\textbf{w}_k + \epsilon}}
 \end{align}
 Gleichung \ref{formular:adam} zeigt, wie Adam RMSprop und (S)GD mit Momentum vereint, wobei $\gamma_1 < \gamma_2 < 1$ \cite{kingma2014adam} ist.
-Adam beinhaltet RMSprop und hat eine Momentum Komponente, indem der Moment der ersten Ordnung mit exponentieller Gewichtung approximiert wird \cite{bengio2017deep}.
-Zudem korrigiert Adam den Bias der Momente der ersten und zweiten Ordnung der durch die Initialisierung entsteht.
+Adam beinhaltet RMSprop und hat eine Momentum Komponente, indem das Moment der ersten Ordnung mit exponentieller Gewichtung approximiert wird \cite{bengio2017deep}.
+Zudem korrigiert Adam den Bias das Momente der ersten und zweiten Ordnung der durch die Initialisierung entsteht.
 \begin{align}
     \label{formular:adam}
     \textbf{v}_{-1} = \textbf{w}_{-1} = \textbf{0}, \hspace{0.6cm}
