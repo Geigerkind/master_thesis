@@ -21,7 +21,6 @@ function exec_model_in_parallel {
 
 function eval_data_sets {
   bool_arr=(0 1)
-  # Simple Square only
   for encode_path_as_locations in "${bool_arr}"; do
     # Max height and num neurons
     exec_model_in_parallel ${encode_path_as_locations} 16 8 1 16 75 ${1} ${2}
