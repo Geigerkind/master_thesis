@@ -1,0 +1,34 @@
+\section{Simulierte Sensordaten}
+Insgesamt wurden vier Routen über 20 Zyklen erfasst.
+Dabei wurden alle 50 ms die xyz-, Koordinaten, Beschleunigung und Gyroskopdaten erfasst, sowie Lichtintensität und Metadaten.
+Zu den Metadaten gehören Zeitstempel, Beschriftung des Routenabschnitts und Beschriftung des derzeitigen Zyklusses.
+Ein Zyklus ist der vollständige Umlauf einer Route.
+\newline
+\newline
+Abbildung \ref{fig:simple_square_labeled} zeigt eine der vier Routen \glqq simple\_square\grqq.
+Jede Route ist mit Markierungen für Zyklen und Standorte ausgestattet.
+Die Zyklusmarkierung wird genutzt, um die die Datensätze mit deren derzeitigen Zyklus zu beschriften.
+Jedes mal, wenn die Sensorenbox diese Markierung überschreitet, wird der Zähler für den Zyklus inkrementiert.
+Die Standortmarkierung wird genutzt, um die Datensätze mit dem derzeitigen Routenabschnitt zu beschriften.
+Jedes mal, wenn die Sensorenbox diese Markierung überschreitet, wird der derzeitige Wert für Routenabschnitt auf den Wert der Markierung gesetzt.
+Dabei werden alle aufgenommenen Datensätze immer mit dem derzeitigen Wert für den Routenabschnitt markiert.
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\linewidth]{images/simple_square_labeled.png}
+    \caption{Modell der Route \glqq simple\_square\grqq\ in CoppeliaSim mit Beschriftungen.}
+    \label{fig:simple_square_labeled}
+\end{figure}
+\newline
+\newline
+Neben \glqq simple\_square \grqq\ gibt es noch drei weitere Routen (siehe Abbildungen \ref{fig:long_rectangle}, \ref{fig:rectangle_with_ramp} und \ref{fig:many_corners}).
+Die Route \glqq long\_rectangle \grqq\ weist lange Pfade mit wenig Änderungen auf.
+Die Route \glqq rectangle\_with\_ramp \grqq\ besitzt zusätzlich zwei Rampen, wodurch Höhenunterschiede simuliert werden.
+Die Route \glqq many\_corners \grqq\ ist sehr komplex und hat viele verschiedene Standorte.
+Die Förderbänder können verschiedene Geschwindigkeiten haben mit sowohl abrupten Übergangen, als auch fließenden Übergängen zueinander.
+\newline
+\newline
+Je nach Enkodierungsart (siehe Kapitel \ref{sec:model_location_encoding}) müssen die Knoten und Kanten, dieses zyklischen Graphen, als Standorte enkodiert werden.
+Als Knoten wird die Menge der Datensätze bezeichnet, die sich in einem Umkreis des ersten Datensatzes befinden, der mit einem Standort beschriftet ist,
+d. h. Datensätze mit der gleichen Standortbeschriftung, die sich nicht im Umkreis des initialen Datensatzes befinden, gelten nicht als dieser Standort.
+Die Knoten werden mit dem Wert der Standortbeschriftung beschriftet.
+Die übrigen Datensätze werden entweder als unbekannten Standort beschriftet oder erhalten einen diskreten Standortwert, der die Beziehung der Kante zwischen zwei Knoten enkodiert.
