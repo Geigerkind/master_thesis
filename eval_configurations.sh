@@ -3,9 +3,15 @@ export PYTHONPATH="/home/shino/Uni/master_thesis"
 NUM_ALLOWED_JOBS=3
 
 function eval_model {
-  python3 sources/build/eval.py ${1} ${2} ${3} ${4} ${5} ${6} ${7}
-  python3 sources/build/eval_anomaly.py eval_${1}_DT_${2}_${3}_KNN_${4}_${5}_${6}_DS_${8}
-  python3 sources/build/eval_graphs.py eval_${1}_DT_${2}_${3}_KNN_${4}_${5}_${6}_DS_${8}
+  if [[ ! -f "${PYTHONPATH}/eval_${1}_DT_${2}_${3}_KNN_${4}_${5}_${6}_DS_${8}/evaluation_knn_model.h5" ]]; then
+    python3 sources/build/eval.py ${1} ${2} ${3} ${4} ${5} ${6} ${7}
+  fi
+  if [[ ! -f "${PYTHONPATH}/eval_${1}_DT_${2}_${3}_KNN_${4}_${5}_${6}_DS_${8}/evaluation_knn_anomaly_model.h5" ]]; then
+    python3 sources/build/eval_anomaly.py eval_${1}_DT_${2}_${3}_KNN_${4}_${5}_${6}_DS_${8}
+  fi
+  if [[ ! -f "${PYTHONPATH}/eval_${1}_DT_${2}_${3}_KNN_${4}_${5}_${6}_DS_${8}/combined_test_route/random_prev_location_knn/log_general_metrics.csv" ]]; then
+    python3 sources/build/eval_graphs.py eval_${1}_DT_${2}_${3}_KNN_${4}_${5}_${6}_DS_${8}
+  fi
 }
 
 function exec_model_in_parallel {
