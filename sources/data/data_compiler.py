@@ -29,7 +29,7 @@ os.environ['PYTHONHASHSEED'] = str(0)
 # as class object
 
 def par_ibs_process_data_set_row(args):
-    data_set, row_index_before, row_index_after, sampling_rate = args
+    data_set, row_index_before, row_index_after, sampling_rate, training_sampling_rate_in_location, max_training_cycle = args
     row_before = data_set.iloc[row_index_before]
     row_after = data_set.iloc[row_index_after]
     pir_total_acc = abs(row_before["x_acc"] + row_before["y_acc"] + row_before["z_acc"])
@@ -38,12 +38,15 @@ def par_ibs_process_data_set_row(args):
            or (abs(row_before["heading"] - row_after["heading"]) >= 20) \
            or (abs(row_before["temperature"] - row_after["temperature"]) >= 0.15 * row_before["temperature"]) \
            or (abs(row_before["light"] - row_after["light"]) >= 0.1 * row_before["light"]) \
+           or (abs(row_before["volume"] - row_after["volume"]) >= 0.15 * row_before["volume"]) \
            or (row_before["access_point_0"] != row_after["access_point_0"]) \
            or (row_before["access_point_1"] != row_after["access_point_1"]) \
            or (row_before["access_point_2"] != row_after["access_point_2"]) \
            or (row_before["access_point_3"] != row_after["access_point_3"]) \
            or (row_before["access_point_4"] != row_after["access_point_4"]) \
-           or row_after["t_stamp"] % sampling_rate == 0
+           or (row_after["t_stamp"] % sampling_rate == 0) \
+           or (row_after["location"] > 0 and row_after["cycle"] <= max_training_cycle and row_after[
+        "t_stamp"] % training_sampling_rate_in_location == 0)
 
 
 def par_lrd_adjust_pos(input_args):
@@ -175,7 +178,7 @@ def par_ef_calculate_features(args):
 
 
 def par_process_data_set(args):
-    data_set, count, total_len, is_verbose, sampling_interval = args
+    data_set, count, total_len, is_verbose, sampling_interval, training_sampling_rate_in_location, max_training_cycle = args
     if is_verbose:
         print("Processing data set {0} of {1}".format(count, total_len))
     # previous interrupt row
@@ -189,12 +192,15 @@ def par_process_data_set(args):
                 or (abs(pir["heading"] - row[1]["heading"]) >= 10) \
                 or (abs(pir["temperature"] - row[1]["temperature"]) >= 0.075 * pir["temperature"]) \
                 or (abs(pir["light"] - row[1]["light"]) >= 0.05 * pir["light"]) \
+                or (abs(pir["volume"] - row[1]["volume"]) >= 0.15 * pir["volume"]) \
                 or (pir["access_point_0"] != row[1]["access_point_0"]) \
                 or (pir["access_point_1"] != row[1]["access_point_1"]) \
                 or (pir["access_point_2"] != row[1]["access_point_2"]) \
                 or (pir["access_point_3"] != row[1]["access_point_3"]) \
                 or (pir["access_point_4"] != row[1]["access_point_4"]) \
-                or (row[1]["t_stamp"] % sampling_interval == 0):
+                or (row[1]["t_stamp"] % sampling_interval == 0) \
+                or (row[1]["location"] > 0 and row[1]["cycle"] <= max_training_cycle and row[1][
+            "t_stamp"] % training_sampling_rate_in_location == 0):
             index_map.append(index)
             pir = row[1]
             new_df = new_df.append(row[1], ignore_index=True)
@@ -208,7 +214,8 @@ def par_process_data_set(args):
 
 class DataCompiler:
     def __init__(self, data_sets, features, train_with_faulty_data=False, encode_paths_between_as_location=False,
-                 use_synthetic_routes=False, proximity=0.1, manual_data_set=None, manual_num_inputs=0, manual_num_outputs=0):
+                 use_synthetic_routes=False, proximity=0.1, manual_data_set=None, manual_num_inputs=0,
+                 manual_num_outputs=0):
         """
         This tool compiles provided data sets with given features into training data for decision trees and knn.
         It extracts features, encodes the locations, creates faulty sets and creates synthetic routes.
@@ -238,6 +245,8 @@ class DataCompiler:
         self.window_size = 3
         self.lookback_window = 1  # NOT FULLY IMPLEMENTED!
         self.sampling_interval = 1  # Every second there is at least on sampling
+        # Ensure that we have enough training samples for the training data
+        self.sampling_interval_in_location_for_training_data = 0.5
 
         # Internal configuration
         self.__num_temporary_test_sets = 3  # Note the anomaly set added at the load
@@ -783,7 +792,9 @@ class DataCompiler:
             args = []
             count = 1
             for data_set in self.__raw_data:
-                args.append([data_set, count, len(self.__raw_data), self.__is_verbose, self.sampling_interval])
+                args.append([data_set, count, len(self.__raw_data), self.__is_verbose, self.sampling_interval,
+                             self.sampling_interval_in_location_for_training_data,
+                             self.num_cycles - self.num_validation_cycles - 1])
                 count = count + 1
             self.__raw_data = []
             for res in pool.map(par_process_data_set, args):
@@ -804,7 +815,9 @@ class DataCompiler:
                     print("Processing data set {0} of {1}".format(count, len(self.__raw_data)))
                 args = []
                 for i in range(1, len(data_set)):
-                    args.append([data_set, i - 1, i, self.sampling_interval])
+                    args.append([data_set, i - 1, i, self.sampling_interval,
+                                 self.sampling_interval_in_location_for_training_data,
+                                 self.num_cycles - self.num_validation_cycles - 1])
                 new_raw_data.append(data_set[[True] + pool.map(par_ibs_process_data_set_row, args)])
 
                 if self.__is_verbose:

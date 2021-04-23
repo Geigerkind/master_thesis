@@ -211,6 +211,7 @@ if __name__ == "__main__":
                                   anomaly_labels_val)
 
             print("Validating the models...")
+            # TODO: Adjust features from validation set to use predicted values for the window deviation
             dt_acc = model_anomaly_dt.evaluate_accuracy(model_anomaly_dt.predict(anomaly_features_dt_val),
                                                         anomaly_labels_val)
             knn_acc = model_anomaly_knn.evaluate_accuracy(model_anomaly_knn.predict(anomaly_features_knn_val),
