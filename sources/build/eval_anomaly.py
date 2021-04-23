@@ -20,7 +20,7 @@ Requires the classification model to be trained before.
 if __name__ == "__main__":
     _, evaluation_name = sys.argv
     NUM_EPOCHS_PER_CYCLE = 150
-    WINDOW_SIZE = 50
+    WINDOW_SIZE = 20
 
 
     def calculate_anomaly_features_and_labels(predicted_dt, predicted_knn, data_set_index):
@@ -29,9 +29,13 @@ if __name__ == "__main__":
         res_labels = []
 
         location_changes_dt = []
+        location_changes_no_anomaly_dt = []
         location_changes_knn = []
+        location_changes_no_anomaly_knn = []
         confidence_dt = []
+        confidence_no_anomaly_dt = []
         confidence_knn = []
+        confidence_no_anomaly_knn = []
         amount_zero_loc_dt = []
         amount_zero_loc_knn = []
         current_location_dt = np.asarray(predicted_dt[0]).argmax()
@@ -91,13 +95,24 @@ if __name__ == "__main__":
             features_dt.append(sum(amount_zero_loc_dt[-WINDOW_SIZE:]))
             features_knn.append(sum(amount_zero_loc_knn[-WINDOW_SIZE:]) / WINDOW_SIZE)
 
+            # Deviation no anomaly
+            if i > 0 and not data.temporary_test_set_raw_data[data_set_index].iloc[i - 1]["is_anomaly"]:
+                location_changes_no_anomaly_dt.append(location_changes_dt[-2])
+                location_changes_no_anomaly_knn.append(location_changes_knn[-2])
+                confidence_no_anomaly_dt.append(confidence_dt[-2])
+                confidence_no_anomaly_knn.append(confidence_knn[-2])
+
             # window location changes deviation to the average
-            features_dt.append(abs((sum(location_changes_dt) / len(location_changes_dt)) - (sum(location_changes_dt[-WINDOW_SIZE:]) / len(location_changes_dt[-WINDOW_SIZE:]))))
-            features_knn.append(abs((sum(location_changes_knn) / len(location_changes_knn)) - (sum(location_changes_knn[-WINDOW_SIZE:]) / len(location_changes_knn[-WINDOW_SIZE:]))))
+            # features_dt.append(abs((sum(location_changes_dt) / len(location_changes_dt)) - (sum(location_changes_dt[-WINDOW_SIZE:]) / len(location_changes_dt[-WINDOW_SIZE:]))))
+            # features_knn.append(abs((sum(location_changes_knn) / len(location_changes_knn)) - (sum(location_changes_knn[-WINDOW_SIZE:]) / len(location_changes_knn[-WINDOW_SIZE:]))))
+            features_dt.append(abs((sum(location_changes_no_anomaly_dt) / max(len(location_changes_no_anomaly_dt), 1)) - (sum(location_changes_dt[-WINDOW_SIZE:]) / max(len(location_changes_dt[-WINDOW_SIZE:]), 1))))
+            features_knn.append(abs((sum(location_changes_no_anomaly_knn) / max(len(location_changes_no_anomaly_knn), 1)) - (sum(location_changes_knn[-WINDOW_SIZE:]) / max(len(location_changes_knn[-WINDOW_SIZE:]), 1))))
 
             # window confidence changes deviation to the average
-            features_dt.append(abs((sum(confidence_dt) / len(confidence_dt)) - (sum(confidence_dt[-WINDOW_SIZE:]) / len(confidence_dt[-WINDOW_SIZE:]))))
-            features_knn.append(abs((sum(confidence_knn) / len(confidence_knn)) - (sum(confidence_knn[-WINDOW_SIZE:]) / len(confidence_knn[-WINDOW_SIZE:]))))
+            # features_dt.append(abs((sum(confidence_dt) / len(confidence_dt)) - (sum(confidence_dt[-WINDOW_SIZE:]) / len(confidence_dt[-WINDOW_SIZE:]))))
+            # features_knn.append(abs((sum(confidence_knn) / len(confidence_knn)) - (sum(confidence_knn[-WINDOW_SIZE:]) / len(confidence_knn[-WINDOW_SIZE:]))))
+            features_dt.append(abs((sum(confidence_no_anomaly_dt) / max(len(confidence_no_anomaly_dt), 1)) - (sum(confidence_dt[-WINDOW_SIZE:]) / max(len(confidence_dt[-WINDOW_SIZE:]), 1))))
+            features_knn.append(abs((sum(confidence_no_anomaly_knn) / max(len(confidence_no_anomaly_knn), 1)) - (sum(confidence_knn[-WINDOW_SIZE:]) / max(len(confidence_knn[-WINDOW_SIZE:]), 1))))
 
             res_features_dt.append(features_dt)
             res_features_knn.append(features_knn)

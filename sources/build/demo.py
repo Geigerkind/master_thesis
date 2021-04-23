@@ -7,18 +7,18 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.animation import FuncAnimation
 from pandas import DataFrame
-#from tensorflow import keras
 
 from sources.config import BIN_FOLDER_PATH
 from sources.data.data_compiler import DataCompiler
 from sources.data.features import Features
 
+# from tensorflow import keras
+
 _, is_dt, evaluation_name, simulation_file_path, skip_n = sys.argv
 is_dt = int(is_dt) == 1
 skip_n = int(skip_n)
 
-SAMPLING_PERIOD_IN_MS = 50
-WINDOW_SIZE = 50
+WINDOW_SIZE = 20
 
 data = 0
 with open(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_data.pkl", 'rb') as file:
@@ -28,14 +28,14 @@ model = 0
 if is_dt:
     with open(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_dt_model.pkl", 'rb') as file:
         model = pickle.load(file)
-#else:
+# else:
 #    model = keras.models.load_model(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_knn_model.h5")
 
 model_anomaly = 0
 if is_dt:
     with open(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_dt_anomaly_model.pkl", 'rb') as file:
         model_anomaly = pickle.load(file)
-#else:
+# else:
 #    model_anomaly = keras.models.load_model(
 #        BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_knn_anomaly_model.h5")
 
@@ -99,7 +99,9 @@ for i in range(len(location_map) + 1):
 statistics_anomaly = [0, 0, 0, 0, 0]
 
 window_location_changes = []
+window_location_changes_no_anomaly = []
 window_confidence = []
+window_confidence_no_anomaly = []
 
 true_location_history = []
 true_anamoly_history = []
@@ -203,6 +205,7 @@ def redraw():
         ax4.bar(range(len(permutation_importance)), permutation_importance, align='center')
         plt.xticks(range(len(permutation_importance)), data.name_map_features, size='small', rotation=90)
 
+
 redraw()
 
 # open the simulation file
@@ -217,6 +220,7 @@ last_prediction_anomaly = 0
 last_prediction_when = 0
 now = time.time()
 num_skipped = 0
+
 
 def run(args):
     global filtered_dataframe
@@ -244,6 +248,8 @@ def run(args):
     global all_features
     global skip_n
     global num_skipped
+    global window_location_changes_no_anomaly
+    global window_confidence_no_anomaly
 
     # Try to read the line
     current_reader_pos = file.tell()
@@ -366,7 +372,17 @@ def run(args):
                 fraction_zero_prediction = fraction_zero_prediction + 1
         fraction_zero_prediction = fraction_zero_prediction / len(prediction_history)
 
+        if last_prediction_anomaly == 0 and len(window_location_changes) > 1:
+            window_location_changes_no_anomaly.append(window_location_changes[-2])
+            window_confidence_no_anomaly.append(window_confidence[-2])
 
+        window_loc_changes_deviation = 0
+        window_confidence_deviation = 0
+        if len(window_location_changes_no_anomaly) >= WINDOW_SIZE:
+            window_loc_changes_deviation = abs((sum(window_location_changes_no_anomaly) / max(len(window_location_changes_no_anomaly), 1)) - (
+                    sum(window_location_changes[-WINDOW_SIZE:]) / max(len(window_location_changes[-WINDOW_SIZE:]), 1)))
+            window_confidence_deviation = abs((sum(window_confidence_no_anomaly) / max(len(window_confidence_no_anomaly), 1)) - (
+                    sum(window_confidence[-WINDOW_SIZE:]) / max(len(window_confidence[-WINDOW_SIZE:]), 1)))
 
         anomaly_features = [
             sum(window_location_changes[-WINDOW_SIZE:]),  # TODO: KNN
@@ -374,8 +390,8 @@ def run(args):
             prediction_proba,
             prediction_change,
             fraction_zero_prediction,
-            abs((sum(window_location_changes) / len(window_location_changes)) - (sum(window_location_changes[-WINDOW_SIZE:]) / len(window_location_changes[-WINDOW_SIZE:]))),
-            abs((sum(window_confidence) / len(window_confidence)) - (sum(window_confidence[-WINDOW_SIZE:]) / len(window_confidence[-WINDOW_SIZE:])))
+            window_loc_changes_deviation,
+            window_confidence_deviation
         ]
 
         # Save for statistics
@@ -396,7 +412,7 @@ def run(args):
             statistics_anomaly[1] = statistics_anomaly[1] + 1
         elif is_anomaly != is_current_pos_anomaly and is_anomaly:
             statistics_anomaly[2] = statistics_anomaly[2] + 1
-        elif is_anomaly != is_current_pos_anomaly and not is_current_pos_anomaly:
+        elif is_anomaly != is_current_pos_anomaly and not is_anomaly:
             statistics_anomaly[3] = statistics_anomaly[3] + 1
 
         # History ftw
@@ -425,9 +441,8 @@ def run(args):
                                                               statistics_anomaly[1] / sum_row,
                                                               statistics_anomaly[2] / sum_row,
                                                               statistics_anomaly[3] / sum_row,
-                                                              statistics_anomaly[0] / max(
-                                                                  statistics_anomaly[0] +
-                                                                  statistics_anomaly[3], 1)))
+                                                              (statistics_anomaly[0] + statistics_anomaly[
+                                                                  1]) / sum_row))
 
     # Plot the route
     if num_draws % 25 == 0:
