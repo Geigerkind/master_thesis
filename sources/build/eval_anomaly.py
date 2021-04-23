@@ -20,7 +20,7 @@ Requires the classification model to be trained before.
 if __name__ == "__main__":
     _, evaluation_name = sys.argv
     NUM_EPOCHS_PER_CYCLE = 150
-    WINDOW_SIZE = 20
+    WINDOW_SIZE = 25
 
 
     def calculate_anomaly_features_and_labels(predicted_dt, predicted_knn, data_set_index):
@@ -218,6 +218,11 @@ if __name__ == "__main__":
 
             print("Accuracy DT: {0}".format(dt_acc))
             print("Accuracy KNN: {0}".format(knn_acc))
+
+            acc_always_true = model_anomaly_dt.evaluate_accuracy([1 for _ in range(len(anomaly_labels_val))], anomaly_labels_val)
+            acc_always_false = model_anomaly_dt.evaluate_accuracy([0 for _ in range(len(anomaly_labels_val))], anomaly_labels_val)
+            print("Accuracy always True: {0}".format(acc_always_true))
+            print("Accuracy always False: {0}".format(acc_always_false))
 
             print("Saving anomaly models...")
             with open(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_dt_anomaly_model.pkl", 'wb') as file:
