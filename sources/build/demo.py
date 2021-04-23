@@ -13,8 +13,9 @@ from sources.config import BIN_FOLDER_PATH
 from sources.data.data_compiler import DataCompiler
 from sources.data.features import Features
 
-_, is_dt, evaluation_name, simulation_file_path = sys.argv
+_, is_dt, evaluation_name, simulation_file_path, skip_n = sys.argv
 is_dt = int(is_dt) == 1
+skip_n = int(skip_n)
 
 SAMPLING_PERIOD_IN_MS = 50
 WINDOW_SIZE = 50
@@ -215,6 +216,7 @@ last_prediction = 0
 last_prediction_anomaly = 0
 last_prediction_when = 0
 now = time.time()
+num_skipped = 0
 
 def run(args):
     global filtered_dataframe
@@ -240,12 +242,18 @@ def run(args):
     global true_anamoly_history
     global anamoly_history
     global all_features
+    global skip_n
+    global num_skipped
 
     # Try to read the line
     current_reader_pos = file.tell()
     line = file.readline()
     if not line:
         file.seek(current_reader_pos)
+        return
+
+    if num_skipped < skip_n:
+        num_skipped = num_skipped + 1
         return
 
     # If successful, attempt to parse it
@@ -437,13 +445,14 @@ def run(args):
         ax3.scatter([len(anamoly_history) - 1], [anamoly_history[-1]], c="blue", zorder=3)
 
         # Plot feature importance (using sub plots)
-        ax4.cla()
-        ax4.set_title("Permutationswichtigkeit im Datenfenster (25)")
-        ax4.set_xlabel("Feature")
-        ax4.set_ylabel("Fehler in %")
-        permutation_importance = model.permutation_importance(all_features, true_location_history[-25:])
-        ax4.bar(range(len(permutation_importance)), permutation_importance, align='center')
-        plt.xticks(range(len(permutation_importance)), data.name_map_features, size='small', rotation=90)
+        if prediction > 0:
+            ax4.cla()
+            ax4.set_title("Permutationswichtigkeit im Datenfenster (25)")
+            ax4.set_xlabel("Feature")
+            ax4.set_ylabel("Fehler in %")
+            permutation_importance = model.permutation_importance(all_features, true_location_history[-25:])
+            ax4.bar(range(len(permutation_importance)), permutation_importance, align='center')
+            plt.xticks(range(len(permutation_importance)), data.name_map_features, size='small', rotation=90)
 
     num_draws = num_draws + 1
 
@@ -454,5 +463,5 @@ def run(args):
     print("")
 
 
-animation = FuncAnimation(plt.gcf(), run, 750)
+animation = FuncAnimation(plt.gcf(), run, 1, blit=True)
 plt.show()
