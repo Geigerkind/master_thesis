@@ -8,7 +8,7 @@ TODO: Erkläre irgendwo die Metriken, die verwendet werden
     \item Entscheidungsbaum vs KNN
     \item Skalierung mit Anzahl der Orte
     \item Signifikanz der Features
-    \item Einfluss von einzelnen Features für die Klassifizierungsgenauigkeit(?)
+    \item Einfluss von einzelnen Features für die Klassifizierungsgenauigkeit(?) => Last Distinct location möglicherweise schlecht, da die eigentliche Last Distinct Location oft durch fehlende Interrupts übersprungen wird
     \item Ist es sinnvoll für jeden Ort ein Feature zu haben, dass auf eins gesetzt wird, wenn der Ort erkannt wurde und ansonsten exponentiell abfällt. Wie schnell sollte es fallen, wenn ja?
     \item Werden mehr Trainingsdaten benötigt mit steigender Ort Anzahl? Wenn ja wie viel? (Hier oder bei ML-Modell Training)
     \item Irgendwo drüber reden wie wir evaluieren, also continued predict vs predict und die ganzen Testsets
@@ -40,6 +40,7 @@ TODO: Erkläre irgendwo die Metriken, die verwendet werden
     \item Einfluss von einzelnen Features für den Ressourcenverbrauch(?)
     \item Braucht man mehr Neuronen/Hidden Layer mit steigender Ort Anzahl? (Hier oder bei ML-Modell FFNN)
     \item Irgendwo über den impact von Interrupts reden. Bei Simulationsdaten konnte damit bis zu 95\% der Events eingespart werden.
+    \item Wie viel Speicherverbrauch spart man durch die Feature-Selection zusätzlich ein?
 \end{itemize}
 
 \section{Anomalieerkennung}
@@ -53,5 +54,5 @@ TODO: Erkläre irgendwo die Metriken, die verwendet werden
     \item Sag Motivation, warum diese Metriken (Indikatoren)
     \item Beispiele
     \item Wie zuverlässig können Anomalien erkannt werden?
-    \item Diskutiere Analyse Ansatz vs. ML-Ansatz! :D
+    \item Vergleich mit Coin-Toss, True und False
 \end{itemize}
