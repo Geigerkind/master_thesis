@@ -29,7 +29,7 @@ os.environ['PYTHONHASHSEED'] = str(0)
 # as class object
 
 def par_ibs_process_data_set_row(args):
-    data_set, row_index_before, row_index_after = args
+    data_set, row_index_before, row_index_after, sampling_rate = args
     row_before = data_set.iloc[row_index_before]
     row_after = data_set.iloc[row_index_after]
     pir_total_acc = abs(row_before["x_acc"] + row_before["y_acc"] + row_before["z_acc"])
@@ -42,7 +42,8 @@ def par_ibs_process_data_set_row(args):
            or (row_before["access_point_1"] != row_after["access_point_1"]) \
            or (row_before["access_point_2"] != row_after["access_point_2"]) \
            or (row_before["access_point_3"] != row_after["access_point_3"]) \
-           or (row_before["access_point_4"] != row_after["access_point_4"])
+           or (row_before["access_point_4"] != row_after["access_point_4"]) \
+           or row_after["t_stamp"] % sampling_rate == 0
 
 
 def par_lrd_adjust_pos(input_args):
@@ -174,7 +175,7 @@ def par_ef_calculate_features(args):
 
 
 def par_process_data_set(args):
-    data_set, count, total_len, is_verbose = args
+    data_set, count, total_len, is_verbose, sampling_interval = args
     if is_verbose:
         print("Processing data set {0} of {1}".format(count, total_len))
     # previous interrupt row
@@ -192,7 +193,8 @@ def par_process_data_set(args):
                 or (pir["access_point_1"] != row[1]["access_point_1"]) \
                 or (pir["access_point_2"] != row[1]["access_point_2"]) \
                 or (pir["access_point_3"] != row[1]["access_point_3"]) \
-                or (pir["access_point_4"] != row[1]["access_point_4"]):
+                or (pir["access_point_4"] != row[1]["access_point_4"]) \
+                or (row[1]["t_stamp"] % sampling_interval == 0):
             index_map.append(index)
             pir = row[1]
             new_df = new_df.append(row[1], ignore_index=True)
@@ -235,6 +237,7 @@ class DataCompiler:
         self.num_warmup_cycles = 5
         self.window_size = 3
         self.lookback_window = 1  # NOT FULLY IMPLEMENTED!
+        self.sampling_interval = 1  # Every second there is at least on sampling
 
         # Internal configuration
         self.__num_temporary_test_sets = 3  # Note the anomaly set added at the load
@@ -780,7 +783,7 @@ class DataCompiler:
             args = []
             count = 1
             for data_set in self.__raw_data:
-                args.append([data_set, count, len(self.__raw_data), self.__is_verbose])
+                args.append([data_set, count, len(self.__raw_data), self.__is_verbose, self.sampling_interval])
                 count = count + 1
             self.__raw_data = []
             for res in pool.map(par_process_data_set, args):
@@ -801,7 +804,7 @@ class DataCompiler:
                     print("Processing data set {0} of {1}".format(count, len(self.__raw_data)))
                 args = []
                 for i in range(1, len(data_set)):
-                    args.append([data_set, i - 1, i])
+                    args.append([data_set, i - 1, i, self.sampling_interval])
                 new_raw_data.append(data_set[[True] + pool.map(par_ibs_process_data_set_row, args)])
 
                 if self.__is_verbose:

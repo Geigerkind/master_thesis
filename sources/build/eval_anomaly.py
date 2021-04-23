@@ -92,12 +92,12 @@ if __name__ == "__main__":
             features_knn.append(sum(amount_zero_loc_knn[-WINDOW_SIZE:]) / WINDOW_SIZE)
 
             # window location changes deviation to the average
-            features_dt.append(abs((sum(location_changes_dt) / len(location_changes_dt)) - (sum(location_changes_dt[-WINDOW_SIZE:]) / WINDOW_SIZE)))
-            features_knn.append(abs((sum(location_changes_knn) / len(location_changes_knn)) - (sum(location_changes_knn[-WINDOW_SIZE:]) / WINDOW_SIZE)))
+            features_dt.append(abs((sum(location_changes_dt) / len(location_changes_dt)) - (sum(location_changes_dt[-WINDOW_SIZE:]) / len(location_changes_dt[-WINDOW_SIZE:]))))
+            features_knn.append(abs((sum(location_changes_knn) / len(location_changes_knn)) - (sum(location_changes_knn[-WINDOW_SIZE:]) / len(location_changes_knn[-WINDOW_SIZE:]))))
 
             # window confidence changes deviation to the average
-            features_dt.append(abs((sum(confidence_dt) / len(confidence_dt)) - (sum(confidence_dt[-WINDOW_SIZE:]) / WINDOW_SIZE)))
-            features_knn.append(abs((sum(confidence_knn) / len(confidence_knn)) - (sum(confidence_knn[-WINDOW_SIZE:]) / WINDOW_SIZE)))
+            features_dt.append(abs((sum(confidence_dt) / len(confidence_dt)) - (sum(confidence_dt[-WINDOW_SIZE:]) / len(confidence_dt[-WINDOW_SIZE:]))))
+            features_knn.append(abs((sum(confidence_knn) / len(confidence_knn)) - (sum(confidence_knn[-WINDOW_SIZE:]) / len(confidence_knn[-WINDOW_SIZE:]))))
 
             res_features_dt.append(features_dt)
             res_features_knn.append(features_knn)

@@ -349,12 +349,7 @@ def run(args):
         else:
             window_location_changes.append(0)
 
-        if len(window_location_changes) > WINDOW_SIZE:
-            window_location_changes.pop(0)
-
         window_confidence.append(prediction_proba)
-        if len(window_confidence) > WINDOW_SIZE:
-            window_confidence.pop(0)
 
         prediction_change = 0 if len(window_confidence) <= 1 else abs(window_confidence[-2] - prediction_proba)
         fraction_zero_prediction = 0
@@ -363,12 +358,16 @@ def run(args):
                 fraction_zero_prediction = fraction_zero_prediction + 1
         fraction_zero_prediction = fraction_zero_prediction / len(prediction_history)
 
+
+
         anomaly_features = [
-            sum(window_location_changes),  # TODO: KNN
-            sum(window_confidence),  # TODO: KNN
+            sum(window_location_changes[-WINDOW_SIZE:]),  # TODO: KNN
+            sum(window_confidence[-WINDOW_SIZE:]),  # TODO: KNN
             prediction_proba,
             prediction_change,
-            fraction_zero_prediction
+            fraction_zero_prediction,
+            abs((sum(window_location_changes) / len(window_location_changes)) - (sum(window_location_changes[-WINDOW_SIZE:]) / len(window_location_changes[-WINDOW_SIZE:]))),
+            abs((sum(window_confidence) / len(window_confidence)) - (sum(window_confidence[-WINDOW_SIZE:]) / len(window_confidence[-WINDOW_SIZE:])))
         ]
 
         # Save for statistics
