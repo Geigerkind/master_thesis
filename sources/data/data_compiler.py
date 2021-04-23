@@ -184,10 +184,10 @@ def par_process_data_set(args):
     index = 0
     for row in data_set.iterrows():
         pir_total_acc = abs(pir["x_acc"] + pir["y_acc"] + pir["z_acc"])
-        if (abs(abs(row[1]["x_acc"] + row[1]["y_acc"] + row[1]["z_acc"]) - pir_total_acc) >= 0.05 * pir_total_acc) \
-                or (abs(pir["heading"] - row[1]["heading"]) >= 20) \
-                or (abs(pir["temperature"] - row[1]["temperature"]) >= 0.15 * pir["temperature"]) \
-                or (abs(pir["light"] - row[1]["light"]) >= 0.1 * pir["light"]) \
+        if (abs(abs(row[1]["x_acc"] + row[1]["y_acc"] + row[1]["z_acc"]) - pir_total_acc) >= 0.025 * pir_total_acc) \
+                or (abs(pir["heading"] - row[1]["heading"]) >= 10) \
+                or (abs(pir["temperature"] - row[1]["temperature"]) >= 0.075 * pir["temperature"]) \
+                or (abs(pir["light"] - row[1]["light"]) >= 0.05 * pir["light"]) \
                 or (pir["access_point_0"] != row[1]["access_point_0"]) \
                 or (pir["access_point_1"] != row[1]["access_point_1"]) \
                 or (pir["access_point_2"] != row[1]["access_point_2"]) \
@@ -576,11 +576,11 @@ class DataCompiler:
             print("Adding access point detection data...")
         access_point_range = 1.5
         access_point_positions = [
-            [-1, -1],
-            [5, 5],
-            [-1, 5],
-            [5, -1],
-            [3, 3]
+            [0, 0],
+            [4, 4],
+            [4, 2],
+            [3.5, 0.5],
+            [1, 2.5]
         ]
 
         for data_set in self.__raw_data:
@@ -602,10 +602,10 @@ class DataCompiler:
         ambient_temperature = 20  # Degrees Celsius
         # ([x,y], temperature, distance_until_ambient_is_reached_again)
         heat_sources = [
-            ([0, 0], 26, 2),
+            ([0, 1], 26, 2),
             ([3, 2], 10, 2),
-            ([0, 4], 100, 2),
-            ([5, 5], 40, 1)
+            ([1, 3], 100, 2),
+            ([4, 4.5], 40, 1)
         ]
 
         def calculate_temperature(row):
@@ -650,9 +650,9 @@ class DataCompiler:
         if self.__is_verbose:
             print("Adding heading data...")
         magnetic_sources = [
-            ([3, 5], 2),
-            ([0, 5], 1.5),
-            ([3, 0], 3)
+            ([3, 4], 2),
+            ([0, 4], 1.5),
+            ([3, 1.5], 3)
         ]
 
         facings = np.random.randint(0, 359, self.num_cycles)
@@ -738,9 +738,9 @@ class DataCompiler:
         background_noise_variance = 3
         # ([x, y], max_volume, distance_until_ambient, is_constant, [periodicity?])
         noises = [
-            ([2, 5], 60, 2, False, 1.25),
+            ([2, 3.5], 60, 2, False, 1.25),
             ([1, 0], 100, 2, False, 1.5),
-            ([0, 5], 40, 2, True)
+            ([0, 1.5], 40, 2, True)
         ]
 
         def calculate_volume(row):

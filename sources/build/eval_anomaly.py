@@ -55,9 +55,6 @@ if __name__ == "__main__":
             else:
                 location_changes_dt.append(0)
 
-            if len(location_changes_dt) > WINDOW_SIZE:
-                location_changes_dt.pop(0)
-
             new_location_knn = np.asarray(predicted_knn[i]).argmax()
             if new_location_knn != current_location_knn:
                 current_location_knn = new_location_knn
@@ -65,24 +62,15 @@ if __name__ == "__main__":
             else:
                 location_changes_knn.append(0)
 
-            if len(location_changes_knn) > WINDOW_SIZE:
-                location_changes_knn.pop(0)
-
-            features_dt.append(sum(location_changes_dt))
-            features_knn.append(sum(location_changes_knn) / WINDOW_SIZE)
+            features_dt.append(sum(location_changes_dt[-WINDOW_SIZE:]))
+            features_knn.append(sum(location_changes_knn[-WINDOW_SIZE:]) / WINDOW_SIZE)
 
             # Accumulated confidence
             confidence_dt.append(predicted_dt[i][new_location_dt])
             confidence_knn.append(predicted_knn[i][new_location_knn])
 
-            if len(confidence_dt) > WINDOW_SIZE:
-                confidence_dt.pop(0)
-
-            if len(confidence_knn) > WINDOW_SIZE:
-                confidence_knn.pop(0)
-
-            features_dt.append(sum(confidence_dt))
-            features_knn.append(sum(confidence_knn) / WINDOW_SIZE)
+            features_dt.append(sum(confidence_dt[-WINDOW_SIZE:]))
+            features_knn.append(sum(confidence_knn[-WINDOW_SIZE:]) / WINDOW_SIZE)
 
             # Current confidence
             features_dt.append(confidence_dt[-1])
@@ -100,14 +88,16 @@ if __name__ == "__main__":
             amount_zero_loc_dt.append(1 if new_location_dt == 0 else 0)
             amount_zero_loc_knn.append(1 if new_location_knn == 0 else 0)
 
-            if len(amount_zero_loc_dt) > WINDOW_SIZE:
-                amount_zero_loc_dt.pop(0)
+            features_dt.append(sum(amount_zero_loc_dt[-WINDOW_SIZE:]))
+            features_knn.append(sum(amount_zero_loc_knn[-WINDOW_SIZE:]) / WINDOW_SIZE)
 
-            if len(amount_zero_loc_knn) > WINDOW_SIZE:
-                amount_zero_loc_knn.pop(0)
+            # window location changes deviation to the average
+            features_dt.append(abs((sum(location_changes_dt) / len(location_changes_dt)) - (sum(location_changes_dt[-WINDOW_SIZE:]) / WINDOW_SIZE)))
+            features_knn.append(abs((sum(location_changes_knn) / len(location_changes_knn)) - (sum(location_changes_knn[-WINDOW_SIZE:]) / WINDOW_SIZE)))
 
-            features_dt.append(sum(amount_zero_loc_dt))
-            features_knn.append(sum(amount_zero_loc_knn) / WINDOW_SIZE)
+            # window confidence changes deviation to the average
+            features_dt.append(abs((sum(confidence_dt) / len(confidence_dt)) - (sum(confidence_dt[-WINDOW_SIZE:]) / WINDOW_SIZE)))
+            features_knn.append(abs((sum(confidence_knn) / len(confidence_knn)) - (sum(confidence_knn[-WINDOW_SIZE:]) / WINDOW_SIZE)))
 
             res_features_dt.append(features_dt)
             res_features_knn.append(features_knn)
@@ -199,7 +189,7 @@ if __name__ == "__main__":
 
             print("Training the anomaly detection models....")
             model_anomaly_dt = GenerateDecisionTree(EnsembleMethod.RandomForest, 8, 20)
-            model_anomaly_knn = GenerateFFNN(5, 2, 1, 16, NUM_EPOCHS_PER_CYCLE, True)
+            model_anomaly_knn = GenerateFFNN(7, 2, 1, 32, NUM_EPOCHS_PER_CYCLE, True)
 
             model_anomaly_dt.fit(anomaly_features_dt, anomaly_labels, 0.25)
             model_anomaly_knn.fit(anomaly_features_knn, anomaly_labels, anomaly_features_knn_val,

@@ -52,30 +52,30 @@ location_map = {
 
 access_point_range = 1.5
 access_point_positions = [
-    [-1, -1],
-    [5, 5],
-    [-1, 5],
-    [5, -1],
-    [3, 3]
+    [0, 0],
+    [4, 4],
+    [4, 2],
+    [3.5, 0.5],
+    [1, 2.5]
 ]
 
 heat_sources = [
-    ([0, 0], 2),
+    ([0, 1], 2),
     ([3, 2], 2),
-    ([0, 4], 2),
-    ([5, 5], 1)
+    ([1, 3], 2),
+    ([4, 4.5], 1)
 ]
 
 magnetic_sources = [
-    ([3, 5], 2),
-    ([0, 5], 1.5),
-    ([3, 0], 3)
+    ([3, 4], 2),
+    ([0, 4], 1.5),
+    ([3, 1.5], 3)
 ]
 
 noises = [
-    ([2, 5], 2),
+    ([2, 3.5], 2),
     ([1, 0], 2),
-    ([0, 5], 2)
+    ([0, 1.5], 2)
 ]
 
 anomaly_areas = [
@@ -150,34 +150,42 @@ def redraw():
     # Position history
     ax.plot(x_axis_history, y_axis_history, "-b", lw=2, zorder=3)
 
+    size_map = {
+        0.1: 180,
+        1: 16000,
+        2: 60000,
+        3: 70000,
+        1.5: 33000
+    }
+
     # TODO: Scatter sizes are not linear!
     # Locations:
     ax.scatter([x[0] for x in location_map.values()], [x[1] for x in location_map.values()], c="green", alpha=0.5,
-               zorder=2.7, s=140)
+               zorder=2.7, s=180)
     for i in range(len(location_map.values())):
-        ax.text(location_map[i + 1][0] - 0.11, location_map[i + 1][1] + 0.15, str(i + 1), fontsize=18)
+        ax.text(location_map[i + 1][0] - 0.1, location_map[i + 1][1] + 0.15, str(i + 1), fontsize=18)
 
     # Access points
     ax.scatter([x[0] for x in access_point_positions], [x[1] for x in access_point_positions], c="gray", alpha=0.5,
-               zorder=2.6, s=33000)
+               zorder=2.6, s=size_map[1.5])
     for i in range(len(access_point_positions)):
         ax.text(access_point_positions[i][0] - 0.3, access_point_positions[i][1] - 0.15, "AP_" + str(i), fontsize=18)
 
     # Heat sources
     ax.scatter([x[0][0] for x in heat_sources], [x[0][1] for x in heat_sources], c="red", alpha=0.5,
-               zorder=2.6, s=[x[1] * 16500 for x in heat_sources])
+               zorder=2.6, s=[size_map[x[1]] for x in heat_sources])
     for i in range(len(heat_sources)):
         ax.text(heat_sources[i][0][0] - 0.3, heat_sources[i][0][1] - 0.15, "HS_" + str(i), fontsize=18)
 
     # magnetic_sources
     ax.scatter([x[0][0] for x in magnetic_sources], [x[0][1] for x in magnetic_sources], c="yellow", alpha=0.5,
-               zorder=2.6, s=[x[1] * 16500 for x in magnetic_sources])
+               zorder=2.6, s=[size_map[x[1]] for x in magnetic_sources])
     for i in range(len(magnetic_sources)):
         ax.text(magnetic_sources[i][0][0] - 0.3, magnetic_sources[i][0][1] - 0.15, "MS_" + str(i), fontsize=18)
 
     # Noises
     ax.scatter([x[0][0] for x in noises], [x[0][1] for x in noises], c="purple", alpha=0.5,
-               zorder=2.6, s=[x[1] * 16500 for x in noises])
+               zorder=2.6, s=[size_map[x[1]] for x in noises])
     for i in range(len(noises)):
         ax.text(noises[i][0][0] - 0.3, noises[i][0][1] - 0.15, "N_" + str(i), fontsize=18)
 
