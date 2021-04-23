@@ -1,10 +1,43 @@
 \section{Künstlichen Sensordaten}
-\begin{itemize}
-    \item Motivation: Warum ist das nötig?
-    \item Sag das vereinfachte Modelle genutzt werden mit bestimmten Annahmen
-\end{itemize}
+Im Projekt ist die Sensorenbox potentiell mit einem Accelerometer, Gyroskop, Lichtsensor, Magnetfeldsensor,
+Temperatursensor und Geräuschsensor ausgestattet, sowie eine Antenne zur Erfassung von WLAN-Access-Points.
+Mit CoppeliaSim ist es allerdings nur möglich Sensorwerte des Accelerometers, Gyroskops und Lichtsensors zu erfassen.
+Aus diesem Grund werden die fehlenden Sensoren durch das Ausnutzen vereinfachter Modelle ergänzt.
 
-\subsection{Magnetfeld}
+\subsection{Magnetfeldsensor}
+Magnetfeldsensoren messen das Magnetfeld auf Basis von Effekten die dadurch induziert werden, z. B. die Lorentzkraft oder der Hall-Effekt \cite{thompsonMEMS}.
+Eine Anwendung dieses Sensors ist der Kompass.
+Dieser richtet sich nach dem Magnetfeld der Erde aus und wird daher traditionell zur Navigation verwendet.
+\newline
+\newline
+Das vereinfachte Modell des simulierten Magnetfeldsensors fungiert wie ein Kompass.
+Die Ausgabe ist der relative Richtungsunterschied zum magnetischen Nordpol,
+d. h. die Ausgabe ist relativ zur Ausrichtung des Objekts zum magnetischen Nordpol.
+Dabei können starke magnetische Objekte in der Umgebung Einfluss auf den Sensor haben,
+sodass sich der magnetische Nordpol für den simulierten Sensor ändern kann.
+Die Ausgabewerte sind zwischen 0 und 359, d. h. 0 ist Norden, 90 Osten, 180 Süden und 270 Westen.
+\newline
+\newline
+Es wird angenommen, dass der magnetische Nordpol der Erde weit genug weg ist,
+sodass sich im Fabrikszenario die Richtung nur ändern kann, wenn die Ausrichtung des Objekts geändert wird.
+Außerdem wird angenommen, dass sich die Ausrichtung des Objektes in einem Zyklus nicht ändert,
+da Fließbandsysteme für gewöhnlich nicht rund sind, sondern Kante auf Kante aufeinander über gehen.
+Allerdings wird für jeden Zyklus eine neue zufällige Ausrichtung zwischen 0 und 359 gewählt,
+da das Objekt mit verschiedenen Ausrichtungen auf das Fließband gelegt werden könnte.
+Zudem wird keine Interferenz der magnetischen Objekte angenommen.
+Sollten sie sich überschneiden wird das Objekt mit dem meisten Einfluss gewählt.
+\newline
+\newline
+Starke magnetische Objekte sind strategisch in der Umgebung des Fließbandsystems plaziert.
+Ihre Stärke wird dabei durch die Einflussreichweite definiert, wobei der Einfluss quadratisch mit der Distanz abnimmt.
+Ist der Einfluss bei 100\%, so wird für den magnetischen Nordpol die Position des Objekts angenommen.
+Wenn der Einfluss geringer ist, dann wird ein magnetischer Nordpol zwischen dem magnetischen Nordpol der Erde und des magnetischen Objektes Anteilweise gewählt.
+Die magnetischen Objekte können unterschiedliche Einflussreichweiten haben.
+\newline
+\newline
+Abbildung (TODO) zeigt
+
+
 \begin{itemize}
     \item Welchen Sensor spiegelt das wieder?
     \item Wie funktioniert das Modell?
