@@ -55,8 +55,8 @@ if __name__ == "__main__":
 
     features = [Features.PreviousLocation, Features.AccessPointDetection, Features.Temperature,
                 Features.Heading, Features.Volume, Features.Time, Features.Angle, Features.Acceleration, Features.Light]
-    data = DataCompiler(res_input_data_sets, features, False, encode_paths_between_as_location)
-    # data = DataCompiler(res_input_data_sets, features, True, encode_paths_between_as_location)
+    # data = DataCompiler(res_input_data_sets, features, False, encode_paths_between_as_location)
+    data = DataCompiler(res_input_data_sets, features, True, encode_paths_between_as_location)
 
     print("Saving data...")
     try:

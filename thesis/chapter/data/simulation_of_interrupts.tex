@@ -1,12 +1,24 @@
 \section{Simulation von Interrupts}
-\begin{itemize}
-    \item Sag irgendwie, dass es mehrere Arten gibt wie man das machen kann und sag welche du ausgewählt hast.
-    \item Motivation => Energieverbrauch, Spiegelung der echten Datenaufnahme, Reduzierung der Trainingsdaten
-    \item Wie funktioniert ist?
-    \item Wie und Wann bei der Datenverarbeitung wird es gemacht?
-    \item So wird bei einer Idle Box auch kein Interrupt erzeugt. (Sneaky Beispiel)
-    \item Vorteile bei der Trainingszeit, da weniger Trainingsdaten
-    \item Wie gut repräsentiert ist jeder Standort danach? => Graph vorher vs. nachher mit training sampling rate
-    \item => Problem: Locations können einfach verpasst werden => Sampling rate?
-    \item => Damit alle locations ausreichend in den Trainingsdaten repräsentiert sind, wird eine training sampling rate eingeführt
-\end{itemize}
+Damit Sensoren nicht ständig ausgelesen werden müssen, können diese \textit{Interrupts} erzeugen.
+Diese benachrichten die CPU, dass sie bereit sind ausgelesen zu werden.
+Dadurch kann die CPU in der Zwischenzeit andere Aufgaben erledigen oder schlafen.
+\newline
+\newline
+Die Simulationsdaten, die mit CoppeliaSim aufgenommen wurden, enthalten alle 50 ms Einträge für die aufgenommen Sensoren.
+Unter realen Bedingungen wäre solch eine Abtastrate aber nicht mit den Limitierungen der Batterielaufzeit zu vereinbaren.
+Aus diesem Grund führen in solchen Systemen Sensoren Interrupts aus, wenn eine signifikante Änderung festgestellt oder ein Schwellenwert überschritten wurde.
+Dadurch kann die CPU in der Zwischenzeit schlafen und Energie preservieren.
+\newline
+\newline
+Um dieses Verhalten nachzustellen werden diese Interrupts simuliert, wodurch die Datenmenge gefiltert wird.
+In dieser Arbeit wird die Änderung zu dem letzten Interrupt eines Sensors modelliert,
+d. h. jeder Sensor merkt sich seinen Sensorwert, wenn es einen Interrupt auslöst
+und führt das nächste mal nur einen Interrupt aus, wenn sich der Sensorwert um einen bestimmten Prozentsatz unterscheided.
+Dadurch wird einerseits ein realistischeres Szenario dargestellt,
+denn eine Sensorenbox die still steht würde auch keine Aktivität erwartet werden.
+Andererseits verringert sich die Datenmenge, wodurch die Trainingszeit verringert wird.
+\newline
+\newline
+Allerdings hat sich gezeigt, dass manche Standorte deutlich unterrepräsentiert sind in der Trainingsmenge.
+Aus diesem Grund wurde zusätzlich für die Trainingsmenge eine Mindestabtastrate von 2 Hertz eingeführt,
+falls in diesem Zeitraum kein Interrupt für diesen Standort stattgefunden hat.

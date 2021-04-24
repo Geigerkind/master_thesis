@@ -181,35 +181,103 @@ def par_process_data_set(args):
     data_set, count, total_len, is_verbose, sampling_interval, training_sampling_rate_in_location, max_training_cycle, in_live_mode = args
     if is_verbose:
         print("Processing data set {0} of {1}".format(count, total_len))
-    # previous interrupt row
-    pir = data_set.iloc[0]
-    new_df = DataFrame(columns=data_set.keys())
+
+    profiling_interrupt = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+    def induces_interrupt(store, cmp_row, keys, threshold, cmp_function, prof_key):
+        if cmp_function(store, cmp_row, keys, threshold):
+            profiling_interrupt[prof_key] = profiling_interrupt[prof_key] + 1
+            for key in keys:
+                store[key] = cmp_row[key]
+            return True
+        return False
+
+    def induces_interrupt_single(store, cmp_row, key, threshold, cmp_function, prof_key):
+        if cmp_function(store, cmp_row, key, threshold):
+            profiling_interrupt[prof_key] = profiling_interrupt[prof_key] + 1
+            store[key] = cmp_row[key]
+            return True
+        return False
+
+    def f_cmp_abs_diff(r1, r2, keys, threshold):
+        r1_sum = 0
+        r2_sum = 0
+        for key in keys:
+            r1_sum = r1_sum + r1[key]
+            r2_sum = r2_sum + r2[key]
+        r1_sum = abs(r1_sum)
+        r2_sum = abs(r2_sum)
+        return abs(r1_sum - r2_sum) >= threshold * r2_sum
+
+    def f_cmp_abs_diff_abs_threshold(r1, r2, key, threshold):
+        if abs(r1[key] - r2[key]) >= threshold:
+            return True
+        return False
+
+    def f_cmp_abs_diff_threshold_of_last(r1, r2, key, threshold):
+        if abs(r1[key] - r2[key]) >= threshold * abs(r1[key]):
+            return True
+        return False
+
+    def f_cmp_any_unequal(r1, r2, keys, _threshold):
+        for key in keys:
+            if r1[key] != r2[key]:
+                return True
+        return False
+
+    # last interrupt
+    li = data_set.iloc[0].copy()
+
+    # new_df = DataFrame(columns=data_set.keys())
     index_map = []
     index = 0
+
+    # Optimization cause python is slow af
+    key_set1 = ["x_acc", "y_acc", "z_acc"]
+    key_set2 = ["x_ang", "y_ang", "z_ang"]
+    key3 = "heading"
+    key4 = "temperature"
+    key5 = "light"
+    key6 = "volume"
+    key_set7 = ["access_point_0", "access_point_1", "access_point_2", "access_point_3", "access_point_4"]
+    key8 = "x_ang"
+    key9 = "y_ang"
+    key10 = "z_ang"
+
+    rows = []
     for row in data_set.iterrows():
-        pir_total_acc = abs(pir["x_acc"] + pir["y_acc"] + pir["z_acc"])
-        if (abs(abs(row[1]["x_acc"] + row[1]["y_acc"] + row[1]["z_acc"]) - pir_total_acc) >= 0.025 * pir_total_acc) \
-                or (abs(pir["heading"] - row[1]["heading"]) >= 10) \
-                or (abs(pir["temperature"] - row[1]["temperature"]) >= 0.075 * pir["temperature"]) \
-                or (abs(pir["light"] - row[1]["light"]) >= 0.05 * pir["light"]) \
-                or (abs(pir["volume"] - row[1]["volume"]) >= 0.15 * pir["volume"]) \
-                or (pir["access_point_0"] != row[1]["access_point_0"]) \
-                or (pir["access_point_1"] != row[1]["access_point_1"]) \
-                or (pir["access_point_2"] != row[1]["access_point_2"]) \
-                or (pir["access_point_3"] != row[1]["access_point_3"]) \
-                or (pir["access_point_4"] != row[1]["access_point_4"]) \
-                or (row[1]["t_stamp"] % sampling_interval == 0) \
-                or (row[1]["location"] > 0 and row[1]["cycle"] <= max_training_cycle and not in_live_mode and
-                    row[1]["t_stamp"] % training_sampling_rate_in_location == 0):
+        if induces_interrupt(li, row[1], key_set1, 0.1, f_cmp_abs_diff, 0) \
+                or induces_interrupt_single(li, row[1], key8, 0.01, f_cmp_abs_diff_abs_threshold, 7) \
+                or induces_interrupt_single(li, row[1], key9, 0.01, f_cmp_abs_diff_abs_threshold, 8) \
+                or induces_interrupt_single(li, row[1], key10, 0.1, f_cmp_abs_diff_abs_threshold, 9) \
+                or induces_interrupt_single(li, row[1], key3, 12, f_cmp_abs_diff_abs_threshold, 2) \
+                or induces_interrupt_single(li, row[1], key4, 0.12, f_cmp_abs_diff_threshold_of_last, 3) \
+                or induces_interrupt_single(li, row[1], key5, 0.12, f_cmp_abs_diff_threshold_of_last, 4) \
+                or induces_interrupt_single(li, row[1], key6, 0.16, f_cmp_abs_diff_threshold_of_last, 5) \
+                or induces_interrupt(li, row[1], key_set7, 0, f_cmp_any_unequal, 6):
             index_map.append(index)
-            pir = row[1]
-            new_df = new_df.append(row[1], ignore_index=True)
+            rows.append(row[1])
+        elif (row[1]["location"] > 0 and row[1]["cycle"] <= max_training_cycle and not in_live_mode and
+              row[1]["t_stamp"] % training_sampling_rate_in_location == 0):
+            found_one = False
+            for i in range(len(rows) - 1, 0, -1):
+                if row[1]["t_stamp"] - rows[i]["t_stamp"] <= training_sampling_rate_in_location:
+                    if rows[i]["location"] == row[1]["location"]:
+                        found_one = True
+                        break
+                else:
+                    break
+            if found_one:
+                index_map.append(index)
+                rows.append(row[1])
+
         index = index + 1
 
+    print("{0} => {1}".format(count, profiling_interrupt))
     if is_verbose:
-        print("Reduced the data set " + str(count) + " by: %.2f Percent" % (100 * (1 - (len(new_df) / len(data_set)))))
+        print("Reduced the data set " + str(count) + " by: %.2f Percent" % (100 * (1 - (len(rows) / len(data_set)))))
         print("Finished processing data set {0} of {1}".format(count, total_len))
-    return new_df, index_map
+    return DataFrame(rows, columns=data_set.keys()), index_map
 
 
 class DataCompiler:
@@ -246,7 +314,7 @@ class DataCompiler:
         self.lookback_window = 1  # NOT FULLY IMPLEMENTED!
         self.sampling_interval = 1  # Every second there is at least on sampling
         # Ensure that we have enough training samples for the training data
-        self.sampling_interval_in_location_for_training_data = 0.2
+        self.sampling_interval_in_location_for_training_data = 0.5
 
         # Internal configuration
         self.__num_temporary_test_sets = 3  # Note the anomaly set added at the load
