@@ -388,8 +388,8 @@ def run(args):
             sum(window_location_changes[-WINDOW_SIZE:]),  # TODO: KNN
             sum(window_confidence[-WINDOW_SIZE:]),  # TODO: KNN
             prediction_proba,
-            prediction_change,
-            fraction_zero_prediction,
+            #prediction_change,
+            #fraction_zero_prediction,
             window_loc_changes_deviation,
             window_confidence_deviation
         ]

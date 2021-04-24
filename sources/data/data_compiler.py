@@ -776,8 +776,8 @@ class DataCompiler:
                         # Periodic noise
                         # We say that we can here its aftermath until after 0.5s
                         if row["t_stamp"] % noise[4] <= 0.5:
-                            noise_volume = (amplitude * (distance ** 2) + noise[1]) * (
-                                    -4 * ((row["t_stamp"] % noise[4]) ** 2) + 1)
+                            noise_volume = max((amplitude * (distance ** 2) + noise[1]) * (
+                                    -4 * ((row["t_stamp"] % noise[4]) ** 2) + 1), background_noise)
                             return noise_volume
                         return background_noise
             return background_noise

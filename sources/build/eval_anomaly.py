@@ -81,19 +81,18 @@ if __name__ == "__main__":
             features_knn.append(confidence_knn[-1])
 
             # Change to previous confidence
-            if len(confidence_dt) == 1:
-                features_dt.append(0)
-                features_knn.append(0)
-            else:
-                features_dt.append(abs(confidence_dt[-2] - confidence_dt[-1]))
-                features_knn.append(abs(confidence_knn[-2] - confidence_knn[-1]))
+            #if len(confidence_dt) == 1:
+            #    features_dt.append(0)
+            #    features_knn.append(0)
+            #else:
+            #    features_dt.append(abs(confidence_dt[-2] - confidence_dt[-1]))
+            #    features_knn.append(abs(confidence_knn[-2] - confidence_knn[-1]))
 
             # Amount Zero Location
-            amount_zero_loc_dt.append(1 if new_location_dt == 0 else 0)
-            amount_zero_loc_knn.append(1 if new_location_knn == 0 else 0)
-
-            features_dt.append(sum(amount_zero_loc_dt[-WINDOW_SIZE:]))
-            features_knn.append(sum(amount_zero_loc_knn[-WINDOW_SIZE:]) / WINDOW_SIZE)
+            #amount_zero_loc_dt.append(1 if new_location_dt == 0 else 0)
+            #amount_zero_loc_knn.append(1 if new_location_knn == 0 else 0)
+            #features_dt.append(sum(amount_zero_loc_dt[-WINDOW_SIZE:]))
+            #features_knn.append(sum(amount_zero_loc_knn[-WINDOW_SIZE:]) / WINDOW_SIZE)
 
             # Deviation no anomaly
             if i > 0 and not data.temporary_test_set_raw_data[data_set_index].iloc[i - 1]["is_anomaly"]:
@@ -204,7 +203,7 @@ if __name__ == "__main__":
 
             print("Training the anomaly detection models....")
             model_anomaly_dt = GenerateDecisionTree(EnsembleMethod.RandomForest, 8, 20)
-            model_anomaly_knn = GenerateFFNN(7, 2, 1, 32, NUM_EPOCHS_PER_CYCLE, True)
+            model_anomaly_knn = GenerateFFNN(5, 2, 1, 32, NUM_EPOCHS_PER_CYCLE, True)
 
             model_anomaly_dt.fit(anomaly_features_dt, anomaly_labels, 0.25)
             model_anomaly_knn.fit(anomaly_features_knn, anomaly_labels, anomaly_features_knn_val,

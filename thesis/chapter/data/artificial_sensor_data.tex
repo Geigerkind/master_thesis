@@ -59,7 +59,7 @@ Mit den Winkeln $\gamma$ und $\beta$ kann dann das Koordinatensystem zum magneti
 sodass die Ausrichtung von $p_{o}$ zum beeinflussten magnetischen Nordpol aus Formel \ref{formular:magnetic_sensor_new_heading} berechnet werden kann.
 \begin{align}
     \label{formular:magnetic_sensor_new_heading}
-    \gamma^{\prime} = (\gamma + (360 - \beta))\ \%\ 360
+    \gamma^{\prime} = (\gamma + (360 - \beta))\mod 360
 \end{align}
 Zu beachten ist schließlich der Einfluss $\eta$ abhänging von der Distanz das $p_{m}$ auf $p_{o}$ hat.
 Formel \ref{formular:magnetic_sensor_influence} modelliert den Einfluss als quadratisch abfallende Funktion mit zunehmender Distanz $d$,
@@ -74,8 +74,8 @@ Formel \ref{formular:magnetic_sensor_end_result} zeigt die Berechnung von $\gamm
 wobei $d = \sqrt{(p_{o_a} - p_{m_a})^2 + (p_{o_b} - p_{m_b})^2}$.
 \begin{align}
     \label{formular:magnetic_sensor_end_result}
-    \gamma^{\prime}_L = (\gamma + (360(1 + \eta(d)) - \beta(1 - \eta(d))))\ \%\ 360 \\\nonumber
-    \gamma^{\prime}_R = (\gamma + (360 - \beta(1 - \eta(d))))\ \%\ 360 \hspace{0.8cm}
+    \gamma^{\prime}_L = (\gamma + (360(1 + \eta(d)) - \beta(1 - \eta(d))))\mod 360 \\\nonumber
+    \gamma^{\prime}_R = (\gamma + (360 - \beta(1 - \eta(d))))\mod 360 \hspace{0.8cm}
 \end{align}
 
 \subsection{Temperatursensor}
@@ -88,21 +88,53 @@ Je näher das Objekt an einer der Wärmequellen dran ist, desto mehr nähert sic
 Jede Wärmequelle hat einen Einflussbereich, in der sie sich auf die Umgebungstemperatur $T_U$ auswirken kann.
 Sollten sich zwei Wärmequellen überschneiden wird die Temperatur ausgewählt, die den größten Unterschied zur Umgebungstemperatur verursacht.
 Formel \ref{formular:temperature_sensor_temperature} zeigt die Berechnung der resultierenden Temperatur $T^{\prime}$ abhängig von der Distanz der
-Wärmequelle zum Objekt $d$, der maximalen Einflussdistanz $d_{\max}$ und dessen Temperatur $T$.
+Wärmequelle zum Objekt $d$, der maximalen Einflussdistanz $d_{\max}$ und dessen Temperatur $T_{\max}$.
 \begin{align}
     \label{formular:temperature_sensor_temperature}
     T^{\prime} = \begin{cases}
                      T_U & \text{, wenn } d > d_{\max} \\
-                     \frac{(T - T_U)d^2}{d_{\max}} + T_U & \text{, ansonsten}
+                     \frac{(T_{\max} - T_U)d^2}{d_{\max}} + T_U & \text{, ansonsten}
     \end{cases}
 \end{align}
 
-\subsection{Lautstärke}
-\begin{itemize}
-    \item Welchen Sensor spiegelt das wieder?
-    \item Wie funktioniert das Modell?
-    \item Was und Wie wurden Daten ergänzt?
-\end{itemize}
+\subsection{Geräuschsensor}
+Es gibt verschiedene Arten von Geräuschsensoren, z. B. Geräuschrichtungssensor \cite{tiete2014soundcompass} oder
+spezifische Anwendungen, wie Herzgeräuschsensoren \cite{zhang2016design}.
+Das Modell ist einem Akustiksensor \cite{sessler1991acoustic}, oder einem Mikrophone am ähnlichsten,
+dass die Lautstärke in einem Frequenzbereich misst.
+\newline
+\newline
+In diesem Modell werden Frequenzbereiche vernachlässigt.
+Es gibt ein Hintergrundrauschen $V_H$, dass in einem Bereich leicht fluktuiert.
+Daneben gibt es Lautstärkequellen, die entweder periodisch oder konstant sind und strategisch im Raum verteilt sind.
+Die Interferenz von verschiedenen Lautstärkequellen wird vernachlässigt.
+Sollten sich zwei Lautstärkequellen überschneiden, so wird die maximale Lautstärke ausgewählt.
+\newline
+\newline
+Die Lautstärke $V_{\max}$ die von einer Quelle ausgeht nimmt quadratisch mit der Distanz $d$ ab.
+Dabei wird der Einflussbereich von der maximalen Einflussdistanz $d_{\max}$ bestimmt.
+Formel \ref{formular:sound_sensor_constant_sound} zeigt die Berechnung für die resultierende Lautstärke durch eine konstante Lautstärkequelle.
+\begin{align}
+    \label{formular:sound_sensor_constant_sound}
+    V^{\prime} = \begin{cases}
+                     V_H & \text{, wenn } d > d_{\max} \\
+                     \frac{(V_{\max} - V_H)d^2}{d_{\max}} + V_H & \text{, ansonsten}
+    \end{cases}
+\end{align}
+Periodische Lautstärkequellen emitieren ein Geräusch in regelmäßigen Abständen.
+Dies wird modelliert durch eine quadratisch verringerde Lautstärke über 500 ms,
+wenn die Lautstärke gemessen wird nachdem das Geräusch stattgefunden hat,
+d. h. nach 500 ms ist das Geräusch nicht mehr wahrzunehmen.
+Formel \ref{formular:sound_sensor_periodic_sound} beschreibt diesen Zusammenhang,
+wobei $t$ der momentane Zeitpunkt ist und $t_{n}$ das Interval des periodischen Geräusches ist.
+\begin{align}
+    \label{formular:sound_sensor_periodic_sound}
+    \hspace{-0.4cm}
+    V^{\prime} = \begin{cases}
+                     V_H & \text{, wenn } d > d_{\max} \vee t\ \text{mod}\ t_{n}\leq 0,5 \\
+                     \max(V_H, (\frac{(V_{\max} - V_H)d^2}{d_{\max}} + V_H)(1 - 4(t\ \text{mod}\ t_{n})^2)) & \text{, ansonsten}
+    \end{cases}
+\end{align}
 
 \subsection{WLAN Zugangspunkte}
 \begin{itemize}
