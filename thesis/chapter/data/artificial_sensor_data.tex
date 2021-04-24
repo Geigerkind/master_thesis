@@ -1,6 +1,6 @@
 \section{Künstlichen Sensordaten}
 Im Projekt ist die Sensorenbox potentiell mit einem Accelerometer, Gyroskop, Lichtsensor, Magnetfeldsensor,
-Temperatursensor und Geräuschsensor ausgestattet, sowie eine Antenne zur Erfassung von WLAN-Access-Points.
+Temperatursensor und Geräuschsensor ausgestattet, sowie eine Antenne zur Erfassung von WLAN-Zugangspunkten.
 Mit CoppeliaSim ist es allerdings nur möglich Sensorwerte des Accelerometers, Gyroskops und Lichtsensors zu erfassen.
 Aus diesem Grund werden die fehlenden Sensoren durch das Ausnutzen vereinfachter Modelle ergänzt.
 
@@ -136,9 +136,12 @@ wobei $t$ der momentane Zeitpunkt ist und $t_{n}$ das Interval des periodischen 
     \end{cases}
 \end{align}
 
-\subsection{WLAN Zugangspunkte}
-\begin{itemize}
-    \item Welchen Sensor spiegelt das wieder?
-    \item Wie funktioniert das Modell?
-    \item Was und Wie wurden Daten ergänzt?
-\end{itemize}
+\subsection{WLAN-Zugangspunkte}
+Die Detektierung von WLAN-Zugangspunkten ist eine Konsequenz aus der Detektierung von RSSI-Werten bzw. MAC-Adressen von WLAN-Zugangspunkten.
+Das Modell vereinfacht dies, indem es lediglich aussagt, ob ein WLAN-Zugangspunkt in Reichweite ist oder nicht.
+\newline
+\newline
+Im Raum sind strategisch WLAN-Zugangspunkte verteilt.
+Diese können innerhalb einer maximalen Reichweite empfangen werden.
+Ist die Distanz des Objekts innerhalb der Reichweite, gilt der WLAN-Zugangspunkt als detektiert.
+Interferenzen und Reflektionen werden vernachlässigt.
