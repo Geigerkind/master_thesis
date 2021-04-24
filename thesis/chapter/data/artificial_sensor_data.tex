@@ -78,14 +78,24 @@ wobei $d = \sqrt{(p_{o_a} - p_{m_a})^2 + (p_{o_b} - p_{m_b})^2}$.
     \gamma^{\prime}_R = (\gamma + (360 - \beta(1 - \eta(d))))\ \%\ 360 \hspace{0.8cm}
 \end{align}
 
-
-
-\subsection{Temperatur}
-\begin{itemize}
-    \item Welchen Sensor spiegelt das wieder?
-    \item Wie funktioniert das Modell?
-    \item Was und Wie wurden Daten ergänzt?
-\end{itemize}
+\subsection{Temperatursensor}
+Der Temperatursensor misst du die vorherschende Temperatur.
+Das vereinfachte Modell für diesen Sensor geht von einer konstanten Umgebungstemperatur aus.
+Im Raum sind Wärmequellen strategisch verteilt, die eine Temperatur unterhalb und oberhalb der Umgebungstemperatur haben können.
+Je näher das Objekt an einer der Wärmequellen dran ist, desto mehr nähert sich die gemessene Temperatur der Temperatur der Wärmequelle an.
+\newline
+\newline
+Jede Wärmequelle hat einen Einflussbereich, in der sie sich auf die Umgebungstemperatur $T_U$ auswirken kann.
+Sollten sich zwei Wärmequellen überschneiden wird die Temperatur ausgewählt, die den größten Unterschied zur Umgebungstemperatur verursacht.
+Formel \ref{formular:temperature_sensor_temperature} zeigt die Berechnung der resultierenden Temperatur $T^{\prime}$ abhängig von der Distanz der
+Wärmequelle zum Objekt $d$, der maximalen Einflussdistanz $d_{\max}$ und dessen Temperatur $T$.
+\begin{align}
+    \label{formular:temperature_sensor_temperature}
+    T^{\prime} = \begin{cases}
+                     T_U & \text{, wenn } d > d_{\max} \\
+                     \frac{(T - T_U)d^2}{d_{\max}} + T_U & \text{, ansonsten}
+    \end{cases}
+\end{align}
 
 \subsection{Lautstärke}
 \begin{itemize}

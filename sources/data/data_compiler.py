@@ -246,7 +246,7 @@ class DataCompiler:
         self.lookback_window = 1  # NOT FULLY IMPLEMENTED!
         self.sampling_interval = 1  # Every second there is at least on sampling
         # Ensure that we have enough training samples for the training data
-        self.sampling_interval_in_location_for_training_data = 0.5
+        self.sampling_interval_in_location_for_training_data = 0.2
 
         # Internal configuration
         self.__num_temporary_test_sets = 3  # Note the anomaly set added at the load

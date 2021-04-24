@@ -18,7 +18,7 @@ _, is_dt, evaluation_name, simulation_file_path, skip_n = sys.argv
 is_dt = int(is_dt) == 1
 skip_n = int(skip_n)
 
-WINDOW_SIZE = 25
+WINDOW_SIZE = 35
 
 data = 0
 with open(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_data.pkl", 'rb') as file:

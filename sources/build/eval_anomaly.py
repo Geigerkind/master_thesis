@@ -20,7 +20,7 @@ Requires the classification model to be trained before.
 if __name__ == "__main__":
     _, evaluation_name = sys.argv
     NUM_EPOCHS_PER_CYCLE = 150
-    WINDOW_SIZE = 25
+    WINDOW_SIZE = 35
 
 
     def calculate_anomaly_features_and_labels(predicted_dt, predicted_knn, data_set_index):
