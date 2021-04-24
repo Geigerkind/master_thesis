@@ -35,14 +35,50 @@ Wenn der Einfluss geringer ist, dann wird ein magnetischer Nordpol zwischen dem 
 Die magnetischen Objekte können unterschiedliche Einflussreichweiten haben.
 \newline
 \newline
-Abbildung (TODO) zeigt
+Abbildung \ref{fig:magnetic_model} illustriert diese Situation.
+Um die Ausrichtung des Objekts relativ zum magnetischen Nordpol der Erde bei 0 und dem Einfluss des magnetischen Objekts zu berechnen,
+ist es nötig die Winkel zwischen dem magnetischen Nordpol der Erde und dem magnetischen Objekt, sowie den Winkel zum Objekt zu wissen.
+Der Winkel $\beta$ vom magnetischen Nordpol der Erde zum Objekt $p_{o}$ ist bekannt.
+Der Winkel $\gamma$ vom magnetischen Nordpol der Erde zum magnetischen Objekt $p_{m}$ wird aus dem Winkel $\alpha$ innerhalb des eigenen Quadranten
+und Anzahl der Quadranten, gezählt im Uhrzeigersinn, zum Quadranten indem $p_{m}$ liegt addiert.
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.7\linewidth]{images/magnetic_model.png}
+    \caption{Berechnung der Ausrichtung des Objekts relativ zum magnetischen Objekt und magnetischen Nordpol.}
+    \label{fig:magnetic_model}
+\end{figure}
+Je nach Quadrant können für $a$ und $b$ die $x$- bzw. $y$-Koordinate von $p_{m}$ gewählt werden.
+Da der Einfluss des magnetischen Objekts $p_{m}$ abhängig von der Position des Objekts $p_{o}$,
+müssen $a$ und $b$ dementsprechend transformiert werden.
+Die Berechnung von $\alpha$ folgt dann Formel \ref{formular:magnetic_sensor_alpha}.
+\begin{align}
+    \label{formular:magnetic_sensor_alpha}
+    \alpha = \arcsin (\frac{p_{o_a} - p_{m_a}}{\sqrt{(p_{o_a} - p_{m_a})^2 + (p_{o_b} - p_{m_b})^2}})
+\end{align}
+Mit den Winkeln $\gamma$ und $\beta$ kann dann das Koordinatensystem zum magnetischen Objekt hin rotiert werden,
+sodass die Ausrichtung von $p_{o}$ zum beeinflussten magnetischen Nordpol aus Formel \ref{formular:magnetic_sensor_new_heading} berechnet werden kann.
+\begin{align}
+    \label{formular:magnetic_sensor_new_heading}
+    \gamma^{\prime} = (\gamma + (360 - \beta))\ \%\ 360
+\end{align}
+Zu beachten ist schließlich der Einfluss $\eta$ abhänging von der Distanz das $p_{m}$ auf $p_{o}$ hat.
+Formel \ref{formular:magnetic_sensor_influence} modelliert den Einfluss als quadratisch abfallende Funktion mit zunehmender Distanz $d$,
+wobei der maximale Einfluss 1 ist und der minimale Einfluss 0.
+\begin{align}
+    \label{formular:magnetic_sensor_influence}
+    \eta(d) = \min(0, 1 - \frac{d^2}{d_{\max}^2})
+\end{align}
+Der Einfluss wirkt sich proportional auf den Winkel von $p_{m}$ zum magnetischen Nordpol der Erde aus.
+Dabei ist aber die Ausrichtung von $p_{m}$ zum magnetischen Nordpol der Erde zu beachten, denn beim Südpol ändert sich die Richtung des Magnetfeldes.
+Formel \ref{formular:magnetic_sensor_end_result} zeigt die Berechnung von $\gamma^{\prime}$ abhänging von der Ausrichtung von $p_{m}$ zum magnetischen Nordpol der Erde,
+wobei $d = \sqrt{(p_{o_a} - p_{m_a})^2 + (p_{o_b} - p_{m_b})^2}$.
+\begin{align}
+    \label{formular:magnetic_sensor_end_result}
+    \gamma^{\prime}_L = (\gamma + (360(1 + \eta(d)) - \beta(1 - \eta(d))))\ \%\ 360 \\\nonumber
+    \gamma^{\prime}_R = (\gamma + (360 - \beta(1 - \eta(d))))\ \%\ 360 \hspace{0.8cm}
+\end{align}
 
 
-\begin{itemize}
-    \item Welchen Sensor spiegelt das wieder?
-    \item Wie funktioniert das Modell?
-    \item Was und Wie wurden Daten ergänzt?
-\end{itemize}
 
 \subsection{Temperatur}
 \begin{itemize}
