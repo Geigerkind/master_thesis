@@ -682,37 +682,40 @@ class DataCompiler:
                     influence = amplitude * (distance ** 2) + 1
 
                     # Translate source object into coordinate system with current position as center
-                    trans_ms_object = [source[0][0] - row["x_pos"], source[0][1] - row["y_pos"]]
+                    tmo = [source[0][0] - row["x_pos"], source[0][1] - row["y_pos"]]
 
                     # Decide the quadrant: Clockwise: 0, 1, 2, 3
-                    quadrant = 0
-                    if trans_ms_object[0] < 0:
-                        if trans_ms_object[1] < 0:
-                            quadrant = 2
+                    num_quadrant = 0
+                    alpha = 0
+                    if tmo[0] < 0:
+                        if tmo[1] < 0:
+                            alpha = math.asin(abs(tmo[1]) / math.sqrt((tmo[0] ** 2) + (tmo[1] ** 2)))
+                            num_quadrant = 2
                         else:
-                            quadrant = 3
-                    elif trans_ms_object[0] == 0:
-                        if trans_ms_object[1] == 0:
+                            alpha = math.asin(abs(tmo[0]) / math.sqrt((tmo[0] ** 2) + (tmo[1] ** 2)))
+                            num_quadrant = 3
+                    elif tmo[0] == 0:
+                        if tmo[1] == 0:
                             # Its on top of the current pos
                             # No effect technically
                             return facing
-                        elif trans_ms_object[1] < 0:
-                            # angle 0, quadrant 2
-                            return (360 - (influence * 180) + facing) % 360
+                        elif tmo[1] < 0:
+                            num_quadrant = 2
                         else:
                             # angle 0, quadrant 0
                             # Same cause it points where our magnetic north is defined
                             return facing
                     else:
-                        if trans_ms_object[1] < 0:
-                            quadrant = 1
+                        if tmo[1] < 0:
+                            alpha = math.asin(abs(tmo[0]) / math.sqrt((tmo[0] ** 2) + (tmo[1] ** 2)))
+                            num_quadrant = 1
                         else:
-                            quadrant = 0
+                            alpha = math.asin(abs(tmo[1]) / math.sqrt((tmo[0] ** 2) + (tmo[1] ** 2)))
 
-                    alpha = math.asin(
-                        abs(trans_ms_object[0]) / math.sqrt((trans_ms_object[0] ** 2) + (trans_ms_object[1] ** 2)))
-                    return (360 - (influence * ((quadrant * 90) + alpha)) + facing) % 360
-
+                    beta = num_quadrant * 90 + alpha
+                    if num_quadrant >= 2:
+                        return (facing + (360 * (1 + influence) - beta * (1 - influence))) % 360
+                    return (facing + (360 - beta * (1 - influence))) % 360
             return facing
 
         for data_set in self.__raw_data:

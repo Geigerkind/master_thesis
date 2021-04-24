@@ -53,7 +53,7 @@ müssen $a$ und $b$ dementsprechend transformiert werden.
 Die Berechnung von $\alpha$ folgt dann Formel \ref{formular:magnetic_sensor_alpha}.
 \begin{align}
     \label{formular:magnetic_sensor_alpha}
-    \alpha = \arcsin (\frac{p_{o_a} - p_{m_a}}{\sqrt{(p_{o_a} - p_{m_a})^2 + (p_{o_b} - p_{m_b})^2}})
+    \alpha = \arcsin (\frac{\abs(p_{o_a} - p_{m_a})}{\sqrt{(p_{o_a} - p_{m_a})^2 + (p_{o_b} - p_{m_b})^2}})
 \end{align}
 Mit den Winkeln $\gamma$ und $\beta$ kann dann das Koordinatensystem zum magnetischen Objekt hin rotiert werden,
 sodass die Ausrichtung von $p_{o}$ zum beeinflussten magnetischen Nordpol aus Formel \ref{formular:magnetic_sensor_new_heading} berechnet werden kann.
