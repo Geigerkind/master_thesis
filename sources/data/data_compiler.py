@@ -256,7 +256,7 @@ def par_process_data_set(args):
                 or induces_interrupt_single(li, row[1], key8, 0.01, f_cmp_abs_diff_abs_threshold, 7) \
                 or induces_interrupt_single(li, row[1], key9, 0.01, f_cmp_abs_diff_abs_threshold, 8) \
                 or induces_interrupt_single(li, row[1], key10, 0.1, f_cmp_abs_diff_abs_threshold, 9) \
-                or induces_interrupt_single(li, row[1], key3, 5, f_cmp_abs_diff_abs_threshold, 2) \
+                or induces_interrupt_single(li, row[1], key3, 8, f_cmp_abs_diff_abs_threshold, 2) \
                 or induces_interrupt_single(li, row[1], key4, 0.12, f_cmp_abs_diff_threshold_of_last, 3) \
                 or induces_interrupt_single(li, row[1], key5, 0.12, f_cmp_abs_diff_threshold_of_last, 4) \
                 or induces_interrupt_single(li, row[1], key6, 0.16, f_cmp_abs_diff_threshold_of_last, 5) \
@@ -320,7 +320,7 @@ class DataCompiler:
         self.num_cycles = 20
         self.num_validation_cycles = 5
         self.num_warmup_cycles = 5
-        self.window_size = 6
+        self.window_size = 3
         self.lookback_window = 1  # NOT FULLY IMPLEMENTED!
         # Not used atm.
         self.sampling_interval = 1  # Every second there is at least on sampling
