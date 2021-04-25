@@ -220,6 +220,7 @@ last_prediction_anomaly = 0
 last_prediction_when = 0
 now = time.time()
 num_skipped = 0
+prev_distinct_prediction = 0
 
 
 def run(args):
@@ -250,6 +251,7 @@ def run(args):
     global num_skipped
     global window_location_changes_no_anomaly
     global window_confidence_no_anomaly
+    global prev_distinct_prediction
 
     # Try to read the line
     current_reader_pos = file.tell()
@@ -423,6 +425,7 @@ def run(args):
     print("Number of predictions: %d" % (len(prediction_history)))
     print("Last Prediction: %d | %.1f seconds ago." % (last_prediction, t_stamp - last_prediction_when))
     print("Is anomaly: %d" % (last_prediction_anomaly))
+    print("Last distinct location %d" % (prev_distinct_prediction))
     print("|   Loc   |   TP   |   TN   |   FP   |   FN   |   ACC  |")
     print("________________________________________________________")
     for i in range(len(location_map.values()) + 1):

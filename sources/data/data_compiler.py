@@ -115,15 +115,17 @@ def par_ef_calculate_features(args):
             result.append(prev_location)
 
         if Features.Acceleration in features:
+            result.append(acc_total_abs_col_list[-1])
             result.append(FeatureStandardDeviation(acc_total_abs_col_list).feature)
             result.append(FeatureMax(acc_total_abs_col_list).feature)
-            # result.append(FeatureMin(acc_total_abs_col_list).feature)
+            result.append(FeatureMin(acc_total_abs_col_list).feature)
             result.append(FeatureMean(acc_total_abs_col_list).feature)
 
         if Features.Light in features:
+            result.append(light_col_list[-1])
             result.append(FeatureStandardDeviation(light_col_list).feature)
             result.append(FeatureMax(light_col_list).feature)
-            # result.append(FeatureMin(light_col_list).feature)
+            result.append(FeatureMin(light_col_list).feature)
             result.append(FeatureMean(light_col_list).feature)
 
         if Features.AccessPointDetection in features:
@@ -134,22 +136,25 @@ def par_ef_calculate_features(args):
             result.append(int(window.iloc[window_size - 1]["access_point_4"]))
 
         if Features.Temperature in features:
+            result.append(temperature_col_list[-1])
             result.append(FeatureStandardDeviation(temperature_col_list).feature)
             result.append(FeatureMax(temperature_col_list).feature)
             result.append(FeatureMin(temperature_col_list).feature)
             result.append(FeatureMean(temperature_col_list).feature)
 
         if Features.Heading in features:
+            result.append(heading_col_list[-1])
             result.append(FeatureStandardDeviation(heading_col_list).feature)
-            # result.append(FeatureMax(heading_col_list).feature)
-            # result.append(FeatureMin(heading_col_list).feature)
-            # result.append(FeatureMean(heading_col_list).feature)
+            result.append(FeatureMax(heading_col_list).feature)
+            result.append(FeatureMin(heading_col_list).feature)
+            result.append(FeatureMean(heading_col_list).feature)
 
         if Features.Volume in features:
-            # result.append(FeatureStandardDeviation(volume_col_list).feature)
+            result.append(volume_col_list[-1])
+            result.append(FeatureStandardDeviation(volume_col_list).feature)
             result.append(FeatureMax(volume_col_list).feature)
-            # result.append(FeatureMin(volume_col_list).feature)
-            # result.append(FeatureMean(volume_col_list).feature)
+            result.append(FeatureMin(volume_col_list).feature)
+            result.append(FeatureMean(volume_col_list).feature)
 
         if Features.Time in features:
             result.append(FeatureStandardDeviation(time_col_list).feature)
@@ -167,10 +172,11 @@ def par_ef_calculate_features(args):
             """
 
         if Features.Angle in features:
+            result.append(ang_total_abs_col_list[-1])
             result.append(FeatureStandardDeviation(ang_total_abs_col_list).feature)
             result.append(FeatureMax(ang_total_abs_col_list).feature)
-            # result.append(FeatureMin(ang_total_abs_col_list).feature)
-            # result.append(FeatureMean(ang_total_abs_col_list).feature)
+            result.append(FeatureMin(ang_total_abs_col_list).feature)
+            result.append(FeatureMean(ang_total_abs_col_list).feature)
 
     # TODO: Ist das mitm lbwindow > 1 noch korrekt?
     window = data.iloc[(i - window_size):i, :]
@@ -250,13 +256,16 @@ def par_process_data_set(args):
                 or induces_interrupt_single(li, row[1], key8, 0.01, f_cmp_abs_diff_abs_threshold, 7) \
                 or induces_interrupt_single(li, row[1], key9, 0.01, f_cmp_abs_diff_abs_threshold, 8) \
                 or induces_interrupt_single(li, row[1], key10, 0.1, f_cmp_abs_diff_abs_threshold, 9) \
-                or induces_interrupt_single(li, row[1], key3, 12, f_cmp_abs_diff_abs_threshold, 2) \
+                or induces_interrupt_single(li, row[1], key3, 5, f_cmp_abs_diff_abs_threshold, 2) \
                 or induces_interrupt_single(li, row[1], key4, 0.12, f_cmp_abs_diff_threshold_of_last, 3) \
                 or induces_interrupt_single(li, row[1], key5, 0.12, f_cmp_abs_diff_threshold_of_last, 4) \
                 or induces_interrupt_single(li, row[1], key6, 0.16, f_cmp_abs_diff_threshold_of_last, 5) \
                 or induces_interrupt(li, row[1], key_set7, 0, f_cmp_any_unequal, 6):
             index_map.append(index)
             rows.append(row[1])
+        """
+        # Hat sich gezeigt, dass zusammen mit einem Datenfenster dies die Klassifizierungsgenauigkeit in der Praxis verschlechtert.
+        # Besser ist eine bessere Kalibrierung des Interrupt-Systems.
         elif (row[1]["location"] > 0 and row[1]["cycle"] <= max_training_cycle and not in_live_mode and
               row[1]["t_stamp"] % training_sampling_rate_in_location == 0):
             found_one = False
@@ -270,6 +279,7 @@ def par_process_data_set(args):
             if found_one:
                 index_map.append(index)
                 rows.append(row[1])
+        """
 
         index = index + 1
 
@@ -310,11 +320,12 @@ class DataCompiler:
         self.num_cycles = 20
         self.num_validation_cycles = 5
         self.num_warmup_cycles = 5
-        self.window_size = 3
+        self.window_size = 6
         self.lookback_window = 1  # NOT FULLY IMPLEMENTED!
+        # Not used atm.
         self.sampling_interval = 1  # Every second there is at least on sampling
         # Ensure that we have enough training samples for the training data
-        self.sampling_interval_in_location_for_training_data = 0.5
+        self.sampling_interval_in_location_for_training_data = 0.25
 
         # Internal configuration
         self.__num_temporary_test_sets = 3  # Note the anomaly set added at the load
@@ -381,15 +392,17 @@ class DataCompiler:
             self.name_map_features.append("previous_distinct_location")
 
         if Features.Acceleration in self.features:
+            self.name_map_features.append("acc_last") #
             self.name_map_features.append("acc_std")
             self.name_map_features.append("acc_max")
-            # self.name_map_features.append("acc_min")
+            self.name_map_features.append("acc_min") #
             self.name_map_features.append("acc_mean")
 
         if Features.Light in self.features:
+            self.name_map_features.append("light_last") #
             self.name_map_features.append("light_std")
             self.name_map_features.append("light_max")
-            # self.name_map_features.append("light_min")
+            self.name_map_features.append("light_min") #
             self.name_map_features.append("light_mean")
 
         if Features.AccessPointDetection in self.features:
@@ -400,31 +413,35 @@ class DataCompiler:
             self.name_map_features.append("ap_4")
 
         if Features.Temperature in self.features:
+            self.name_map_features.append("temperature_last") #
             self.name_map_features.append("temperature_std")
             self.name_map_features.append("temperature_max")
             self.name_map_features.append("temperature_min")
             self.name_map_features.append("temperature_mean")
 
         if Features.Heading in self.features:
+            self.name_map_features.append("heading_last") #
             self.name_map_features.append("heading_std")
-            # self.name_map_features.append("heading_max")
-            # self.name_map_features.append("heading_min")
-            # self.name_map_features.append("heading_mean")
+            self.name_map_features.append("heading_max") #
+            self.name_map_features.append("heading_min") #
+            self.name_map_features.append("heading_mean") #
 
         if Features.Volume in self.features:
+            self.name_map_features.append("volume_last") #
             self.name_map_features.append("volume_std")
-            # self.name_map_features.append("volume_max")
-            # self.name_map_features.append("volume_min")
-            # self.name_map_features.append("volume_mean")
+            self.name_map_features.append("volume_max") #
+            self.name_map_features.append("volume_min") #
+            self.name_map_features.append("volume_mean") #
 
         if Features.Time in self.features:
             self.name_map_features.append("time_std")
 
         if Features.Angle in self.features:
+            self.name_map_features.append("ang_last") #
             self.name_map_features.append("ang_std")
             self.name_map_features.append("ang_max")
-            # self.name_map_features.append("ang_min")
-            # self.name_map_features.append("ang_mean")
+            self.name_map_features.append("ang_min") #
+            self.name_map_features.append("ang_mean") #
 
     def __configure_variables(self):
         self.result_raw_data = self.__raw_data

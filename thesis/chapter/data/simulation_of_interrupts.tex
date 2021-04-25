@@ -17,8 +17,12 @@ und führt das nächste mal nur einen Interrupt aus, wenn sich der Sensorwert um
 Dadurch wird einerseits ein realistischeres Szenario dargestellt,
 denn eine Sensorenbox die still steht würde auch keine Aktivität erwartet werden.
 Andererseits verringert sich die Datenmenge, wodurch die Trainingszeit verringert wird.
+
+\iffalse
+% Möglicherweise schlecht, wegen dem Datenfenster
 \newline
 \newline
 Allerdings hat sich gezeigt, dass manche Standorte deutlich unterrepräsentiert sind in der Trainingsmenge.
-Aus diesem Grund wurde zusätzlich für die Trainingsmenge eine Mindestabtastrate von 2 Hertz eingeführt,
+Aus diesem Grund wurde zusätzlich für die Trainingsmenge eine Mindestabtastrate von 4 Hertz eingeführt,
 falls in diesem Zeitraum kein Interrupt für diesen Standort stattgefunden hat.
+\fi
