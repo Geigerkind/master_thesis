@@ -16,9 +16,9 @@ Der Zyklus ist ein Umlauf einer Route, bevor sie wiederholt wird.
 Insgesamt besteht die Datenmenge aus 20 Zyklen.
 Die ersten fünf Zyklen werden zum \glqq Aufwärmen \grqq\ verwendet,
 d. h. das ML-Modell wird mit korrekt beschrifteten Daten trainiert, welche es nicht selbst beschriftet hat.
-In den folgenden zehn Zyklen werden weitere Partitionen zur Trainingsmenge hinzugefügt, die mit quadratisch steigendem Anteil beschriftet sind.
+In den folgenden zehn Zyklen werden weitere Partitionen zur Trainingsmenge hinzugefügt, die mit quadratisch steigendem Anteil von dem ML-Modell selbst beschriftet sind.
 Zunächst werden 50\% der Partition $i$ vom ML-Modell beschriftet, bis beim 13. Zyklus schließlich 100\% beschriftet wird.
-Die Beschriftung ist zufällig, damit der Klassifizierungsfehler auf allen Teilstücken der Route gelernt werden kann.
+Die Elemente aus der Partition, die beschriftet werden sollen, ist zufällig, damit der Klassifizierungsfehler auf allen Teilstücken der Route gelernt werden kann.
 \begin{figure}[h!]
     \centering
     \includegraphics[width=\linewidth]{images/training_explained.png}

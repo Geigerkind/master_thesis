@@ -1,5 +1,5 @@
 \section{Anomalieerkennung}
-Als Anomalieerkennung wird in dieser Arbeit das Problem bezeichnet, zu erkennen, dass das Objekt sich an einem
+Als Anomalieerkennung wird in dieser Arbeit das Problem bezeichnet, zu erkennen, dass die Sensorenbox sich an einem
 unbekannten Standort oder auf einem unbekannten Pfad befindet.
 Abbildung \ref{fig:model_idea} zeigt, dass die Anomalieerkennung ein eigener Schritt bei der Evaluierung der Sensordaten ist.
 Die Eingabe sind Features, die auf historischen Daten und dem momentanen Standort basieren.
@@ -14,7 +14,7 @@ d. h. das ML-Modell lernt nicht explizite Anomaliepfade, sondern das Verhalten d
 \newline
 Dafür werden analog zu Kapitel \ref{sec:model_dt} und \ref{sec:model_ffnn} Entscheidungswälder und FFNN trainiert.
 Allerdings bedarf dieses Modell keine Rückwärtskante und das FFNN kann für binäre Klassifizierung vereinfacht werden.
-Die letzte Schicht des FFNN hat ein Neuron und nutzt die Sigmoid-Funktion, anstatt der SoftMax-Funktion.
+Die letzte Schicht des FFNN hat nur ein Neuron und nutzt die Sigmoid-Funktion, anstatt der SoftMax-Funktion.
 Außerdem wird für die Kostenfunktion \textit{binäre Crossentropy} verwendet, anstatt kategorische Crossentropy.
 Binäre Crossentropy bedarf keine kategorische Enkodierung im Gegensatz zur kategorischen Crossentropy.
 \newline

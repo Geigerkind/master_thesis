@@ -1,4 +1,4 @@
-\chapter{ML-Modelle}
+\chapter{Machine Learning Modelle}
 In dieser Arbeit wird die Device-Based Indoor-Lokalisation auf Basis von Sensorwerten untersucht.
 Dieser Ansatz ist inspiriert von dem Orientierungssinn von Mensch und Tier.
 Dabei werden diskrete Standorte unterschieden, sowie ob eine Anomalie entdeckt wurde,
@@ -18,14 +18,8 @@ Im Vergleich zu der Architektur von Mian \cite{naveedThesis} können die Klassif
 \end{figure}
 \newline
 In dieser Arbeit werden Entscheidungsbaum basierte Klassifizierer mit KNN verglichen, insbesondere den von Mian verwendeten Ansatz mit FFNN.
-Entscheidungsbäume sind deutlich effizienter als KNN, weswegen diese bei vergleichbarer Klassifizierungsgenauigkeit und Fehlertoleranz die preferierte Wahl sind.
-
-\iffalse
-Eigentlich eignen sich \textit{rekurrente neuronale Netze} (RNN) gut für diese Aufgabe, da serielle Daten verarbeitet werden
-und zeitliche Abhängigkeiten für die Klassifizierung wichtig sind (TODO: Quelle).
-Aber in dieser Arbeit wurde sich dagegen entschieden, da diese sehr rechenaufwändig sind und viel Speicher benötigen im Vergleich zu FFNN oder Entscheidungswälder,
-weshalb diese suboptimal für kleine Mikrocontroller sind (TODO: Quelle).
-\fi
+Entscheidungsbäume sind deutlich effizienter als KNN, allerdings sind sie in ihrer Generalisierungsfähigkeit durch die berechneten Features begrenzt,
+wohingegen KNN komplexe Features selbst erlernen können.
 
 \input{chapter/model/location_encoding}
 \input{chapter/model/decision_tree}

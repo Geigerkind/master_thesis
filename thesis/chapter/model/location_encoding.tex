@@ -2,20 +2,19 @@
 \label{sec:model_location_encoding}
 Als Standort wird ein einzigartiger diskreter Ort im Indoor-Szenario bezeichnet.
 Bei der Klassifizierung können Standorte auf verschiedenen Arten im ML-Modell enkodiert werden.
-Mian enkodierte die Pfade zwischen Interessepunkten als Standorte,
+Mian enkodierte die Pfade zwischen Punkten, die von Interesse sind, als Standorte,
 d. h. das Klassifizierungsergebnis ist der Pfad auf dem sich der Mikrocontroller befindet \cite{naveedThesis}.
 \newline
 \newline
-Daneben wurden in dieser Arbeit noch zwei weitere Ansätze untersucht.
-Im ersten Ansatz werden alle Punkte im Umkreis von bestimmten Interessepunkten als Standorte definiert und alle restlichen als \textit{unbekannten Standort}.
-Der zweite Ansatz kombiniert die beiden anderen Ansätze.
-Zunächst werden, wie im ersten Ansatz, alle Punkte im Umkreis von bestimmten Interessepunkten als Standorte definiert.
-Dann werden die übrigen Punkte, also die Pfade zwischen zwei Standorten, als Standorte definiert.
+Daneben wurden in dieser Arbeit noch zwei weitere Ansätze untersucht, die mit Mians Ansatz zusammenhängen.
+Eine Route kann als zyklischen Graphen betrachtet werden, wie in Abbildung \ref{fig:location_encoding} illustriert.
+Der Ansatz von Mian versucht die Kanten dieses Graphen zu klassifizieren und definiert diese als Standorte.
+Daneben können nur die Knoten als Standorte enkodiert werden und alle restlichen Datensätze als \textit{unbekannten Standort}.
+Zuletzt können sowohl die Knoten und Kanten als Standorte definiert werden.
 \newline
 \newline
-Der Zusammenhang dieser Ansätze wird deutlich, wenn man eine Route als zyklischen Graphen betrachtet, wie in Abbildung \ref{fig:location_encoding}.
-Einzigartige diskrete Interessepunkte, bilden die Knoten und die Pfade zwischen diesen Punkten, die Kanten.
-Mian's Ansatz nutzt nur die Kanten und folglich die anderen Ansätze jeweils die Knoten und die Knoten und Kanten.
+Die Knoten werden durch alle Datensätze dargestellt, die innerhalb eines Umkreises von einem Punkt sind, der von Interesse ist.
+Folglich sind alle restlichen Datensätze Kanten zwischen zwei Kanten oder gelten als \textit{unbekannt}.
 \begin{figure}[h!]
     \centering
     \includegraphics[width=\linewidth]{images/location_encoding.png}
@@ -40,7 +39,3 @@ Dafür ist die Auflösung des kombinierten Ansatzes so gut, wie eine diskrete En
 Ist in den aufgenommenen Trainingsdaten die Position des Objektes zum Zeitpunkt der Aufnahme der Sensorwerte bekannt,
 so können die Standorte nach dem gewählten Enkodierungsansatz beliebig genau beschriftet werden.
 Dies kann in einem Weiterverarbeitungsschritt nach der Aufnahme der Daten mit einer Karte von den Interessepunkten geschehen.
-\newline
-\newline
-Bei der Evaluation in Kapitel \ref{sec:eval_anomalieerkennung} hat sich gezeigt, dass Anomalien besser erkannt werden können,
-wenn die Auflösung des Enkodierungsansatzes hoch ist.
