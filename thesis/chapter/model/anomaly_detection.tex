@@ -24,3 +24,10 @@ Sie werden im Gegensatz zu den ML-Modellen zur Standorterkennung nur einmalig tr
 Die Trainingsdaten werden aus den Anomaliedatenmengen und Datenmengen für die verschieden Routen generiert.
 Dafür werden die Klassifizierungsergebnisse auf diesen Datenmengen von den zuvor trainierten ML-Modellen zur Standorterkennung genutzt.
 Daraus werden beschriftete Features extrahiert, die in Kapitel \ref{sec:data_anomalie} detailiert erläutert werden.
+\newline
+\newline
+Alternativ können nicht ML-Modelle als Vergleichsmodelle genutzt werden.
+Die trivialen Modelle sind das \textit{Coin-Toss}-, \textit{immer Falsch}- und \textit{immer Wahr}-Modell.
+Ein komplexeres Modell nutzt die Topologie des Systems aus, um eine Anamolie zu indizieren, wenn die Sensorenbox nicht dem Pfad folgt.
+In einer lockereren Variante könnte nur erwartet werden, dass einem Pfad kontinuierlich gefolgt wird,
+sodass übersprungende Standorte nicht dauerhaft eine Anomalie indizieren.
