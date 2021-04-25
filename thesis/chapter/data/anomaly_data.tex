@@ -1,10 +1,29 @@
-\section{Anomalie Daten}
+\section{Anomaliedaten}
 \label{sec:data_anomalie}
-\begin{itemize}
-    \item Warum und Wieso?
-    \item Welche Fehlerdaten werden eingebaut, was ist deren Begründung?
-    \item Was ist eine Anomaly?
-    \item Welche Anomalydaten wurden eingebaut?
-    \item Welche Features werden zur Anomalierkennung extrahiert? Wie werden sie extrahiert? Wie funktioniert das in der Praxis?
-    \item window deviation zu no anamoly data vs normal deviation zum avg
-\end{itemize}
+Zur Anomalieerkennung wird ein separates ML-Modell trainiert.
+Eine Anomalie ist ein unbekannter Standort oder Pfad, der nicht in den Trainingsdaten enthalten ist.
+Das Problem bei der Generierung von Trainingsdaten ist, dass es sehr viele unterschiedliche Arten von Anomalien geben kann,
+die unmöglich durch Testdaten repräsentativ dargestellt werden können.
+Aus diesem Grund wird das ML-Modell zur Anomalieerkennung nicht auf Sensordaten trainiert, sondern auf den
+Klassifizierungsdaten des ML-Modell zur Standorterkennung.
+Ziel ist es anhand des Klassifizierungsverhalten des ML-Modells zur Standorerkennung einschätzen zu können, ob eine Anomalie vorliegt.
+\newline
+\newline
+Für Anomaliedaten werden bekannte und unbekannte Routen verwendet, sowie Kombinationen aus diesen Routen.
+Diese Daten werden dann von dem ML-Modell zur Standorterkennung klassifiziert.
+Aus den Klassifizierungsergebnissen werden schließlich Features extrahiert, die von dem ML-Modell zur Anomalieerkennung verwendet werden.
+\newline
+\newline
+Wenn eine Anomalie vorliegt wird erwartet, dass das ML-Modell unsicherer wird und stärker fluktuiert,
+wodurch zwei Features motiviert sind.
+Das erste Feature ist abgeleitet aus der Anzahl der Standortänderungen.
+Zum einen wird die durchschnittliche Anzahl der Standortänderungen in einem Datenfenster bestimmt.
+Zum anderen wird die durchschnittliche Anzahl der Standortänderungen bestimmt, wenn keine Anomalie vorliegt.
+Das Feature ist der Betrag der Differenz von diesen beiden Komponenten.
+\newline
+\newline
+Das zweite Feature ist analog zu dem ersten Feature konstruiert.
+Dieses nutzt ansatt der Anzahl der Standortänderungen die summierte Wahrscheinlichkeit der erkannten Standorte.
+Das ML-Modell zur Standorterkennung hat keine diskrete Ausgabe, sondern gibt einen Vektor von Wahrscheinlichkeiten aus,
+der für jeden Standort die Klassifizierungswahrscheinlichkeit angibt.
+Davon wird jeweils die höchste Wahrscheinlichkeit addiert, d. h. die Wahrscheinlichkeit des erkannten Standortes.
