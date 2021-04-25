@@ -1,6 +1,6 @@
 \section{Künstlichen Sensordaten}
 Im Projekt ist die Sensorenbox potentiell mit einem Accelerometer, Gyroskop, Lichtsensor, Magnetfeldsensor,
-Temperatursensor und Geräuschsensor ausgestattet, sowie eine Antenne zur Erfassung von WLAN-Zugangspunkten.
+Temperatursensor und Geräuschsensor ausgestattet, sowie einen Empfänger zur Erfassung von WLAN-Zugangspunkten.
 Mit CoppeliaSim ist es allerdings nur möglich Sensorwerte des Accelerometers, Gyroskops und Lichtsensors zu erfassen.
 Aus diesem Grund werden die fehlenden Sensoren durch das Ausnutzen vereinfachter Modelle ergänzt.
 
@@ -12,44 +12,46 @@ Dieser richtet sich nach dem Magnetfeld der Erde aus und wird daher traditionell
 \newline
 Das vereinfachte Modell des simulierten Magnetfeldsensors fungiert wie ein Kompass.
 Die Ausgabe ist der relative Richtungsunterschied zum magnetischen Nordpol,
-d. h. die Ausgabe ist relativ zur Ausrichtung des Objekts zum magnetischen Nordpol.
+d. h. die Ausgabe ist relativ zur Ausrichtung der Sensorenbox zum magnetischen Nordpol.
 Dabei können starke magnetische Objekte in der Umgebung Einfluss auf den Sensor haben,
 sodass sich der magnetische Nordpol für den simulierten Sensor ändern kann.
 Die Ausgabewerte sind zwischen 0 und 359, d. h. 0 ist Norden, 90 Osten, 180 Süden und 270 Westen.
 \newline
 \newline
 Es wird angenommen, dass der magnetische Nordpol der Erde weit genug weg ist,
-sodass sich im Fabrikszenario die Richtung nur ändern kann, wenn die Ausrichtung des Objekts geändert wird.
+sodass sich im Fabrikszenario die Richtung nur ändern kann, wenn die Ausrichtung der Sensorenbox geändert wird
+oder, wenn ein magnetisches Objekt in der Umgebung Einfluss ausübt.
 Außerdem wird angenommen, dass sich die Ausrichtung des Objektes in einem Zyklus nicht ändert,
-da Fließbandsysteme für gewöhnlich nicht rund sind, sondern Kante auf Kante aufeinander über gehen.
+da Fließbandsysteme für gewöhnlich nicht rund sind, sondern Kante auf Kante aufeinander übergehen.
 Allerdings wird für jeden Zyklus eine neue zufällige Ausrichtung zwischen 0 und 359 gewählt,
 da das Objekt mit verschiedenen Ausrichtungen auf das Fließband gelegt werden könnte.
-Zudem wird keine Interferenz der magnetischen Objekte angenommen.
-Sollten sie sich überschneiden wird das Objekt mit dem meisten Einfluss gewählt.
+Zudem wird keine Interferenz der magnetischen Objekte zueinander angenommen.
+Sollten sie sich überschneiden wird das magnetische Objekt mit dem meisten Einfluss gewählt.
 \newline
 \newline
 Starke magnetische Objekte sind strategisch in der Umgebung des Fließbandsystems plaziert.
 Ihre Stärke wird dabei durch die Einflussreichweite definiert, wobei der Einfluss quadratisch mit der Distanz abnimmt.
-Ist der Einfluss bei 100\%, so wird für den magnetischen Nordpol die Position des Objekts angenommen.
+Ist der Einfluss bei 100\%, so wird für den magnetischen Nordpol die Position des magnetischen Objekts angenommen.
 Wenn der Einfluss geringer ist, dann wird ein magnetischer Nordpol zwischen dem magnetischen Nordpol der Erde und des magnetischen Objektes Anteilweise gewählt.
 Die magnetischen Objekte können unterschiedliche Einflussreichweiten haben.
 \newline
 \newline
 Abbildung \ref{fig:magnetic_model} illustriert diese Situation.
-Um die Ausrichtung des Objekts relativ zum magnetischen Nordpol der Erde bei 0 und dem Einfluss des magnetischen Objekts zu berechnen,
-ist es nötig die Winkel zwischen dem magnetischen Nordpol der Erde und dem magnetischen Objekt, sowie den Winkel zum Objekt zu wissen.
-Der Winkel $\beta$ vom magnetischen Nordpol der Erde zum Objekt $p_{o}$ ist bekannt.
+Um die Ausrichtung der Sensorenbox relativ zum magnetischen Nordpol der Erde bei 0 und dem Einfluss des magnetischen Objekts zu berechnen,
+ist es nötig die Winkel zwischen dem magnetischen Nordpol der Erde und dem magnetischen Objekt, sowie den Winkel zur Sensorenbox zu wissen.
+Der Winkel $\beta$ vom magnetischen Nordpol der Erde zur Sensorenbox $p_{o}$ ist bekannt.
 Der Winkel $\gamma$ vom magnetischen Nordpol der Erde zum magnetischen Objekt $p_{m}$ wird aus dem Winkel $\alpha$ innerhalb des eigenen Quadranten
-und Anzahl der Quadranten, gezählt im Uhrzeigersinn, zum Quadranten indem $p_{m}$ liegt addiert.
+und der Anzahl der Quadranten, zum Quadranten in dem sich $p_{m}$ befindet, berechnet.
+Dabei werden die Quadranten im Uhrzeigersinn gezählt.
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.7\linewidth]{images/magnetic_model.png}
-    \caption{Berechnung der Ausrichtung des Objekts relativ zum magnetischen Objekt und magnetischen Nordpol.}
+    \caption{Ausrichtung der Sensorenbox relativ zum magnetischen Objekt und magnetischen Nordpol der Erde.}
     \label{fig:magnetic_model}
 \end{figure}
 Je nach Quadrant können für $a$ und $b$ die $x$- bzw. $y$-Koordinate von $p_{m}$ gewählt werden.
-Da der Einfluss des magnetischen Objekts $p_{m}$ abhängig von der Position des Objekts $p_{o}$,
-müssen $a$ und $b$ dementsprechend transformiert werden.
+Da der Einfluss des magnetischen Objekts $p_{m}$ abhängig von der Position der Sensorenbox $p_{o}$ ist,
+müssen $a$ und $b$ mit $p_{o}$ als Ursprung transformiert werden.
 Die Berechnung von $\alpha$ folgt dann Formel \ref{formular:magnetic_sensor_alpha}.
 \begin{align}
     \label{formular:magnetic_sensor_alpha}
@@ -62,14 +64,14 @@ sodass die Ausrichtung von $p_{o}$ zum beeinflussten magnetischen Nordpol aus Fo
     \gamma^{\prime} = (\gamma + (360 - \beta))\mod 360
 \end{align}
 Zu beachten ist schließlich der Einfluss $\eta$ abhänging von der Distanz das $p_{m}$ auf $p_{o}$ hat.
-Formel \ref{formular:magnetic_sensor_influence} modelliert den Einfluss als quadratisch abfallende Funktion mit zunehmender Distanz $d$,
-wobei der maximale Einfluss 1 ist und der minimale Einfluss 0.
+Formel \ref{formular:magnetic_sensor_influence} modelliert den Einfluss als quadratisch abfallende Funktion mit zunehmender Distanz $d$ und maximaler Einflussdistanz $d_{\max}$,
+wobei der maximale Einfluss 1 ist und der minimale Einfluss 0 ist.
 \begin{align}
     \label{formular:magnetic_sensor_influence}
     \eta(d) = \min(0, 1 - \frac{d^2}{d_{\max}^2})
 \end{align}
 Der Einfluss wirkt sich proportional auf den Winkel von $p_{m}$ zum magnetischen Nordpol der Erde aus.
-Dabei ist aber die Ausrichtung von $p_{m}$ zum magnetischen Nordpol der Erde zu beachten, denn beim Südpol ändert sich die Richtung des Magnetfeldes.
+Dabei ist aber die Ausrichtung von $p_{m}$ zum magnetischen Nordpol der Erde zu beachten, denn bei den Polen des Magnetfeldes ändert sich die Richtung des Magnetfeldes.
 Formel \ref{formular:magnetic_sensor_end_result} zeigt die Berechnung von $\gamma^{\prime}$ abhänging von der Ausrichtung von $p_{m}$ zum magnetischen Nordpol der Erde,
 wobei $d = \sqrt{(p_{o_a} - p_{m_a})^2 + (p_{o_b} - p_{m_b})^2}$.
 \begin{align}
@@ -79,16 +81,15 @@ wobei $d = \sqrt{(p_{o_a} - p_{m_a})^2 + (p_{o_b} - p_{m_b})^2}$.
 \end{align}
 
 \subsection{Temperatursensor}
-Der Temperatursensor misst du die vorherschende Temperatur.
 Das vereinfachte Modell für diesen Sensor geht von einer konstanten Umgebungstemperatur aus.
 Im Raum sind Wärmequellen strategisch verteilt, die eine Temperatur unterhalb und oberhalb der Umgebungstemperatur haben können.
-Je näher das Objekt an einer der Wärmequellen dran ist, desto mehr nähert sich die gemessene Temperatur der Temperatur der Wärmequelle an.
+Je näher sich die Sensorenbox an einer der Wärmequellen befindet, desto mehr nähert sich die gemessene Temperatur der Temperatur der Wärmequelle $T_{\max}$ an.
 \newline
 \newline
 Jede Wärmequelle hat einen Einflussbereich, in der sie sich auf die Umgebungstemperatur $T_U$ auswirken kann.
 Sollten sich zwei Wärmequellen überschneiden wird die Temperatur ausgewählt, die den größten Unterschied zur Umgebungstemperatur verursacht.
-Formel \ref{formular:temperature_sensor_temperature} zeigt die Berechnung der resultierenden Temperatur $T^{\prime}$ abhängig von der Distanz der
-Wärmequelle zum Objekt $d$, der maximalen Einflussdistanz $d_{\max}$ und dessen Temperatur $T_{\max}$.
+Formel \ref{formular:temperature_sensor_temperature} zeigt die Berechnung der resultierenden Temperatur $T^{\prime}$ abhängig von der Distanz $d$ der
+Wärmequelle zur Sensorenbox und der maximalen Einflussdistanz $d_{\max}$.
 \begin{align}
     \label{formular:temperature_sensor_temperature}
     T^{\prime} = \begin{cases}
@@ -105,7 +106,7 @@ dass die Lautstärke in einem Frequenzbereich misst.
 \newline
 \newline
 In diesem Modell werden Frequenzbereiche vernachlässigt.
-Es gibt ein Hintergrundrauschen $V_H$, dass in einem Bereich leicht fluktuiert.
+Es gibt ein Hintergrundrauschen $V_H$, auf das für jeden Datensatz ein zufälliges Rauschen addiert wird.
 Daneben gibt es Lautstärkequellen, die entweder periodisch oder konstant sind und strategisch im Raum verteilt sind.
 Die Interferenz von verschiedenen Lautstärkequellen wird vernachlässigt.
 Sollten sich zwei Lautstärkequellen überschneiden, so wird die maximale Lautstärke ausgewählt.
@@ -121,7 +122,7 @@ Formel \ref{formular:sound_sensor_constant_sound} zeigt die Berechnung für die 
                      \frac{(V_{\max} - V_H)d^2}{d_{\max}} + V_H & \text{, ansonsten}
     \end{cases}
 \end{align}
-Periodische Lautstärkequellen emitieren ein Geräusch in regelmäßigen Abständen.
+Periodische Lautstärkequellen emittieren ein Geräusch in regelmäßigen Abständen.
 Dies wird modelliert durch eine quadratisch verringerde Lautstärke über 500 ms,
 wenn die Lautstärke gemessen wird nachdem das Geräusch stattgefunden hat,
 d. h. nach 500 ms ist das Geräusch nicht mehr wahrzunehmen.
@@ -143,5 +144,5 @@ Das Modell vereinfacht dies, indem es lediglich aussagt, ob ein WLAN-Zugangspunk
 \newline
 Im Raum sind strategisch WLAN-Zugangspunkte verteilt.
 Diese können innerhalb einer maximalen Reichweite empfangen werden.
-Ist die Distanz des Objekts innerhalb der Reichweite, gilt der WLAN-Zugangspunkt als detektiert.
+Ist die Distanz des Objekts innerhalb der Reichweite, gilt der WLAN-Zugangspunkt als empfangen.
 Interferenzen und Reflektionen werden vernachlässigt.

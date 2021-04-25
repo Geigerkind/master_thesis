@@ -1,18 +1,18 @@
 \section{Simulierte Sensordaten}
-Insgesamt wurden vier Routen über 20 Zyklen erfasst, jeweils zwei mal erfasst.
-Einmal für Testdaten und einmal für Trainingsdaten, wobei die letzten fünf Zyklen der
-Trainingsdaten als Validationsmenge genutzt wird, die außerdem zur Feature-Auswahl genutzt wird.
-Dabei wurden alle 50 ms die xyz-, Koordinaten, Beschleunigung und Gyroskopdaten erfasst, sowie Lichtintensität und Metadaten.
+Insgesamt wurden vier Routen über 20 Zyklen jeweils zwei mal erfasst.
+Einmal für Trainingsdaten und einmal für Testdaten, wobei die letzten fünf Zyklen der
+Trainingsdaten als Validationsmenge genutzt werden, die außerdem zur Feature-Auswahl genutzt wird.
+Dabei wurden alle 50 ms die xyz-, Koordinaten und Accelerometerdaten und Gyroskopdaten erfasst, sowie Lichtintensität und Metadaten.
 Zu den Metadaten gehören Zeitstempel, Beschriftung des Routenabschnitts und Beschriftung des derzeitigen Zyklusses.
 Ein Zyklus ist der vollständige Umlauf einer Route.
 \newline
 \newline
 Abbildung \ref{fig:simple_square_labeled} zeigt eine der vier Routen \glqq simple\_square\grqq.
 Jede Route ist mit Markierungen für Zyklen und Standorte ausgestattet.
-Die Zyklusmarkierung wird genutzt, um die die Datensätze mit deren derzeitigen Zyklus zu beschriften.
+Die Zyklusmarkierung wird genutzt, um die die Datensätze mit dem derzeitigen Zyklus zu beschriften.
 Jedes mal, wenn die Sensorenbox diese Markierung überschreitet, wird der Zähler für den Zyklus inkrementiert.
 Die Standortmarkierung wird genutzt, um die Datensätze mit dem derzeitigen Routenabschnitt zu beschriften.
-Jedes mal, wenn die Sensorenbox diese Markierung überschreitet, wird der derzeitige Wert für Routenabschnitt auf den Wert der Markierung gesetzt.
+Jedes mal, wenn die Sensorenbox diese Markierung überschreitet, wird der derzeitige Wert für den Routenabschnitt auf den Wert der Markierung gesetzt.
 Dabei werden alle aufgenommenen Datensätze immer mit dem derzeitigen Wert für den Routenabschnitt markiert.
 \begin{figure}[h!]
     \centering

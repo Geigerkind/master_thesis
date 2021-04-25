@@ -1,4 +1,4 @@
-\chapter{Trainings- und Validationsdaten}
+\chapter{Trainings- und Testdaten}
 Zu dem Zeitpunkt, zu dem diese Arbeit verfasst wurde, existierte noch keine Möglichkeit Echtdaten in einem
 realistischen Szenario mit einem Mikrocontroller aufzunehmen, der über alle nötigen Sensoren verfügt.
 Aus diesem Grund ist es nötig Daten simulativ zu erfassen.
@@ -7,7 +7,7 @@ Aus diesem Grund ist es nötig Daten simulativ zu erfassen.
 Zur Datenerfassung wird der allzweck Robotersimulator CoppeliaSim verwendet \cite{coppeliaSim}.
 Mit diesem Simulator werden verschiedene Fabrikszenarien simuliert und dabei verschiedene Sensorwerte erfasst.
 Diese werden dann in einem Vorverarbeitungsschritt gefiltert und mit Sensordaten ergänzt, die in CoppeliaSim nicht verfügbar sind.
-Zuletzt werden Features extrahiert und die resultierende Datenmenge in Trainings- und Validationsdaten unterteilt.
+Zuletzt werden Features extrahiert und die resultierende Datenmenge in Trainings-, Validations- und Testdaten unterteilt.
 
 \input{chapter/data/simulated_sensordata}
 \input{chapter/data/artificial_sensor_data}

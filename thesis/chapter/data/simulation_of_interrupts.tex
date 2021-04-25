@@ -13,9 +13,9 @@ Dadurch kann die CPU in der Zwischenzeit schlafen und Energie preservieren.
 Um dieses Verhalten nachzustellen werden diese Interrupts simuliert, wodurch die Datenmenge gefiltert wird.
 In dieser Arbeit wird die Änderung zu dem letzten Interrupt eines Sensors modelliert,
 d. h. jeder Sensor merkt sich seinen Sensorwert, wenn es einen Interrupt auslöst
-und führt das nächste mal nur einen Interrupt aus, wenn sich der Sensorwert um einen bestimmten Prozentsatz unterscheided.
+und führt das nächste mal nur einen Interrupt aus, wenn sich der Sensorwert um einen bestimmten Prozentsatz zu dem unterscheided.
 Dadurch wird einerseits ein realistischeres Szenario dargestellt,
-denn eine Sensorenbox die still steht würde auch keine Aktivität erwartet werden.
+denn von einer Sensorenbox die still steht würde auch keine Aktivität erwartet werden.
 Andererseits verringert sich die Datenmenge, wodurch die Trainingszeit verringert wird.
 
 \iffalse

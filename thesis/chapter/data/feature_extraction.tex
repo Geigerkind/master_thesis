@@ -5,32 +5,32 @@ Feature sind berechnete Attribute und Eigenschaften von einem oder mehreren Sens
 \newline
 \newline
 Durch die Feature-Extrahierung müssen die ML-Modelle diese Features nicht selbständig lernen, sondern lediglich darauf abstrahieren.
-Dies erleichtert das Training, kann aber gerade für Deep NN die Generalisierungsfähigkeit der Modelle einschränken,
+Dies erleichtert das Training, kann aber gerade für tiefe NN die Generalisierungsfähigkeit einschränken,
 wenn die Features nicht manuell konstruiert wurden \cite{seide2011feature}.
-Einerseits benötigt aber der Entscheidungsbaum ML-Modell aber einen solchen Prozess,
-da durch viel Rauschen eine Partition von Rohdaten deutlich komplexer ist als Features.
-Andererseits kann das FFNN durch die Hardware Limitierungen möglicherweise nicht groß genug sein, um diese Features zu erlernen.
+Einerseits benötigt aber der Entscheidungsbaum ML-Modell einen solchen Prozess,
+da Features das Rauschen der Rohdaten verringern und dadurch eine Partitionierung vereinfachen.
+Andererseits kann das FFNN durch die Limitierungen der Hardware möglicherweise nicht groß genug sein, um diese Features zu erlernen.
 \newline
 \newline
 Mian hat in seiner Arbeit ein Datenfenster verwendet, um die Sensorwerte zu glätten \cite{naveedThesis}.
 Als Datenfenster werden die letzten $N$ Einträge der Sensordaten bezeichnet, wobei $N$ die Fenstergröße ist.
-Allerdings hat Mian auch eine hohe Abtastrate verwendet, wodurch die Unterschiede zu
-hintereinander liegenden Datensätzen gering ist und Rauschen eine große Auswirkung hat.
-Durch die künstlichen Interrupts werden nur Datensätze verwendet, die signifikante Änderungen enthalten.
+Mian auch eine hohe Abtastrate verwendet, wodurch die Unterschiede zu hintereinander liegenden Datensätzen gering ist und Rauschen eine große Auswirkung hat.
+Durch die künstlichen Interrupts werden nur Datensätze verwendet, die signifikante Änderungen enthalten,
+wodurch große Datenfenster in dieser Arbeit nicht benötigt werden.
 In der Praxis hat sich dennoch ein Datenfenster als sinnvoll erwiesen, da dadurch mehr Features konstruiert werden können,
 die eine bessere Generalisierung ermöglichen.
 Allerdings hat sich gezeigt, dass ein zu großes Datenfenster durch die im Mittel geringe Abtastrate, die Klassifizierungsgenauigkeit verringert.
-Dies kann durch die im Mittel geringe Abtastrate durch die künstlichen Interrupts begründet werden, da in einem großen Datenfenster dann
-noch Datensätze enthalten sind, die zur Erkennung eines Standorts nicht relevant sind.
+Dies kann durch die künstlichen Interrupts begründet werden, da in einem großen Datenfenster dann
+noch Datensätze enthalten sind, die zur Erkennung eines Standorts nicht mehr relevant sind.
 \newline
 \newline
 Tabelle \ref{tab:all_features} listet alle verwendeten Features auf.
 Zunächst werden aus jeden Sensor die gleiche Menge von Features extrahiert, sofern der Sensor dies erlaubt.
 Aus den Datenfenstern der Sensordaten werden die Standardabweichung, Minimum, Maximum und der Durchschnitt für jeden Sensor berechnet.
-Zusätzlich der momentane Wert jedes Sensors als Feature verwendet.
+Zusätzlich wird der momentane Wert jedes Sensors als Feature verwendet.
 Da die Werte des Accelerometers und Gyroskops abhängig von der Ausrichtung der Sensorenbox ist,
 wird von denen nur der Betrag der Summe der x-, y- und z-Komponenten verwendet.
-Für die Detektionsdaten der WLAN-Zugangspunkte erschien die Features aus Standardabweichung, Minimum, Maximum und Durchschnitt nicht sinnvoll, da diese nur binäre Werte annehmen.
+Für die Detektionsdaten der WLAN-Zugangspunkte erschien die Standardabweichung, Minimum, Maximum und Durchschnitt nicht sinnvoll, da die Daten nur binäre Werte annehmen.
 \begin{table}[h!]
     \hspace{-0.65cm}
     \begin{tabular}{ | l | c | c | c | c | c | }
@@ -55,10 +55,10 @@ Daneben wurden noch drei weitere Features aus den Metadaten extrahiert.
 Das erste Feature ist der zuletzt bestimmte Standort des ML-Modells.
 Das zweite Feature ist der zuletzt bestimmte Standort des ML-Modells, dass nicht als unbekannter Standort gilt und nicht der aktuelle Standort ist.
 Mian hat ein Feature für jeden zu klassifizierenden Standort als Eingabe benutzt, dass auf eins gesetzt wird, wenn es erkannt wurde und ansonsten exponentiell abfällt \cite{naveedThesis}.
-In dieser Arbeit wurde sich dagegen entschieden, da dies schlecht skaliert mit steigender Anzahl von zu klassifizierenden Standorten
-und eine Abhängigkeit von dem zuletzt geratenen Standort für die Robustheit vermieden werden sollte.
+In dieser Arbeit wurde sich dagegen entschieden, da dies schlecht skaliert mit der steigenden Anzahl von zu klassifizierenden Standorten
+und eine Abhängigkeit von dem zuletzt bestimmten Standort für die Robustheit vermieden werden sollte.
 Das dritte Feature ist die Standardweichung über die Zeit des Datenfensters.
-Alle anderen Features sind Zeitunabhängig, da sie auf Zeitunabhängige Features im Datenfenster beziehen.
+Alle anderen Features sind Zeitunabhängig, da sie sich auf Zeitunabhängige Sensorwerte im Datenfenster beziehen.
 \newline
 \newline
 Die Signifikanz der einzelnen Features ist abhängig von der Einsatzumgebung, weshalb in Kapitel \ref{sec:model_training}
