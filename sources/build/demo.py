@@ -39,50 +39,6 @@ if is_dt:
 #    model_anomaly = keras.models.load_model(
 #        BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_knn_anomaly_model.h5")
 
-# Mappings
-location_map = {
-    7: [2.365293, 0.000001],
-    3: [4.568295, 0.097340],
-    1: [4.628497, 2.124701],
-    5: [4.628503, 4.254580],
-    6: [2.685639, 4.386515],
-    2: [0.410327, 4.386262],
-    8: [0.349687, 2.287895],
-    4: [0.349683, 0.177832]
-}
-
-access_point_range = 1.5
-access_point_positions = [
-    [0, 0],
-    [4, 4],
-    [4, 2],
-    [3.5, 0.5],
-    [1, 2.5]
-]
-
-heat_sources = [
-    ([0, 1], 2),
-    ([3, 2], 2),
-    ([1, 3], 2),
-    ([4, 4.5], 1)
-]
-
-magnetic_sources = [
-    ([3, 4], 2),
-    ([0, 4], 1.5),
-    ([3, 1.5], 3)
-]
-
-noises = [
-    ([2, 3.5], 2),
-    ([1, 0], 2),
-    ([0, 1.5], 2)
-]
-
-anomaly_areas = [
-    [[3, 1], [4.4, 3]]
-]
-
 # Prepare everything
 feature_history = []
 x_axis_history = []
@@ -94,7 +50,7 @@ current_feature_index = 0
 prediction_history = []
 # TP, FP, TN, FN, Not Predicted(?)
 statistics_prediction = []
-for i in range(len(location_map) + 1):
+for i in range(len(data.position_map) + 1):
     statistics_prediction.append([0, 0, 0, 0, 0])
 statistics_anomaly = [0, 0, 0, 0, 0]
 
@@ -155,6 +111,7 @@ def redraw():
 
     size_map = {
         0.1: 180,
+        0.2: 500,
         1: 16000,
         2: 60000,
         3: 70000,
@@ -163,34 +120,34 @@ def redraw():
 
     # TODO: Scatter sizes are not linear!
     # Locations:
-    ax.scatter([x[0] for x in location_map.values()], [x[1] for x in location_map.values()], c="green", alpha=0.5,
-               zorder=2.7, s=180)
-    for i in range(len(location_map.values())):
-        ax.text(location_map[i + 1][0] - 0.1, location_map[i + 1][1] + 0.15, str(i + 1), fontsize=18)
+    ax.scatter([x[0] for x in data.position_map.values()], [x[1] for x in data.position_map.values()], c="green", alpha=0.5,
+               zorder=2.7, s=size_map[data.proximity])
+    for i in range(len(data.position_map.values())):
+        ax.text(data.position_map[i + 1][0] - 0.1, data.position_map[i + 1][1] + 0.15, str(i + 1), fontsize=18)
 
     # Access points
-    ax.scatter([x[0] for x in access_point_positions], [x[1] for x in access_point_positions], c="gray", alpha=0.5,
-               zorder=2.6, s=size_map[1.5])
-    for i in range(len(access_point_positions)):
-        ax.text(access_point_positions[i][0] - 0.3, access_point_positions[i][1] - 0.15, "AP_" + str(i), fontsize=18)
+    ax.scatter([x[0] for x in data.access_point_positions], [x[1] for x in data.access_point_positions], c="gray", alpha=0.5,
+               zorder=2.6, s=size_map[data.access_point_range])
+    for i in range(len(data.access_point_positions)):
+        ax.text(data.access_point_positions[i][0] - 0.3, data.access_point_positions[i][1] - 0.15, "AP_" + str(i), fontsize=18)
 
     # Heat sources
-    ax.scatter([x[0][0] for x in heat_sources], [x[0][1] for x in heat_sources], c="red", alpha=0.5,
-               zorder=2.6, s=[size_map[x[1]] for x in heat_sources])
-    for i in range(len(heat_sources)):
-        ax.text(heat_sources[i][0][0] - 0.3, heat_sources[i][0][1] - 0.15, "HS_" + str(i), fontsize=18)
+    ax.scatter([x[0][0] for x in data.heat_sources], [x[0][1] for x in data.heat_sources], c="red", alpha=0.5,
+               zorder=2.6, s=[size_map[x[2]] for x in data.heat_sources])
+    for i in range(len(data.heat_sources)):
+        ax.text(data.heat_sources[i][0][0] - 0.3, data.heat_sources[i][0][1] - 0.15, "HS_" + str(i), fontsize=18)
 
     # magnetic_sources
-    ax.scatter([x[0][0] for x in magnetic_sources], [x[0][1] for x in magnetic_sources], c="yellow", alpha=0.5,
-               zorder=2.6, s=[size_map[x[1]] for x in magnetic_sources])
-    for i in range(len(magnetic_sources)):
-        ax.text(magnetic_sources[i][0][0] - 0.3, magnetic_sources[i][0][1] - 0.15, "MS_" + str(i), fontsize=18)
+    ax.scatter([x[0][0] for x in data.magnetic_sources], [x[0][1] for x in data.magnetic_sources], c="yellow", alpha=0.5,
+               zorder=2.6, s=[size_map[x[1]] for x in data.magnetic_sources])
+    for i in range(len(data.magnetic_sources)):
+        ax.text(data.magnetic_sources[i][0][0] - 0.3, data.magnetic_sources[i][0][1] - 0.15, "MS_" + str(i), fontsize=18)
 
     # Noises
-    ax.scatter([x[0][0] for x in noises], [x[0][1] for x in noises], c="purple", alpha=0.5,
-               zorder=2.6, s=[size_map[x[1]] for x in noises])
-    for i in range(len(noises)):
-        ax.text(noises[i][0][0] - 0.3, noises[i][0][1] - 0.15, "N_" + str(i), fontsize=18)
+    ax.scatter([x[0][0] for x in data.noises], [x[0][1] for x in data.noises], c="purple", alpha=0.5,
+               zorder=2.6, s=[size_map[x[2]] for x in data.noises])
+    for i in range(len(data.noises)):
+        ax.text(data.noises[i][0][0] - 0.3, data.noises[i][0][1] - 0.15, "N_" + str(i), fontsize=18)
 
     # true vs predicted
     ax2.plot(range(len(true_location_history)), true_location_history, "-g", lw=2, zorder=3)

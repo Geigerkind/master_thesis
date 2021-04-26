@@ -318,6 +318,37 @@ class DataCompiler:
         self.__raw_data = []
         self.index_maps = []
 
+        self.position_map = dict()
+        self.access_point_range = 1.5
+        self.access_point_positions = [
+            [0, 0],
+            [4, 4],
+            [4, 2],
+            [3.5, 0.5],
+            [1, 2.5]
+        ]
+        self.ambient_temperature = 20  # Degrees Celsius
+        # ([x,y], temperature, distance_until_ambient_is_reached_again)
+        self.heat_sources = [
+            ([0, 1], 26, 2),
+            ([3, 2], 10, 2),
+            ([1, 3], 100, 2),
+            ([4, 4.5], 40, 1)
+        ]
+        self.magnetic_sources = [
+            ([3, 4], 2),
+            ([0, 4], 1.5),
+            ([3, 1.5], 3)
+        ]
+        self.background_noise_mean = 20
+        self.background_noise_variance = 3
+        # ([x, y], max_volume, distance_until_ambient, is_constant, [periodicity?])
+        self.noises = [
+            ([2, 3.5], 60, 2, False, 1.25),
+            ([1, 0], 100, 2, False, 1.5),
+            ([0, 1.5], 40, 2, True)
+        ]
+
         self.num_outputs = 0
         self.num_inputs = 0
         self.name_map_features = []
@@ -571,6 +602,8 @@ class DataCompiler:
             for row in self.__data_sets[data_set].iterrows():
                 if not (row[1]["pos"] in initial_positions):
                     initial_positions[row[1]["pos"]] = row[1]
+                    if data_set != DataSet.Anomaly:
+                        self.position_map[row[1]["pos"]] = [row[1]["x_pos"], row[1]["y_pos"]]
             self.__data_sets[data_set] = parallelize(self.__data_sets[data_set], par_lrd_set_location,
                                                      [initial_positions, self.proximity])
             if data_set != DataSet.Anomaly:
@@ -590,6 +623,8 @@ class DataCompiler:
                         if not (row[1]["location"] in location_map):
                             location_offset = location_offset + 1
                             location_map[row[1]["location"]] = location_offset
+                            if data_set != DataSet.Anomaly:
+                                self.position_map[location_offset] = [row[1]["x_pos"], row[1]["y_pos"]]
                         previous_non_zero_pos = row[1]["location"]
 
                 previous_non_zero_pos = 0
@@ -857,27 +892,19 @@ class DataCompiler:
         # All sampled routes are within [-3,7]^2
         if self.__is_verbose:
             print("Adding access point detection data...")
-        access_point_range = 1.5
-        access_point_positions = [
-            [0, 0],
-            [4, 4],
-            [4, 2],
-            [3.5, 0.5],
-            [1, 2.5]
-        ]
 
         for data_set in self.__raw_data:
-            for ap in range(len(access_point_positions)):
-                data_set["access_point_{0}".format(ap)] = ((data_set["x_pos"] - access_point_positions[ap][0]) ** 2 + (
-                        data_set["y_pos"] - access_point_positions[ap][1]) ** 2).apply(
-                    lambda x: math.sqrt(x)) <= access_point_range
+            for ap in range(len(self.access_point_positions)):
+                data_set["access_point_{0}".format(ap)] = ((data_set["x_pos"] - self.access_point_positions[ap][0]) ** 2 + (
+                        data_set["y_pos"] - self.access_point_positions[ap][1]) ** 2).apply(
+                    lambda x: math.sqrt(x)) <= self.access_point_range
 
         if not self.__using_manual_data_set:
             for data_set in self.test_raw_data:
-                for ap in range(len(access_point_positions)):
-                    data_set["access_point_{0}".format(ap)] = ((data_set["x_pos"] - access_point_positions[ap][0]) ** 2 + (
-                            data_set["y_pos"] - access_point_positions[ap][1]) ** 2).apply(
-                        lambda x: math.sqrt(x)) <= access_point_range
+                for ap in range(len(self.access_point_positions)):
+                    data_set["access_point_{0}".format(ap)] = ((data_set["x_pos"] - self.access_point_positions[ap][0]) ** 2 + (
+                            data_set["y_pos"] - self.access_point_positions[ap][1]) ** 2).apply(
+                        lambda x: math.sqrt(x)) <= self.access_point_range
 
         ###############
         # Temperature #
@@ -889,27 +916,19 @@ class DataCompiler:
         # We take then the temperature with the maximum absolute difference to the ambient, if there is a conflict.
         if self.__is_verbose:
             print("Adding temperature data...")
-        ambient_temperature = 20  # Degrees Celsius
-        # ([x,y], temperature, distance_until_ambient_is_reached_again)
-        heat_sources = [
-            ([0, 1], 26, 2),
-            ([3, 2], 10, 2),
-            ([1, 3], 100, 2),
-            ([4, 4.5], 40, 1)
-        ]
 
         def calculate_temperature(row):
             temps = []
-            for heat_source in heat_sources:
+            for heat_source in self.heat_sources:
                 distance = ((row["x_pos"] - heat_source[0][0]) ** 2 + (
                         row["y_pos"] - heat_source[0][1]) ** 2)
                 if distance > heat_source[2]:
-                    temps.append(ambient_temperature)
+                    temps.append(self.ambient_temperature)
                 else:
-                    amplitude = (heat_source[1] - ambient_temperature) / (heat_source[2] ** 2)
-                    temps.append(ambient_temperature + amplitude * (distance ** 2))
+                    amplitude = (heat_source[1] - self.ambient_temperature) / (heat_source[2] ** 2)
+                    temps.append(self.ambient_temperature + amplitude * (distance ** 2))
 
-            return temps[np.asarray([abs(x - ambient_temperature) for x in temps]).argmax()]
+            return temps[np.asarray([abs(x - self.ambient_temperature) for x in temps]).argmax()]
 
         for data_set in self.__raw_data:
             data_set["temperature"] = data_set.apply(calculate_temperature, axis=1)
@@ -943,11 +962,6 @@ class DataCompiler:
         # cycle, a random facing in [0, 359] will be drawn.
         if self.__is_verbose:
             print("Adding heading data...")
-        magnetic_sources = [
-            ([3, 4], 2),
-            ([0, 4], 1.5),
-            ([3, 1.5], 3)
-        ]
 
         facings = np.random.randint(0, 359, self.num_cycles)
 
@@ -955,7 +969,7 @@ class DataCompiler:
             facing = facings[int(row["cycle"])]
             # Find an influence
             # NOTE: We assume no overlapping !!!!
-            for source in magnetic_sources:
+            for source in self.magnetic_sources:
                 distance = ((row["x_pos"] - source[0][0]) ** 2 + (
                         row["y_pos"] - source[0][1]) ** 2)
                 # If we are within the influence of the magnetic source
@@ -1035,20 +1049,12 @@ class DataCompiler:
         # they dont interfere with each other
         if self.__is_verbose:
             print("Adding volume data...")
-        background_noise_mean = 20
-        background_noise_variance = 3
-        # ([x, y], max_volume, distance_until_ambient, is_constant, [periodicity?])
-        noises = [
-            ([2, 3.5], 60, 2, False, 1.25),
-            ([1, 0], 100, 2, False, 1.5),
-            ([0, 1.5], 40, 2, True)
-        ]
 
         def calculate_volume(row):
             # NOTE: We assume no overlapping !!!!
-            background_noise = background_noise_mean + (
-                    -background_noise_variance + (background_noise_variance * 2) * random.random())
-            for noise in noises:
+            background_noise = self.background_noise_mean + (
+                    -self.background_noise_variance + (self.background_noise_variance * 2) * random.random())
+            for noise in self.noises:
                 distance = ((row["x_pos"] - noise[0][0]) ** 2 + (
                         row["y_pos"] - noise[0][1]) ** 2)
 
