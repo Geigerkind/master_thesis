@@ -387,9 +387,9 @@ def run(args):
                     sum(window_confidence[-WINDOW_SIZE:]) / max(len(window_confidence[-WINDOW_SIZE:]), 1)))
 
         anomaly_features = [
-            sum(window_location_changes[-WINDOW_SIZE:]),  # TODO: KNN
-            sum(window_confidence[-WINDOW_SIZE:]),  # TODO: KNN
-            prediction_proba,
+            #sum(window_location_changes[-WINDOW_SIZE:]),  # TODO: KNN
+            #sum(window_confidence[-WINDOW_SIZE:]),  # TODO: KNN
+            #prediction_proba,
             #prediction_change,
             #fraction_zero_prediction,
             window_loc_changes_deviation,

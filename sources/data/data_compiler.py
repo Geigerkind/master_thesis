@@ -2,6 +2,7 @@ import math
 import os
 import random
 from multiprocessing import Pool
+import copy
 
 import numpy as np
 import pandas as pd
@@ -27,27 +28,6 @@ os.environ['PYTHONHASHSEED'] = str(0)
 # Those have been added here,
 # because they cant be pickled
 # as class object
-
-def par_ibs_process_data_set_row(args):
-    data_set, row_index_before, row_index_after, sampling_rate, training_sampling_rate_in_location, max_training_cycle, in_live_mode = args
-    row_before = data_set.iloc[row_index_before]
-    row_after = data_set.iloc[row_index_after]
-    pir_total_acc = abs(row_before["x_acc"] + row_before["y_acc"] + row_before["z_acc"])
-    return (abs(
-        abs(row_after["x_acc"] + row_after["y_acc"] + row_after["z_acc"]) - pir_total_acc) >= 0.05 * pir_total_acc) \
-           or (abs(row_before["heading"] - row_after["heading"]) >= 20) \
-           or (abs(row_before["temperature"] - row_after["temperature"]) >= 0.15 * row_before["temperature"]) \
-           or (abs(row_before["light"] - row_after["light"]) >= 0.1 * row_before["light"]) \
-           or (abs(row_before["volume"] - row_after["volume"]) >= 0.15 * row_before["volume"]) \
-           or (row_before["access_point_0"] != row_after["access_point_0"]) \
-           or (row_before["access_point_1"] != row_after["access_point_1"]) \
-           or (row_before["access_point_2"] != row_after["access_point_2"]) \
-           or (row_before["access_point_3"] != row_after["access_point_3"]) \
-           or (row_before["access_point_4"] != row_after["access_point_4"]) \
-           or (row_after["t_stamp"] % sampling_rate == 0) \
-           or (row_after["location"] > 0 and row_after["cycle"] <= max_training_cycle and not in_live_mode and
-               row_after["t_stamp"] % training_sampling_rate_in_location == 0)
-
 
 def par_lrd_adjust_pos(input_args):
     def adjust_pos(ad_row, offset):
@@ -326,6 +306,7 @@ class DataCompiler:
         self.sampling_interval = 1  # Every second there is at least on sampling
         # Ensure that we have enough training samples for the training data
         self.sampling_interval_in_location_for_training_data = 0.25
+        self.fraction_fault_training_data = 0.1
 
         # Internal configuration
         self.__num_temporary_test_sets = 3  # Note the anomaly set added at the load
@@ -341,9 +322,17 @@ class DataCompiler:
         self.num_inputs = 0
         self.name_map_features = []
         self.name_map_data_sets_result = []
+        self.name_map_data_sets_test = []
         self.name_map_data_sets_faulty = []
+        self.name_map_data_sets_faulty_test = []
         self.name_map_data_sets_temporary = []
         self.__populate_features_name_map()
+
+        self.test_raw_data = []
+        self.test_features_dt = []
+        self.test_features_knn = []
+        self.test_labels_dt = []
+        self.test_labels_knn = []
 
         self.result_raw_data = []
         self.result_features_dt = []
@@ -356,6 +345,12 @@ class DataCompiler:
         self.faulty_features_knn = []
         self.faulty_labels_dt = []
         self.faulty_labels_knn = []
+
+        self.faulty_test_raw_data = []
+        self.faulty_test_features_dt = []
+        self.faulty_test_features_knn = []
+        self.faulty_test_labels_dt = []
+        self.faulty_test_labels_knn = []
 
         self.temporary_test_set_raw_data = []
         self.temporary_test_set_features_dt = []
@@ -379,11 +374,13 @@ class DataCompiler:
             self.__create_temporary_test_sets()
         self.__add_synthetic_sensor_data()
         self.__interrupt_based_selection_cmp_prev_interrupt()
-        # self.__interrupt_based_selection_cmp_prev_value()
         if not self.__using_manual_data_set:
             self.__remove_temporary_test_sets()
             self.__create_faulty_data_sets()
         self.__extract_features()
+        self.result_raw_data = self.__raw_data
+        if not self.__using_manual_data_set:
+            self.__create_faulty_route_with_skipped_locations()
         self.__configure_variables()
 
     def __populate_features_name_map(self):
@@ -392,17 +389,17 @@ class DataCompiler:
             self.name_map_features.append("previous_distinct_location")
 
         if Features.Acceleration in self.features:
-            self.name_map_features.append("acc_last") #
+            self.name_map_features.append("acc_last")  #
             self.name_map_features.append("acc_std")
             self.name_map_features.append("acc_max")
-            self.name_map_features.append("acc_min") #
+            self.name_map_features.append("acc_min")  #
             self.name_map_features.append("acc_mean")
 
         if Features.Light in self.features:
-            self.name_map_features.append("light_last") #
+            self.name_map_features.append("light_last")  #
             self.name_map_features.append("light_std")
             self.name_map_features.append("light_max")
-            self.name_map_features.append("light_min") #
+            self.name_map_features.append("light_min")  #
             self.name_map_features.append("light_mean")
 
         if Features.AccessPointDetection in self.features:
@@ -413,48 +410,91 @@ class DataCompiler:
             self.name_map_features.append("ap_4")
 
         if Features.Temperature in self.features:
-            self.name_map_features.append("temperature_last") #
+            self.name_map_features.append("temperature_last")  #
             self.name_map_features.append("temperature_std")
             self.name_map_features.append("temperature_max")
             self.name_map_features.append("temperature_min")
             self.name_map_features.append("temperature_mean")
 
         if Features.Heading in self.features:
-            self.name_map_features.append("heading_last") #
+            self.name_map_features.append("heading_last")  #
             self.name_map_features.append("heading_std")
-            self.name_map_features.append("heading_max") #
-            self.name_map_features.append("heading_min") #
-            self.name_map_features.append("heading_mean") #
+            self.name_map_features.append("heading_max")  #
+            self.name_map_features.append("heading_min")  #
+            self.name_map_features.append("heading_mean")  #
 
         if Features.Volume in self.features:
-            self.name_map_features.append("volume_last") #
+            self.name_map_features.append("volume_last")  #
             self.name_map_features.append("volume_std")
-            self.name_map_features.append("volume_max") #
-            self.name_map_features.append("volume_min") #
-            self.name_map_features.append("volume_mean") #
+            self.name_map_features.append("volume_max")  #
+            self.name_map_features.append("volume_min")  #
+            self.name_map_features.append("volume_mean")  #
 
         if Features.Time in self.features:
             self.name_map_features.append("time_std")
 
         if Features.Angle in self.features:
-            self.name_map_features.append("ang_last") #
+            self.name_map_features.append("ang_last")  #
             self.name_map_features.append("ang_std")
             self.name_map_features.append("ang_max")
-            self.name_map_features.append("ang_min") #
-            self.name_map_features.append("ang_mean") #
+            self.name_map_features.append("ang_min")  #
+            self.name_map_features.append("ang_mean")  #
 
     def __configure_variables(self):
-        self.result_raw_data = self.__raw_data
         self.__raw_data = 0
         self.__data_sets = 0
 
         if not self.__using_manual_data_set:
             self.num_inputs = len(self.result_features_knn[0][0][0])
+
         if self.train_with_faulty_data:
-            self.result_features_dt = self.result_features_dt + self.faulty_features_dt
-            self.result_features_knn = self.result_features_knn + self.faulty_features_knn
-            self.result_labels_dt = self.result_labels_dt + self.faulty_labels_dt
-            self.result_labels_knn = self.result_labels_knn + self.faulty_labels_knn
+            # Use X% of each location for training data
+            f_dt = []
+            f_knn = []
+            l_dt = []
+            l_knn = []
+            for fault_data_set_index in range(len(self.faulty_labels_dt)):
+                i_f_dt = []
+                i_f_knn = []
+                i_l_dt = []
+                i_l_knn = []
+
+                # Create index maps for each location
+                for cycle in range(self.num_cycles):
+                    i_f_dt.append([])
+                    i_f_knn.append([])
+                    i_l_dt.append([])
+                    i_l_knn.append([])
+                    index_map = dict()
+                    fault_data_set = self.faulty_labels_dt[fault_data_set_index][cycle]
+                    for label_index in range(len(fault_data_set)):
+                        label = fault_data_set[label_index]
+                        if label in index_map:
+                            index_map[label].append(label_index)
+                        else:
+                            index_map[label] = []
+
+                    for i_map in index_map.values():
+                        # For each location draw a permutation
+                        permutation = np.random.permutation(len(i_map))
+
+                        # For 10% of the permutation vector add them to the result dataset
+                        for i in range(int(math.ceil(len(i_map) / 10))):
+                            i_f_dt[cycle].append(self.faulty_features_dt[fault_data_set_index][cycle][permutation[i]])
+                            i_f_knn[cycle].append(self.faulty_features_knn[fault_data_set_index][cycle][permutation[i]])
+                            i_l_dt[cycle].append(self.faulty_labels_dt[fault_data_set_index][cycle][permutation[i]])
+                            i_l_knn[cycle].append(self.faulty_labels_knn[fault_data_set_index][cycle][permutation[i]])
+
+                # Finally add it to the result set
+                f_dt.append(i_f_dt)
+                f_knn.append(i_f_knn)
+                l_dt.append(i_l_dt)
+                l_knn.append(i_l_knn)
+
+            self.result_features_dt = self.result_features_dt + f_dt
+            self.result_features_knn = self.result_features_knn + f_knn
+            self.result_labels_dt = self.result_labels_dt + l_dt
+            self.result_labels_knn = self.result_labels_knn + l_knn
 
     def __remove_temporary_test_sets(self):
         for _ in range(self.__num_temporary_test_sets):
@@ -509,13 +549,20 @@ class DataCompiler:
                 print("Loading Dataset: {0}".format(data_set.value[0]))
             self.__data_sets[data_set] = pd.read_csv(BIN_FOLDER_PATH + "/data/" + data_set.value[0])
 
+            test_set = 0
+            if data_set != DataSet.Anomaly:
+                test_set = pd.read_csv(BIN_FOLDER_PATH + "/data/" + data_set.value[1] + "_test.csv")
+
             if data_set != DataSet.Anomaly:
                 self.name_map_data_sets_result.append(data_set.value[1])
+                self.name_map_data_sets_test.append(data_set.value[1] + "_test")
 
             if self.__is_verbose:
                 print("Adjusting pos...")
             self.__data_sets[data_set] = parallelize(self.__data_sets[data_set], par_lrd_adjust_pos,
                                                      location_offset)
+            if data_set != DataSet.Anomaly:
+                test_set = parallelize(test_set, par_lrd_adjust_pos, location_offset)
             location_offset = self.__data_sets[data_set]["pos"].max()
 
             if self.__is_verbose:
@@ -526,6 +573,8 @@ class DataCompiler:
                     initial_positions[row[1]["pos"]] = row[1]
             self.__data_sets[data_set] = parallelize(self.__data_sets[data_set], par_lrd_set_location,
                                                      [initial_positions, self.proximity])
+            if data_set != DataSet.Anomaly:
+                test_set = parallelize(test_set, par_lrd_set_location, [initial_positions, self.proximity])
 
             if self.encode_paths_between_as_location:
                 if self.__is_verbose:
@@ -543,6 +592,19 @@ class DataCompiler:
                             location_map[row[1]["location"]] = location_offset
                         previous_non_zero_pos = row[1]["location"]
 
+                previous_non_zero_pos = 0
+                if data_set != DataSet.Anomaly:
+                    for row in test_set.iterrows():
+                        if row[1]["location"] == 0:
+                            row[1]["location"] = location_map[previous_non_zero_pos]
+                        else:
+                            if not (row[1]["location"] in location_map):
+                                location_map[row[1]["location"]] = location_offset
+                            previous_non_zero_pos = row[1]["location"]
+
+            if data_set != DataSet.Anomaly:
+                test_set["is_anomaly"] = False
+                self.test_raw_data.append(test_set)
             self.__data_sets[data_set]["is_anomaly"] = data_set == DataSet.Anomaly
         return location_offset
 
@@ -559,41 +621,51 @@ class DataCompiler:
     def __create_faulty_data_sets(self):
         if self.__is_verbose:
             print("Creating faulty data sets...")
-        count = 0
-        for data_set in self.__raw_data:
+
+        def process_faulty_sets(data_set, count, ref_raw_data, ref_name_map, ref_orig_name_map, num_cycles, is_verbose):
             # Permute paths randomly
-            if self.__is_verbose:
+            if is_verbose:
                 print("Creating permuted paths set...")
             result_permutation = DataFrame()
-            for cycle in range(self.num_cycles):
+            for cycle in range(num_cycles):
                 cycle_view = data_set.query("cycle == " + str(cycle))
                 permutation = np.random.permutation(10)
                 split_dataset = np.array_split(cycle_view, 10)
                 for index in permutation:
                     result_permutation = result_permutation.append(split_dataset[index], ignore_index=False)
 
-            self.faulty_raw_data.append(result_permutation)
-            self.name_map_data_sets_faulty.append("faulty_" + self.name_map_data_sets_result[count] + "_permuted_paths")
+            ref_raw_data.append(result_permutation)
+            ref_name_map.append("faulty_" + ref_orig_name_map[count] + "_permuted_paths")
 
             # Set sensor values 0
-            if self.__is_verbose:
+            if is_verbose:
                 print("Creating nulled acceleration set...")
             nulled_acceleration = data_set.copy(deep=True)
             nulled_acceleration["x_acc"] = 0
             nulled_acceleration["y_acc"] = 0
             nulled_acceleration["z_acc"] = 0
-            self.faulty_raw_data.append(nulled_acceleration)
-            self.name_map_data_sets_faulty.append(
-                "faulty_" + self.name_map_data_sets_result[count] + "_nulled_acceleration")
+            ref_raw_data.append(nulled_acceleration)
+            ref_name_map.append(
+                "faulty_" + ref_orig_name_map[count] + "_nulled_acceleration")
 
-            if self.__is_verbose:
+            if is_verbose:
+                print("Creating nulled angle set...")
+            nulled_angle = data_set.copy(deep=True)
+            nulled_angle["x_ang"] = 0
+            nulled_angle["y_ang"] = 0
+            nulled_angle["z_ang"] = 0
+            ref_raw_data.append(nulled_angle)
+            ref_name_map.append(
+                "faulty_" + ref_orig_name_map[count] + "_nulled_angle")
+
+            if is_verbose:
                 print("Creating nulled light set...")
             nulled_light = data_set.copy(deep=True)
             nulled_light["light"] = 0
-            self.faulty_raw_data.append(nulled_light)
-            self.name_map_data_sets_faulty.append("faulty_" + self.name_map_data_sets_result[count] + "_nulled_light")
+            ref_raw_data.append(nulled_light)
+            ref_name_map.append("faulty_" + ref_orig_name_map[count] + "_nulled_light")
 
-            if self.__is_verbose:
+            if is_verbose:
                 print("Creating nulled access point set...")
             nulled_access_point = data_set.copy(deep=True)
             nulled_access_point["access_point_0"] = False
@@ -601,44 +673,55 @@ class DataCompiler:
             nulled_access_point["access_point_2"] = False
             nulled_access_point["access_point_3"] = False
             nulled_access_point["access_point_4"] = False
-            self.faulty_raw_data.append(nulled_access_point)
-            self.name_map_data_sets_faulty.append(
-                "faulty_" + self.name_map_data_sets_result[count] + "_nulled_access_point")
+            ref_raw_data.append(nulled_access_point)
+            ref_name_map.append(
+                "faulty_" + ref_orig_name_map[count] + "_nulled_access_point")
 
-            if self.__is_verbose:
+            if is_verbose:
                 print("Creating nulled heading set...")
             nulled_heading = data_set.copy(deep=True)
             nulled_heading["heading"] = 0
-            self.faulty_raw_data.append(nulled_heading)
-            self.name_map_data_sets_faulty.append("faulty_" + self.name_map_data_sets_result[count] + "_nulled_heading")
+            ref_raw_data.append(nulled_heading)
+            ref_name_map.append("faulty_" + ref_orig_name_map[count] + "_nulled_heading")
 
-            if self.__is_verbose:
+            if is_verbose:
                 print("Creating nulled temperature set...")
             nulled_temperature = data_set.copy(deep=True)
             nulled_temperature["temperature"] = 0
-            self.faulty_raw_data.append(nulled_temperature)
-            self.name_map_data_sets_faulty.append(
-                "faulty_" + self.name_map_data_sets_result[count] + "_nulled_temperature")
+            ref_raw_data.append(nulled_temperature)
+            ref_name_map.append(
+                "faulty_" + ref_orig_name_map[count] + "_nulled_temperature")
 
-            if self.__is_verbose:
+            if is_verbose:
                 print("Creating nulled volume set...")
             nulled_volume = data_set.copy(deep=True)
             nulled_volume["volume"] = 0
-            self.faulty_raw_data.append(nulled_volume)
-            self.name_map_data_sets_faulty.append("faulty_" + self.name_map_data_sets_result[count] + "_nulled_volume")
+            ref_raw_data.append(nulled_volume)
+            ref_name_map.append("faulty_" + ref_orig_name_map[count] + "_nulled_volume")
 
-            if self.__is_verbose:
+            if is_verbose:
                 print("Creating random acceleration deviations set...")
             max_deviation = 10  # in percent
             acc_deviation = data_set.copy(deep=True)
             acc_deviation["x_acc"].apply(lambda x: x * ((100 + random.randint(-max_deviation, max_deviation)) / 100))
             acc_deviation["y_acc"].apply(lambda x: x * ((100 + random.randint(-max_deviation, max_deviation)) / 100))
             acc_deviation["z_acc"].apply(lambda x: x * ((100 + random.randint(-max_deviation, max_deviation)) / 100))
-            self.faulty_raw_data.append(acc_deviation)
-            self.name_map_data_sets_faulty.append(
-                "faulty_" + self.name_map_data_sets_result[count] + "_random_acceleration_deviation")
+            ref_raw_data.append(acc_deviation)
+            ref_name_map.append(
+                "faulty_" + ref_orig_name_map[count] + "_random_acceleration_deviation")
 
-            if self.__is_verbose:
+            max_deviation = 5  # in percent
+            if is_verbose:
+                print("Creating random angle deviations set...")
+            ang_deviation = data_set.copy(deep=True)
+            ang_deviation["x_ang"].apply(lambda x: x * ((100 + random.randint(-max_deviation, max_deviation)) / 100))
+            ang_deviation["y_ang"].apply(lambda x: x * ((100 + random.randint(-max_deviation, max_deviation)) / 100))
+            ang_deviation["z_ang"].apply(lambda x: x * ((100 + random.randint(-max_deviation, max_deviation)) / 100))
+            ref_raw_data.append(ang_deviation)
+            ref_name_map.append(
+                "faulty_" + ref_orig_name_map[count] + "_random_angle_deviation")
+
+            if is_verbose:
                 print("Creating access point randomly not detected set...")
             chance_to_detect = 80  # in percent
             access_point_random_not_detect = data_set.copy(deep=True)
@@ -652,11 +735,114 @@ class DataCompiler:
                 lambda x: x and random.randint(0, 100) <= chance_to_detect)
             access_point_random_not_detect["access_point_4"].apply(
                 lambda x: x and random.randint(0, 100) <= chance_to_detect)
-            self.faulty_raw_data.append(access_point_random_not_detect)
-            self.name_map_data_sets_faulty.append(
-                "faulty_" + self.name_map_data_sets_result[count] + "_random_access_point_not_detect")
+            ref_raw_data.append(access_point_random_not_detect)
+            ref_name_map.append(
+                "faulty_" + ref_orig_name_map[count] + "_random_access_point_not_detect")
 
+            if is_verbose:
+                print("Creating random heading deviations set...")
+            heading_deviation = data_set.copy(deep=True)
+            heading_deviation["heading"].apply(lambda x: x * ((100 + random.randint(-max_deviation, max_deviation)) / 100))
+            ref_raw_data.append(heading_deviation)
+            ref_name_map.append(
+                "faulty_" + ref_orig_name_map[count] + "_random_heading_deviation")
+
+            if is_verbose:
+                print("Creating random light deviations set...")
+            light_deviation = data_set.copy(deep=True)
+            light_deviation["light"].apply(lambda x: x * ((100 + random.randint(-max_deviation, max_deviation)) / 100))
+            ref_raw_data.append(light_deviation)
+            ref_name_map.append(
+                "faulty_" + ref_orig_name_map[count] + "_random_light_deviation")
+
+            if is_verbose:
+                print("Creating random temperature deviations set...")
+            temperature_deviation = data_set.copy(deep=True)
+            temperature_deviation["temperature"].apply(lambda x: x * ((100 + random.randint(-max_deviation, max_deviation)) / 100))
+            ref_raw_data.append(temperature_deviation)
+            ref_name_map.append(
+                "faulty_" + ref_orig_name_map[count] + "_random_temperature_deviation")
+
+            if is_verbose:
+                print("Creating random volume deviations set...")
+            volume_deviation = data_set.copy(deep=True)
+            volume_deviation["volume"].apply(lambda x: x * ((100 + random.randint(-max_deviation, max_deviation)) / 100))
+            ref_raw_data.append(volume_deviation)
+            ref_name_map.append(
+                "faulty_" + ref_orig_name_map[count] + "_random_volume_deviation")
+
+        count = 0
+        for data_set in self.__raw_data:
+            process_faulty_sets(data_set, count, self.faulty_raw_data, self.name_map_data_sets_faulty,
+                                self.name_map_data_sets_result, self.num_cycles, self.__is_verbose)
             count = count + 1
+
+        count = 0
+        for data_set in self.test_raw_data:
+            process_faulty_sets(data_set, count, self.faulty_test_raw_data, self.name_map_data_sets_faulty_test,
+                                self.name_map_data_sets_test, self.num_cycles, self.__is_verbose)
+            count = count + 1
+
+    def __create_faulty_route_with_skipped_locations(self):
+        if Features.PreviousLocation in self.features:
+            for data_set_index in range(len(self.result_labels_dt)):
+                # Build a map of last distinct locations that are not 0
+                last_distinct_locations_dt = []
+                last_distinct_locations_knn = []
+
+                f_copy_dt = copy.copy(self.result_features_dt[data_set_index])
+                f_copy_knn = copy.copy(self.result_features_knn[data_set_index])
+
+                for cycle in range(self.num_cycles):
+                    for label_index in range(len(self.result_labels_dt[data_set_index][cycle])):
+                        label = self.result_labels_dt[data_set_index][cycle][label_index]
+                        if label > 0 and (len(last_distinct_locations_dt) == 0 or last_distinct_locations_dt[-1] != label):
+                            last_distinct_locations_dt.append(label)
+                            last_distinct_locations_knn.append(label * (1 / self.num_outputs))
+
+                        if label == 0 and len(last_distinct_locations_dt) >= 2:
+                            f_copy_dt[cycle][label_index][1] = last_distinct_locations_dt[-2]
+                            f_copy_knn[cycle][label_index][1] = last_distinct_locations_knn[-2]
+                        elif label > 0 and len(last_distinct_locations_dt) >= 3:
+                            f_copy_dt[cycle][label_index][1] = last_distinct_locations_dt[-3]
+                            f_copy_knn[cycle][label_index][1] = last_distinct_locations_knn[-3]
+
+                self.faulty_raw_data.append(copy.copy(self.result_raw_data[data_set_index]))
+                self.faulty_labels_dt.append(copy.copy(self.result_labels_dt[data_set_index]))
+                self.faulty_labels_knn.append(copy.copy(self.result_labels_knn[data_set_index]))
+                self.faulty_features_dt.append(f_copy_dt)
+                self.faulty_features_knn.append(f_copy_knn)
+                self.name_map_data_sets_faulty.append("faulty_" + self.name_map_data_sets_result[data_set_index] + "_skipped_location")
+
+            # Copy pasta cause I was lazy
+            for data_set_index in range(len(self.test_labels_dt)):
+                # Build a map of last distinct locations that are not 0
+                last_distinct_locations_dt = []
+                last_distinct_locations_knn = []
+
+                f_copy_dt = copy.copy(self.test_features_dt[data_set_index])
+                f_copy_knn = copy.copy(self.test_features_knn[data_set_index])
+
+                for cycle in range(self.num_cycles):
+                    for label_index in range(len(self.test_labels_dt[data_set_index][cycle])):
+                        label = self.test_labels_dt[data_set_index][cycle][label_index]
+                        if label > 0 and (len(last_distinct_locations_dt) == 0 or last_distinct_locations_dt[-1] != label):
+                            last_distinct_locations_dt.append(label)
+                            last_distinct_locations_knn.append(label * (1 / self.num_outputs))
+
+                        if label == 0 and len(last_distinct_locations_dt) >= 2:
+                            f_copy_dt[cycle][label_index][1] = last_distinct_locations_dt[-2]
+                            f_copy_knn[cycle][label_index][1] = last_distinct_locations_knn[-2]
+                        elif label > 0 and len(last_distinct_locations_dt) >= 3:
+                            f_copy_dt[cycle][label_index][1] = last_distinct_locations_dt[-3]
+                            f_copy_knn[cycle][label_index][1] = last_distinct_locations_knn[-3]
+
+                self.faulty_test_raw_data.append(copy.copy(self.test_raw_data[data_set_index]))
+                self.faulty_test_labels_dt.append(copy.copy(self.test_labels_dt[data_set_index]))
+                self.faulty_test_labels_knn.append(copy.copy(self.test_labels_knn[data_set_index]))
+                self.faulty_test_features_dt.append(f_copy_dt)
+                self.faulty_test_features_knn.append(f_copy_knn)
+                self.name_map_data_sets_faulty_test.append("faulty_" + self.name_map_data_sets_test[data_set_index] + "_skipped_location")
 
     def __add_synthetic_sensor_data(self):
         if self.__is_verbose:
@@ -685,6 +871,13 @@ class DataCompiler:
                 data_set["access_point_{0}".format(ap)] = ((data_set["x_pos"] - access_point_positions[ap][0]) ** 2 + (
                         data_set["y_pos"] - access_point_positions[ap][1]) ** 2).apply(
                     lambda x: math.sqrt(x)) <= access_point_range
+
+        if not self.__using_manual_data_set:
+            for data_set in self.test_raw_data:
+                for ap in range(len(access_point_positions)):
+                    data_set["access_point_{0}".format(ap)] = ((data_set["x_pos"] - access_point_positions[ap][0]) ** 2 + (
+                            data_set["y_pos"] - access_point_positions[ap][1]) ** 2).apply(
+                        lambda x: math.sqrt(x)) <= access_point_range
 
         ###############
         # Temperature #
@@ -720,6 +913,10 @@ class DataCompiler:
 
         for data_set in self.__raw_data:
             data_set["temperature"] = data_set.apply(calculate_temperature, axis=1)
+
+        if not self.__using_manual_data_set:
+            for data_set in self.test_raw_data:
+                data_set["temperature"] = data_set.apply(calculate_temperature, axis=1)
 
         ############################
         # Magnetic field / compass #
@@ -806,6 +1003,10 @@ class DataCompiler:
         for data_set in self.__raw_data:
             data_set["heading"] = data_set.apply(calculate_heading, axis=1)
 
+        if not self.__using_manual_data_set:
+            for data_set in self.test_raw_data:
+                data_set["heading"] = data_set.apply(calculate_heading, axis=1)
+
         #################
         # Volume sensor #
         #################
@@ -870,6 +1071,10 @@ class DataCompiler:
         for data_set in self.__raw_data:
             data_set["volume"] = data_set.apply(calculate_volume, axis=1)
 
+        if not self.__using_manual_data_set:
+            for data_set in self.test_raw_data:
+                data_set["volume"] = data_set.apply(calculate_volume, axis=1)
+
     def __interrupt_based_selection_cmp_prev_interrupt(self):
         # We collect data from all sensors if any of the sensors sends an interrupt
         # Therefore we define here for each row if it should fire an "interrupt"
@@ -889,32 +1094,17 @@ class DataCompiler:
                 self.__raw_data.append(res[0])
                 self.index_maps.append(res[1])
 
-    def __interrupt_based_selection_cmp_prev_value(self):
-        # We collect data from all sensors if any of the sensors sends an interrupt
-        # Therefore we define here for each row if it should fire an "interrupt"
-        # compared to the previous row that fired an interrupt
-        if self.__is_verbose:
-            print("Filtering raw data by synthetic interrupts...")
-        with Pool(processes=NUM_CORES) as pool:
-            new_raw_data = []
+            args = []
             count = 1
-            for data_set in self.__raw_data:
-                if self.__is_verbose:
-                    print("Processing data set {0} of {1}".format(count, len(self.__raw_data)))
-                args = []
-                for i in range(1, len(data_set)):
-                    args.append([data_set, i - 1, i, self.sampling_interval,
-                                 self.sampling_interval_in_location_for_training_data,
-                                 self.num_cycles - self.num_validation_cycles - 1, self.__using_manual_data_set])
-                new_raw_data.append(data_set[[True] + pool.map(par_ibs_process_data_set_row, args)])
-
-                if self.__is_verbose:
-                    print("Reduced the data set " + str(count) + " by: %.2f Percent" % (
-                            100 * (1 - (len(new_raw_data[count - 1]) / len(data_set)))))
-                    print("Finished processing data set {0} of {1}".format(count, len(self.__raw_data)))
+            for data_set in self.test_raw_data:
+                args.append([data_set, count, len(self.test_raw_data), self.__is_verbose, self.sampling_interval,
+                             self.sampling_interval_in_location_for_training_data,
+                             self.num_cycles - self.num_validation_cycles - 1, self.__using_manual_data_set])
                 count = count + 1
-
-            self.__raw_data = new_raw_data
+            self.test_raw_data = []
+            for res in pool.map(par_process_data_set, args):
+                self.test_raw_data.append(res[0])
+                self.index_maps.append(res[1])
 
     def __extract_features(self):
         # For each entry in the raw data array, extract features
@@ -1027,23 +1217,42 @@ class DataCompiler:
         self.result_features_dt = result_features_dt
         self.result_features_knn = result_features_knn
 
-        if self.__is_verbose:
-            print("Faulty data...")
-        faulty_features_dt, faulty_features_knn, faulty_labels_dt, faulty_labels_knn = extract_from_data_sets(
-            self.faulty_raw_data, self.window_size, self.features, self.num_outputs, self.lookback_window)
-        self.faulty_labels_dt = faulty_labels_dt
-        self.faulty_labels_knn = faulty_labels_knn
-        self.faulty_features_dt = faulty_features_dt
-        self.faulty_features_knn = faulty_features_knn
+        if not self.__using_manual_data_set:
+            if self.__is_verbose:
+                print("Test data...")
+            test_features_dt, test_features_knn, test_labels_dt, test_labels_knn = extract_from_data_sets(
+                self.test_raw_data, self.window_size, self.features, self.num_outputs, self.lookback_window)
+            self.test_labels_dt = test_labels_dt
+            self.test_labels_knn = test_labels_knn
+            self.test_features_dt = test_features_dt
+            self.test_features_knn = test_features_knn
 
-        if self.__is_verbose:
-            print("Temporary test sets data...")
-        tr_features_dt, tr_features_knn, tr_labels_dt, tr_labels_knn = extract_from_data_sets(
-            self.temporary_test_set_raw_data, self.window_size, self.features, self.num_outputs, self.lookback_window)
-        self.temporary_test_set_labels_dt = tr_labels_dt
-        self.temporary_test_set_labels_knn = tr_labels_knn
-        self.temporary_test_set_features_dt = tr_features_dt
-        self.temporary_test_set_features_knn = tr_features_knn
+            if self.__is_verbose:
+                print("Faulty data...")
+            faulty_features_dt, faulty_features_knn, faulty_labels_dt, faulty_labels_knn = extract_from_data_sets(
+                self.faulty_raw_data, self.window_size, self.features, self.num_outputs, self.lookback_window)
+            self.faulty_labels_dt = faulty_labels_dt
+            self.faulty_labels_knn = faulty_labels_knn
+            self.faulty_features_dt = faulty_features_dt
+            self.faulty_features_knn = faulty_features_knn
+
+            if self.__is_verbose:
+                print("Faulty test data...")
+            faulty_test_features_dt, faulty_test_features_knn, faulty_test_labels_dt, faulty_test_labels_knn = extract_from_data_sets(
+                self.faulty_test_raw_data, self.window_size, self.features, self.num_outputs, self.lookback_window)
+            self.faulty_test_labels_dt = faulty_test_labels_dt
+            self.faulty_test_labels_knn = faulty_test_labels_knn
+            self.faulty_test_features_dt = faulty_test_features_dt
+            self.faulty_test_features_knn = faulty_test_features_knn
+
+            if self.__is_verbose:
+                print("Temporary test sets data...")
+            tr_features_dt, tr_features_knn, tr_labels_dt, tr_labels_knn = extract_from_data_sets(
+                self.temporary_test_set_raw_data, self.window_size, self.features, self.num_outputs, self.lookback_window)
+            self.temporary_test_set_labels_dt = tr_labels_dt
+            self.temporary_test_set_labels_knn = tr_labels_knn
+            self.temporary_test_set_features_dt = tr_features_dt
+            self.temporary_test_set_features_knn = tr_features_knn
 
     def __glue_routes_together(self, data_set1, data_set2, glue_location, provided_route=None):
         pd.set_option('mode.chained_assignment', None)

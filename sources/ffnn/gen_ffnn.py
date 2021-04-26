@@ -77,19 +77,20 @@ class GenerateFFNN:
         data_copy_len = len(data_copy)
         prediction = self.predict([data_copy[0]])[0]
         predictions.append(prediction)
-        prev_predicted_location = np.asarray(prediction).argmax() / self.output_size
-        last_distinct_location = 0
+        last_distinct_locations = [0, 0]
         for i in range(1, data_copy_len):
             prediction = self.predict([data_copy[i]])[0]
             if i < data_copy_len - 1:
-                predicted_location = np.asarray(prediction).argmax() / self.output_size
-                if predicted_location != prev_predicted_location and prev_predicted_location != last_distinct_location \
-                        and prev_predicted_location > 0:
-                    last_distinct_location = prev_predicted_location
+                predicted_location = np.asarray(prediction).argmax()
+                if 0 < predicted_location != last_distinct_locations[-1]:
+                    last_distinct_locations.append(predicted_location)
+                    last_distinct_locations.pop(0)
 
                 data_copy[i + 1][0] = predicted_location
-                data_copy[i + 1][1] = last_distinct_location
-                prev_predicted_location = predicted_location
+                if predicted_location == 0:
+                    data_copy[i + 1][1] = last_distinct_locations[-1] / self.output_size
+                else:
+                    data_copy[i + 1][1] = last_distinct_locations[-2] / self.output_size
             predictions.append(prediction)
         return predictions
 
@@ -104,19 +105,20 @@ class GenerateFFNN:
         data_copy_len = len(data_copy)
         prediction = model.predict(np.asarray([data_copy[0]]))[0]
         predictions.append(prediction)
-        prev_predicted_location = np.asarray(prediction).argmax() / output_size
-        last_distinct_location = 0
+        last_distinct_locations = [0, 0]
         for i in range(1, data_copy_len):
-            prediction = model.predict(np.asarray([data_copy[i]]))[0]
+            prediction = model.predict([data_copy[i]])[0]
             if i < data_copy_len - 1:
-                predicted_location = np.asarray(prediction).argmax() / output_size
-                if predicted_location != prev_predicted_location and prev_predicted_location != last_distinct_location \
-                        and prev_predicted_location > 0:
-                    last_distinct_location = prev_predicted_location
+                predicted_location = np.asarray(prediction).argmax()
+                if 0 < predicted_location != last_distinct_locations[-1]:
+                    last_distinct_locations.append(predicted_location)
+                    last_distinct_locations.pop(0)
 
                 data_copy[i + 1][0] = predicted_location
-                data_copy[i + 1][1] = last_distinct_location
-                prev_predicted_location = predicted_location
+                if predicted_location == 0:
+                    data_copy[i + 1][1] = last_distinct_locations[-1] / output_size
+                else:
+                    data_copy[i + 1][1] = last_distinct_locations[-2] / output_size
             predictions.append(prediction)
         return predictions
 

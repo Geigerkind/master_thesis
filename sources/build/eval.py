@@ -55,7 +55,7 @@ if __name__ == "__main__":
 
     features = [Features.PreviousLocation, Features.AccessPointDetection, Features.Temperature,
                 Features.Heading, Features.Volume, Features.Time, Features.Angle, Features.Acceleration, Features.Light]
-    data = DataCompiler(res_input_data_sets, features, False, encode_paths_between_as_location, False, 0.2)
+    data = DataCompiler(res_input_data_sets, features, True, encode_paths_between_as_location, False, 0.2)
     # data = DataCompiler(res_input_data_sets, features, True, encode_paths_between_as_location)
 
     print("Saving data...")
@@ -84,6 +84,18 @@ if __name__ == "__main__":
             knn_vs_features = knn_vs_features + data.result_features_knn[data_set_index][cycle]
             knn_vs_labels = knn_vs_labels + data.result_labels_knn[data_set_index][cycle]
 
+    print("Creating test set...")
+    dt_ts_features = []
+    dt_ts_labels = []
+    knn_ts_features = []
+    knn_ts_labels = []
+    for cycle in range(data.num_cycles):
+        for data_set_index in range(len(data.test_features_dt)):
+            dt_ts_features = dt_ts_features + data.test_features_dt[data_set_index][cycle]
+            dt_ts_labels = dt_ts_labels + data.test_labels_dt[data_set_index][cycle]
+            knn_ts_features = knn_ts_features + data.test_features_knn[data_set_index][cycle]
+            knn_ts_labels = knn_ts_labels + data.test_labels_knn[data_set_index][cycle]
+
     dt_data_features = []
     dt_data_labels = []
     knn_data_features = []
@@ -93,12 +105,23 @@ if __name__ == "__main__":
     knn_next_cycle_features = []
     dt_next_cycle_labels = []
     knn_next_cycle_labels = []
+
+    dt_next_cycle_features_faulty = []
+    knn_next_cycle_features_faulty = []
+    dt_next_cycle_labels_faulty = []
+    knn_next_cycle_labels_faulty = []
     # BIG NOTE: We change the data that is present in "data", because this is a reference not a copy
-    for data_set_index in range(len(data.result_features_dt)):
+    for data_set_index in range(len(data.data_sets)):
         dt_next_cycle_features = dt_next_cycle_features + data.result_features_dt[data_set_index][0]
         dt_next_cycle_labels = dt_next_cycle_labels + data.result_labels_dt[data_set_index][0]
         knn_next_cycle_features = knn_next_cycle_features + data.result_features_knn[data_set_index][0]
         knn_next_cycle_labels = knn_next_cycle_labels + data.result_labels_knn[data_set_index][0]
+
+    for data_set_index in range(len(data.data_sets), len(data.result_features_dt)):
+        dt_next_cycle_features_faulty = dt_next_cycle_features_faulty + data.result_features_dt[data_set_index][0]
+        dt_next_cycle_labels_faulty = dt_next_cycle_labels_faulty + data.result_labels_dt[data_set_index][0]
+        knn_next_cycle_features_faulty = knn_next_cycle_features_faulty + data.result_features_knn[data_set_index][0]
+        knn_next_cycle_labels_faulty = knn_next_cycle_labels_faulty + data.result_labels_knn[data_set_index][0]
 
     log_acc_per_cycle = open(BIN_FOLDER_PATH + "/" + evaluation_name + "/log_accuracy_per_cycle.csv", "w")
     log_acc_per_cycle.write("cycle,accuracy_dt,accuracy_knn\n")
@@ -117,20 +140,32 @@ if __name__ == "__main__":
                                  ffnn_num_epochs)
 
         print("Preparing input data...")
-        dt_data_features = dt_data_features + dt_next_cycle_features
-        dt_data_labels = dt_data_labels + dt_next_cycle_labels
-        knn_data_features = knn_data_features + knn_next_cycle_features
-        knn_data_labels = knn_data_labels + knn_next_cycle_labels
+        dt_data_features = dt_data_features + dt_next_cycle_features + dt_next_cycle_features_faulty
+        dt_data_labels = dt_data_labels + dt_next_cycle_labels + dt_next_cycle_labels_faulty
+        knn_data_features = knn_data_features + knn_next_cycle_features + knn_next_cycle_features_faulty
+        knn_data_labels = knn_data_labels + knn_next_cycle_labels + knn_next_cycle_labels_faulty
 
         dt_next_cycle_features = []
         knn_next_cycle_features = []
         dt_next_cycle_labels = []
         knn_next_cycle_labels = []
-        for data_set_index in range(len(data.result_features_dt)):
+
+        dt_next_cycle_features_faulty = []
+        knn_next_cycle_features_faulty = []
+        dt_next_cycle_labels_faulty = []
+        knn_next_cycle_labels_faulty = []
+        # BIG NOTE: We change the data that is present in "data", because this is a reference not a copy
+        for data_set_index in range(len(data.data_sets)):
             dt_next_cycle_features = dt_next_cycle_features + data.result_features_dt[data_set_index][cycle + 1]
             dt_next_cycle_labels = dt_next_cycle_labels + data.result_labels_dt[data_set_index][cycle + 1]
             knn_next_cycle_features = knn_next_cycle_features + data.result_features_knn[data_set_index][cycle + 1]
             knn_next_cycle_labels = knn_next_cycle_labels + data.result_labels_knn[data_set_index][cycle + 1]
+
+        for data_set_index in range(len(data.data_sets), len(data.result_features_dt)):
+            dt_next_cycle_features_faulty = dt_next_cycle_features_faulty + data.result_features_dt[data_set_index][cycle + 1]
+            dt_next_cycle_labels_faulty = dt_next_cycle_labels_faulty + data.result_labels_dt[data_set_index][cycle + 1]
+            knn_next_cycle_features_faulty = knn_next_cycle_features_faulty + data.result_features_knn[data_set_index][cycle + 1]
+            knn_next_cycle_labels_faulty = knn_next_cycle_labels_faulty + data.result_labels_knn[data_set_index][cycle + 1]
 
         print("Training Decision Tree Model...")
         model_dt.fit(dt_data_features, dt_data_labels, 0.25)
@@ -149,8 +184,16 @@ if __name__ == "__main__":
         if cycle >= data.num_warmup_cycles and cycle < data.num_cycles - data.num_validation_cycles - 1 and Features.PreviousLocation in features:
             print("")
             print("Relabeling next cycle's set...")
-            last_distinct_location_dt = dt_next_cycle_features[0][1]
-            last_distinct_location_knn = knn_next_cycle_features[0][1]
+            def find_last_distinct_prediction(predictions, current_index, is_dt):
+                current_prediction = predictions[current_index] if is_dt else np.asarray(predictions[current_index]).argmax()
+                for i in range(current_index - 1, 0, -1):
+                    prediction = predictions[i] if is_dt else np.asarray(predictions[i]).argmax()
+                    if current_prediction == 0 and prediction > 0:
+                        return prediction if is_dt else prediction / len(predictions[i])
+                    elif 0 < current_prediction != prediction and prediction > 0:
+                        return prediction if is_dt else prediction / len(predictions[i])
+                return 0
+
             permutation = np.random.permutation(len(dt_next_cycle_features))
             frac_pred_labeled = min(1, FRACTION_PREDICTION_LABELED + (1 / 128) * ((cycle - data.num_warmup_cycles) ** 2))
             for perm_index in range(1, int(len(dt_next_cycle_features) * frac_pred_labeled)):
@@ -158,21 +201,10 @@ if __name__ == "__main__":
                 if i == 0:
                     continue
 
-                dt_pred = dt_prediction[i]
-                dt_prev_pred = dt_prediction[i - 1]
-
-                if dt_pred != dt_prev_pred and dt_prev_pred != last_distinct_location_dt and dt_prev_pred > 0:
-                    last_distinct_location_dt = dt_prev_pred
-
-                prev_knn_pred = np.array(knn_prediction[i - 1]).argmax() / data.num_outputs
-                knn_pred = np.array(knn_prediction[i]).argmax() / data.num_outputs
-                if knn_pred != prev_knn_pred and prev_knn_pred != last_distinct_location_knn and prev_knn_pred > 0:
-                    last_distinct_location_knn = prev_knn_pred
-
-                dt_next_cycle_features[i][0] = dt_prev_pred
-                dt_next_cycle_features[i][1] = last_distinct_location_dt
-                knn_next_cycle_features[i][0] = prev_knn_pred
-                knn_next_cycle_features[i][1] = last_distinct_location_knn
+                dt_next_cycle_features[i][0] = dt_prediction[i - 1]
+                dt_next_cycle_features[i][1] = find_last_distinct_prediction(dt_prediction, i, True)
+                knn_next_cycle_features[i][0] = np.array(knn_prediction[i - 1]).argmax() / data.num_outputs
+                knn_next_cycle_features[i][1] = find_last_distinct_prediction(knn_prediction, i, False)
 
         print("")
         dt_acc = model_dt.evaluate_accuracy(model_dt.predict(dt_vs_features), dt_vs_labels)
@@ -182,6 +214,12 @@ if __name__ == "__main__":
         print("Accuracy on validation set:")
         print("Accuracy DT: {0}".format(dt_acc))
         print("Accuracy KNN: {0}".format(knn_acc))
+
+        print("Accuracy on test set:")
+        dt_test_acc = model_dt.evaluate_accuracy(model_dt.predict(dt_ts_features), dt_ts_labels)
+        knn_test_acc = model_knn.evaluate_accuracy(model_knn.predict(knn_ts_features), knn_ts_labels)
+        print("Accuracy DT: {0}".format(dt_test_acc))
+        print("Accuracy KNN: {0}".format(knn_test_acc))
 
         print("")
 

@@ -66,19 +66,19 @@ if __name__ == "__main__":
             else:
                 location_changes_knn.append(0)
 
-            features_dt.append(sum(location_changes_dt[-WINDOW_SIZE:]))
-            features_knn.append(sum(location_changes_knn[-WINDOW_SIZE:]) / WINDOW_SIZE)
+            # features_dt.append(sum(location_changes_dt[-WINDOW_SIZE:]))
+            # features_knn.append(sum(location_changes_knn[-WINDOW_SIZE:]) / WINDOW_SIZE)
 
             # Accumulated confidence
             confidence_dt.append(predicted_dt[i][new_location_dt])
             confidence_knn.append(predicted_knn[i][new_location_knn])
 
-            features_dt.append(sum(confidence_dt[-WINDOW_SIZE:]))
-            features_knn.append(sum(confidence_knn[-WINDOW_SIZE:]) / WINDOW_SIZE)
+            # features_dt.append(sum(confidence_dt[-WINDOW_SIZE:]))
+            # features_knn.append(sum(confidence_knn[-WINDOW_SIZE:]) / WINDOW_SIZE)
 
             # Current confidence
-            features_dt.append(confidence_dt[-1])
-            features_knn.append(confidence_knn[-1])
+            # features_dt.append(confidence_dt[-1])
+            # features_knn.append(confidence_knn[-1])
 
             # Change to previous confidence
             #if len(confidence_dt) == 1:
@@ -203,7 +203,7 @@ if __name__ == "__main__":
 
             print("Training the anomaly detection models....")
             model_anomaly_dt = GenerateDecisionTree(EnsembleMethod.RandomForest, 8, 20)
-            model_anomaly_knn = GenerateFFNN(5, 2, 1, 32, NUM_EPOCHS_PER_CYCLE, True)
+            model_anomaly_knn = GenerateFFNN(2, 2, 1, 32, NUM_EPOCHS_PER_CYCLE, True)
 
             model_anomaly_dt.fit(anomaly_features_dt, anomaly_labels, 0.25)
             model_anomaly_knn.fit(anomaly_features_knn, anomaly_labels, anomaly_features_knn_val,
