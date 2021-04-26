@@ -131,6 +131,12 @@ if __name__ == "__main__":
 
     model_knn = 0
     model_dt = 0
+
+    dt_prediction = []
+    knn_prediction = []
+    last_dt_prediction = []
+    last_knn_prediction = []
+
     for cycle in range(data.num_cycles - data.num_validation_cycles):
         print("Training cycle: {0}".format(cycle))
         print("Initializing...")
@@ -169,6 +175,7 @@ if __name__ == "__main__":
 
         print("Training Decision Tree Model...")
         model_dt.fit(dt_data_features, dt_data_labels, 0.25)
+        last_dt_prediction = dt_prediction
         dt_prediction = model_dt.predict(dt_next_cycle_features)
         print("Accuracy: {0}".format(
             model_dt.evaluate_accuracy(dt_prediction, dt_next_cycle_labels)))
@@ -177,6 +184,7 @@ if __name__ == "__main__":
         print("Training KNN Model...")
         model_knn.fit(knn_data_features, knn_data_labels, knn_vs_features, knn_vs_labels)
         # model_knn.fit(knn_features[cycle], knn_labels[cycle], knn_vs_features, knn_vs_labels)
+        last_knn_prediction = knn_prediction
         knn_prediction = model_knn.predict(knn_next_cycle_features)
         print("Accuracy: {0}".format(
             model_knn.evaluate_accuracy(knn_prediction, knn_next_cycle_labels)))
@@ -184,7 +192,7 @@ if __name__ == "__main__":
         if cycle >= data.num_warmup_cycles and cycle < data.num_cycles - data.num_validation_cycles - 1 and Features.PreviousLocation in features:
             print("")
             print("Relabeling next cycle's set...")
-            def find_last_distinct_prediction(predictions, current_index, is_dt):
+            def find_last_distinct_prediction(predictions, last_predictions, current_index, is_dt):
                 current_prediction = predictions[current_index] if is_dt else np.asarray(predictions[current_index]).argmax()
                 for i in range(current_index - 1, 0, -1):
                     prediction = predictions[i] if is_dt else np.asarray(predictions[i]).argmax()
@@ -192,6 +200,12 @@ if __name__ == "__main__":
                         return prediction if is_dt else prediction / len(predictions[i])
                     elif 0 < current_prediction != prediction and prediction > 0:
                         return prediction if is_dt else prediction / len(predictions[i])
+                for i in range(len(last_predictions) - 1, 0, -1):
+                    prediction = last_predictions[i] if is_dt else np.asarray(last_predictions[i]).argmax()
+                    if current_prediction == 0 and prediction > 0:
+                        return prediction if is_dt else prediction / len(last_predictions[i])
+                    elif 0 < current_prediction != prediction and prediction > 0:
+                        return prediction if is_dt else prediction / len(last_predictions[i])
                 return 0
 
             permutation = np.random.permutation(len(dt_next_cycle_features))
@@ -202,9 +216,9 @@ if __name__ == "__main__":
                     continue
 
                 dt_next_cycle_features[i][0] = dt_prediction[i - 1]
-                dt_next_cycle_features[i][1] = find_last_distinct_prediction(dt_prediction, i, True)
+                dt_next_cycle_features[i][1] = find_last_distinct_prediction(dt_prediction, last_dt_prediction, i, True)
                 knn_next_cycle_features[i][0] = np.array(knn_prediction[i - 1]).argmax() / data.num_outputs
-                knn_next_cycle_features[i][1] = find_last_distinct_prediction(knn_prediction, i, False)
+                knn_next_cycle_features[i][1] = find_last_distinct_prediction(knn_prediction, last_knn_prediction, i, False)
 
         print("")
         dt_acc = model_dt.evaluate_accuracy(model_dt.predict(dt_vs_features), dt_vs_labels)
