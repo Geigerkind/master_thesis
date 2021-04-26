@@ -263,8 +263,8 @@ if __name__ == "__main__":
     print("Generating fancy plots...")
     # Accuracy on the validation set over cycles
     fig, ax1 = plt.subplots()
-    ax1.plot(range(data.num_cycles - data.num_validation_cycles), [x[0] for x in acc_per_cycle], "o-g")
-    ax1.plot(range(data.num_cycles - data.num_validation_cycles), [x[1] for x in acc_per_cycle], "*-b")
+    ax1.plot(range(data.num_cycles - data.num_validation_cycles + 1), [x[0] for x in acc_per_cycle], "o-g")
+    ax1.plot(range(data.num_cycles - data.num_validation_cycles + 1), [x[1] for x in acc_per_cycle], "*-b")
     ax1.set_xlabel("Zyklus")
     ax1.set_ylabel("Klassifizierungsgenauigkeit")
     ax1.set_ylim([0, 1])

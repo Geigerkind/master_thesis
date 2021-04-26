@@ -1,4 +1,5 @@
 import pickle
+import random
 import sys
 from multiprocessing import Pool
 
@@ -40,6 +41,12 @@ if __name__ == "__main__":
         amount_zero_loc_knn = []
         current_location_dt = np.asarray(predicted_dt[0]).argmax()
         current_location_knn = np.asarray(predicted_knn[0]).argmax()
+
+        distinct_locations_dt = [0, 0]
+        distinct_locations_knn = [0, 0]
+
+        num_outputs = len(predicted_dt[0])
+
         for i in range(len(predicted_dt)):
             # Preparing the labels
             if data.temporary_test_set_raw_data[data_set_index].iloc[i]["is_anomaly"]:
@@ -47,19 +54,24 @@ if __name__ == "__main__":
             else:
                 res_labels.append(0)
 
+            new_location_dt = np.asarray(predicted_dt[i]).argmax()
+            new_location_knn = np.asarray(predicted_knn[i]).argmax()
+
             # Preparing the features
             features_dt = []
             features_knn = []
 
+            if 0 < new_location_dt != distinct_locations_dt[-1]:
+                distinct_locations_dt.append(new_location_dt)
+                distinct_locations_knn.append(new_location_knn)
+
             # Location changes within window
-            new_location_dt = np.asarray(predicted_dt[i]).argmax()
             if new_location_dt != current_location_dt:
                 current_location_dt = new_location_dt
                 location_changes_dt.append(1)
             else:
                 location_changes_dt.append(0)
 
-            new_location_knn = np.asarray(predicted_knn[i]).argmax()
             if new_location_knn != current_location_knn:
                 current_location_knn = new_location_knn
                 location_changes_knn.append(1)
@@ -81,18 +93,18 @@ if __name__ == "__main__":
             # features_knn.append(confidence_knn[-1])
 
             # Change to previous confidence
-            #if len(confidence_dt) == 1:
+            # if len(confidence_dt) == 1:
             #    features_dt.append(0)
             #    features_knn.append(0)
-            #else:
+            # else:
             #    features_dt.append(abs(confidence_dt[-2] - confidence_dt[-1]))
             #    features_knn.append(abs(confidence_knn[-2] - confidence_knn[-1]))
 
             # Amount Zero Location
-            #amount_zero_loc_dt.append(1 if new_location_dt == 0 else 0)
-            #amount_zero_loc_knn.append(1 if new_location_knn == 0 else 0)
-            #features_dt.append(sum(amount_zero_loc_dt[-WINDOW_SIZE:]))
-            #features_knn.append(sum(amount_zero_loc_knn[-WINDOW_SIZE:]) / WINDOW_SIZE)
+            # amount_zero_loc_dt.append(1 if new_location_dt == 0 else 0)
+            # amount_zero_loc_knn.append(1 if new_location_knn == 0 else 0)
+            # features_dt.append(sum(amount_zero_loc_dt[-WINDOW_SIZE:]))
+            # features_knn.append(sum(amount_zero_loc_knn[-WINDOW_SIZE:]) / WINDOW_SIZE)
 
             # Deviation no anomaly
             if i > 0 and not data.temporary_test_set_raw_data[data_set_index].iloc[i - 1]["is_anomaly"]:
@@ -104,17 +116,45 @@ if __name__ == "__main__":
             # window location changes deviation to the average
             # features_dt.append(abs((sum(location_changes_dt) / len(location_changes_dt)) - (sum(location_changes_dt[-WINDOW_SIZE:]) / len(location_changes_dt[-WINDOW_SIZE:]))))
             # features_knn.append(abs((sum(location_changes_knn) / len(location_changes_knn)) - (sum(location_changes_knn[-WINDOW_SIZE:]) / len(location_changes_knn[-WINDOW_SIZE:]))))
-            features_dt.append(abs((sum(location_changes_no_anomaly_dt) / max(len(location_changes_no_anomaly_dt), 1)) - (sum(location_changes_dt[-WINDOW_SIZE:]) / max(len(location_changes_dt[-WINDOW_SIZE:]), 1))))
-            features_knn.append(abs((sum(location_changes_no_anomaly_knn) / max(len(location_changes_no_anomaly_knn), 1)) - (sum(location_changes_knn[-WINDOW_SIZE:]) / max(len(location_changes_knn[-WINDOW_SIZE:]), 1))))
+            features_dt.append(abs(
+                (sum(location_changes_no_anomaly_dt) / max(len(location_changes_no_anomaly_dt), 1)) - (
+                            sum(location_changes_dt[-WINDOW_SIZE:]) / max(len(location_changes_dt[-WINDOW_SIZE:]), 1))))
+            features_knn.append(abs(
+                (sum(location_changes_no_anomaly_knn) / max(len(location_changes_no_anomaly_knn), 1)) - (
+                            sum(location_changes_knn[-WINDOW_SIZE:]) / max(len(location_changes_knn[-WINDOW_SIZE:]),
+                                                                           1))))
 
             # window confidence changes deviation to the average
             # features_dt.append(abs((sum(confidence_dt) / len(confidence_dt)) - (sum(confidence_dt[-WINDOW_SIZE:]) / len(confidence_dt[-WINDOW_SIZE:]))))
             # features_knn.append(abs((sum(confidence_knn) / len(confidence_knn)) - (sum(confidence_knn[-WINDOW_SIZE:]) / len(confidence_knn[-WINDOW_SIZE:]))))
-            features_dt.append(abs((sum(confidence_no_anomaly_dt) / max(len(confidence_no_anomaly_dt), 1)) - (sum(confidence_dt[-WINDOW_SIZE:]) / max(len(confidence_dt[-WINDOW_SIZE:]), 1))))
-            features_knn.append(abs((sum(confidence_no_anomaly_knn) / max(len(confidence_no_anomaly_knn), 1)) - (sum(confidence_knn[-WINDOW_SIZE:]) / max(len(confidence_knn[-WINDOW_SIZE:]), 1))))
+            features_dt.append(abs((sum(confidence_no_anomaly_dt) / max(len(confidence_no_anomaly_dt), 1)) - (
+                        sum(confidence_dt[-WINDOW_SIZE:]) / max(len(confidence_dt[-WINDOW_SIZE:]), 1))))
+            features_knn.append(abs((sum(confidence_no_anomaly_knn) / max(len(confidence_no_anomaly_knn), 1)) - (
+                        sum(confidence_knn[-WINDOW_SIZE:]) / max(len(confidence_knn[-WINDOW_SIZE:]), 1))))
 
             res_features_dt.append(features_dt)
             res_features_knn.append(features_knn)
+
+            # Last distinct location and current location to learn the mapping
+            # I choose to use random values in case its an anomaly,
+            # because I dont want to learn it a particular mapping there
+            if data.temporary_test_set_raw_data[data_set_index].iloc[i]["is_anomaly"]:
+                res_features_dt.append(random.randint(0, num_outputs - 1))
+                res_features_dt.append(random.randint(0, num_outputs - 1))
+                res_features_knn.append(random.randint(0, num_outputs - 1) / num_outputs)
+                res_features_knn.append(random.randint(0, num_outputs - 1) / num_outputs)
+            else:
+                if new_location_dt == 0:
+                    res_features_dt.append(distinct_locations_dt[-1])
+                else:
+                    res_features_dt.append(distinct_locations_dt[-2])
+
+                if new_location_knn == 0:
+                    res_features_knn.append(distinct_locations_knn[-1] / num_outputs)
+                else:
+                    res_features_knn.append(distinct_locations_knn[-2] / num_outputs)
+                res_features_dt.append(new_location_dt)
+                res_features_knn.append(new_location_knn / num_outputs)
 
         return res_features_dt, res_labels, res_features_knn
 
@@ -178,7 +218,7 @@ if __name__ == "__main__":
             print("Generating Training and Validation Data...")
             args = []
 
-            for data_set_index in range(len(data.temporary_test_set_features_dt)):
+            for data_set_index in range(len(data.temporary_test_set_features_dt) - 1):
                 args.append([data_set_index, data, model_dt])
 
             anomaly_features_dt = []
@@ -203,7 +243,7 @@ if __name__ == "__main__":
 
             print("Training the anomaly detection models....")
             model_anomaly_dt = GenerateDecisionTree(EnsembleMethod.RandomForest, 8, 20)
-            model_anomaly_knn = GenerateFFNN(2, 2, 1, 32, NUM_EPOCHS_PER_CYCLE, True)
+            model_anomaly_knn = GenerateFFNN(4, 2, 1, 32, NUM_EPOCHS_PER_CYCLE, True)
 
             model_anomaly_dt.fit(anomaly_features_dt, anomaly_labels, 0.25)
             model_anomaly_knn.fit(anomaly_features_knn, anomaly_labels, anomaly_features_knn_val,
@@ -219,8 +259,10 @@ if __name__ == "__main__":
             print("Accuracy DT: {0}".format(dt_acc))
             print("Accuracy KNN: {0}".format(knn_acc))
 
-            acc_always_true = model_anomaly_dt.evaluate_accuracy([1 for _ in range(len(anomaly_labels_val))], anomaly_labels_val)
-            acc_always_false = model_anomaly_dt.evaluate_accuracy([0 for _ in range(len(anomaly_labels_val))], anomaly_labels_val)
+            acc_always_true = model_anomaly_dt.evaluate_accuracy([1 for _ in range(len(anomaly_labels_val))],
+                                                                 anomaly_labels_val)
+            acc_always_false = model_anomaly_dt.evaluate_accuracy([0 for _ in range(len(anomaly_labels_val))],
+                                                                  anomaly_labels_val)
             print("Accuracy always True: {0}".format(acc_always_true))
             print("Accuracy always False: {0}".format(acc_always_false))
 

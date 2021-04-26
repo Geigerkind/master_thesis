@@ -63,6 +63,10 @@ true_location_history = []
 true_anamoly_history = []
 anamoly_history = []
 
+anomaly_areas = [
+    [[3, 1], [4.4, 3]]
+]
+
 # Prepare plots
 
 fig = plt.figure(figsize=(15, 15))
@@ -185,7 +189,6 @@ def run(args):
     global data
     global current_feature_index
     global prediction_history
-    global location_map
     global truncated_count
     global now
     global num_draws
@@ -300,9 +303,9 @@ def run(args):
     # Statistics:
     if not (prediction is None):
         current_location = 0
-        for i in range(len(location_map.values())):
+        for i in range(len(data.position_map.values())):
             if math.sqrt(
-                    (location_map[i + 1][0] - x_pos) ** 2 + (location_map[i + 1][1] - y_pos) ** 2) <= data.proximity:
+                    (data.position_map[i + 1][0] - x_pos) ** 2 + (data.position_map[i + 1][1] - y_pos) ** 2) <= data.proximity:
                 current_location = i + 1
                 break
 
@@ -312,7 +315,7 @@ def run(args):
             statistics_prediction[prediction][2] = statistics_prediction[prediction][2] + 1
             statistics_prediction[current_location][3] = statistics_prediction[current_location][3] + 1
 
-        for i in range(len(location_map.values()) + 1):
+        for i in range(len(data.position_map.values()) + 1):
             if i != prediction and i != current_location:
                 statistics_prediction[i][1] = statistics_prediction[i][1] + 1
 
@@ -385,7 +388,7 @@ def run(args):
     print("Last distinct location %d" % (prev_distinct_prediction))
     print("|   Loc   |   TP   |   TN   |   FP   |   FN   |   ACC  |")
     print("________________________________________________________")
-    for i in range(len(location_map.values()) + 1):
+    for i in range(len(data.position_map.values()) + 1):
         sum_row = max(sum(statistics_prediction[i]), 1)
         print("| %d       | %.4f | %.4f | %.4f | %.4f | %.4f |" % (i, (statistics_prediction[i][0] / sum_row),
                                                                    statistics_prediction[i][1] / sum_row,
