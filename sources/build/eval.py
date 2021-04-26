@@ -137,7 +137,7 @@ if __name__ == "__main__":
     last_dt_prediction = []
     last_knn_prediction = []
 
-    for cycle in range(data.num_cycles - data.num_validation_cycles):
+    for cycle in range(data.num_cycles - data.num_validation_cycles + 1):
         print("Training cycle: {0}".format(cycle))
         print("Initializing...")
         # Reinitializing to make sure that there is no partial learning

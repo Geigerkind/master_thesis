@@ -2,14 +2,14 @@
 Insgesamt wurden vier Routen über 20 Zyklen jeweils zwei mal erfasst.
 Einmal für Trainingsdaten und einmal für Testdaten, wobei die letzten fünf Zyklen der
 Trainingsdaten als Validationsmenge genutzt werden, die außerdem zur Feature-Auswahl genutzt wird.
-Dabei wurden alle 50 ms die xyz-, Koordinaten und Accelerometerdaten und Gyroskopdaten erfasst, sowie Lichtintensität und Metadaten.
+Dabei wurden alle 50 ms die xyz-, Koordinaten, Accelerometerdaten und Gyroskopdaten erfasst, sowie Lichtintensität und Metadaten.
 Zu den Metadaten gehören Zeitstempel, Beschriftung des Routenabschnitts und Beschriftung des derzeitigen Zyklusses.
 Ein Zyklus ist der vollständige Umlauf einer Route.
 \newline
 \newline
 Abbildung \ref{fig:simple_square_labeled} zeigt eine der vier Routen \glqq simple\_square\grqq.
 Jede Route ist mit Markierungen für Zyklen und Standorte ausgestattet.
-Die Zyklusmarkierung wird genutzt, um die die Datensätze mit dem derzeitigen Zyklus zu beschriften.
+Die Zyklusmarkierung wird genutzt, um die Datensätze mit dem derzeitigen Zyklus zu beschriften.
 Jedes mal, wenn die Sensorenbox diese Markierung überschreitet, wird der Zähler für den Zyklus inkrementiert.
 Die Standortmarkierung wird genutzt, um die Datensätze mit dem derzeitigen Routenabschnitt zu beschriften.
 Jedes mal, wenn die Sensorenbox diese Markierung überschreitet, wird der derzeitige Wert für den Routenabschnitt auf den Wert der Markierung gesetzt.
@@ -30,7 +30,9 @@ Die Förderbänder können verschiedene Geschwindigkeiten haben mit sowohl abrup
 \newline
 \newline
 Je nach Enkodierungsart (siehe Kapitel \ref{sec:model_location_encoding}) müssen die Knoten und Kanten, dieses zyklischen Graphen, als Standorte enkodiert werden.
-Als Knoten wird die Menge der Datensätze bezeichnet, die sich in einem Umkreis des ersten Datensatzes befinden, der mit einem Standort beschriftet ist,
-d. h. Datensätze mit der gleichen Standortbeschriftung, die sich nicht im Umkreis des initialen Datensatzes befinden, gelten nicht als dieser Standort.
+Als Knoten wird die Menge der Datensätze bezeichnet, die sich in einem Umkreis des ersten Datensatzes befinden, der mit einem Standort in der Simulation markiert wurde.
+Dadurch gibt es Datensätze, die zwar in der Simulation mit diesem Standort markiert wurden, aber nicht innerhalb des Umkreises von dem ersten Datensatz liegen
+und somit zu diesen Knoten gehören.
 Die Knoten werden mit dem Wert der Standortbeschriftung beschriftet.
-Die übrigen Datensätze werden entweder als unbekannten Standort beschriftet oder erhalten einen diskreten Standortwert, der die Beziehung der Kante zwischen zwei Knoten enkodiert.
+Die übrigen Datensätze werden entweder als unbekannten Standort beschriftet oder erhalten einen Standortwert, der die Beziehung der Kante zwischen zwei Knoten enkodiert,
+aber nicht in der Simulation markiert wurde.

@@ -11,8 +11,7 @@ Dieser richtet sich nach dem Magnetfeld der Erde aus und wird daher traditionell
 \newline
 \newline
 Das vereinfachte Modell des simulierten Magnetfeldsensors fungiert wie ein Kompass.
-Die Ausgabe ist der relative Richtungsunterschied zum magnetischen Nordpol,
-d. h. die Ausgabe ist relativ zur Ausrichtung der Sensorenbox zum magnetischen Nordpol.
+Die Ausgabe ist der relative Richtungsunterschied von der Sensorenbox zum magnetischen Nordpol.
 Dabei können starke magnetische Objekte in der Umgebung Einfluss auf den Sensor haben,
 sodass sich der magnetische Nordpol für den simulierten Sensor ändern kann.
 Die Ausgabewerte sind zwischen 0 und 359, d. h. 0 ist Norden, 90 Osten, 180 Süden und 270 Westen.
@@ -55,7 +54,7 @@ müssen $a$ und $b$ mit $p_{o}$ als Ursprung transformiert werden.
 Die Berechnung von $\alpha$ folgt dann Formel \ref{formular:magnetic_sensor_alpha}.
 \begin{align}
     \label{formular:magnetic_sensor_alpha}
-    \alpha = \arcsin (\frac{\abs(p_{o_a} - p_{m_a})}{\sqrt{(p_{o_a} - p_{m_a})^2 + (p_{o_b} - p_{m_b})^2}})
+    \alpha = \arcsin (\frac{|p_{o_a} - p_{m_a}|}{\sqrt{(p_{o_a} - p_{m_a})^2 + (p_{o_b} - p_{m_b})^2}})
 \end{align}
 Mit den Winkeln $\gamma$ und $\beta$ kann dann das Koordinatensystem zum magnetischen Objekt hin rotiert werden,
 sodass die Ausrichtung von $p_{o}$ zum beeinflussten magnetischen Nordpol aus Formel \ref{formular:magnetic_sensor_new_heading} berechnet werden kann.
@@ -63,7 +62,7 @@ sodass die Ausrichtung von $p_{o}$ zum beeinflussten magnetischen Nordpol aus Fo
     \label{formular:magnetic_sensor_new_heading}
     \gamma^{\prime} = (\gamma + (360 - \beta))\mod 360
 \end{align}
-Zu beachten ist schließlich der Einfluss $\eta$ abhänging von der Distanz das $p_{m}$ auf $p_{o}$ hat.
+Zu beachten ist schließlich der Einfluss $\eta$, der abhänging von der Distanz von $p_{m}$ zu $p_{o}$ ist.
 Formel \ref{formular:magnetic_sensor_influence} modelliert den Einfluss als quadratisch abfallende Funktion mit zunehmender Distanz $d$ und maximaler Einflussdistanz $d_{\max}$,
 wobei der maximale Einfluss 1 ist und der minimale Einfluss 0 ist.
 \begin{align}
@@ -99,7 +98,7 @@ Wärmequelle zur Sensorenbox und der maximalen Einflussdistanz $d_{\max}$.
 \end{align}
 
 \subsection{Geräuschsensor}
-Es gibt verschiedene Arten von Geräuschsensoren, z. B. Geräuschrichtungssensor \cite{tiete2014soundcompass} oder
+Es gibt verschiedene Arten von Geräuschsensoren, z. B. Geräuschrichtungssensoren \cite{tiete2014soundcompass} oder
 spezifische Anwendungen, wie Herzgeräuschsensoren \cite{zhang2016design}.
 Das Modell ist einem Akustiksensor \cite{sessler1991acoustic}, oder einem Mikrophone am ähnlichsten,
 dass die Lautstärke in einem Frequenzbereich misst.
@@ -125,7 +124,7 @@ Formel \ref{formular:sound_sensor_constant_sound} zeigt die Berechnung für die 
 Periodische Lautstärkequellen emittieren ein Geräusch in regelmäßigen Abständen.
 Dies wird modelliert durch eine quadratisch verringerde Lautstärke über 500 ms,
 wenn die Lautstärke gemessen wird nachdem das Geräusch stattgefunden hat,
-d. h. nach 500 ms ist das Geräusch nicht mehr wahrzunehmen.
+d. h. nach 500 ms, ist das Geräusch nicht mehr wahrzunehmen.
 Formel \ref{formular:sound_sensor_periodic_sound} beschreibt diesen Zusammenhang,
 wobei $t$ der momentane Zeitpunkt ist und $t_{n}$ das Interval des periodischen Geräusches ist.
 \begin{align}
@@ -144,5 +143,5 @@ Das Modell vereinfacht dies, indem es lediglich aussagt, ob ein WLAN-Zugangspunk
 \newline
 Im Raum sind strategisch WLAN-Zugangspunkte verteilt.
 Diese können innerhalb einer maximalen Reichweite empfangen werden.
-Ist die Distanz des Objekts innerhalb der Reichweite, gilt der WLAN-Zugangspunkt als empfangen.
+Ist die Distanz der Sensorenbox zum WLAN-Zugangspunkt innerhalb der Reichweite, gilt der WLAN-Zugangspunkt als empfangen.
 Interferenzen und Reflektionen werden vernachlässigt.

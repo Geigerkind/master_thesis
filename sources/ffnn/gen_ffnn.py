@@ -107,7 +107,7 @@ class GenerateFFNN:
         predictions.append(prediction)
         last_distinct_locations = [0, 0]
         for i in range(1, data_copy_len):
-            prediction = model.predict([data_copy[i]])[0]
+            prediction = model.predict(np.asarray([data_copy[i]]))[0]
             if i < data_copy_len - 1:
                 predicted_location = np.asarray(prediction).argmax()
                 if 0 < predicted_location != last_distinct_locations[-1]:
