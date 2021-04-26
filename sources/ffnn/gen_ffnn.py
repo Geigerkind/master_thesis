@@ -88,9 +88,9 @@ class GenerateFFNN:
 
                 data_copy[i + 1][0] = predicted_location
                 if predicted_location == 0:
-                    data_copy[i + 1][1] = last_distinct_locations[-1] / self.output_size
+                    data_copy[i + 1][1] = last_distinct_locations[-1] / (self.output_size - 1)
                 else:
-                    data_copy[i + 1][1] = last_distinct_locations[-2] / self.output_size
+                    data_copy[i + 1][1] = last_distinct_locations[-2] / (self.output_size - 1)
             predictions.append(prediction)
         return predictions
 
@@ -116,9 +116,9 @@ class GenerateFFNN:
 
                 data_copy[i + 1][0] = predicted_location
                 if predicted_location == 0:
-                    data_copy[i + 1][1] = last_distinct_locations[-1] / output_size
+                    data_copy[i + 1][1] = last_distinct_locations[-1] / (output_size - 1)
                 else:
-                    data_copy[i + 1][1] = last_distinct_locations[-2] / output_size
+                    data_copy[i + 1][1] = last_distinct_locations[-2] / (output_size - 1)
             predictions.append(prediction)
         return predictions
 

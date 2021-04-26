@@ -833,7 +833,7 @@ class DataCompiler:
                         label = self.result_labels_dt[data_set_index][cycle][label_index]
                         if label > 0 and (len(last_distinct_locations_dt) == 0 or last_distinct_locations_dt[-1] != label):
                             last_distinct_locations_dt.append(label)
-                            last_distinct_locations_knn.append(label * (1 / self.num_outputs))
+                            last_distinct_locations_knn.append(label / (self.num_outputs - 1))
 
                         if label == 0 and len(last_distinct_locations_dt) >= 2:
                             f_copy_dt[cycle][label_index][1] = last_distinct_locations_dt[-2]
@@ -863,7 +863,7 @@ class DataCompiler:
                         label = self.test_labels_dt[data_set_index][cycle][label_index]
                         if label > 0 and (len(last_distinct_locations_dt) == 0 or last_distinct_locations_dt[-1] != label):
                             last_distinct_locations_dt.append(label)
-                            last_distinct_locations_knn.append(label * (1 / self.num_outputs))
+                            last_distinct_locations_knn.append(label / (self.num_outputs - 1))
 
                         if label == 0 and len(last_distinct_locations_dt) >= 2:
                             f_copy_dt[cycle][label_index][1] = last_distinct_locations_dt[-2]
@@ -1157,8 +1157,8 @@ class DataCompiler:
                         print("Fixing location labels...")
                     for i in range(len(knn_features_tmp)):
                         # Manual scaling between 0 and 1
-                        knn_features_tmp[i][0] = knn_features_tmp[i][0] * (1 / input_num_outputs)
-                        knn_features_tmp[i][1] = knn_features_tmp[i][1] * (1 / input_num_outputs)
+                        knn_features_tmp[i][0] = knn_features_tmp[i][0] / (input_num_outputs - 1)
+                        knn_features_tmp[i][1] = knn_features_tmp[i][1] / (input_num_outputs - 1)
 
                 if self.__is_verbose:
                     print("Onehot encoding KNN data...")

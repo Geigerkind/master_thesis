@@ -141,8 +141,8 @@ if __name__ == "__main__":
             if data.temporary_test_set_raw_data[data_set_index].iloc[i]["is_anomaly"]:
                 res_features_dt.append(random.randint(0, num_outputs - 1))
                 res_features_dt.append(random.randint(0, num_outputs - 1))
-                res_features_knn.append(random.randint(0, num_outputs - 1) / num_outputs)
-                res_features_knn.append(random.randint(0, num_outputs - 1) / num_outputs)
+                res_features_knn.append(random.randint(0, num_outputs - 1) / (num_outputs - 1))
+                res_features_knn.append(random.randint(0, num_outputs - 1) / (num_outputs - 1))
             else:
                 if new_location_dt == 0:
                     res_features_dt.append(distinct_locations_dt[-1])
@@ -150,11 +150,11 @@ if __name__ == "__main__":
                     res_features_dt.append(distinct_locations_dt[-2])
 
                 if new_location_knn == 0:
-                    res_features_knn.append(distinct_locations_knn[-1] / num_outputs)
+                    res_features_knn.append(distinct_locations_knn[-1] / (num_outputs - 1))
                 else:
-                    res_features_knn.append(distinct_locations_knn[-2] / num_outputs)
+                    res_features_knn.append(distinct_locations_knn[-2] / (num_outputs - 1))
                 res_features_dt.append(new_location_dt)
-                res_features_knn.append(new_location_knn / num_outputs)
+                res_features_knn.append(new_location_knn / (num_outputs - 1))
 
         return res_features_dt, res_labels, res_features_knn
 

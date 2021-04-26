@@ -197,15 +197,15 @@ if __name__ == "__main__":
                 for i in range(current_index - 1, 0, -1):
                     prediction = predictions[i] if is_dt else np.asarray(predictions[i]).argmax()
                     if current_prediction == 0 and prediction > 0:
-                        return prediction if is_dt else prediction / len(predictions[i])
+                        return prediction if is_dt else prediction / (len(predictions[i]) - 1)
                     elif 0 < current_prediction != prediction and prediction > 0:
-                        return prediction if is_dt else prediction / len(predictions[i])
+                        return prediction if is_dt else prediction / (len(predictions[i]) - 1)
                 for i in range(len(last_predictions) - 1, 0, -1):
                     prediction = last_predictions[i] if is_dt else np.asarray(last_predictions[i]).argmax()
                     if current_prediction == 0 and prediction > 0:
-                        return prediction if is_dt else prediction / len(last_predictions[i])
+                        return prediction if is_dt else prediction / (len(last_predictions[i]) - 1)
                     elif 0 < current_prediction != prediction and prediction > 0:
-                        return prediction if is_dt else prediction / len(last_predictions[i])
+                        return prediction if is_dt else prediction / (len(last_predictions[i]) - 1)
                 return 0
 
             permutation = np.random.permutation(len(dt_next_cycle_features))
@@ -217,7 +217,7 @@ if __name__ == "__main__":
 
                 dt_next_cycle_features[i][0] = dt_prediction[i - 1]
                 dt_next_cycle_features[i][1] = find_last_distinct_prediction(dt_prediction, last_dt_prediction, i, True)
-                knn_next_cycle_features[i][0] = np.array(knn_prediction[i - 1]).argmax() / data.num_outputs
+                knn_next_cycle_features[i][0] = np.array(knn_prediction[i - 1]).argmax() / (data.num_outputs - 1)
                 knn_next_cycle_features[i][1] = find_last_distinct_prediction(knn_prediction, last_knn_prediction, i, False)
 
         print("")
