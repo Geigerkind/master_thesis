@@ -15,7 +15,7 @@ class AnomalyTopologyGuesser:
             self.__duration_waited = 0
 
         # Emit the alarm if we are within an alarm duration
-        if self.alarm_duration >= self.__duration_waited:
+        if self.alarm_duration > self.__duration_waited:
             self.__duration_waited = self.__duration_waited + 1
             return True
         return False

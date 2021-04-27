@@ -17,6 +17,8 @@ In this file the anomaly model is trained.
 Requires the classification model to be trained before.
 """
 
+WITH_FEEDBACK_EDGE = True
+
 # For some magical reason required by get_context method of multiprocessing
 if __name__ == "__main__":
     _, evaluation_name = sys.argv
@@ -25,6 +27,8 @@ if __name__ == "__main__":
 
 
     def calculate_anomaly_features_and_labels(predicted_dt, predicted_knn, data_set_index, real_labels, data):
+        global WITH_FEEDBACK_EDGE
+
         res_features_dt = []
         res_features_knn = []
         res_labels = []
@@ -74,6 +78,16 @@ if __name__ == "__main__":
             # Preparing the features
             features_dt = []
             features_knn = []
+
+            # Previous value.
+            # Just like the other model this will be gradually overwritten
+            if WITH_FEEDBACK_EDGE:
+                if i > 0:
+                    features_dt.append(int(data.temporary_test_set_raw_data[data_set_index].iloc[i - 1]["is_anomaly"]))
+                    features_knn.append(int(data.temporary_test_set_raw_data[data_set_index].iloc[i - 1]["is_anomaly"]))
+                else:
+                    features_dt.append(0)
+                    features_knn.append(0)
 
             if 0 < new_location_dt != distinct_locations_dt[-1]:
                 distinct_locations_dt.append(new_location_dt)
@@ -243,7 +257,7 @@ if __name__ == "__main__":
             print("Generating Training and Validation Data...")
             args = []
 
-            for data_set_index in [2, 3, 4]:
+            for data_set_index in [4]:
                 args.append([data_set_index, data, model_dt])
 
             anomaly_features_dt = []
@@ -274,11 +288,56 @@ if __name__ == "__main__":
 
             print("Training the anomaly detection models....")
             model_anomaly_dt = GenerateDecisionTree(EnsembleMethod.RandomForest, 8, 20)
-            model_anomaly_knn = GenerateFFNN(2, 2, 1, 32, NUM_EPOCHS_PER_CYCLE, True)
+            model_anomaly_knn = GenerateFFNN(len(anomaly_features_knn[0]), 2, 1, 32, NUM_EPOCHS_PER_CYCLE, True)
 
-            model_anomaly_dt.fit(anomaly_features_dt, anomaly_labels, 0.25)
-            model_anomaly_knn.fit(anomaly_features_knn, anomaly_labels, anomaly_features_knn_val,
-                                  anomaly_labels_val)
+            if not WITH_FEEDBACK_EDGE:
+                model_anomaly_dt.fit(anomaly_features_dt, anomaly_labels, 0.25)
+                model_anomaly_knn.fit(anomaly_features_knn, anomaly_labels, anomaly_features_knn_val,
+                                      anomaly_labels_val)
+            else:
+                NUM_TRAINING_CYCLES = 10
+                NUM_WARMUP_CYCLES = 2
+                INITIAL_PREDICT_FRACTION = 0.5
+                CYCLE_WHERE_EVERYTHING_IS_PREDICTED = 10
+
+                af_dt = np.array_split(anomaly_features_dt, NUM_TRAINING_CYCLES + NUM_WARMUP_CYCLES)
+                af_knn = np.array_split(anomaly_features_knn, NUM_TRAINING_CYCLES + NUM_WARMUP_CYCLES)
+                al = np.array_split(anomaly_labels, NUM_TRAINING_CYCLES + NUM_WARMUP_CYCLES)
+
+                train_af_dt = []
+                train_af_knn = []
+                train_al = []
+                for cycle in range(NUM_WARMUP_CYCLES):
+                    train_af_dt = train_af_dt + af_dt[cycle].tolist()
+                    train_af_knn = train_af_knn + af_knn[cycle].tolist()
+                    train_al = train_al + al[cycle].tolist()
+
+                model_anomaly_dt.fit(train_af_dt, train_al, 0.25)
+                model_anomaly_knn.fit(train_af_knn, train_al, anomaly_features_knn_val, anomaly_labels_val)
+
+                for cycle in range(NUM_WARMUP_CYCLES, NUM_TRAINING_CYCLES + NUM_WARMUP_CYCLES):
+                    print("Training cycle {0} of {1}...".format(cycle + 1, NUM_TRAINING_CYCLES + NUM_WARMUP_CYCLES))
+                    # Predict a fraction of the dataset
+                    fraction_to_predict = min(1.0, ((1.0 - INITIAL_PREDICT_FRACTION) / (
+                                (CYCLE_WHERE_EVERYTHING_IS_PREDICTED - NUM_WARMUP_CYCLES) ** 2)) * (
+                                                      (cycle - NUM_WARMUP_CYCLES) ** 2) + INITIAL_PREDICT_FRACTION)
+
+                    # Of that fraction we pick samples randomly
+                    permutation = np.random.permutation(len(af_dt[cycle]))
+                    for perm_index in range(0, int(len(af_dt[cycle]) * fraction_to_predict)):
+                        i = permutation[perm_index]
+                        af_dt[cycle][i][0] = model_anomaly_dt.predict([af_dt[cycle][i]])[0]
+                        af_knn[cycle][i][0] = int(model_anomaly_knn.predict([af_knn[cycle][i]])[0] >= 0.5)
+
+                    train_af_dt = train_af_dt + af_dt[cycle].tolist()
+                    train_af_knn = train_af_knn + af_knn[cycle].tolist()
+                    train_al = train_al + al[cycle].tolist()
+
+                    model_anomaly_dt = GenerateDecisionTree(EnsembleMethod.RandomForest, 8, 20)
+                    model_anomaly_knn = GenerateFFNN(len(anomaly_features_knn[0]), 2, 1, 32, NUM_EPOCHS_PER_CYCLE, True)
+
+                    model_anomaly_dt.fit(train_af_dt, train_al, 0.25)
+                    model_anomaly_knn.fit(train_af_knn, train_al, anomaly_features_knn_val, anomaly_labels_val)
 
             print("Validating the models...")
             # TODO: Adjust features from validation set to use predicted values for the window deviation

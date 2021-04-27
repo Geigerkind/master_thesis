@@ -366,6 +366,8 @@ def run(args):
                 (sum(window_confidence_no_anomaly) / max(len(window_confidence_no_anomaly), 1)) - (
                         sum(window_confidence[-WINDOW_SIZE:]) / max(len(window_confidence[-WINDOW_SIZE:]), 1)))
 
+        last_prediction_anomaly_topology_guesser = int(
+            topology_guesser.predict(prev_distinct_prediction, prediction))
         anomaly_features = [
             # sum(window_location_changes[-WINDOW_SIZE:]),  # TODO: KNN
             # sum(window_confidence[-WINDOW_SIZE:]),  # TODO: KNN
@@ -375,14 +377,13 @@ def run(args):
             window_loc_changes_deviation,
             window_confidence_deviation,
             #prev_distinct_prediction,
-            #prediction
+            #prediction,
+            last_prediction_anomaly_topology_guesser
         ]
 
         # Save for statistics
         last_prediction = prediction
         last_prediction_anomaly = model_anomaly.predict([anomaly_features])[0]
-        last_prediction_anomaly_topology_guesser = int(
-            topology_guesser.predict(prev_distinct_prediction, last_prediction))
         last_prediction_when = t_stamp
 
         is_current_pos_anomaly = False

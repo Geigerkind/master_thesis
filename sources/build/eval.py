@@ -210,7 +210,7 @@ if __name__ == "__main__":
 
             permutation = np.random.permutation(len(dt_next_cycle_features))
             frac_pred_labeled = min(1, FRACTION_PREDICTION_LABELED + (1 / 128) * ((cycle - data.num_warmup_cycles) ** 2))
-            for perm_index in range(1, int(len(dt_next_cycle_features) * frac_pred_labeled)):
+            for perm_index in range(0, int(len(dt_next_cycle_features) * frac_pred_labeled)):
                 i = permutation[perm_index]
                 if i == 0:
                     continue
