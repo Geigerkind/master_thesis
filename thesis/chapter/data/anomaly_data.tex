@@ -21,3 +21,8 @@ Das ML-Modell zur Standorterkennung hat keine diskrete Ausgabe, sondern gibt ein
 der für jeden Standort die Klassifizierungswahrscheinlichkeit angibt.
 Dabei gilt der klassifizierte Standort als der Eintrag im Vektor mit der höchsten Wahrscheinlichkeit.
 Diese Wahrscheinlichkeit wird dann analog zu den Standortänderungen summiert.
+\newline
+\newline
+Zusätzlich wird das Ergebnis des Modells auf Basis der Topologie als Feature verwendet.
+Dieses Feature indiziert, dass das ML-Modell zur Standorterkennung ein Fehler gemacht haben muss
+oder dass tatsächlich eine Anomalie vorliegt, da die Topologie verletzt wurde.
