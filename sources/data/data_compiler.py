@@ -585,7 +585,7 @@ class DataCompiler:
         for data_set in self.data_sets + anomaly_data_sets:
             if self.__is_verbose:
                 print("Loading Dataset: {0}".format(data_set.value[0]))
-            self.__data_sets[data_set] = pd.read_csv(BIN_FOLDER_PATH + "/data/" + data_set.value[0])
+            data = pd.read_csv(BIN_FOLDER_PATH + "/data/" + data_set.value[0])
 
             if data_set in anomaly_data_sets and data_set != DataSet.Anomaly:
                 def is_row_in_anomaly(row):
@@ -594,9 +594,9 @@ class DataCompiler:
                             return True
                     return False
 
-                self.__data_sets[data_set]["is_anomaly"] = self.__data_sets[data_set].apply(is_row_in_anomaly, axis=1)
+                data["is_anomaly"] = data.apply(is_row_in_anomaly, axis=1)
             else:
-                self.__data_sets[data_set]["is_anomaly"] = data_set == DataSet.Anomaly
+                data["is_anomaly"] = data_set == DataSet.Anomaly
 
             start_location_offset = location_offset
 
@@ -611,13 +611,12 @@ class DataCompiler:
             if self.__is_verbose:
                 print("Adjusting pos...")
             adjust_pos_offset = location_offset if len(data_set.value) == 2 else self.__reference_locations[data_set.value[3]][1]
-            self.__data_sets[data_set] = parallelize(self.__data_sets[data_set], par_lrd_adjust_pos,
-                                                     adjust_pos_offset)
+            data = parallelize(data, par_lrd_adjust_pos, adjust_pos_offset)
             if not (data_set in anomaly_data_sets):
-                test_set = parallelize(test_set, par_lrd_adjust_pos, location_offset)
+                test_set = parallelize(test_set, par_lrd_adjust_pos, adjust_pos_offset)
 
             if len(data_set.value) == 2:
-                location_offset = self.__data_sets[data_set]["pos"].max()
+                location_offset = data["pos"].max()
 
             if self.__is_verbose:
                 print("Setting Location...")
@@ -629,8 +628,8 @@ class DataCompiler:
                     dict[left].append(right)
 
             initial_positions = dict()
-            previous_pos = self.__data_sets[data_set].iloc[0]["pos"]
-            for row in self.__data_sets[data_set].iterrows():
+            previous_pos = int(data.iloc[0]["pos"])
+            for row in data.iterrows():
                 # There is no 0 pos to worry about here
                 if row[1]["pos"] != previous_pos and not (data_set in anomaly_data_sets):
                     append_to_neighbor_graph(self.location_neighbor_graph, row[1]["pos"], previous_pos)
@@ -641,8 +640,8 @@ class DataCompiler:
                     initial_positions[row[1]["pos"]] = row[1]
                     if not (data_set in anomaly_data_sets):
                         self.position_map[row[1]["pos"]] = [row[1]["x_pos"], row[1]["y_pos"]]
-            self.__data_sets[data_set] = parallelize(self.__data_sets[data_set], par_lrd_set_location,
-                                                     [initial_positions, self.proximity])
+
+            data = parallelize(data, par_lrd_set_location, [initial_positions, self.proximity])
             if not (data_set in anomaly_data_sets):
                 test_set = parallelize(test_set, par_lrd_set_location, [initial_positions, self.proximity])
 
@@ -654,22 +653,24 @@ class DataCompiler:
                 location_map = dict()
                 previous_non_zero_pos = 0
                 init_offset = location_offset if len(data_set.value) == 2 else self.__reference_locations[data_set.value[3]][1]
-                for row in self.__data_sets[data_set].iterrows():
-                    if not row[1]["is_anomaly"]:
-                        if row[1]["location"] == 0:
-                            row[1]["location"] = location_map[previous_non_zero_pos]
+                # For some weird reason I have to do this here this way and for the test set I dont
+                # I have no idea whats happening here...
+                for row_index in range(len(data)):
+                    if not data.at[row_index, "is_anomaly"]:
+                        if data.at[row_index, "location"] == 0:
+                            data.at[row_index, "location"] = location_map[previous_non_zero_pos]
                         else:
-                            if not (row[1]["location"] in location_map):
+                            if not (data.at[row_index, "location"] in location_map):
                                 init_offset = init_offset + 1
-                                location_map[row[1]["location"]] = init_offset
+                                location_map[data.at[row_index, "location"]] = init_offset
                                 if not (data_set in anomaly_data_sets):
                                     # TODO: This does not make sense!
-                                    # self.position_map[location_offset] = [row[1]["x_pos"], row[1]["y_pos"]]
-                                    append_to_neighbor_graph(self.location_neighbor_graph, row[1]["location"],
+                                    # self.position_map[location_offset] = [data.at[row_index]["x_pos"], data.at[row_index]["y_pos"]]
+                                    append_to_neighbor_graph(self.location_neighbor_graph, data.at[row_index, "location"],
                                                              location_offset)
                                     # append_to_neighbor_graph(self.location_neighbor_graph, location_offset,
-                                    #                          row[1]["location"])
-                            previous_non_zero_pos = row[1]["location"]
+                                    #                          data.at[row_index, "location])
+                            previous_non_zero_pos = data.at[row_index, "location"]
 
                 if len(data_set.value) == 2:
                     location_offset = init_offset
@@ -680,12 +681,26 @@ class DataCompiler:
                         if row[1]["location"] == 0:
                             row[1]["location"] = location_map[previous_non_zero_pos]
                         else:
-                            row[1]["location"] = location_map[row[1]["location"]]
                             previous_non_zero_pos = row[1]["location"]
 
             if not (data_set in anomaly_data_sets):
                 self.test_raw_data.append(test_set)
+                """
+                real_set_sequence = []
+                for row in data.query("cycle == 0").iterrows():
+                    if not (row[1]["location"] in real_set_sequence):
+                        real_set_sequence.append(row[1]["location"])
 
+                test_set_sequence = []
+                for row in test_set.query("cycle == 0").iterrows():
+                    if not (row[1]["location"] in test_set_sequence):
+                        test_set_sequence.append(row[1]["location"])
+
+                print(real_set_sequence)
+                print(test_set_sequence)
+                """
+
+            self.__data_sets[data_set] = data
             if len(data_set.value) == 2:
                 self.__reference_locations[data_set.value[1]] = [start_location_offset, location_offset]
         return location_offset
