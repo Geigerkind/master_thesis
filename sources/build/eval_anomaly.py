@@ -1,5 +1,4 @@
 import pickle
-import random
 import sys
 from multiprocessing import Pool
 
@@ -7,6 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from tensorflow import keras
 
+from sources.anomaly.topology_guesser import AnomalyTopologyGuesser
 from sources.config import BIN_FOLDER_PATH, NUM_CORES
 from sources.decision_tree.ensemble_method import EnsembleMethod
 from sources.decision_tree.gen_dt import GenerateDecisionTree
@@ -24,7 +24,7 @@ if __name__ == "__main__":
     WINDOW_SIZE = 35
 
 
-    def calculate_anomaly_features_and_labels(predicted_dt, predicted_knn, data_set_index):
+    def calculate_anomaly_features_and_labels(predicted_dt, predicted_knn, data_set_index, real_labels, data):
         res_features_dt = []
         res_features_knn = []
         res_labels = []
@@ -46,6 +46,17 @@ if __name__ == "__main__":
         distinct_locations_knn = [0, 0]
 
         num_outputs = len(predicted_dt[0])
+        topology_guesser_dt = AnomalyTopologyGuesser(data.location_neighbor_graph)
+        topology_guesser_knn = AnomalyTopologyGuesser(data.location_neighbor_graph)
+
+        real_previous_location = 0
+        # Find first non zero location and take the previous of it
+        for label in real_labels:
+            if label > 0:
+                # Otherwise its anomaly data
+                if label in data.location_neighbor_graph:
+                    real_previous_location = data.location_neighbor_graph[label][0]
+                break
 
         for i in range(len(predicted_dt)):
             # Preparing the labels
@@ -53,6 +64,9 @@ if __name__ == "__main__":
                 res_labels.append(1)
             else:
                 res_labels.append(0)
+
+            if real_labels[i] > 0 and real_labels[i] != real_previous_location:
+                real_previous_location = real_labels[i]
 
             new_location_dt = np.asarray(predicted_dt[i]).argmax()
             new_location_knn = np.asarray(predicted_knn[i]).argmax()
@@ -118,43 +132,50 @@ if __name__ == "__main__":
             # features_knn.append(abs((sum(location_changes_knn) / len(location_changes_knn)) - (sum(location_changes_knn[-WINDOW_SIZE:]) / len(location_changes_knn[-WINDOW_SIZE:]))))
             features_dt.append(abs(
                 (sum(location_changes_no_anomaly_dt) / max(len(location_changes_no_anomaly_dt), 1)) - (
-                            sum(location_changes_dt[-WINDOW_SIZE:]) / max(len(location_changes_dt[-WINDOW_SIZE:]), 1))))
+                        sum(location_changes_dt[-WINDOW_SIZE:]) / max(len(location_changes_dt[-WINDOW_SIZE:]), 1))))
             features_knn.append(abs(
                 (sum(location_changes_no_anomaly_knn) / max(len(location_changes_no_anomaly_knn), 1)) - (
-                            sum(location_changes_knn[-WINDOW_SIZE:]) / max(len(location_changes_knn[-WINDOW_SIZE:]),
-                                                                           1))))
+                        sum(location_changes_knn[-WINDOW_SIZE:]) / max(len(location_changes_knn[-WINDOW_SIZE:]),
+                                                                       1))))
 
             # window confidence changes deviation to the average
             # features_dt.append(abs((sum(confidence_dt) / len(confidence_dt)) - (sum(confidence_dt[-WINDOW_SIZE:]) / len(confidence_dt[-WINDOW_SIZE:]))))
             # features_knn.append(abs((sum(confidence_knn) / len(confidence_knn)) - (sum(confidence_knn[-WINDOW_SIZE:]) / len(confidence_knn[-WINDOW_SIZE:]))))
             features_dt.append(abs((sum(confidence_no_anomaly_dt) / max(len(confidence_no_anomaly_dt), 1)) - (
-                        sum(confidence_dt[-WINDOW_SIZE:]) / max(len(confidence_dt[-WINDOW_SIZE:]), 1))))
+                    sum(confidence_dt[-WINDOW_SIZE:]) / max(len(confidence_dt[-WINDOW_SIZE:]), 1))))
             features_knn.append(abs((sum(confidence_no_anomaly_knn) / max(len(confidence_no_anomaly_knn), 1)) - (
-                        sum(confidence_knn[-WINDOW_SIZE:]) / max(len(confidence_knn[-WINDOW_SIZE:]), 1))))
-
-            res_features_dt.append(features_dt)
-            res_features_knn.append(features_knn)
+                    sum(confidence_knn[-WINDOW_SIZE:]) / max(len(confidence_knn[-WINDOW_SIZE:]), 1))))
 
             # Last distinct location and current location to learn the mapping
             # I choose to use random values in case its an anomaly,
             # because I dont want to learn it a particular mapping there
-            if data.temporary_test_set_raw_data[data_set_index].iloc[i]["is_anomaly"]:
-                res_features_dt.append(random.randint(0, num_outputs - 1))
-                res_features_dt.append(random.randint(0, num_outputs - 1))
-                res_features_knn.append(random.randint(0, num_outputs - 1) / (num_outputs - 1))
-                res_features_knn.append(random.randint(0, num_outputs - 1) / (num_outputs - 1))
+            """
+            if data.temporary_test_set_raw_data[data_set_index].iloc[i]["is_anomaly"] or (
+            not (real_previous_location in data.location_neighbor_graph)):
+                features_dt.append(random.randint(0, num_outputs - 1))
+                features_dt.append(random.randint(0, num_outputs - 1))
+                features_knn.append(random.randint(0, num_outputs - 1) / (num_outputs - 1))
+                features_knn.append(random.randint(0, num_outputs - 1) / (num_outputs - 1))
             else:
-                if new_location_dt == 0:
-                    res_features_dt.append(distinct_locations_dt[-1])
-                else:
-                    res_features_dt.append(distinct_locations_dt[-2])
+                features_dt.append(data.location_neighbor_graph[real_previous_location][0])
+                features_knn.append(data.location_neighbor_graph[real_previous_location][0] / (num_outputs - 1))
+                features_dt.append(real_labels[i])
+                features_knn.append(real_labels[i] / (num_outputs - 1))
+            """
 
-                if new_location_knn == 0:
-                    res_features_knn.append(distinct_locations_knn[-1] / (num_outputs - 1))
-                else:
-                    res_features_knn.append(distinct_locations_knn[-2] / (num_outputs - 1))
-                res_features_dt.append(new_location_dt)
-                res_features_knn.append(new_location_knn / (num_outputs - 1))
+            # Topology Guesser As input, its worth a try!
+            if new_location_dt == 0:
+                features_dt.append(int(topology_guesser_dt.predict(distinct_locations_dt[-1], 0)))
+            else:
+                features_dt.append(int(topology_guesser_dt.predict(distinct_locations_dt[-2], new_location_dt)))
+
+            if new_location_knn == 0:
+                features_knn.append(int(topology_guesser_knn.predict(distinct_locations_knn[-1], 0)))
+            else:
+                features_knn.append(int(topology_guesser_knn.predict(distinct_locations_knn[-2], new_location_knn)))
+
+            res_features_dt.append(features_dt)
+            res_features_knn.append(features_knn)
 
         return res_features_dt, res_labels, res_features_knn
 
@@ -174,15 +195,17 @@ if __name__ == "__main__":
         # Training set
         data_set_features_dt = []
         data_set_features_knn = []
-        for cycle in range(data.num_cycles - data.num_validation_cycles):
+        data_set_labels = []
+        for cycle in range(data.num_cycles - data.num_validation_cycles + 1):
             data_set_features_dt = data_set_features_dt + data.temporary_test_set_features_dt[data_set_index][cycle]
             data_set_features_knn = data_set_features_knn + data.temporary_test_set_features_knn[data_set_index][cycle]
+            data_set_labels = data_set_labels + data.temporary_test_set_labels_dt[data_set_index][cycle]
 
         predicted_dt = model_dt.continued_predict_proba(data_set_features_dt)
         predicted_knn = GenerateFFNN.static_continued_predict(model_knn, data_set_features_knn, data.num_outputs)
 
         res_features_dt, res_labels, res_features_knn = calculate_anomaly_features_and_labels(
-            predicted_dt, predicted_knn, data_set_index)
+            predicted_dt, predicted_knn, data_set_index, data_set_labels, data)
 
         af_dt = af_dt + res_features_dt
         af_knn = af_knn + res_features_knn
@@ -191,21 +214,23 @@ if __name__ == "__main__":
         # Validation set
         data_set_features_dt = []
         data_set_features_knn = []
-        for cycle in range(data.num_cycles - data.num_validation_cycles, data.num_cycles):
+        data_set_labels = []
+        for cycle in range(data.num_cycles - data.num_validation_cycles + 1, data.num_cycles):
             data_set_features_dt = data_set_features_dt + data.temporary_test_set_features_dt[data_set_index][cycle]
             data_set_features_knn = data_set_features_knn + data.temporary_test_set_features_knn[data_set_index][cycle]
+            data_set_labels = data_set_labels + data.temporary_test_set_labels_dt[data_set_index][cycle]
 
-        predicted_dt = model_dt.continued_predict_proba(data_set_features_dt)
-        predicted_knn = GenerateFFNN.static_continued_predict(model_knn, data_set_features_knn, data.num_outputs)
+        predicted_dt_val = model_dt.continued_predict_proba(data_set_features_dt)
+        predicted_knn_val = GenerateFFNN.static_continued_predict(model_knn, data_set_features_knn, data.num_outputs)
 
         res_features_dt, res_labels, res_features_knn = calculate_anomaly_features_and_labels(
-            predicted_dt, predicted_knn, data_set_index)
+            predicted_dt_val, predicted_knn_val, data_set_index, data_set_labels, data)
 
         af_dt_val = af_dt_val + res_features_dt
         af_knn_val = af_knn_val + res_features_knn
         al_val = al_val + res_labels
 
-        return af_dt, al, af_dt_val, al_val, af_knn, af_knn_val
+        return af_dt, al, af_dt_val, al_val, af_knn, af_knn_val, predicted_dt_val, predicted_knn_val
 
 
     print("Loading data and models...")
@@ -218,7 +243,7 @@ if __name__ == "__main__":
             print("Generating Training and Validation Data...")
             args = []
 
-            for data_set_index in range(len(data.temporary_test_set_features_dt) - 1):
+            for data_set_index in [2, 3, 4]:
                 args.append([data_set_index, data, model_dt])
 
             anomaly_features_dt = []
@@ -229,9 +254,12 @@ if __name__ == "__main__":
             anomaly_features_knn_val = []
             anomaly_labels_val = []
 
+            predicted_dt_val = []
+            predicted_knn_val = []
+
             with Pool(processes=NUM_CORES) as pool:
                 for res in pool.map(calculate_data_set, args):
-                    af_dt, al, af_dt_val, al_val, af_knn, af_knn_val = res
+                    af_dt, al, af_dt_val, al_val, af_knn, af_knn_val, pred_dt_val, pred_knn_val = res
 
                     anomaly_features_dt = anomaly_features_dt + af_dt
                     anomaly_labels = anomaly_labels + al
@@ -241,9 +269,12 @@ if __name__ == "__main__":
                     anomaly_features_knn = anomaly_features_knn + af_knn
                     anomaly_features_knn_val = anomaly_features_knn_val + af_knn_val
 
+                    predicted_dt_val = predicted_dt_val + pred_dt_val
+                    predicted_knn_val = predicted_knn_val + pred_knn_val
+
             print("Training the anomaly detection models....")
             model_anomaly_dt = GenerateDecisionTree(EnsembleMethod.RandomForest, 8, 20)
-            model_anomaly_knn = GenerateFFNN(4, 2, 1, 32, NUM_EPOCHS_PER_CYCLE, True)
+            model_anomaly_knn = GenerateFFNN(2, 2, 1, 32, NUM_EPOCHS_PER_CYCLE, True)
 
             model_anomaly_dt.fit(anomaly_features_dt, anomaly_labels, 0.25)
             model_anomaly_knn.fit(anomaly_features_knn, anomaly_labels, anomaly_features_knn_val,
@@ -265,6 +296,49 @@ if __name__ == "__main__":
                                                                   anomaly_labels_val)
             print("Accuracy always True: {0}".format(acc_always_true))
             print("Accuracy always False: {0}".format(acc_always_false))
+
+            # Prepare previous distinct locations for guessed locations
+            previous_distinct_locations_dt = [0, 0]
+            previous_distinct_locations_knn = [0, 0]
+
+            res_previous_distinct_locations_dt = []
+            res_previous_distinct_locations_knn = []
+            for i in range(len(predicted_dt_val)):
+                prediction_dt = np.asarray(predicted_dt_val[i]).argmax()
+                prediction_knn = np.asarray(predicted_knn_val[i]).argmax()
+
+                if 0 < prediction_dt != previous_distinct_locations_dt[-1]:
+                    previous_distinct_locations_dt.append(prediction_dt)
+                    previous_distinct_locations_dt.pop(0)
+
+                if 0 < prediction_knn != previous_distinct_locations_knn[-1]:
+                    previous_distinct_locations_knn.append(prediction_knn)
+                    previous_distinct_locations_knn.pop(0)
+
+                if prediction_dt == 0:
+                    res_previous_distinct_locations_dt.append(previous_distinct_locations_dt[-1])
+                else:
+                    res_previous_distinct_locations_dt.append(previous_distinct_locations_dt[-2])
+
+                if prediction_knn == 0:
+                    res_previous_distinct_locations_knn.append(previous_distinct_locations_knn[-1])
+                else:
+                    res_previous_distinct_locations_knn.append(previous_distinct_locations_knn[-2])
+
+            topology_guesser_dt = AnomalyTopologyGuesser(data.location_neighbor_graph)
+            topology_guesser_knn = AnomalyTopologyGuesser(data.location_neighbor_graph)
+            guessed_dt = []
+            guessed_knn = []
+            for i in range(len(res_previous_distinct_locations_dt)):
+                guessed_dt.append(int(topology_guesser_dt.predict(res_previous_distinct_locations_dt[i],
+                                                                  np.asarray(predicted_dt_val[i]).argmax())))
+                guessed_knn.append(int(topology_guesser_knn.predict(res_previous_distinct_locations_knn[i],
+                                                                    np.asarray(predicted_knn_val[i]).argmax())))
+
+            acc_top_dt = model_anomaly_dt.evaluate_accuracy(guessed_dt, anomaly_labels_val)
+            acc_top_knn = model_anomaly_dt.evaluate_accuracy(guessed_knn, anomaly_labels_val)
+            print("Accuracy Anomaly Topology Guesser (DT): {0}".format(acc_top_dt))
+            print("Accuracy Anomaly Topology Guesser (KNN): {0}".format(acc_top_knn))
 
             print("Saving anomaly models...")
             with open(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_dt_anomaly_model.pkl", 'wb') as file:

@@ -203,10 +203,10 @@ with open(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_data.pkl", 'rb'
             test_set_features_knn_random_location = np.asarray(test_sets_knn[k]).copy()
 
             for i in range(len(test_set_features_dt)):
-                test_set_features_dt_random_location[i][0] = random.randint(0, data.num_outputs)
-                test_set_features_dt_random_location[i][1] = random.randint(1, data.num_outputs)
-                test_set_features_knn_random_location[i][0] = random.randint(0, data.num_outputs) / data.num_outputs
-                test_set_features_knn_random_location[i][1] = random.randint(1, data.num_outputs) / data.num_outputs
+                test_set_features_dt_random_location[i][0] = random.randint(0, data.num_outputs - 1)
+                test_set_features_dt_random_location[i][1] = random.randint(1, data.num_outputs - 1)
+                test_set_features_knn_random_location[i][0] = random.randint(0, data.num_outputs - 1) / (data.num_outputs - 1)
+                test_set_features_knn_random_location[i][1] = random.randint(1, data.num_outputs - 1) / (data.num_outputs - 1)
 
             map_args.append([path, "random_prev_location", model_dt, test_set_features_dt_random_location,
                              test_set_features_knn_random_location, test_set_labels_dt, test_set_labels_knn,
@@ -220,8 +220,8 @@ with open(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_data.pkl", 'rb'
 
             test_set_features_dt[0][0] = 5
             test_set_features_dt[0][1] = 5
-            test_set_features_knn[0][0] = 5 / data.num_outputs
-            test_set_features_knn[0][1] = 5 / data.num_outputs
+            test_set_features_knn[0][0] = 5 / (data.num_outputs - 1)
+            test_set_features_knn[0][1] = 5 / (data.num_outputs - 1)
 
             map_args.append([path, "continued_pred_with_faulty_start", model_dt, test_set_features_dt,
                              test_set_features_knn, test_set_labels_dt, test_set_labels_knn, data.num_outputs,

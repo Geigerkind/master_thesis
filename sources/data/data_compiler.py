@@ -1,8 +1,8 @@
+import copy
 import math
 import os
 import random
 from multiprocessing import Pool
-import copy
 
 import numpy as np
 import pandas as pd
@@ -309,7 +309,7 @@ class DataCompiler:
         self.fraction_fault_training_data = 0.1
 
         # Internal configuration
-        self.__num_temporary_test_sets = 3  # Note the anomaly set added at the load
+        self.__num_temporary_test_sets = 6  # Note the anomaly set added at the load
         self.__using_manual_data_set = not (manual_data_set is None)
         self.__is_verbose = not self.__using_manual_data_set
 
@@ -318,6 +318,7 @@ class DataCompiler:
         self.__raw_data = []
         self.index_maps = []
 
+        self.location_neighbor_graph = dict()
         self.position_map = dict()
         self.access_point_range = 1.5
         self.access_point_positions = [
@@ -535,6 +536,9 @@ class DataCompiler:
         # Reverse ordering because its removed in reverse order
         self.name_map_data_sets_temporary.append("combined_test_route")
         self.name_map_data_sets_temporary.append("anomaly2")
+        self.name_map_data_sets_temporary.append("anomaly_train3")
+        self.name_map_data_sets_temporary.append("anomaly_train2")
+        self.name_map_data_sets_temporary.append("anomaly_train1")
         self.name_map_data_sets_temporary.append("anomaly1")
 
         set1 = self.__glue_routes_together(DataSet.SimpleSquare, DataSet.Anomaly, 5)
@@ -574,17 +578,19 @@ class DataCompiler:
             pool.join()
             return data
 
+        anomaly_data_sets = [DataSet.Anomaly, DataSet.AnomalyTrain1, DataSet.AnomalyTrain2, DataSet.AnomalyTrain3]
+
         location_offset = 0
-        for data_set in self.data_sets + [DataSet.Anomaly]:
+        for data_set in self.data_sets + anomaly_data_sets:
             if self.__is_verbose:
                 print("Loading Dataset: {0}".format(data_set.value[0]))
             self.__data_sets[data_set] = pd.read_csv(BIN_FOLDER_PATH + "/data/" + data_set.value[0])
 
             test_set = 0
-            if data_set != DataSet.Anomaly:
+            if not (data_set in anomaly_data_sets):
                 test_set = pd.read_csv(BIN_FOLDER_PATH + "/data/" + data_set.value[1] + "_test.csv")
 
-            if data_set != DataSet.Anomaly:
+            if not (data_set in anomaly_data_sets):
                 self.name_map_data_sets_result.append(data_set.value[1])
                 self.name_map_data_sets_test.append(data_set.value[1] + "_test")
 
@@ -592,21 +598,35 @@ class DataCompiler:
                 print("Adjusting pos...")
             self.__data_sets[data_set] = parallelize(self.__data_sets[data_set], par_lrd_adjust_pos,
                                                      location_offset)
-            if data_set != DataSet.Anomaly:
+            if not (data_set in anomaly_data_sets):
                 test_set = parallelize(test_set, par_lrd_adjust_pos, location_offset)
             location_offset = self.__data_sets[data_set]["pos"].max()
 
             if self.__is_verbose:
                 print("Setting Location...")
+
+            def append_to_neighbor_graph(dict, left, right):
+                if not (left in dict):
+                    dict[left] = []
+                if not (right in dict[left]):
+                    dict[left].append(right)
+
             initial_positions = dict()
+            previous_pos = self.__data_sets[data_set].iloc[0]["pos"]
             for row in self.__data_sets[data_set].iterrows():
+                # There is no 0 pos to worry about here
+                if row[1]["pos"] != previous_pos and not (data_set in anomaly_data_sets):
+                    append_to_neighbor_graph(self.location_neighbor_graph, row[1]["pos"], previous_pos)
+                    # append_to_neighbor_graph(self.location_neighbor_graph, previous_pos, row[1]["pos"])
+                    previous_pos = row[1]["pos"]
+
                 if not (row[1]["pos"] in initial_positions):
                     initial_positions[row[1]["pos"]] = row[1]
-                    if data_set != DataSet.Anomaly:
+                    if not (data_set in anomaly_data_sets):
                         self.position_map[row[1]["pos"]] = [row[1]["x_pos"], row[1]["y_pos"]]
             self.__data_sets[data_set] = parallelize(self.__data_sets[data_set], par_lrd_set_location,
                                                      [initial_positions, self.proximity])
-            if data_set != DataSet.Anomaly:
+            if not (data_set in anomaly_data_sets):
                 test_set = parallelize(test_set, par_lrd_set_location, [initial_positions, self.proximity])
 
             if self.encode_paths_between_as_location:
@@ -623,12 +643,16 @@ class DataCompiler:
                         if not (row[1]["location"] in location_map):
                             location_offset = location_offset + 1
                             location_map[row[1]["location"]] = location_offset
-                            if data_set != DataSet.Anomaly:
+                            if not (data_set in anomaly_data_sets):
                                 self.position_map[location_offset] = [row[1]["x_pos"], row[1]["y_pos"]]
+                                append_to_neighbor_graph(self.location_neighbor_graph, row[1]["location"],
+                                                         location_offset)
+                                # append_to_neighbor_graph(self.location_neighbor_graph, location_offset,
+                                #                          row[1]["location"])
                         previous_non_zero_pos = row[1]["location"]
 
                 previous_non_zero_pos = 0
-                if data_set != DataSet.Anomaly:
+                if not (data_set in anomaly_data_sets):
                     for row in test_set.iterrows():
                         if row[1]["location"] == 0:
                             row[1]["location"] = location_map[previous_non_zero_pos]
@@ -637,7 +661,7 @@ class DataCompiler:
                                 location_map[row[1]["location"]] = location_offset
                             previous_non_zero_pos = row[1]["location"]
 
-            if data_set != DataSet.Anomaly:
+            if not (data_set in anomaly_data_sets):
                 test_set["is_anomaly"] = False
                 self.test_raw_data.append(test_set)
             self.__data_sets[data_set]["is_anomaly"] = data_set == DataSet.Anomaly
@@ -777,7 +801,8 @@ class DataCompiler:
             if is_verbose:
                 print("Creating random heading deviations set...")
             heading_deviation = data_set.copy(deep=True)
-            heading_deviation["heading"].apply(lambda x: x * ((100 + random.randint(-max_deviation, max_deviation)) / 100))
+            heading_deviation["heading"].apply(
+                lambda x: x * ((100 + random.randint(-max_deviation, max_deviation)) / 100))
             ref_raw_data.append(heading_deviation)
             ref_name_map.append(
                 "faulty_" + ref_orig_name_map[count] + "_random_heading_deviation")
@@ -793,7 +818,8 @@ class DataCompiler:
             if is_verbose:
                 print("Creating random temperature deviations set...")
             temperature_deviation = data_set.copy(deep=True)
-            temperature_deviation["temperature"].apply(lambda x: x * ((100 + random.randint(-max_deviation, max_deviation)) / 100))
+            temperature_deviation["temperature"].apply(
+                lambda x: x * ((100 + random.randint(-max_deviation, max_deviation)) / 100))
             ref_raw_data.append(temperature_deviation)
             ref_name_map.append(
                 "faulty_" + ref_orig_name_map[count] + "_random_temperature_deviation")
@@ -801,7 +827,8 @@ class DataCompiler:
             if is_verbose:
                 print("Creating random volume deviations set...")
             volume_deviation = data_set.copy(deep=True)
-            volume_deviation["volume"].apply(lambda x: x * ((100 + random.randint(-max_deviation, max_deviation)) / 100))
+            volume_deviation["volume"].apply(
+                lambda x: x * ((100 + random.randint(-max_deviation, max_deviation)) / 100))
             ref_raw_data.append(volume_deviation)
             ref_name_map.append(
                 "faulty_" + ref_orig_name_map[count] + "_random_volume_deviation")
@@ -831,7 +858,8 @@ class DataCompiler:
                 for cycle in range(self.num_cycles):
                     for label_index in range(len(self.result_labels_dt[data_set_index][cycle])):
                         label = self.result_labels_dt[data_set_index][cycle][label_index]
-                        if label > 0 and (len(last_distinct_locations_dt) == 0 or last_distinct_locations_dt[-1] != label):
+                        if label > 0 and (
+                                len(last_distinct_locations_dt) == 0 or last_distinct_locations_dt[-1] != label):
                             last_distinct_locations_dt.append(label)
                             last_distinct_locations_knn.append(label / (self.num_outputs - 1))
 
@@ -847,7 +875,8 @@ class DataCompiler:
                 self.faulty_labels_knn.append(copy.copy(self.result_labels_knn[data_set_index]))
                 self.faulty_features_dt.append(f_copy_dt)
                 self.faulty_features_knn.append(f_copy_knn)
-                self.name_map_data_sets_faulty.append("faulty_" + self.name_map_data_sets_result[data_set_index] + "_skipped_location")
+                self.name_map_data_sets_faulty.append(
+                    "faulty_" + self.name_map_data_sets_result[data_set_index] + "_skipped_location")
 
             # Copy pasta cause I was lazy
             for data_set_index in range(len(self.test_labels_dt)):
@@ -861,7 +890,8 @@ class DataCompiler:
                 for cycle in range(self.num_cycles):
                     for label_index in range(len(self.test_labels_dt[data_set_index][cycle])):
                         label = self.test_labels_dt[data_set_index][cycle][label_index]
-                        if label > 0 and (len(last_distinct_locations_dt) == 0 or last_distinct_locations_dt[-1] != label):
+                        if label > 0 and (
+                                len(last_distinct_locations_dt) == 0 or last_distinct_locations_dt[-1] != label):
                             last_distinct_locations_dt.append(label)
                             last_distinct_locations_knn.append(label / (self.num_outputs - 1))
 
@@ -877,7 +907,8 @@ class DataCompiler:
                 self.faulty_test_labels_knn.append(copy.copy(self.test_labels_knn[data_set_index]))
                 self.faulty_test_features_dt.append(f_copy_dt)
                 self.faulty_test_features_knn.append(f_copy_knn)
-                self.name_map_data_sets_faulty_test.append("faulty_" + self.name_map_data_sets_test[data_set_index] + "_skipped_location")
+                self.name_map_data_sets_faulty_test.append(
+                    "faulty_" + self.name_map_data_sets_test[data_set_index] + "_skipped_location")
 
     def __add_synthetic_sensor_data(self):
         if self.__is_verbose:
@@ -895,15 +926,19 @@ class DataCompiler:
 
         for data_set in self.__raw_data:
             for ap in range(len(self.access_point_positions)):
-                data_set["access_point_{0}".format(ap)] = ((data_set["x_pos"] - self.access_point_positions[ap][0]) ** 2 + (
-                        data_set["y_pos"] - self.access_point_positions[ap][1]) ** 2).apply(
+                data_set["access_point_{0}".format(ap)] = ((data_set["x_pos"] - self.access_point_positions[ap][
+                    0]) ** 2 + (
+                                                                   data_set["y_pos"] - self.access_point_positions[ap][
+                                                               1]) ** 2).apply(
                     lambda x: math.sqrt(x)) <= self.access_point_range
 
         if not self.__using_manual_data_set:
             for data_set in self.test_raw_data:
                 for ap in range(len(self.access_point_positions)):
-                    data_set["access_point_{0}".format(ap)] = ((data_set["x_pos"] - self.access_point_positions[ap][0]) ** 2 + (
-                            data_set["y_pos"] - self.access_point_positions[ap][1]) ** 2).apply(
+                    data_set["access_point_{0}".format(ap)] = ((data_set["x_pos"] - self.access_point_positions[ap][
+                        0]) ** 2 + (
+                                                                       data_set["y_pos"] -
+                                                                       self.access_point_positions[ap][1]) ** 2).apply(
                         lambda x: math.sqrt(x)) <= self.access_point_range
 
         ###############
@@ -1254,7 +1289,8 @@ class DataCompiler:
             if self.__is_verbose:
                 print("Temporary test sets data...")
             tr_features_dt, tr_features_knn, tr_labels_dt, tr_labels_knn = extract_from_data_sets(
-                self.temporary_test_set_raw_data, self.window_size, self.features, self.num_outputs, self.lookback_window)
+                self.temporary_test_set_raw_data, self.window_size, self.features, self.num_outputs,
+                self.lookback_window)
             self.temporary_test_set_labels_dt = tr_labels_dt
             self.temporary_test_set_labels_knn = tr_labels_knn
             self.temporary_test_set_features_dt = tr_features_dt

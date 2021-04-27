@@ -8,6 +8,7 @@ import numpy as np
 from matplotlib.animation import FuncAnimation
 from pandas import DataFrame
 
+from sources.anomaly.topology_guesser import AnomalyTopologyGuesser
 from sources.config import BIN_FOLDER_PATH
 from sources.data.data_compiler import DataCompiler
 from sources.data.features import Features
@@ -53,6 +54,7 @@ statistics_prediction = []
 for i in range(len(data.position_map) + 1):
     statistics_prediction.append([0, 0, 0, 0, 0])
 statistics_anomaly = [0, 0, 0, 0, 0]
+statistics_anomaly_tg = [0, 0, 0, 0, 0]
 
 window_location_changes = []
 window_location_changes_no_anomaly = []
@@ -62,6 +64,7 @@ window_confidence_no_anomaly = []
 true_location_history = []
 true_anamoly_history = []
 anamoly_history = []
+anomaly_history_topology_guesser = []
 
 anomaly_areas = [
     [[3, 1], [4.4, 3]]
@@ -124,16 +127,19 @@ def redraw():
 
     # TODO: Scatter sizes are not linear!
     # Locations:
-    ax.scatter([x[0] for x in data.position_map.values()], [x[1] for x in data.position_map.values()], c="green", alpha=0.5,
+    ax.scatter([x[0] for x in data.position_map.values()], [x[1] for x in data.position_map.values()], c="green",
+               alpha=0.5,
                zorder=2.7, s=size_map[data.proximity])
     for i in range(len(data.position_map.values())):
         ax.text(data.position_map[i + 1][0] - 0.1, data.position_map[i + 1][1] + 0.15, str(i + 1), fontsize=18)
 
     # Access points
-    ax.scatter([x[0] for x in data.access_point_positions], [x[1] for x in data.access_point_positions], c="gray", alpha=0.5,
+    ax.scatter([x[0] for x in data.access_point_positions], [x[1] for x in data.access_point_positions], c="gray",
+               alpha=0.5,
                zorder=2.6, s=size_map[data.access_point_range])
     for i in range(len(data.access_point_positions)):
-        ax.text(data.access_point_positions[i][0] - 0.3, data.access_point_positions[i][1] - 0.15, "AP_" + str(i), fontsize=18)
+        ax.text(data.access_point_positions[i][0] - 0.3, data.access_point_positions[i][1] - 0.15, "AP_" + str(i),
+                fontsize=18)
 
     # Heat sources
     ax.scatter([x[0][0] for x in data.heat_sources], [x[0][1] for x in data.heat_sources], c="red", alpha=0.5,
@@ -142,10 +148,12 @@ def redraw():
         ax.text(data.heat_sources[i][0][0] - 0.3, data.heat_sources[i][0][1] - 0.15, "HS_" + str(i), fontsize=18)
 
     # magnetic_sources
-    ax.scatter([x[0][0] for x in data.magnetic_sources], [x[0][1] for x in data.magnetic_sources], c="yellow", alpha=0.5,
+    ax.scatter([x[0][0] for x in data.magnetic_sources], [x[0][1] for x in data.magnetic_sources], c="yellow",
+               alpha=0.5,
                zorder=2.6, s=[size_map[x[1]] for x in data.magnetic_sources])
     for i in range(len(data.magnetic_sources)):
-        ax.text(data.magnetic_sources[i][0][0] - 0.3, data.magnetic_sources[i][0][1] - 0.15, "MS_" + str(i), fontsize=18)
+        ax.text(data.magnetic_sources[i][0][0] - 0.3, data.magnetic_sources[i][0][1] - 0.15, "MS_" + str(i),
+                fontsize=18)
 
     # Noises
     ax.scatter([x[0][0] for x in data.noises], [x[0][1] for x in data.noises], c="purple", alpha=0.5,
@@ -157,8 +165,9 @@ def redraw():
     ax2.plot(range(len(true_location_history)), true_location_history, "-g", lw=2, zorder=3)
     ax2.plot(range(len(prediction_history)), prediction_history, "-b", lw=2, zorder=3)
 
-    ax3.plot(range(len(true_anamoly_history)), true_anamoly_history, "-g", lw=2, zorder=3)
-    ax3.plot(range(len(anamoly_history)), anamoly_history, "-b", lw=2, zorder=3)
+    ax3.plot(range(len(true_anamoly_history)), true_anamoly_history, "-g", lw=2, zorder=3.1)
+    ax3.plot(range(len(anamoly_history)), [x - 0.1 for x in anamoly_history], "-b", lw=2, zorder=3)
+    ax3.plot(range(len(anomaly_history_topology_guesser)), [x + 0.1 for x in anomaly_history_topology_guesser], "-r", lw=2, zorder=3)
 
     # Feature importance
     if len(all_features) > 0:
@@ -178,10 +187,13 @@ num_draws = 0
 now = time.time()
 last_prediction = 0
 last_prediction_anomaly = 0
+last_prediction_anomaly_topology_guesser = 0
 last_prediction_when = 0
 now = time.time()
 num_skipped = 0
 prev_distinct_prediction = 0
+
+topology_guesser = AnomalyTopologyGuesser(data.location_neighbor_graph)
 
 
 def run(args):
@@ -212,6 +224,10 @@ def run(args):
     global window_location_changes_no_anomaly
     global window_confidence_no_anomaly
     global prev_distinct_prediction
+    global anomaly_history_topology_guesser
+    global last_prediction_anomaly_topology_guesser
+    global topology_guesser
+    global statistics_anomaly_tg
 
     # Try to read the line
     current_reader_pos = file.tell()
@@ -305,7 +321,8 @@ def run(args):
         current_location = 0
         for i in range(len(data.position_map.values())):
             if math.sqrt(
-                    (data.position_map[i + 1][0] - x_pos) ** 2 + (data.position_map[i + 1][1] - y_pos) ** 2) <= data.proximity:
+                    (data.position_map[i + 1][0] - x_pos) ** 2 + (
+                            data.position_map[i + 1][1] - y_pos) ** 2) <= data.proximity:
                 current_location = i + 1
                 break
 
@@ -341,24 +358,31 @@ def run(args):
         window_loc_changes_deviation = 0
         window_confidence_deviation = 0
         if len(window_location_changes_no_anomaly) >= WINDOW_SIZE:
-            window_loc_changes_deviation = abs((sum(window_location_changes_no_anomaly) / max(len(window_location_changes_no_anomaly), 1)) - (
-                    sum(window_location_changes[-WINDOW_SIZE:]) / max(len(window_location_changes[-WINDOW_SIZE:]), 1)))
-            window_confidence_deviation = abs((sum(window_confidence_no_anomaly) / max(len(window_confidence_no_anomaly), 1)) - (
-                    sum(window_confidence[-WINDOW_SIZE:]) / max(len(window_confidence[-WINDOW_SIZE:]), 1)))
+            window_loc_changes_deviation = abs(
+                (sum(window_location_changes_no_anomaly) / max(len(window_location_changes_no_anomaly), 1)) - (
+                        sum(window_location_changes[-WINDOW_SIZE:]) / max(len(window_location_changes[-WINDOW_SIZE:]),
+                                                                          1)))
+            window_confidence_deviation = abs(
+                (sum(window_confidence_no_anomaly) / max(len(window_confidence_no_anomaly), 1)) - (
+                        sum(window_confidence[-WINDOW_SIZE:]) / max(len(window_confidence[-WINDOW_SIZE:]), 1)))
 
         anomaly_features = [
-            #sum(window_location_changes[-WINDOW_SIZE:]),  # TODO: KNN
-            #sum(window_confidence[-WINDOW_SIZE:]),  # TODO: KNN
-            #prediction_proba,
-            #prediction_change,
-            #fraction_zero_prediction,
+            # sum(window_location_changes[-WINDOW_SIZE:]),  # TODO: KNN
+            # sum(window_confidence[-WINDOW_SIZE:]),  # TODO: KNN
+            # prediction_proba,
+            # prediction_change,
+            # fraction_zero_prediction,
             window_loc_changes_deviation,
-            window_confidence_deviation
+            window_confidence_deviation,
+            #prev_distinct_prediction,
+            #prediction
         ]
 
         # Save for statistics
         last_prediction = prediction
         last_prediction_anomaly = model_anomaly.predict([anomaly_features])[0]
+        last_prediction_anomaly_topology_guesser = int(
+            topology_guesser.predict(prev_distinct_prediction, last_prediction))
         last_prediction_when = t_stamp
 
         is_current_pos_anomaly = False
@@ -377,35 +401,54 @@ def run(args):
         elif is_anomaly != is_current_pos_anomaly and not is_anomaly:
             statistics_anomaly[3] = statistics_anomaly[3] + 1
 
+        is_anomaly_tg = last_prediction_anomaly_topology_guesser == 1
+        if is_anomaly_tg == is_current_pos_anomaly and is_current_pos_anomaly:
+            statistics_anomaly_tg[0] = statistics_anomaly_tg[0] + 1
+        elif is_anomaly_tg == is_current_pos_anomaly and not is_current_pos_anomaly:
+            statistics_anomaly_tg[1] = statistics_anomaly_tg[1] + 1
+        elif is_anomaly_tg != is_current_pos_anomaly and is_anomaly_tg:
+            statistics_anomaly_tg[2] = statistics_anomaly_tg[2] + 1
+        elif is_anomaly_tg != is_current_pos_anomaly and not is_anomaly_tg:
+            statistics_anomaly_tg[3] = statistics_anomaly_tg[3] + 1
+
         # History ftw
         true_location_history.append(current_location)
         true_anamoly_history.append(int(is_current_pos_anomaly))
         anamoly_history.append(int(is_anomaly))
+        anomaly_history_topology_guesser.append(int(is_anomaly_tg))
 
     print("Number of predictions: %d" % (len(prediction_history)))
     print("Last Prediction: %d | %.1f seconds ago." % (last_prediction, t_stamp - last_prediction_when))
     print("Is anomaly: %d" % (last_prediction_anomaly))
+    print("Is anomaly (TG): %d" % (last_prediction_anomaly_topology_guesser))
     print("Last distinct location %d" % (prev_distinct_prediction))
-    print("|   Loc   |   TP   |   TN   |   FP   |   FN   |   ACC  |")
+    print("|   Loc      |   TP   |   TN   |   FP   |   FN   |   ACC  |")
     print("________________________________________________________")
     for i in range(len(data.position_map.values()) + 1):
         sum_row = max(sum(statistics_prediction[i]), 1)
-        print("| %d       | %.4f | %.4f | %.4f | %.4f | %.4f |" % (i, (statistics_prediction[i][0] / sum_row),
-                                                                   statistics_prediction[i][1] / sum_row,
-                                                                   statistics_prediction[i][2] / sum_row,
-                                                                   statistics_prediction[i][3] / sum_row,
-                                                                   statistics_prediction[i][0] / max(
-                                                                       statistics_prediction[i][0] +
-                                                                       statistics_prediction[i][3], 1)))
+        print("| %d          | %.4f | %.4f | %.4f | %.4f | %.4f |" % (i, (statistics_prediction[i][0] / sum_row),
+                                                                      statistics_prediction[i][1] / sum_row,
+                                                                      statistics_prediction[i][2] / sum_row,
+                                                                      statistics_prediction[i][3] / sum_row,
+                                                                      statistics_prediction[i][0] / max(
+                                                                          statistics_prediction[i][0] +
+                                                                          statistics_prediction[i][3], 1)))
 
     # Anomaly statistics
     sum_row = max(sum(statistics_anomaly), 1)
-    print("| Anomaly | %.4f | %.4f | %.4f | %.4f | %.4f |" % ((statistics_anomaly[0] / sum_row),
-                                                              statistics_anomaly[1] / sum_row,
-                                                              statistics_anomaly[2] / sum_row,
-                                                              statistics_anomaly[3] / sum_row,
-                                                              (statistics_anomaly[0] + statistics_anomaly[
-                                                                  1]) / sum_row))
+    print("| Anomaly    | %.4f | %.4f | %.4f | %.4f | %.4f |" % ((statistics_anomaly[0] / sum_row),
+                                                                 statistics_anomaly[1] / sum_row,
+                                                                 statistics_anomaly[2] / sum_row,
+                                                                 statistics_anomaly[3] / sum_row,
+                                                                 (statistics_anomaly[0] + statistics_anomaly[
+                                                                     1]) / sum_row))
+    sum_row = max(sum(statistics_anomaly_tg), 1)
+    print("| Anomaly TG | %.4f | %.4f | %.4f | %.4f | %.4f |" % ((statistics_anomaly_tg[0] / sum_row),
+                                                                 statistics_anomaly_tg[1] / sum_row,
+                                                                 statistics_anomaly_tg[2] / sum_row,
+                                                                 statistics_anomaly_tg[3] / sum_row,
+                                                                 (statistics_anomaly_tg[0] + statistics_anomaly_tg[
+                                                                     1]) / sum_row))
 
     # Plot the route
     if num_draws % 25 == 0:
@@ -419,8 +462,9 @@ def run(args):
         ax2.scatter([len(true_location_history) - 1], [true_location_history[-1]], c="green", zorder=3)
         ax2.scatter([len(prediction_history) - 1], [prediction_history[-1]], c="blue", zorder=3)
 
-        ax3.scatter([len(true_anamoly_history) - 1], [true_anamoly_history[-1]], c="green", zorder=3)
-        ax3.scatter([len(anamoly_history) - 1], [anamoly_history[-1]], c="blue", zorder=3)
+        ax3.scatter([len(true_anamoly_history) - 1], [true_anamoly_history[-1]], c="green", zorder=3.1)
+        ax3.scatter([len(anamoly_history) - 1], [anamoly_history[-1] - 0.1], c="blue", zorder=3)
+        ax3.scatter([len(anomaly_history_topology_guesser) - 1], [anomaly_history_topology_guesser[-1] + 0.1], c="red", zorder=3)
 
         # Plot feature importance (using sub plots)
         if prediction > 0:
