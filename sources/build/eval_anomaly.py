@@ -17,7 +17,7 @@ In this file the anomaly model is trained.
 Requires the classification model to be trained before.
 """
 
-WITH_FEEDBACK_EDGE = True
+WITH_FEEDBACK_EDGE = False
 
 # For some magical reason required by get_context method of multiprocessing
 if __name__ == "__main__":

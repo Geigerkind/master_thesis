@@ -284,10 +284,10 @@ def run(args):
     all_features = []
     cf_count = 0
     for i in range(len(processed_data.result_features_dt[0])):
-        all_features = all_features + processed_data.result_features_dt[0][i]
+        all_features = all_features + (processed_data.result_features_dt[0][i] if is_dt else processed_data.result_features_dtt[0][i])
         for j in range(len(processed_data.result_features_dt[0][i])):
             if cf_count == current_feature_index - truncated_count:
-                current_features = processed_data.result_features_dt[0][i][j]
+                current_features = processed_data.result_features_dt[0][i][j] if is_dt else processed_data.result_features_knn[0][i][j]
                 break
             cf_count = cf_count + 1
         if not (current_features is None):
