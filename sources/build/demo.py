@@ -67,7 +67,7 @@ anamoly_history = []
 anomaly_history_topology_guesser = []
 
 anomaly_areas = [
-    [[3, 1], [4.4, 3]]
+    [[3, 1.2], [5, 3]]
 ]
 
 # Prepare plots

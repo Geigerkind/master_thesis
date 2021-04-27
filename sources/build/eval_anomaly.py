@@ -324,10 +324,15 @@ if __name__ == "__main__":
 
                     # Of that fraction we pick samples randomly
                     permutation = np.random.permutation(len(af_dt[cycle]))
+                    predictions_dt = model_anomaly_dt.predict(af_dt[cycle])
+                    predictions_knn = model_anomaly_knn.predict(af_knn[cycle])
                     for perm_index in range(0, int(len(af_dt[cycle]) * fraction_to_predict)):
                         i = permutation[perm_index]
-                        af_dt[cycle][i][0] = model_anomaly_dt.predict([af_dt[cycle][i]])[0]
-                        af_knn[cycle][i][0] = int(model_anomaly_knn.predict([af_knn[cycle][i]])[0] >= 0.5)
+                        if i == 0:
+                            continue
+
+                        af_dt[cycle][i][0] = predictions_dt[i - 1]
+                        af_knn[cycle][i][0] = int(predictions_knn[i - 1][0] >= 0.5)
 
                     train_af_dt = train_af_dt + af_dt[cycle].tolist()
                     train_af_knn = train_af_knn + af_knn[cycle].tolist()
