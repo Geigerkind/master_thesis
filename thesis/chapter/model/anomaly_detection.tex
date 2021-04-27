@@ -1,3 +1,4 @@
+\newpage
 \section{Anomalieerkennung}
 Als Anomalieerkennung wird in dieser Arbeit das Problem bezeichnet, zu erkennen, dass die Sensorenbox sich an einem
 unbekannten Standort oder auf einem unbekannten Pfad befindet.
@@ -24,10 +25,23 @@ Sie werden im Gegensatz zu den ML-Modellen zur Standorterkennung nur einmalig tr
 Die Trainingsdaten werden aus den Anomaliedatenmengen und Datenmengen für die verschieden Routen generiert.
 Dafür werden die Klassifizierungsergebnisse auf diesen Datenmengen von den zuvor trainierten ML-Modellen zur Standorterkennung genutzt.
 Daraus werden beschriftete Features extrahiert, die in Kapitel \ref{sec:data_anomalie} detailiert erläutert werden.
-\newline
-\newline
+\newpage
 Alternativ können nicht ML-Modelle als Vergleichsmodelle genutzt werden.
 Die trivialen Modelle sind das \textit{Coin-Toss}-, \textit{immer Falsch}- und \textit{immer Wahr}-Modell.
 Ein komplexeres Modell nutzt die Topologie des Systems aus, um eine Anamolie zu indizieren, wenn die Sensorenbox nicht dem Pfad folgt.
 In einer lockereren Variante könnte nur erwartet werden, dass einem Pfad kontinuierlich gefolgt wird,
 sodass übersprungende Standorte nicht dauerhaft eine Anomalie indizieren.
+Abbildung \ref{lst:topology_anomaly_detection} skizziert dieses Modell.
+Wenn der Standort und der vorherige Standort nicht der unbekannte Standort ist und
+der vorherige Standort ungleich dem erwarteten Standort ist, dann wird ein Alarm ausgelöst.
+Dieser Alarm indiziert für eine konstante Dauer, dass eine Anomalie vorliegt.
+Dies ist motiviert aus dem Zusammenhang, dass wenn eine Anomalie vorliegt, es wahrscheinlich ist, dass sie kurz danach immernoch vorliegt.
+\begin{lstlisting}[label=lst:topology_anomaly_detection, caption={Skizze des Modells zur Anamolieerkennung auf Basis der Topologie.}]
+if standort > 0 and vorheriger_standort > 0 and topologie[standort].vorheriger_standort != vorheriger_standort:
+    alarm_zaehler = 0
+
+if alarm_dauer > alarm_zaehler:
+    alarm_zaehler++
+    return true
+return false
+\end{lstlisting}
