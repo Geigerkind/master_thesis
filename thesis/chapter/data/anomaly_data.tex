@@ -1,8 +1,10 @@
 \section{Anomaliedaten}
 \label{sec:data_anomalie}
-Für Anomaliedaten werden bekannte und unbekannte Routen verwendet, sowie Kombinationen aus diesen Routen.
-Diese Daten werden dann von dem ML-Modell zur Standorterkennung klassifiziert.
-Aus den Klassifizierungsergebnissen werden schließlich Features extrahiert, die von dem ML-Modell zur Anomalieerkennung verwendet werden.
+Für Anomaliedaten werden die bekannten Routen modifiziert, indem Umleitungen eingebaut werden, die teilweise Standorte überspringen
+und nicht in den Trainingsdaten vorhanden sind.
+Dadurch wird ein Szenario simuliert, in der das Klassifizierungsverhalten von dem ML-Modell zur Standorterkennung auf unbekannten Wegen beobachtet werden kann.
+Aus den Klassifizierungsergebnissen des ML-Modells zur Standorterkennung werden schließlich Features extrahiert,
+die von dem ML-Modell zur Anomalieerkennung verwendet werden.
 \newline
 \newline
 Wenn eine Anomalie vorliegt, wird erwartet, dass das ML-Modell unsicherer wird und stärker fluktuiert,
@@ -17,4 +19,5 @@ Das zweite Feature ist analog zu dem ersten Feature konstruiert.
 Dieses nutzt ansatt der Anzahl der Standortänderungen die summierte Wahrscheinlichkeit der erkannten Standorte.
 Das ML-Modell zur Standorterkennung hat keine diskrete Ausgabe, sondern gibt einen Vektor von Wahrscheinlichkeiten aus,
 der für jeden Standort die Klassifizierungswahrscheinlichkeit angibt.
-Davon wird jeweils die höchste Wahrscheinlichkeit addiert, d. h. die Wahrscheinlichkeit des erkannten Standortes.
+Dabei gilt der klassifizierte Standort als der Eintrag im Vektor mit der höchsten Wahrscheinlichkeit.
+Diese Wahrscheinlichkeit wird dann analog zu den Standortänderungen summiert.
