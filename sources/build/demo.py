@@ -7,13 +7,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.animation import FuncAnimation
 from pandas import DataFrame
+from tensorflow import keras
 
+from sources.ffnn.gen_ffnn import GenerateFFNN
 from sources.anomaly.topology_guesser import AnomalyTopologyGuesser
 from sources.config import BIN_FOLDER_PATH
 from sources.data.data_compiler import DataCompiler
 from sources.data.features import Features
-
-# from tensorflow import keras
 
 _, is_dt, evaluation_name, simulation_file_path, skip_n = sys.argv
 is_dt = int(is_dt) == 1
@@ -29,16 +29,16 @@ model = 0
 if is_dt:
     with open(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_dt_model.pkl", 'rb') as file:
         model = pickle.load(file)
-# else:
-#    model = keras.models.load_model(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_knn_model.h5")
+else:
+    model = keras.models.load_model(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_knn_model.h5")
 
 model_anomaly = 0
 if is_dt:
     with open(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_dt_anomaly_model.pkl", 'rb') as file:
         model_anomaly = pickle.load(file)
-# else:
-#    model_anomaly = keras.models.load_model(
-#        BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_knn_anomaly_model.h5")
+else:
+    model_anomaly = keras.models.load_model(
+        BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_knn_anomaly_model.h5")
 
 # Prepare everything
 feature_history = []
@@ -167,11 +167,12 @@ def redraw():
 
     ax3.plot(range(len(true_anamoly_history)), true_anamoly_history, "-g", lw=2, zorder=3.1)
     ax3.plot(range(len(anamoly_history)), [x - 0.1 for x in anamoly_history], "-b", lw=2, zorder=3)
-    ax3.plot(range(len(anomaly_history_topology_guesser)), [x + 0.1 for x in anomaly_history_topology_guesser], "-r", lw=2, zorder=3)
+    ax3.plot(range(len(anomaly_history_topology_guesser)), [x + 0.1 for x in anomaly_history_topology_guesser], "-r",
+             lw=2, zorder=3)
 
     # Feature importance
     if len(all_features) > 0:
-        permutation_importance = model.permutation_importance(all_features, true_location_history[-25:])
+        permutation_importance = model.permutation_importance(all_features, true_location_history[-25:]) if is_dt else GenerateFFNN.feature_importances(model, np.asarray(all_features), np.asarray(true_location_history[-25:]))
         ax4.bar(range(len(permutation_importance)), permutation_importance, align='center')
         plt.xticks(range(len(permutation_importance)), data.name_map_features, size='small', rotation=90)
 
@@ -228,6 +229,7 @@ def run(args):
     global last_prediction_anomaly_topology_guesser
     global topology_guesser
     global statistics_anomaly_tg
+    global is_dt
 
     # Try to read the line
     current_reader_pos = file.tell()
@@ -302,15 +304,17 @@ def run(args):
     if not (current_features is None):
         if current_feature_index > 0:
             prev_prediction = prediction_history[current_feature_index - 1]
-            current_features[0] = prev_prediction
+            current_features[0] = prev_prediction if is_dt else prev_prediction / (data.num_outputs - 1)
             prev_distinct_prediction = 0
             for i in range(len(prediction_history) - 2, 0, -1):
                 if prediction_history[i] > 0 and prediction_history[i] != prev_prediction:
                     prev_distinct_prediction = prediction_history[i]
                     break
-            current_features[1] = prev_distinct_prediction
+            current_features[1] = prev_distinct_prediction if is_dt else prev_distinct_prediction / (
+                        data.num_outputs - 1)
 
-        prediction_proba_arr = model.predict_proba([current_features])[0]  # TODO KNN
+        prediction_proba_arr = model.predict_proba([current_features])[0] if is_dt else \
+        model.predict(np.asarray([current_features]))[0]
         prediction = np.asarray(prediction_proba_arr).argmax()
         prediction_proba = prediction_proba_arr[prediction]
         prediction_history.append(prediction)
@@ -377,14 +381,14 @@ def run(args):
             # fraction_zero_prediction,
             window_loc_changes_deviation,
             window_confidence_deviation,
-            #prev_distinct_prediction,
-            #prediction,
+            # prev_distinct_prediction,
+            # prediction,
             last_prediction_anomaly_topology_guesser
         ]
 
         # Save for statistics
         last_prediction = prediction
-        last_prediction_anomaly = model_anomaly.predict([anomaly_features])[0]
+        last_prediction_anomaly = model_anomaly.predict([anomaly_features])[0] if is_dt else int(model_anomaly.predict(np.asarray([anomaly_features]))[0] >= 0.5)
         last_prediction_when = t_stamp
 
         is_current_pos_anomaly = False
@@ -466,7 +470,8 @@ def run(args):
 
         ax3.scatter([len(true_anamoly_history) - 1], [true_anamoly_history[-1]], c="green", zorder=3.1)
         ax3.scatter([len(anamoly_history) - 1], [anamoly_history[-1] - 0.1], c="blue", zorder=3)
-        ax3.scatter([len(anomaly_history_topology_guesser) - 1], [anomaly_history_topology_guesser[-1] + 0.1], c="red", zorder=3)
+        ax3.scatter([len(anomaly_history_topology_guesser) - 1], [anomaly_history_topology_guesser[-1] + 0.1], c="red",
+                    zorder=3)
 
         # Plot feature importance (using sub plots)
         if prediction > 0:
@@ -474,7 +479,7 @@ def run(args):
             ax4.set_title("Permutationswichtigkeit im Datenfenster (25)")
             ax4.set_xlabel("Feature")
             ax4.set_ylabel("Fehler in %")
-            permutation_importance = model.permutation_importance(all_features, true_location_history[-25:])
+            permutation_importance = model.permutation_importance(all_features, true_location_history[-25:]) if is_dt else GenerateFFNN.feature_importances(model, np.asarray(all_features), np.asarray(true_location_history[-25:]))
             ax4.bar(range(len(permutation_importance)), permutation_importance, align='center')
             plt.xticks(range(len(permutation_importance)), data.name_map_features, size='small', rotation=90)
 
