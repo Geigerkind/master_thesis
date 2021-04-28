@@ -309,7 +309,15 @@ class DataCompiler:
         self.normalization_parameters = []
 
         # Internal configuration
-        self.__num_temporary_test_sets = 6  # Note the anomaly set added at the load
+        # Note the anomaly set added at the load
+        self.__num_temporary_test_sets = 4
+        if DataSet.LongRectangle in self.data_sets:
+            self.__num_temporary_test_sets = self.__num_temporary_test_sets + 2
+        if DataSet.RectangleWithRamp in self.data_sets:
+            self.__num_temporary_test_sets = self.__num_temporary_test_sets + 1
+        if DataSet.ManyCorners in self.data_sets:
+            self.__num_temporary_test_sets = self.__num_temporary_test_sets + 1
+
         self.__using_manual_data_set = not (manual_data_set is None)
         self.__is_verbose = not self.__using_manual_data_set
 
@@ -594,17 +602,23 @@ class DataCompiler:
     def __create_temporary_test_sets(self):
         # Reverse ordering because its removed in reverse order
         self.name_map_data_sets_temporary.append("combined_test_route")
-        self.name_map_data_sets_temporary.append("anomaly2")
-        self.name_map_data_sets_temporary.append("anomaly_train3")
-        self.name_map_data_sets_temporary.append("anomaly_train2")
-        self.name_map_data_sets_temporary.append("anomaly_train1")
-        self.name_map_data_sets_temporary.append("anomaly1")
+        # self.name_map_data_sets_temporary.append("anomaly_synthetic")
+        if DataSet.ManyCorners in self.data_sets:
+            self.name_map_data_sets_temporary.append("anomaly_many_corners_train1")
+        if DataSet.RectangleWithRamp in self.data_sets:
+            self.name_map_data_sets_temporary.append("anomaly_rectangle_with_ramp_train1")
+        if DataSet.LongRectangle in self.data_sets:
+            self.name_map_data_sets_temporary.append("anomaly_long_rectangle_train2")
+            self.name_map_data_sets_temporary.append("anomaly_long_rectangle_train1")
+        self.name_map_data_sets_temporary.append("anomaly_simple_square_train3")
+        self.name_map_data_sets_temporary.append("anomaly_simple_square_train2")
+        self.name_map_data_sets_temporary.append("anomaly_simple_square_train1")
 
-        set1 = self.__glue_routes_together(DataSet.SimpleSquare, DataSet.Anomaly, 5)
+        # set1 = self.__glue_routes_together(DataSet.SimpleSquare, DataSet.Anomaly, 5)
         set2 = self.__create_combined_test_route()
 
         # temporarily add it to raw data such that sensor data is added
-        self.__raw_data.append(set1)
+        # self.__raw_data.append(set1)
         self.__raw_data.append(set2)
 
     def __generate_synthetic_routes(self):
@@ -637,13 +651,21 @@ class DataCompiler:
             pool.join()
             return data
 
-        anomaly_data_sets = [DataSet.Anomaly, DataSet.AnomalyTrain1, DataSet.AnomalyTrain2, DataSet.AnomalyTrain3]
+        anomaly_data_sets = [DataSet.AnomalySimpleSquareTrain1, DataSet.AnomalySimpleSquareTrain2,
+                             DataSet.AnomalySimpleSquareTrain3, DataSet.AnomalyLongRectangleTrain1,
+                             DataSet.AnomalyLongRectangleTrain2, DataSet.AnomalyRectangleWithRampTrain1,
+                             DataSet.AnomalyManyCornersTrain1]
 
         location_offset = 0
         for data_set in self.data_sets + anomaly_data_sets:
             if self.__is_verbose:
                 print("Loading Dataset: {0}".format(data_set.value[0]))
             data = pd.read_csv(BIN_FOLDER_PATH + "/data/" + data_set.value[0])
+
+            if data_set in anomaly_data_sets and not (data_set.value[3] in self.__reference_locations):
+                print("Reference locations for {0} are missing!".format(data_set.value[1]))
+                print("Skipping this data set...")
+                continue
 
             if data_set in anomaly_data_sets and data_set != DataSet.Anomaly:
                 def is_row_in_anomaly(row):

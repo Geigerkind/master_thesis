@@ -22,7 +22,7 @@ just like how it is described in the thesis.
 # Damn, python is weird
 if __name__ == "__main__":
     _, encode_paths_between_as_location, dt_forest_size, dt_max_height, ffnn_num_hidden_layers, \
-    ffnn_num_nodes_per_hidden_layer, ffnn_num_epochs, input_data_sets = sys.argv
+    ffnn_num_nodes_per_hidden_layer, ffnn_num_epochs, input_data_sets, load_from_disk = sys.argv
     input_data_sets = input_data_sets.split(',')
     input_data_sets = [int(x) for x in input_data_sets]
     res_input_data_sets = []
@@ -40,12 +40,14 @@ if __name__ == "__main__":
                                                                           ffnn_num_nodes_per_hidden_layer, ffnn_num_epochs,
                                                                           "".join([str(x) for x in input_data_sets]))
 
+    raw_encode_paths_between_as_location = encode_paths_between_as_location
     encode_paths_between_as_location = 1 == int(encode_paths_between_as_location)
     dt_forest_size = int(dt_forest_size)
     dt_max_height = int(dt_max_height)
     ffnn_num_hidden_layers = int(ffnn_num_hidden_layers)
     ffnn_num_nodes_per_hidden_layer = int(ffnn_num_nodes_per_hidden_layer)
     ffnn_num_epochs = int(ffnn_num_epochs)
+    load_from_disk = int(load_from_disk) == 1
 
     np.random.seed(0)
     os.environ['PYTHONHASHSEED'] = str(0)
@@ -53,10 +55,12 @@ if __name__ == "__main__":
     FRACTION_PREDICTION_LABELED = 0.5
     NUM_EPOCHS_PER_CYCLE = ffnn_num_epochs
 
-    features = [Features.PreviousLocation, Features.AccessPointDetection, Features.Temperature,
-                Features.Heading, Features.Volume, Features.Time, Features.Angle, Features.Acceleration, Features.Light]
-    data = DataCompiler(res_input_data_sets, features, True, encode_paths_between_as_location, False, 0.2)
-    # data = DataCompiler(res_input_data_sets, features, True, encode_paths_between_as_location)
+    if load_from_disk:
+        data = pickle.load(open(BIN_FOLDER_PATH + "/pregen_data/data_" + raw_encode_paths_between_as_location + "_" + "".join([str(x) for x in input_data_sets]) + ".pkl", 'rb'))
+    else:
+        features = [Features.PreviousLocation, Features.AccessPointDetection, Features.Temperature,
+                    Features.Heading, Features.Volume, Features.Time, Features.Angle, Features.Acceleration, Features.Light]
+        data = DataCompiler(res_input_data_sets, features, True, encode_paths_between_as_location, False, 0.2)
 
     print("Saving data...")
     try:

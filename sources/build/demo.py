@@ -439,7 +439,7 @@ def run(args):
         last_prediction_anomaly_topology_guesser = int(
             topology_guesser.predict(prev_distinct_prediction, prediction))
         anomaly_features = [
-            last_prediction_anomaly,
+            # last_prediction_anomaly,
             # sum(window_location_changes[-WINDOW_SIZE:]),  # TODO: KNN
             # sum(window_confidence[-WINDOW_SIZE:]),  # TODO: KNN
             # prediction_proba,
