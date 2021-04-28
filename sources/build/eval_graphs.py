@@ -1,13 +1,12 @@
 import os
 import pickle
 import random
-import sys
 from multiprocessing import Pool
 
 import numpy as np
 from tensorflow import keras
 
-from sources.config import BIN_FOLDER_PATH, NUM_CORES
+from sources.config import BIN_FOLDER_PATH, NUM_CORES, parse_cmd_args
 from sources.ffnn.gen_ffnn import GenerateFFNN
 from sources.metric.compile_log import CompileLog
 from sources.metric.graph_feature_importance import GraphFeatureImportance
@@ -27,7 +26,9 @@ This file utilizes the evaluated and generated models in order to generate metri
 that help to evaluate how good the models actually are
 """
 
-_, evaluation_name = sys.argv
+encode_paths_between_as_location, dt_forest_size, dt_max_height, ffnn_num_hidden_layers, \
+ffnn_num_nodes_per_hidden_layer, ffnn_num_epochs, load_from_disk, \
+pregen_path, evaluation_name, res_input_data_sets = parse_cmd_args()
 
 
 def generate_graphs(path, prefix, model_dt, test_set_features_dt, test_set_features_knn, test_set_labels_dt,
@@ -89,7 +90,7 @@ def exec_gen_graphs(args):
                     test_set_labels_knn, num_outputs, use_continued_prediction, feature_name_map, evaluation_name)
 
 
-with open(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_data.pkl", 'rb') as file:
+with open(pregen_path, 'rb') as file:
     data = pickle.load(file)
     with open(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_dt_model.pkl", 'rb') as file:
         map_args = []
@@ -205,8 +206,10 @@ with open(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_data.pkl", 'rb'
             for i in range(len(test_set_features_dt)):
                 test_set_features_dt_random_location[i][0] = random.randint(0, data.num_outputs - 1)
                 test_set_features_dt_random_location[i][1] = random.randint(1, data.num_outputs - 1)
-                test_set_features_knn_random_location[i][0] = random.randint(0, data.num_outputs - 1) / (data.num_outputs - 1)
-                test_set_features_knn_random_location[i][1] = random.randint(1, data.num_outputs - 1) / (data.num_outputs - 1)
+                test_set_features_knn_random_location[i][0] = random.randint(0, data.num_outputs - 1) / (
+                            data.num_outputs - 1)
+                test_set_features_knn_random_location[i][1] = random.randint(1, data.num_outputs - 1) / (
+                            data.num_outputs - 1)
 
             map_args.append([path, "random_prev_location", model_dt, test_set_features_dt_random_location,
                              test_set_features_knn_random_location, test_set_labels_dt, test_set_labels_knn,

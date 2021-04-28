@@ -1,5 +1,4 @@
 import pickle
-import sys
 from multiprocessing import Pool
 
 import matplotlib.pyplot as plt
@@ -7,7 +6,7 @@ import numpy as np
 from tensorflow import keras
 
 from sources.anomaly.topology_guesser import AnomalyTopologyGuesser
-from sources.config import BIN_FOLDER_PATH, NUM_CORES
+from sources.config import BIN_FOLDER_PATH, NUM_CORES, parse_cmd_args
 from sources.decision_tree.ensemble_method import EnsembleMethod
 from sources.decision_tree.gen_dt import GenerateDecisionTree
 from sources.ffnn.gen_ffnn import GenerateFFNN
@@ -21,7 +20,10 @@ WITH_FEEDBACK_EDGE = False
 
 # For some magical reason required by get_context method of multiprocessing
 if __name__ == "__main__":
-    _, evaluation_name = sys.argv
+    encode_paths_between_as_location, dt_forest_size, dt_max_height, ffnn_num_hidden_layers, \
+    ffnn_num_nodes_per_hidden_layer, ffnn_num_epochs, load_from_disk, \
+    pregen_path, evaluation_name, res_input_data_sets = parse_cmd_args()
+
     NUM_EPOCHS_PER_CYCLE = 150
     WINDOW_SIZE = 35
 
@@ -248,7 +250,7 @@ if __name__ == "__main__":
 
 
     print("Loading data and models...")
-    with open(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_data.pkl", 'rb') as file:
+    with open(pregen_path, 'rb') as file:
         data = pickle.load(file)
         with open(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_dt_model.pkl", 'rb') as file:
             map_args = []
@@ -319,7 +321,7 @@ if __name__ == "__main__":
                     print("Training cycle {0} of {1}...".format(cycle + 1, NUM_TRAINING_CYCLES + NUM_WARMUP_CYCLES))
                     # Predict a fraction of the dataset
                     fraction_to_predict = min(1.0, ((1.0 - INITIAL_PREDICT_FRACTION) / (
-                                (CYCLE_WHERE_EVERYTHING_IS_PREDICTED - NUM_WARMUP_CYCLES) ** 2)) * (
+                            (CYCLE_WHERE_EVERYTHING_IS_PREDICTED - NUM_WARMUP_CYCLES) ** 2)) * (
                                                       (cycle - NUM_WARMUP_CYCLES) ** 2) + INITIAL_PREDICT_FRACTION)
 
                     # Of that fraction we pick samples randomly

@@ -16,7 +16,7 @@ from sources.data.data_compiler import DataCompiler
 from sources.data.features import Features
 from sources.ffnn.gen_ffnn import GenerateFFNN
 
-_, is_dt, evaluation_name, simulation_file_path, skip_n = sys.argv
+_, is_dt, evaluation_name, simulation_file_path, skip_n, data_sets = sys.argv
 is_dt = int(is_dt) == 1
 skip_n = int(skip_n)
 encode_path_as_location = int(evaluation_name[5]) == 1
@@ -24,10 +24,10 @@ encode_path_as_location = int(evaluation_name[5]) == 1
 WINDOW_SIZE = 35
 
 data = 0
-with open(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_data.pkl", 'rb') as file:
+with open(BIN_FOLDER_PATH + "/pregen_data/data_" + str(int(encode_path_as_location)) + "_" + data_sets + ".pkl",
+          'rb') as file:
     data = pickle.load(file)
 
-print(data.result_features_knn[0][0][0])
 """
 tmp_features = []
 for j in range(4):
@@ -345,7 +345,7 @@ def run(args):
         for j in range(len(processed_data.result_features_dt[0][i])):
             if cf_count == current_feature_index - truncated_count:
                 current_features = processed_data.result_features_dt[0][i][j] if is_dt else \
-                processed_data.result_features_knn[0][i][j]
+                    processed_data.result_features_knn[0][i][j]
                 break
             cf_count = cf_count + 1
         if not (current_features is None):
@@ -510,18 +510,18 @@ def run(args):
     # Anomaly statistics
     sum_row = max(sum(statistics_anomaly), 1)
     print("| Anomaly     | %.4f | %.4f | %.4f | %.4f | %.4f |" % ((statistics_anomaly[0] / sum_row),
-                                                                 statistics_anomaly[1] / sum_row,
-                                                                 statistics_anomaly[2] / sum_row,
-                                                                 statistics_anomaly[3] / sum_row,
-                                                                 (statistics_anomaly[0] + statistics_anomaly[
-                                                                     1]) / sum_row))
+                                                                  statistics_anomaly[1] / sum_row,
+                                                                  statistics_anomaly[2] / sum_row,
+                                                                  statistics_anomaly[3] / sum_row,
+                                                                  (statistics_anomaly[0] + statistics_anomaly[
+                                                                      1]) / sum_row))
     sum_row = max(sum(statistics_anomaly_tg), 1)
     print("| Anomaly TG  | %.4f | %.4f | %.4f | %.4f | %.4f |" % ((statistics_anomaly_tg[0] / sum_row),
-                                                                 statistics_anomaly_tg[1] / sum_row,
-                                                                 statistics_anomaly_tg[2] / sum_row,
-                                                                 statistics_anomaly_tg[3] / sum_row,
-                                                                 (statistics_anomaly_tg[0] + statistics_anomaly_tg[
-                                                                     1]) / sum_row))
+                                                                  statistics_anomaly_tg[1] / sum_row,
+                                                                  statistics_anomaly_tg[2] / sum_row,
+                                                                  statistics_anomaly_tg[3] / sum_row,
+                                                                  (statistics_anomaly_tg[0] + statistics_anomaly_tg[
+                                                                      1]) / sum_row))
 
     # Plot the route
     if num_draws % 25 == 0:

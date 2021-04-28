@@ -1,13 +1,11 @@
 import os
 import pickle
-import sys
 
 import matplotlib.pyplot as plt
 import numpy as np
 
-from sources.config import BIN_FOLDER_PATH
+from sources.config import BIN_FOLDER_PATH, parse_cmd_args
 from sources.data.data_compiler import DataCompiler
-from sources.data.data_set import DataSet
 from sources.data.features import Features
 from sources.decision_tree.ensemble_method import EnsembleMethod
 from sources.decision_tree.gen_dt import GenerateDecisionTree
@@ -21,33 +19,9 @@ just like how it is described in the thesis.
 # So in order to use get_context("spawn"), the code needs to be wrapped in this main if block
 # Damn, python is weird
 if __name__ == "__main__":
-    _, encode_paths_between_as_location, dt_forest_size, dt_max_height, ffnn_num_hidden_layers, \
-    ffnn_num_nodes_per_hidden_layer, ffnn_num_epochs, input_data_sets, load_from_disk = sys.argv
-    input_data_sets = input_data_sets.split(',')
-    input_data_sets = [int(x) for x in input_data_sets]
-    res_input_data_sets = []
-    if 1 in input_data_sets:
-        res_input_data_sets.append(DataSet.SimpleSquare)
-    if 2 in input_data_sets:
-        res_input_data_sets.append(DataSet.LongRectangle)
-    if 3 in input_data_sets:
-        res_input_data_sets.append(DataSet.RectangleWithRamp)
-    if 4 in input_data_sets:
-        res_input_data_sets.append(DataSet.ManyCorners)
-
-    evaluation_name = "eval_{0}_DT_{1}_{2}_KNN_{3}_{4}_{5}_DS_{6}".format(encode_paths_between_as_location, dt_forest_size,
-                                                                          dt_max_height, ffnn_num_hidden_layers,
-                                                                          ffnn_num_nodes_per_hidden_layer, ffnn_num_epochs,
-                                                                          "".join([str(x) for x in input_data_sets]))
-
-    raw_encode_paths_between_as_location = encode_paths_between_as_location
-    encode_paths_between_as_location = 1 == int(encode_paths_between_as_location)
-    dt_forest_size = int(dt_forest_size)
-    dt_max_height = int(dt_max_height)
-    ffnn_num_hidden_layers = int(ffnn_num_hidden_layers)
-    ffnn_num_nodes_per_hidden_layer = int(ffnn_num_nodes_per_hidden_layer)
-    ffnn_num_epochs = int(ffnn_num_epochs)
-    load_from_disk = int(load_from_disk) == 1
+    encode_paths_between_as_location, dt_forest_size, dt_max_height, ffnn_num_hidden_layers, \
+    ffnn_num_nodes_per_hidden_layer, ffnn_num_epochs, load_from_disk, \
+    pregen_path, evaluation_name, res_input_data_sets = parse_cmd_args()
 
     np.random.seed(0)
     os.environ['PYTHONHASHSEED'] = str(0)
@@ -56,10 +30,11 @@ if __name__ == "__main__":
     NUM_EPOCHS_PER_CYCLE = ffnn_num_epochs
 
     if load_from_disk:
-        data = pickle.load(open(BIN_FOLDER_PATH + "/pregen_data/data_" + raw_encode_paths_between_as_location + "_" + "".join([str(x) for x in input_data_sets]) + ".pkl", 'rb'))
+        data = pickle.load(open(pregen_path, 'rb'))
     else:
         features = [Features.PreviousLocation, Features.AccessPointDetection, Features.Temperature,
-                    Features.Heading, Features.Volume, Features.Time, Features.Angle, Features.Acceleration, Features.Light]
+                    Features.Heading, Features.Volume, Features.Time, Features.Angle, Features.Acceleration,
+                    Features.Light]
         data = DataCompiler(res_input_data_sets, features, True, encode_paths_between_as_location, False, 0.2)
 
     print("Saving data...")
@@ -146,7 +121,8 @@ if __name__ == "__main__":
         print("Initializing...")
         # Reinitializing to make sure that there is no partial learning
         model_dt = GenerateDecisionTree(EnsembleMethod.RandomForest, dt_forest_size, dt_max_height)
-        model_knn = GenerateFFNN(data.num_inputs, data.num_outputs, ffnn_num_hidden_layers, ffnn_num_nodes_per_hidden_layer,
+        model_knn = GenerateFFNN(data.num_inputs, data.num_outputs, ffnn_num_hidden_layers,
+                                 ffnn_num_nodes_per_hidden_layer,
                                  ffnn_num_epochs)
 
         print("Preparing input data...")
@@ -172,10 +148,13 @@ if __name__ == "__main__":
             knn_next_cycle_labels = knn_next_cycle_labels + data.result_labels_knn[data_set_index][cycle + 1]
 
         for data_set_index in range(len(data.data_sets), len(data.result_features_dt)):
-            dt_next_cycle_features_faulty = dt_next_cycle_features_faulty + data.result_features_dt[data_set_index][cycle + 1]
+            dt_next_cycle_features_faulty = dt_next_cycle_features_faulty + data.result_features_dt[data_set_index][
+                cycle + 1]
             dt_next_cycle_labels_faulty = dt_next_cycle_labels_faulty + data.result_labels_dt[data_set_index][cycle + 1]
-            knn_next_cycle_features_faulty = knn_next_cycle_features_faulty + data.result_features_knn[data_set_index][cycle + 1]
-            knn_next_cycle_labels_faulty = knn_next_cycle_labels_faulty + data.result_labels_knn[data_set_index][cycle + 1]
+            knn_next_cycle_features_faulty = knn_next_cycle_features_faulty + data.result_features_knn[data_set_index][
+                cycle + 1]
+            knn_next_cycle_labels_faulty = knn_next_cycle_labels_faulty + data.result_labels_knn[data_set_index][
+                cycle + 1]
 
         print("Training Decision Tree Model...")
         model_dt.fit(dt_data_features, dt_data_labels, 0.25)
@@ -196,8 +175,11 @@ if __name__ == "__main__":
         if cycle >= data.num_warmup_cycles and cycle < data.num_cycles - data.num_validation_cycles - 1 and Features.PreviousLocation in features:
             print("")
             print("Relabeling next cycle's set...")
+
+
             def find_last_distinct_prediction(predictions, last_predictions, current_index, is_dt):
-                current_prediction = predictions[current_index] if is_dt else np.asarray(predictions[current_index]).argmax()
+                current_prediction = predictions[current_index] if is_dt else np.asarray(
+                    predictions[current_index]).argmax()
                 for i in range(current_index - 1, 0, -1):
                     prediction = predictions[i] if is_dt else np.asarray(predictions[i]).argmax()
                     if current_prediction == 0 and prediction > 0:
@@ -212,8 +194,10 @@ if __name__ == "__main__":
                         return prediction if is_dt else prediction / (len(last_predictions[i]) - 1)
                 return 0
 
+
             permutation = np.random.permutation(len(dt_next_cycle_features))
-            frac_pred_labeled = min(1, FRACTION_PREDICTION_LABELED + (1 / 128) * ((cycle - data.num_warmup_cycles) ** 2))
+            frac_pred_labeled = min(1,
+                                    FRACTION_PREDICTION_LABELED + (1 / 128) * ((cycle - data.num_warmup_cycles) ** 2))
             for perm_index in range(0, int(len(dt_next_cycle_features) * frac_pred_labeled)):
                 i = permutation[perm_index]
                 if i == 0:
@@ -222,7 +206,8 @@ if __name__ == "__main__":
                 dt_next_cycle_features[i][0] = dt_prediction[i - 1]
                 dt_next_cycle_features[i][1] = find_last_distinct_prediction(dt_prediction, last_dt_prediction, i, True)
                 knn_next_cycle_features[i][0] = np.array(knn_prediction[i - 1]).argmax() / (data.num_outputs - 1)
-                knn_next_cycle_features[i][1] = find_last_distinct_prediction(knn_prediction, last_knn_prediction, i, False)
+                knn_next_cycle_features[i][1] = find_last_distinct_prediction(knn_prediction, last_knn_prediction, i,
+                                                                              False)
 
         print("")
         dt_acc = model_dt.evaluate_accuracy(model_dt.predict(dt_vs_features), dt_vs_labels)
