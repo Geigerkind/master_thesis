@@ -16,10 +16,11 @@ from sources.data.data_compiler import DataCompiler
 from sources.data.features import Features
 from sources.ffnn.gen_ffnn import GenerateFFNN
 
-_, is_dt, evaluation_name, simulation_file_path, skip_n, data_sets = sys.argv
+_, is_dt, evaluation_name, simulation_file_path, skip_n = sys.argv
 is_dt = int(is_dt) == 1
 skip_n = int(skip_n)
 encode_path_as_location = int(evaluation_name[5]) == 1
+data_sets = evaluation_name[-int(evaluation_name[-1]):]
 
 WINDOW_SIZE = 35
 

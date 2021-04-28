@@ -1,6 +1,7 @@
 export PYTHONPATH="/home/shino/Uni/master_thesis"
+export TF_CPP_MIN_LOG_LEVEL=2
 
-NUM_ALLOWED_JOBS=3
+NUM_ALLOWED_JOBS=4
 
 function eval_model {
   if [[ ! -f "${PYTHONPATH}/eval_${1}_DT_${2}_${3}_KNN_${4}_${5}_${6}_DS_${8}/evaluation_knn_model.h5" ]]; then

@@ -20,3 +20,6 @@ reeval:
 
 eval_all:
 	nice -19 $(BASH) eval_configurations.sh
+
+demo:
+	PYTHONPATH="/home/shino/Uni/master_thesis" TF_CPP_MIN_LOG_LEVEL=2 $(PYTHON) sources/build/demo.py 1 eval_0_DT_8_16_KNN_1_16_75_DS_1 /home/shino/Uni/master_thesis/bin/data/simple_square_anomaly.csv 0
