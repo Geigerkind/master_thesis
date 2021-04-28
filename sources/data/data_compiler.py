@@ -7,7 +7,6 @@ from multiprocessing import Pool
 import numpy as np
 import pandas as pd
 from pandas import DataFrame
-from sklearn.preprocessing import StandardScaler
 
 from sources.config import BIN_FOLDER_PATH, NUM_CORES
 from sources.data.data_set import DataSet
@@ -307,6 +306,7 @@ class DataCompiler:
         # Ensure that we have enough training samples for the training data
         self.sampling_interval_in_location_for_training_data = 0.25
         self.fraction_fault_training_data = 0.1
+        self.normalization_parameters = []
 
         # Internal configuration
         self.__num_temporary_test_sets = 6  # Note the anomaly set added at the load
@@ -410,11 +410,69 @@ class DataCompiler:
         if not self.__using_manual_data_set:
             self.__remove_temporary_test_sets()
             self.__create_faulty_data_sets()
+        self.__populate_normalization_parameters()
         self.__extract_features()
         self.result_raw_data = self.__raw_data
         if not self.__using_manual_data_set:
             self.__create_faulty_route_with_skipped_locations()
         self.__configure_variables()
+
+    def __populate_normalization_parameters(self):
+        if Features.PreviousLocation in self.features:
+            self.normalization_parameters.append([0, self.num_outputs - 1])
+            self.normalization_parameters.append([0, self.num_outputs - 1])
+
+        if Features.Acceleration in self.features:
+            self.normalization_parameters.append([0, 34])
+            self.normalization_parameters.append([0, 14])
+            self.normalization_parameters.append([0, 34])
+            self.normalization_parameters.append([0, 15])
+            self.normalization_parameters.append([0, 21])
+
+        if Features.Light in self.features:
+            self.normalization_parameters.append([0, 1])
+            self.normalization_parameters.append([0, 0.4])
+            self.normalization_parameters.append([0, 1])
+            self.normalization_parameters.append([0, 1])
+            self.normalization_parameters.append([0, 1])
+
+        if Features.AccessPointDetection in self.features:
+            self.normalization_parameters.append([0, 1])
+            self.normalization_parameters.append([0, 1])
+            self.normalization_parameters.append([0, 1])
+            self.normalization_parameters.append([0, 1])
+            self.normalization_parameters.append([0, 1])
+
+        if Features.Temperature in self.features:
+            self.normalization_parameters.append([10, 100])
+            self.normalization_parameters.append([0, 41])
+            self.normalization_parameters.append([10, 100])
+            self.normalization_parameters.append([10, 100])
+            self.normalization_parameters.append([10, 100])
+
+        if Features.Heading in self.features:
+            self.normalization_parameters.append([0, 360])
+            self.normalization_parameters.append([0, 170])
+            self.normalization_parameters.append([0, 360])
+            self.normalization_parameters.append([0, 360])
+            self.normalization_parameters.append([0, 360])
+
+        if Features.Volume in self.features:
+            self.normalization_parameters.append([17, 100])
+            self.normalization_parameters.append([0, 39])
+            self.normalization_parameters.append([17, 100])
+            self.normalization_parameters.append([17, 100])
+            self.normalization_parameters.append([17, 100])
+
+        if Features.Time in self.features:
+            self.normalization_parameters.append([0, 15])
+
+        if Features.Angle in self.features:
+            self.normalization_parameters.append([0, 10])
+            self.normalization_parameters.append([0, 4])
+            self.normalization_parameters.append([0, 10])
+            self.normalization_parameters.append([0, 7])
+            self.normalization_parameters.append([0, 8])
 
     def __populate_features_name_map(self):
         if Features.PreviousLocation in self.features:
@@ -610,7 +668,8 @@ class DataCompiler:
 
             if self.__is_verbose:
                 print("Adjusting pos...")
-            adjust_pos_offset = location_offset if len(data_set.value) == 2 else self.__reference_locations[data_set.value[3]][1]
+            adjust_pos_offset = location_offset if len(data_set.value) == 2 else \
+            self.__reference_locations[data_set.value[3]][1]
             data = parallelize(data, par_lrd_adjust_pos, adjust_pos_offset)
             if not (data_set in anomaly_data_sets):
                 test_set = parallelize(test_set, par_lrd_adjust_pos, adjust_pos_offset)
@@ -652,7 +711,8 @@ class DataCompiler:
                 # The anomaly data set is ignored because the locations are not used anyway during evaluation!
                 location_map = dict()
                 previous_non_zero_pos = 0
-                init_offset = location_offset if len(data_set.value) == 2 else self.__reference_locations[data_set.value[3]][1]
+                init_offset = location_offset if len(data_set.value) == 2 else \
+                self.__reference_locations[data_set.value[3]][1]
                 # For some weird reason I have to do this here this way and for the test set I dont
                 # I have no idea whats happening here...
                 for row_index in range(len(data)):
@@ -666,7 +726,8 @@ class DataCompiler:
                                 if not (data_set in anomaly_data_sets):
                                     # TODO: This does not make sense!
                                     # self.position_map[location_offset] = [data.at[row_index]["x_pos"], data.at[row_index]["y_pos"]]
-                                    append_to_neighbor_graph(self.location_neighbor_graph, data.at[row_index, "location"],
+                                    append_to_neighbor_graph(self.location_neighbor_graph,
+                                                             data.at[row_index, "location"],
                                                              init_offset)
                                     # append_to_neighbor_graph(self.location_neighbor_graph, init_offset,
                                     #                          data.at[row_index, "location])
@@ -1195,9 +1256,8 @@ class DataCompiler:
         # For each entry in the raw data array, extract features
         if self.__is_verbose:
             print("Extracting features...")
-        sc = StandardScaler()
 
-        def extract_from_data_sets(data_sets, window_size, input_features, input_num_outputs, lookback_window):
+        def extract_from_data_sets(data_sets, window_size, input_features, input_num_outputs, lookback_window, normalization_parameters):
             count = 1
             result_features_dt = []
             result_features_knn = []
@@ -1229,15 +1289,12 @@ class DataCompiler:
 
                 if self.__is_verbose:
                     print("Normalizing KNN data...")
-                knn_features_tmp = sc.fit_transform(features_tmp)
-
-                if Features.PreviousLocation in input_features:
-                    if self.__is_verbose:
-                        print("Fixing location labels...")
-                    for i in range(len(knn_features_tmp)):
-                        # Manual scaling between 0 and 1
-                        knn_features_tmp[i][0] = knn_features_tmp[i][0] / (input_num_outputs - 1)
-                        knn_features_tmp[i][1] = knn_features_tmp[i][1] / (input_num_outputs - 1)
+                # We have to do manual normalisation to preserve the same scaling across all data sets
+                # Otherwise the task for the FFNN is way harder
+                knn_features_tmp = np.asarray(features_tmp).copy()
+                for i_features in knn_features_tmp:
+                    for f_i in range(len(knn_features_tmp[0])):
+                        i_features[f_i] = (i_features[f_i] - normalization_parameters[f_i][0]) / (normalization_parameters[f_i][1] - normalization_parameters[f_i][0])
 
                 if self.__is_verbose:
                     print("Onehot encoding KNN data...")
@@ -1296,7 +1353,7 @@ class DataCompiler:
         if self.__is_verbose:
             print("Raw data...")
         result_features_dt, result_features_knn, result_labels_dt, result_labels_knn = extract_from_data_sets(
-            self.__raw_data, self.window_size, self.features, self.num_outputs, self.lookback_window)
+            self.__raw_data, self.window_size, self.features, self.num_outputs, self.lookback_window, self.normalization_parameters)
         self.result_labels_dt = result_labels_dt
         self.result_labels_knn = result_labels_knn
         self.result_features_dt = result_features_dt
@@ -1306,7 +1363,7 @@ class DataCompiler:
             if self.__is_verbose:
                 print("Test data...")
             test_features_dt, test_features_knn, test_labels_dt, test_labels_knn = extract_from_data_sets(
-                self.test_raw_data, self.window_size, self.features, self.num_outputs, self.lookback_window)
+                self.test_raw_data, self.window_size, self.features, self.num_outputs, self.lookback_window, self.normalization_parameters)
             self.test_labels_dt = test_labels_dt
             self.test_labels_knn = test_labels_knn
             self.test_features_dt = test_features_dt
@@ -1315,7 +1372,7 @@ class DataCompiler:
             if self.__is_verbose:
                 print("Faulty data...")
             faulty_features_dt, faulty_features_knn, faulty_labels_dt, faulty_labels_knn = extract_from_data_sets(
-                self.faulty_raw_data, self.window_size, self.features, self.num_outputs, self.lookback_window)
+                self.faulty_raw_data, self.window_size, self.features, self.num_outputs, self.lookback_window, self.normalization_parameters)
             self.faulty_labels_dt = faulty_labels_dt
             self.faulty_labels_knn = faulty_labels_knn
             self.faulty_features_dt = faulty_features_dt
@@ -1324,7 +1381,7 @@ class DataCompiler:
             if self.__is_verbose:
                 print("Faulty test data...")
             faulty_test_features_dt, faulty_test_features_knn, faulty_test_labels_dt, faulty_test_labels_knn = extract_from_data_sets(
-                self.faulty_test_raw_data, self.window_size, self.features, self.num_outputs, self.lookback_window)
+                self.faulty_test_raw_data, self.window_size, self.features, self.num_outputs, self.lookback_window, self.normalization_parameters)
             self.faulty_test_labels_dt = faulty_test_labels_dt
             self.faulty_test_labels_knn = faulty_test_labels_knn
             self.faulty_test_features_dt = faulty_test_features_dt
@@ -1334,7 +1391,7 @@ class DataCompiler:
                 print("Temporary test sets data...")
             tr_features_dt, tr_features_knn, tr_labels_dt, tr_labels_knn = extract_from_data_sets(
                 self.temporary_test_set_raw_data, self.window_size, self.features, self.num_outputs,
-                self.lookback_window)
+                self.lookback_window, self.normalization_parameters)
             self.temporary_test_set_labels_dt = tr_labels_dt
             self.temporary_test_set_labels_knn = tr_labels_knn
             self.temporary_test_set_features_dt = tr_features_dt

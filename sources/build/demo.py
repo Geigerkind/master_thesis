@@ -27,6 +27,19 @@ data = 0
 with open(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_data.pkl", 'rb') as file:
     data = pickle.load(file)
 
+print(data.result_features_knn[0][0][0])
+"""
+tmp_features = []
+for j in range(4):
+    for i in range(data.num_cycles):
+        tmp_features = tmp_features + data.result_features_dt[j][i]
+
+for i in range(len(tmp_features[0])):
+    print("Feature: {0}".format(i))
+    print("Min: {0}".format(min(x[i] for x in tmp_features)))
+    print("Max: {0}".format(max(x[i] for x in tmp_features)))
+"""
+
 model = 0
 if is_dt:
     with open(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_dt_model.pkl", 'rb') as file:
@@ -64,8 +77,8 @@ window_confidence = []
 window_confidence_no_anomaly = []
 
 true_location_history = []
-true_anamoly_history = []
-anamoly_history = []
+true_anomaly_history = []
+anomaly_history = []
 anomaly_history_topology_guesser = []
 
 anomaly_areas = [
@@ -158,7 +171,6 @@ def redraw():
         1.5: 33000
     }
 
-    # TODO: Scatter sizes are not linear!
     # Locations:
     ax.scatter([x[0] for x in data.position_map.values()], [x[1] for x in data.position_map.values()], c="green",
                alpha=1,
@@ -204,8 +216,8 @@ def redraw():
     ax2.plot(range(len(true_location_history)), true_location_history, "-g", lw=2, zorder=3)
     ax2.plot(range(len(prediction_history)), prediction_history, "-b", lw=2, zorder=3)
 
-    ax3.plot(range(len(true_anamoly_history)), true_anamoly_history, "-g", lw=2, zorder=3.1)
-    ax3.plot(range(len(anamoly_history)), [x - 0.1 for x in anamoly_history], "-b", lw=2, zorder=3)
+    ax3.plot(range(len(true_anomaly_history)), true_anomaly_history, "-g", lw=2, zorder=3.1)
+    ax3.plot(range(len(anomaly_history)), [x - 0.1 for x in anomaly_history], "-b", lw=2, zorder=3)
     ax3.plot(range(len(anomaly_history_topology_guesser)), [x + 0.1 for x in anomaly_history_topology_guesser], "-r",
              lw=2, zorder=3)
 
@@ -258,8 +270,8 @@ def run(args):
     global ax
     global ax2
     global true_location_history
-    global true_anamoly_history
-    global anamoly_history
+    global true_anomaly_history
+    global anomaly_history
     global all_features
     global skip_n
     global num_skipped
@@ -474,8 +486,8 @@ def run(args):
 
         # History ftw
         true_location_history.append(current_location)
-        true_anamoly_history.append(int(is_current_pos_anomaly))
-        anamoly_history.append(int(is_anomaly))
+        true_anomaly_history.append(int(is_current_pos_anomaly))
+        anomaly_history.append(int(is_anomaly))
         anomaly_history_topology_guesser.append(int(is_anomaly_tg))
 
     print("Number of predictions: %d" % (len(prediction_history)))
@@ -523,8 +535,8 @@ def run(args):
         ax2.scatter([len(true_location_history) - 1], [true_location_history[-1]], c="green", zorder=3)
         ax2.scatter([len(prediction_history) - 1], [prediction_history[-1]], c="blue", zorder=3)
 
-        ax3.scatter([len(true_anamoly_history) - 1], [true_anamoly_history[-1]], c="green", zorder=3.1)
-        ax3.scatter([len(anamoly_history) - 1], [anamoly_history[-1] - 0.1], c="blue", zorder=3)
+        ax3.scatter([len(true_anomaly_history) - 1], [true_anomaly_history[-1]], c="green", zorder=3.1)
+        ax3.scatter([len(anomaly_history) - 1], [anomaly_history[-1] - 0.1], c="blue", zorder=3)
         ax3.scatter([len(anomaly_history_topology_guesser) - 1], [anomaly_history_topology_guesser[-1] + 0.1], c="red",
                     zorder=3)
 
