@@ -6,18 +6,20 @@ import time
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.animation import FuncAnimation
+from matplotlib.patches import Rectangle
 from pandas import DataFrame
 from tensorflow import keras
 
-from sources.ffnn.gen_ffnn import GenerateFFNN
 from sources.anomaly.topology_guesser import AnomalyTopologyGuesser
 from sources.config import BIN_FOLDER_PATH
 from sources.data.data_compiler import DataCompiler
 from sources.data.features import Features
+from sources.ffnn.gen_ffnn import GenerateFFNN
 
 _, is_dt, evaluation_name, simulation_file_path, skip_n = sys.argv
 is_dt = int(is_dt) == 1
 skip_n = int(skip_n)
+encode_path_as_location = int(evaluation_name[5]) == 1
 
 WINDOW_SIZE = 35
 
@@ -51,7 +53,7 @@ current_feature_index = 0
 prediction_history = []
 # TP, FP, TN, FN, Not Predicted(?)
 statistics_prediction = []
-for i in range(len(data.position_map) + 1):
+for i in range(len(data.position_map) * 2 + 1):
     statistics_prediction.append([0, 0, 0, 0, 0])
 statistics_anomaly = [0, 0, 0, 0, 0]
 statistics_anomaly_tg = [0, 0, 0, 0, 0]
@@ -70,6 +72,32 @@ anomaly_areas = [
     [[3, 1.2], [5, 3]]
 ]
 
+# Calculate areas in which locations are
+path_location_areas = []
+path_location_area_label = []
+if encode_path_as_location:
+    area_offset = 0.1
+    for position in data.position_map.keys():
+        path_label = data.location_neighbor_graph[position][0]
+        previous_distinct_location = data.location_neighbor_graph[path_label][0]
+        path_location_area_label.append(path_label)
+        prev_pos = data.position_map[previous_distinct_location]
+        cur_pos = data.position_map[position]
+        if abs(prev_pos[1] - cur_pos[1]) > abs(prev_pos[0] - cur_pos[0]):
+            if prev_pos[1] > cur_pos[1]:
+                path_location_areas.append([[min(cur_pos[0], prev_pos[0]) - area_offset, cur_pos[1]],
+                                            [max(cur_pos[0], prev_pos[0]) + area_offset, prev_pos[1]]])
+            else:
+                path_location_areas.append([[min(cur_pos[0], prev_pos[0]) - area_offset, prev_pos[1]],
+                                            [max(cur_pos[0], prev_pos[0]) + area_offset, cur_pos[1]]])
+        else:
+            if prev_pos[0] > cur_pos[0]:
+                path_location_areas.append([[cur_pos[0], min(cur_pos[1], prev_pos[1]) - area_offset],
+                                            [prev_pos[0], max(cur_pos[1], prev_pos[1]) + area_offset]])
+            else:
+                path_location_areas.append([[prev_pos[0], min(cur_pos[1], prev_pos[1]) - area_offset],
+                                            [cur_pos[0], max(cur_pos[1], prev_pos[1]) + area_offset]])
+
 # Prepare plots
 
 fig = plt.figure(figsize=(15, 15))
@@ -87,6 +115,8 @@ def redraw():
     global ax4
     global all_features
     global data
+    global encode_path_as_location
+    global path_location_areas
 
     ax = fig.add_subplot(2, 2, 1)
     ax2 = fig.add_subplot(2, 2, 2)
@@ -102,7 +132,10 @@ def redraw():
     ax2.set_title("Wahrheit vs. Vorhersage: Standort")
     ax2.set_xlabel("Eintrag (Diskret)")
     ax2.set_ylabel("Standort (Diskret)")
-    ax2.set_ylim([0, 8])
+    if encode_path_as_location:
+        ax2.set_ylim([0, len(data.position_map) * 2])
+    else:
+        ax2.set_ylim([0, len(data.position_map)])
 
     ax3.set_title("Wahrheit vs. Vorhersage: Anamolie")
     ax3.set_xlabel("Eintrag (Diskret)")
@@ -128,10 +161,16 @@ def redraw():
     # TODO: Scatter sizes are not linear!
     # Locations:
     ax.scatter([x[0] for x in data.position_map.values()], [x[1] for x in data.position_map.values()], c="green",
-               alpha=0.5,
-               zorder=2.7, s=size_map[data.proximity])
+               alpha=1,
+               zorder=2.8, s=size_map[data.proximity])
     for i in range(len(data.position_map.values())):
         ax.text(data.position_map[i + 1][0] - 0.1, data.position_map[i + 1][1] + 0.15, str(i + 1), fontsize=18)
+
+    # Infer locations in between
+    if encode_path_as_location:
+        for area in path_location_areas:
+            ax.add_patch(Rectangle((area[0][0], area[0][1]), abs(area[0][0] - area[1][0]), abs(area[0][1] - area[1][1]),
+                                   alpha=0.5, color="lime", zorder=2.7))
 
     # Access points
     ax.scatter([x[0] for x in data.access_point_positions], [x[1] for x in data.access_point_positions], c="gray",
@@ -172,7 +211,9 @@ def redraw():
 
     # Feature importance
     if len(all_features) > 0:
-        permutation_importance = model.permutation_importance(all_features, true_location_history[-25:]) if is_dt else GenerateFFNN.feature_importances(model, np.asarray(all_features), np.asarray(true_location_history[-25:]))
+        permutation_importance = model.permutation_importance(all_features, true_location_history[
+                                                                            -25:]) if is_dt else GenerateFFNN.feature_importances(
+            model, np.asarray(all_features), np.asarray(true_location_history[-25:]))
         ax4.bar(range(len(permutation_importance)), permutation_importance, align='center')
         plt.xticks(range(len(permutation_importance)), data.name_map_features, size='small', rotation=90)
 
@@ -230,6 +271,9 @@ def run(args):
     global topology_guesser
     global statistics_anomaly_tg
     global is_dt
+    global encode_path_as_location
+    global path_location_areas
+    global path_location_area_label
 
     # Try to read the line
     current_reader_pos = file.tell()
@@ -284,10 +328,12 @@ def run(args):
     all_features = []
     cf_count = 0
     for i in range(len(processed_data.result_features_dt[0])):
-        all_features = all_features + (processed_data.result_features_dt[0][i] if is_dt else processed_data.result_features_dtt[0][i])
+        all_features = all_features + (
+            processed_data.result_features_dt[0][i] if is_dt else processed_data.result_features_knn[0][i])
         for j in range(len(processed_data.result_features_dt[0][i])):
             if cf_count == current_feature_index - truncated_count:
-                current_features = processed_data.result_features_dt[0][i][j] if is_dt else processed_data.result_features_knn[0][i][j]
+                current_features = processed_data.result_features_dt[0][i][j] if is_dt else \
+                processed_data.result_features_knn[0][i][j]
                 break
             cf_count = cf_count + 1
         if not (current_features is None):
@@ -311,11 +357,13 @@ def run(args):
                     prev_distinct_prediction = prediction_history[i]
                     break
             current_features[1] = prev_distinct_prediction if is_dt else prev_distinct_prediction / (
-                        data.num_outputs - 1)
+                    data.num_outputs - 1)
 
         prediction_proba_arr = model.predict_proba([current_features])[0] if is_dt else \
-        model.predict(np.asarray([current_features]))[0]
+            model.predict(np.asarray([current_features]))[0]
         prediction = np.asarray(prediction_proba_arr).argmax()
+        if is_dt:
+            prediction = prediction + 1
         prediction_proba = prediction_proba_arr[prediction]
         prediction_history.append(prediction)
         current_feature_index = current_feature_index + 1
@@ -329,6 +377,13 @@ def run(args):
                             data.position_map[i + 1][1] - y_pos) ** 2) <= data.proximity:
                 current_location = i + 1
                 break
+
+        if current_location == 0 and encode_path_as_location:
+            for i in range(len(path_location_areas)):
+                area = path_location_areas[i]
+                if area[0][0] <= x_pos <= area[1][0] and area[0][1] <= y_pos <= area[1][1]:
+                    current_location = path_location_area_label[i]
+                    break
 
         if current_location == prediction:
             statistics_prediction[prediction][0] = statistics_prediction[prediction][0] + 1
@@ -373,7 +428,7 @@ def run(args):
         last_prediction_anomaly_topology_guesser = int(
             topology_guesser.predict(prev_distinct_prediction, prediction))
         anomaly_features = [
-            last_prediction_anomaly,
+            # last_prediction_anomaly,
             # sum(window_location_changes[-WINDOW_SIZE:]),  # TODO: KNN
             # sum(window_confidence[-WINDOW_SIZE:]),  # TODO: KNN
             # prediction_proba,
@@ -388,7 +443,8 @@ def run(args):
 
         # Save for statistics
         last_prediction = prediction
-        last_prediction_anomaly = model_anomaly.predict([anomaly_features])[0] if is_dt else int(model_anomaly.predict(np.asarray([anomaly_features]))[0] >= 0.5)
+        last_prediction_anomaly = model_anomaly.predict([anomaly_features])[0] if is_dt else int(
+            model_anomaly.predict(np.asarray([anomaly_features]))[0] >= 0.5)
         last_prediction_when = t_stamp
 
         is_current_pos_anomaly = False
@@ -428,28 +484,28 @@ def run(args):
     print("Is anomaly: %d" % (last_prediction_anomaly))
     print("Is anomaly (TG): %d" % (last_prediction_anomaly_topology_guesser))
     print("Last distinct location %d" % (prev_distinct_prediction))
-    print("|   Loc      |   TP   |   TN   |   FP   |   FN   |   ACC  |")
+    print("|   Loc       |   TP   |   TN   |   FP   |   FN   |   ACC  |")
     print("________________________________________________________")
-    for i in range(len(data.position_map.values()) + 1):
+    for i in range(len(data.position_map.values()) * (2 if encode_path_as_location else 1) + 1):
         sum_row = max(sum(statistics_prediction[i]), 1)
-        print("| %d          | %.4f | %.4f | %.4f | %.4f | %.4f |" % (i, (statistics_prediction[i][0] / sum_row),
-                                                                      statistics_prediction[i][1] / sum_row,
-                                                                      statistics_prediction[i][2] / sum_row,
-                                                                      statistics_prediction[i][3] / sum_row,
-                                                                      statistics_prediction[i][0] / max(
-                                                                          statistics_prediction[i][0] +
-                                                                          statistics_prediction[i][3], 1)))
+        print("| %02d          | %.4f | %.4f | %.4f | %.4f | %.4f |" % (i, (statistics_prediction[i][0] / sum_row),
+                                                                        statistics_prediction[i][1] / sum_row,
+                                                                        statistics_prediction[i][2] / sum_row,
+                                                                        statistics_prediction[i][3] / sum_row,
+                                                                        statistics_prediction[i][0] / max(
+                                                                            statistics_prediction[i][0] +
+                                                                            statistics_prediction[i][3], 1)))
 
     # Anomaly statistics
     sum_row = max(sum(statistics_anomaly), 1)
-    print("| Anomaly    | %.4f | %.4f | %.4f | %.4f | %.4f |" % ((statistics_anomaly[0] / sum_row),
+    print("| Anomaly     | %.4f | %.4f | %.4f | %.4f | %.4f |" % ((statistics_anomaly[0] / sum_row),
                                                                  statistics_anomaly[1] / sum_row,
                                                                  statistics_anomaly[2] / sum_row,
                                                                  statistics_anomaly[3] / sum_row,
                                                                  (statistics_anomaly[0] + statistics_anomaly[
                                                                      1]) / sum_row))
     sum_row = max(sum(statistics_anomaly_tg), 1)
-    print("| Anomaly TG | %.4f | %.4f | %.4f | %.4f | %.4f |" % ((statistics_anomaly_tg[0] / sum_row),
+    print("| Anomaly TG  | %.4f | %.4f | %.4f | %.4f | %.4f |" % ((statistics_anomaly_tg[0] / sum_row),
                                                                  statistics_anomaly_tg[1] / sum_row,
                                                                  statistics_anomaly_tg[2] / sum_row,
                                                                  statistics_anomaly_tg[3] / sum_row,
@@ -479,7 +535,9 @@ def run(args):
             ax4.set_title("Permutationswichtigkeit im Datenfenster (25)")
             ax4.set_xlabel("Feature")
             ax4.set_ylabel("Fehler in %")
-            permutation_importance = model.permutation_importance(all_features, true_location_history[-25:]) if is_dt else GenerateFFNN.feature_importances(model, np.asarray(all_features), np.asarray(true_location_history[-25:]))
+            permutation_importance = model.permutation_importance(all_features, true_location_history[
+                                                                                -25:]) if is_dt else GenerateFFNN.feature_importances(
+                model, np.asarray(all_features), np.asarray(true_location_history[-25:]))
             ax4.bar(range(len(permutation_importance)), permutation_importance, align='center')
             plt.xticks(range(len(permutation_importance)), data.name_map_features, size='small', rotation=90)
 

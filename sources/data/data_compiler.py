@@ -667,8 +667,8 @@ class DataCompiler:
                                     # TODO: This does not make sense!
                                     # self.position_map[location_offset] = [data.at[row_index]["x_pos"], data.at[row_index]["y_pos"]]
                                     append_to_neighbor_graph(self.location_neighbor_graph, data.at[row_index, "location"],
-                                                             location_offset)
-                                    # append_to_neighbor_graph(self.location_neighbor_graph, location_offset,
+                                                             init_offset)
+                                    # append_to_neighbor_graph(self.location_neighbor_graph, init_offset,
                                     #                          data.at[row_index, "location])
                             previous_non_zero_pos = data.at[row_index, "location"]
 
@@ -685,20 +685,26 @@ class DataCompiler:
 
             if not (data_set in anomaly_data_sets):
                 self.test_raw_data.append(test_set)
-                """
                 real_set_sequence = []
                 for row in data.query("cycle == 0").iterrows():
                     if not (row[1]["location"] in real_set_sequence):
                         real_set_sequence.append(row[1]["location"])
 
-                test_set_sequence = []
-                for row in test_set.query("cycle == 0").iterrows():
-                    if not (row[1]["location"] in test_set_sequence):
-                        test_set_sequence.append(row[1]["location"])
-
-                print(real_set_sequence)
-                print(test_set_sequence)
                 """
+                    test_set_sequence = []
+                    for row in test_set.query("cycle == 0").iterrows():
+                        if not (row[1]["location"] in test_set_sequence):
+                            test_set_sequence.append(row[1]["location"])
+    
+                    print(test_set_sequence)
+                """
+                if self.encode_paths_between_as_location:
+                    # Redo the location neighbor mapping in this case
+                    for i in range(len(real_set_sequence)):
+                        if i == 0:
+                            self.location_neighbor_graph[real_set_sequence[0]] = [real_set_sequence[-1]]
+                        else:
+                            self.location_neighbor_graph[real_set_sequence[i]] = [real_set_sequence[i - 1]]
 
             self.__data_sets[data_set] = data
             if len(data_set.value) == 2:
