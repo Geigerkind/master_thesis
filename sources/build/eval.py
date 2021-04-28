@@ -29,12 +29,12 @@ if __name__ == "__main__":
     FRACTION_PREDICTION_LABELED = 0.5
     NUM_EPOCHS_PER_CYCLE = ffnn_num_epochs
 
+    features = [Features.PreviousLocation, Features.AccessPointDetection, Features.Temperature,
+                Features.Heading, Features.Volume, Features.Time, Features.Angle, Features.Acceleration,
+                Features.Light]
     if load_from_disk:
         data = pickle.load(open(pregen_path, 'rb'))
     else:
-        features = [Features.PreviousLocation, Features.AccessPointDetection, Features.Temperature,
-                    Features.Heading, Features.Volume, Features.Time, Features.Angle, Features.Acceleration,
-                    Features.Light]
         data = DataCompiler(res_input_data_sets, features, True, encode_paths_between_as_location, False, 0.2)
 
     print("Saving data...")

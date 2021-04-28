@@ -259,7 +259,7 @@ if __name__ == "__main__":
             print("Generating Training and Validation Data...")
             args = []
 
-            for data_set_index in [2, 3, 4]:
+            for data_set_index in [1, 2, 3]:
                 args.append([data_set_index, data, model_dt])
 
             anomaly_features_dt = []

@@ -374,10 +374,10 @@ def run(args):
         prediction_proba_arr = model.predict_proba([current_features])[0] if is_dt else \
             model.predict(np.asarray([current_features]))[0]
         prediction = np.asarray(prediction_proba_arr).argmax()
-        if is_dt:
+        if is_dt and encode_path_as_location:
             prediction = prediction + 1
         prediction_proba = prediction_proba_arr[prediction]
-        if prediction != prediction_history[current_feature_index - 1]:
+        if len(prediction_history) > 0 and prediction != prediction_history[current_feature_index - 1]:
             prev_distinct_prediction = prediction_history[current_feature_index - 1]
         prediction_history.append(prediction)
         current_feature_index = current_feature_index + 1
