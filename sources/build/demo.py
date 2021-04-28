@@ -133,9 +133,9 @@ def redraw():
     ax2.set_xlabel("Eintrag (Diskret)")
     ax2.set_ylabel("Standort (Diskret)")
     if encode_path_as_location:
-        ax2.set_ylim([0, len(data.position_map) * 2])
+        ax2.set_ylim([0, len(data.position_map) * 2 + 1])
     else:
-        ax2.set_ylim([0, len(data.position_map)])
+        ax2.set_ylim([0, len(data.position_map) + 1])
 
     ax3.set_title("Wahrheit vs. Vorhersage: Anamolie")
     ax3.set_xlabel("Eintrag (Diskret)")
@@ -351,7 +351,6 @@ def run(args):
         if current_feature_index > 0:
             prev_prediction = prediction_history[current_feature_index - 1]
             current_features[0] = prev_prediction if is_dt else prev_prediction / (data.num_outputs - 1)
-            prev_distinct_prediction = 0
             for i in range(len(prediction_history) - 2, 0, -1):
                 if prediction_history[i] > 0 and prediction_history[i] != prev_prediction:
                     prev_distinct_prediction = prediction_history[i]
@@ -428,7 +427,7 @@ def run(args):
         last_prediction_anomaly_topology_guesser = int(
             topology_guesser.predict(prev_distinct_prediction, prediction))
         anomaly_features = [
-            # last_prediction_anomaly,
+            last_prediction_anomaly,
             # sum(window_location_changes[-WINDOW_SIZE:]),  # TODO: KNN
             # sum(window_confidence[-WINDOW_SIZE:]),  # TODO: KNN
             # prediction_proba,
