@@ -377,6 +377,8 @@ def run(args):
         if is_dt:
             prediction = prediction + 1
         prediction_proba = prediction_proba_arr[prediction]
+        if prediction != prediction_history[current_feature_index - 1]:
+            prev_distinct_prediction = prediction_history[current_feature_index - 1]
         prediction_history.append(prediction)
         current_feature_index = current_feature_index + 1
 
