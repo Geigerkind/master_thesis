@@ -37,14 +37,14 @@ if __name__ == "__main__":
     else:
         data = DataCompiler(res_input_data_sets, features, True, encode_paths_between_as_location, False, 0.2)
 
-    print("Saving data...")
-    try:
-        os.mkdir(BIN_FOLDER_PATH + "/" + evaluation_name + "/")
-    except:
-        pass
+        print("Saving data...")
+        try:
+            os.mkdir(BIN_FOLDER_PATH + "/" + evaluation_name + "/")
+        except:
+            pass
 
-    with open(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_data.pkl", 'wb') as file:
-        pickle.dump(data, file)
+        with open(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_data.pkl", 'wb') as file:
+            pickle.dump(data, file)
 
     print("")
     print("Training models:")
