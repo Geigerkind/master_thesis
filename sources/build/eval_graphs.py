@@ -32,10 +32,15 @@ pregen_path, evaluation_name, res_input_data_sets = parse_cmd_args()
 
 
 def generate_graphs(path, prefix, model_dt, test_set_features_dt, test_set_features_knn, test_set_labels_dt,
-                    test_set_labels_knn, num_outputs, use_continued_prediction, feature_name_map, evaluation_name):
+                    test_set_labels_knn, num_outputs, use_continued_prediction, feature_name_map, evaluation_name, is_anomaly):
     # Loaded here cause it cant be pickled
-    model_knn = keras.models.load_model(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_knn_model.h5")
-    model_anomaly_knn = keras.models.load_model(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_knn_anomaly_model.h5")
+    model_knn = 0
+    extra_suffix = ""
+    if is_anomaly:
+        extra_suffix = "_anomaly"
+        model_knn = keras.models.load_model(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_knn_anomaly_model.h5")
+    else:
+        model_knn = keras.models.load_model(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_knn_model.h5")
 
     GraphFeatureImportance(path, "evaluation", model_dt, model_knn, test_set_features_knn, test_set_labels_knn,
                            test_set_features_dt, test_set_labels_dt, feature_name_map)
@@ -46,54 +51,56 @@ def generate_graphs(path, prefix, model_dt, test_set_features_dt, test_set_featu
                                                           num_outputs) if use_continued_prediction else model_knn.predict(
         test_set_features_knn)
 
-    GraphTrueVsPredicted(path, prefix + "_dt", True, test_set_labels_dt, num_outputs, predicted_dt)
-    GraphTrueVsPredicted(path, prefix + "_knn", False, test_set_labels_knn, num_outputs, predicted_knn)
+    GraphTrueVsPredicted(path, prefix + "_dt" + extra_suffix, True, test_set_labels_dt, num_outputs, predicted_dt)
+    GraphTrueVsPredicted(path, prefix + "_knn" + extra_suffix, False, test_set_labels_knn, num_outputs, predicted_knn)
 
-    GraphRecognizedPathSegment(path, prefix + "_dt", True, test_set_labels_dt, predicted_dt)
-    GraphRecognizedPathSegment(path, prefix + "_knn", False, test_set_labels_knn, predicted_knn)
+    if not is_anomaly:
+        GraphRecognizedPathSegment(path, prefix + "_dt", True, test_set_labels_dt, predicted_dt)
+        GraphRecognizedPathSegment(path, prefix + "_knn", False, test_set_labels_knn, predicted_knn)
 
-    GraphLocationMisclassified(path, prefix + "_dt", True, test_set_labels_dt, num_outputs, predicted_dt)
-    GraphLocationMisclassified(path, prefix + "_knn", False, test_set_labels_knn, num_outputs, predicted_knn)
+        GraphLocationMisclassified(path, prefix + "_dt", True, test_set_labels_dt, num_outputs, predicted_dt)
+        GraphLocationMisclassified(path, prefix + "_knn", False, test_set_labels_knn, num_outputs, predicted_knn)
 
-    GraphLocationMisclassification(path, prefix + "_dt", True, test_set_labels_dt, num_outputs, predicted_dt)
-    GraphLocationMisclassification(path, prefix + "_knn", False, test_set_labels_knn, num_outputs, predicted_knn)
+        GraphLocationMisclassification(path, prefix + "_dt", True, test_set_labels_dt, num_outputs, predicted_dt)
+        GraphLocationMisclassification(path, prefix + "_knn", False, test_set_labels_knn, num_outputs, predicted_knn)
 
-    GraphLocationMisclassifiedDistribution(path, prefix + "_dt", True, test_set_labels_dt, num_outputs, predicted_dt)
-    GraphLocationMisclassifiedDistribution(path, prefix + "_knn", False, test_set_labels_knn, num_outputs,
-                                           predicted_knn)
+        GraphLocationMisclassifiedDistribution(path, prefix + "_dt", True, test_set_labels_dt, num_outputs, predicted_dt)
+        GraphLocationMisclassifiedDistribution(path, prefix + "_knn", False, test_set_labels_knn, num_outputs,
+                                               predicted_knn)
 
-    GraphPathSegmentMisclassified(path, prefix + "_dt", True, test_set_labels_dt, predicted_dt)
-    GraphPathSegmentMisclassified(path, prefix + "_knn", False, test_set_labels_knn, predicted_knn)
+        GraphPathSegmentMisclassified(path, prefix + "_dt", True, test_set_labels_dt, predicted_dt)
+        GraphPathSegmentMisclassified(path, prefix + "_knn", False, test_set_labels_knn, predicted_knn)
 
-    predicted_dt = model_dt.continued_predict_proba(
-        test_set_features_dt) if use_continued_prediction else model_dt.predict_proba(
-        test_set_features_dt)
+        predicted_dt = model_dt.continued_predict_proba(
+            test_set_features_dt) if use_continued_prediction else model_dt.predict_proba(
+            test_set_features_dt)
 
-    GraphWindowLocationChanges(path, prefix + "_dt", predicted_dt)
-    GraphWindowLocationChanges(path, prefix + "_knn", predicted_knn)
+        GraphWindowLocationChanges(path, prefix + "_dt", predicted_dt)
+        GraphWindowLocationChanges(path, prefix + "_knn", predicted_knn)
 
-    GraphWindowConfidence(path, prefix + "_dt", predicted_dt)
-    GraphWindowConfidence(path, prefix + "_knn", predicted_knn)
+        GraphWindowConfidence(path, prefix + "_dt", predicted_dt)
+        GraphWindowConfidence(path, prefix + "_knn", predicted_knn)
 
-    GraphWindowConfidenceNotZero(path, prefix + "_dt", predicted_dt)
-    GraphWindowConfidenceNotZero(path, prefix + "_knn", predicted_knn)
+        GraphWindowConfidenceNotZero(path, prefix + "_dt", predicted_dt)
+        GraphWindowConfidenceNotZero(path, prefix + "_knn", predicted_knn)
 
-    LogMetrics(path, prefix + "_dt", predicted_dt)
-    LogMetrics(path, prefix + "_knn", predicted_knn)
+        LogMetrics(path, prefix + "_dt", predicted_dt)
+        LogMetrics(path, prefix + "_knn", predicted_knn)
 
-    CompileLog(path, prefix + "_dt")
-    CompileLog(path, prefix + "_knn")
+        CompileLog(path, prefix + "_dt")
+        CompileLog(path, prefix + "_knn")
 
 
 def exec_gen_graphs(args):
     path, prefix, model_dt, test_set_features_dt, test_set_features_knn, test_set_labels_dt, \
-    test_set_labels_knn, num_outputs, use_continued_prediction, feature_name_map, evaluation_name = args
+    test_set_labels_knn, num_outputs, use_continued_prediction, feature_name_map, evaluation_name, is_anomaly = args
     generate_graphs(path, prefix, model_dt, test_set_features_dt, test_set_features_knn, test_set_labels_dt,
-                    test_set_labels_knn, num_outputs, use_continued_prediction, feature_name_map, evaluation_name)
+                    test_set_labels_knn, num_outputs, use_continued_prediction, feature_name_map, evaluation_name, is_anomaly)
 
 
 with open(pregen_path, 'rb') as file:
     data = pickle.load(file)
+    anomaly_data = pickle.load(open(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_anomaly_data.pkl"))
     with open(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_dt_model.pkl", 'rb') as file:
         map_args = []
         model_dt = pickle.load(file)
@@ -147,7 +154,7 @@ with open(pregen_path, 'rb') as file:
             test_labels_knn.append(np.asarray(new_labels_knn).copy())
 
         # Anomaly data sets
-        for i in []:  # TODO
+        for i in range(len(data.temporary_test_set_labels_dt)):
             test_set_names.append(data.name_map_data_sets_temporary[i])
             new_set_dt, new_labels_dt, new_set_knn, new_labels_knn = glue_test_sets(
                 data.temporary_test_set_features_dt[i],
@@ -181,11 +188,11 @@ with open(pregen_path, 'rb') as file:
 
             map_args.append([path, "evaluation_continued", model_dt, test_set_features_dt, test_set_features_knn,
                              test_set_labels_dt, test_set_labels_knn, data.num_outputs, True, data.name_map_features,
-                             evaluation_name])
+                             evaluation_name, False])
 
             map_args.append([path, "evaluation", model_dt, test_set_features_dt, test_set_features_knn,
                              test_set_labels_dt, test_set_labels_knn, data.num_outputs, False, data.name_map_features,
-                             evaluation_name])
+                             evaluation_name, False])
 
             # Wrong previous location
             test_set_features_dt_random_location = np.asarray(test_sets_dt[k]).copy()
@@ -201,7 +208,7 @@ with open(pregen_path, 'rb') as file:
 
             map_args.append([path, "random_prev_location", model_dt, test_set_features_dt_random_location,
                              test_set_features_knn_random_location, test_set_labels_dt, test_set_labels_knn,
-                             data.num_outputs, False, data.name_map_features, evaluation_name])
+                             data.num_outputs, False, data.name_map_features, evaluation_name, False])
 
             # Continued prediction with faulty beginning
             test_set_features_dt = np.asarray(test_sets_dt[k]).copy()
@@ -216,7 +223,7 @@ with open(pregen_path, 'rb') as file:
 
             map_args.append([path, "continued_pred_with_faulty_start", model_dt, test_set_features_dt,
                              test_set_features_knn, test_set_labels_dt, test_set_labels_knn, data.num_outputs,
-                             True, data.name_map_features, evaluation_name])
+                             True, data.name_map_features, evaluation_name, False])
 
             log_compiled = open(path + "evaluation/log_compiled.csv", "w")
             log_compiled.write("accuracy,accuracy_given_previous_location_was_correct,"
@@ -232,6 +239,39 @@ with open(pregen_path, 'rb') as file:
             log_compiled = open(path + "evaluation/log_compiled_path.csv", "w")
             log_compiled.write("path_segment,recognized_after,times_misclassified,path_len\n")
             log_compiled.close()
+
+        for i in range(len(data.temporary_test_set_labels_dt)):
+            new_set_dt, new_labels_dt, new_set_knn, new_labels_knn = glue_test_sets(
+                data.temporary_test_set_features_dt[i],
+                data.temporary_test_set_labels_dt[i],
+                data.temporary_test_set_features_knn[i],
+                data.temporary_test_set_labels_knn[i])
+
+            path = BIN_FOLDER_PATH + "/" + evaluation_name + "/anomaly_model_" + data.name_map_data_sets_temporary[i] + "/"
+            # Create folder
+            try:
+                os.mkdir(path)
+            except:
+                pass
+
+            try:
+                os.mkdir(path + "evaluation/")
+            except:
+                pass
+
+            # Valid set
+            test_set_features_dt = np.asarray(test_sets_dt[k]).copy()
+            test_set_features_knn = np.asarray(test_sets_knn[k]).copy()
+            test_set_labels_dt = np.asarray(test_labels_dt[k]).copy()
+            test_set_labels_knn = np.asarray(test_labels_knn[k]).copy()
+
+            map_args.append([path, "evaluation_continued", model_anomaly_dt, test_set_features_dt, test_set_features_knn,
+                             test_set_labels_dt, test_set_labels_knn, data.num_outputs, True, data.name_map_features,
+                             evaluation_name, True])
+
+            map_args.append([path, "evaluation", model_anomaly_dt, test_set_features_dt, test_set_features_knn,
+                             test_set_labels_dt, test_set_labels_knn, data.num_outputs, False, data.name_map_features,
+                             evaluation_name, True])
 
         # Evaluate all graphs in parallel
         with Pool(NUM_CORES) as pool:

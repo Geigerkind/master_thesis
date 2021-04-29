@@ -253,6 +253,20 @@ if __name__ == "__main__":
         return af_dt, al, af_dt_val, al_val, af_knn, af_knn_val, predicted_dt_val, predicted_knn_val
 
 
+    class DumpAnomalyData:
+        def __init__(self, t_f_dt, t_f_knn, t_f_dt_val, t_f_knn_val, t_l, t_l_val, test_f_dt, test_f_knn, test_l):
+            self.train_features_dt = t_f_dt
+            self.train_features_knn = t_f_knn
+            self.train_features_dt_val = t_f_dt_val
+            self.train_features_knn_val = t_f_knn_val
+            self.train_labels = t_l
+            self.train_labels_val = t_l_val
+
+            self.test_features_dt = test_f_dt
+            self.test_features_knn = test_f_knn
+            self.test_labels = test_l
+
+
     print("Loading data and models...")
     with open(pregen_path, 'rb') as file:
         data = pickle.load(file)
@@ -263,7 +277,7 @@ if __name__ == "__main__":
             print("Generating Training and Validation Data...")
             args = []
 
-            for data_set_index in [1, 2, 3]:
+            for data_set_index in range(1, len(data.temporary_test_set_labels_dt)):
                 args.append([data_set_index, data, model_dt])
 
             anomaly_features_dt = []
@@ -277,9 +291,14 @@ if __name__ == "__main__":
             predicted_dt_val = []
             predicted_knn_val = []
 
+            anomaly_features_dt_test = []
+            anomaly_features_knn_test = []
+            anomaly_labels_test = []
+
             with Pool(processes=NUM_CORES) as pool:
-                for res in pool.map(calculate_data_set, args):
-                    af_dt, al, af_dt_val, al_val, af_knn, af_knn_val, pred_dt_val, pred_knn_val = res
+                result = pool.map(calculate_data_set, args)
+                for i in [1, 2]:
+                    af_dt, al, af_dt_val, al_val, af_knn, af_knn_val, pred_dt_val, pred_knn_val = result[i]
 
                     anomaly_features_dt = anomaly_features_dt + af_dt
                     anomaly_labels = anomaly_labels + al
@@ -291,6 +310,12 @@ if __name__ == "__main__":
 
                     predicted_dt_val = predicted_dt_val + pred_dt_val
                     predicted_knn_val = predicted_knn_val + pred_knn_val
+                for i in range(3, len(data.temporary_test_set_labels_dt)):
+                    af_dt, al, af_dt_val, al_val, af_knn, af_knn_val, pred_dt_val, pred_knn_val = result[i]
+
+                    anomaly_features_dt_test = anomaly_features_dt_test + af_dt + af_dt_val
+                    anomaly_features_knn_test = anomaly_features_knn_test + af_knn + af_knn_val
+                    anomaly_labels_test = anomaly_labels_test + al + al_val
 
             print("Training the anomaly detection models....")
             model_anomaly_dt = GenerateDecisionTree(EnsembleMethod.RandomForest, 8, 20)
@@ -415,6 +440,14 @@ if __name__ == "__main__":
                 pickle.dump(model_anomaly_dt, file)
 
             model_anomaly_knn.save(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_knn_anomaly_model.h5")
+
+            print("")
+            print("Saving processed features and labels...")
+            with open(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_anomaly_data.pkl", 'wb') as file:
+                anomaly_data = DumpAnomalyData(anomaly_features_dt, anomaly_features_knn, anomaly_features_dt_val,
+                                               anomaly_features_knn_val, anomaly_labels, anomaly_labels_val,
+                                               anomaly_features_dt_test, anomaly_features_knn_test, anomaly_labels_test)
+                pickle.dump(anomaly_data, file)
 
             print("")
 
