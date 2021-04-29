@@ -441,6 +441,9 @@ def run(args):
 
         last_prediction_anomaly_topology_guesser = int(
             topology_guesser.predict(prev_distinct_prediction, prediction))
+
+        confidence_std = np.asarray(prediction_proba[5:]).std()
+
         anomaly_features = [
             # last_prediction_anomaly,
             # sum(window_location_changes[-WINDOW_SIZE:]),  # TODO: KNN
@@ -452,7 +455,8 @@ def run(args):
             window_confidence_deviation,
             # prev_distinct_prediction,
             # prediction,
-            last_prediction_anomaly_topology_guesser
+            last_prediction_anomaly_topology_guesser,
+            confidence_std
         ]
 
         # Save for statistics
