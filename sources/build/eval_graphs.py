@@ -102,12 +102,11 @@ with open(pregen_path, 'rb') as file:
             new_labels_dt = []
             new_set_knn = []
             new_labels_knn = []
-            offset = data.num_cycles - data.num_validation_cycles
-            for j in range(data.num_validation_cycles):
-                new_set_dt = new_set_dt + features_dt[offset + j]
-                new_labels_dt = new_labels_dt + labels_dt[offset + j]
-                new_set_knn = new_set_knn + features_knn[offset + j]
-                new_labels_knn = new_labels_knn + labels_knn[offset + j]
+            for j in range(data.num_cycles):
+                new_set_dt = new_set_dt + features_dt[j]
+                new_labels_dt = new_labels_dt + labels_dt[j]
+                new_set_knn = new_set_knn + features_knn[j]
+                new_labels_knn = new_labels_knn + labels_knn[j]
 
             return new_set_dt, new_labels_dt, new_set_knn, new_labels_knn
 
@@ -119,12 +118,12 @@ with open(pregen_path, 'rb') as file:
         test_labels_knn = []
 
         # Parameter data sets
-        for i in range(len(data.data_sets)):
-            test_set_names.append(data.name_map_data_sets_result[i])
-            new_set_dt, new_labels_dt, new_set_knn, new_labels_knn = glue_test_sets(data.result_features_dt[i],
-                                                                                    data.result_labels_dt[i],
-                                                                                    data.result_features_knn[i],
-                                                                                    data.result_labels_knn[i])
+        for i in range(len(data.test_labels_dt)):
+            test_set_names.append(data.name_map_data_sets_test[i])
+            new_set_dt, new_labels_dt, new_set_knn, new_labels_knn = glue_test_sets(data.test_features_dt[i],
+                                                                                    data.test_labels_dt[i],
+                                                                                    data.test_features_knn[i],
+                                                                                    data.test_labels_knn[i])
 
             test_sets_dt.append(np.asarray(new_set_dt).copy())
             test_labels_dt.append(np.asarray(new_labels_dt).copy())
@@ -132,20 +131,20 @@ with open(pregen_path, 'rb') as file:
             test_labels_knn.append(np.asarray(new_labels_knn).copy())
 
         # Faulty data sets
-        for i in range(len(data.faulty_features_dt)):
-            test_set_names.append(data.name_map_data_sets_faulty[i])
-            new_set_dt, new_labels_dt, new_set_knn, new_labels_knn = glue_test_sets(data.faulty_features_dt[i],
-                                                                                    data.faulty_labels_dt[i],
-                                                                                    data.faulty_features_knn[i],
-                                                                                    data.faulty_labels_knn[i])
+        for i in range(len(data.faulty_test_features_dt)):
+            test_set_names.append(data.name_map_data_sets_faulty_test[i])
+            new_set_dt, new_labels_dt, new_set_knn, new_labels_knn = glue_test_sets(data.faulty_test_features_dt[i],
+                                                                                    data.faulty_test_labels_dt[i],
+                                                                                    data.faulty_test_features_knn[i],
+                                                                                    data.faulty_test_labels_knn[i])
 
             test_sets_dt.append(np.asarray(new_set_dt).copy())
             test_labels_dt.append(np.asarray(new_labels_dt).copy())
             test_sets_knn.append(np.asarray(new_set_knn).copy())
             test_labels_knn.append(np.asarray(new_labels_knn).copy())
 
-        # Temporary data sets
-        for i in range(len(data.temporary_test_set_features_dt)):
+        # Anomaly data sets
+        for i in []:  # TODO
             test_set_names.append(data.name_map_data_sets_temporary[i])
             new_set_dt, new_labels_dt, new_set_knn, new_labels_knn = glue_test_sets(
                 data.temporary_test_set_features_dt[i],
@@ -184,20 +183,6 @@ with open(pregen_path, 'rb') as file:
             map_args.append([path, "evaluation", model_dt, test_set_features_dt, test_set_features_knn,
                              test_set_labels_dt, test_set_labels_knn, data.num_outputs, False, data.name_map_features,
                              evaluation_name])
-
-            # Previous Location with offset
-            test_set_features_dt_offset = np.asarray(test_sets_dt[k]).copy()
-            test_set_features_knn_offset = np.asarray(test_sets_knn[k]).copy()
-
-            for i in range(10, len(test_set_features_dt)):
-                test_set_features_dt_offset[i][0] = test_set_features_dt_offset[i - 10][0]
-                test_set_features_dt_offset[i][1] = test_set_features_dt_offset[i - 10][1]
-                test_set_features_knn_offset[i][0] = test_set_features_knn_offset[i - 10][0]
-                test_set_features_knn_offset[i][1] = test_set_features_knn_offset[i - 10][1]
-
-            map_args.append([path, "prev_location_offset", model_dt, test_set_features_dt_offset,
-                             test_set_features_knn_offset, test_set_labels_dt, test_set_labels_knn, data.num_outputs,
-                             False, data.name_map_features, evaluation_name])
 
             # Wrong previous location
             test_set_features_dt_random_location = np.asarray(test_sets_dt[k]).copy()

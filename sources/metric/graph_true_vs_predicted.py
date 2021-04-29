@@ -13,6 +13,7 @@ class GraphTrueVsPredicted:
         self.prediction = prediction
 
         # Configuration
+        self.max_entry_draw_size = 2000
         self.file_path = path + prefix + "/"
         try:
             os.mkdir(self.file_path)
@@ -124,9 +125,10 @@ class GraphTrueVsPredicted:
                                                 accuracy_given_location_is_cont_the_same_and_within_10_entries))
         log_file.close()
 
+        plt.figure(figsize=(15/2.54, 30/2.54))
         fig, ax1 = plt.subplots()
-        ax1.plot(range(len(self.prediction)), y_true_position, "o-g")
-        ax1.plot(range(len(self.prediction)), y_predicted_position, "*-b")
+        ax1.plot(range(min(self.max_entry_draw_size, len(self.prediction))), y_true_position[self.max_entry_draw_size:], "o-g")
+        ax1.plot(range(min(self.max_entry_draw_size, len(self.prediction))), y_predicted_position[self.max_entry_draw_size:], "*-b")
         ax1.set_xlabel("Pfadeintrag (Diskret)")
         ax1.set_ylabel("Position (Diskret)")
         ax1.set_ylim([0, self.num_outputs - 1])

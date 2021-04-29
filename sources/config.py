@@ -3,7 +3,7 @@ import sys
 from sources.data.data_set import DataSet
 
 BIN_FOLDER_PATH = "/home/shino/Uni/master_thesis/bin"
-NUM_CORES = 4
+NUM_CORES = 5
 
 
 def parse_cmd_args():

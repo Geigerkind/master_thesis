@@ -36,6 +36,7 @@ class GraphFeatureImportance:
         return "{0}_feature_importance_{1}.png".format(self.prefix, suffix)
 
     def __generate_graph(self, importances, suffix):
+        plt.figure(figsize=(15/2.54, 30/2.54))
         fig, ax1 = plt.subplots()
         ax1.bar(range(len(importances)), importances, align='center')
         plt.xticks(range(len(importances)), self.feature_name_map, size='small', rotation=90)

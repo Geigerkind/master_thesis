@@ -57,6 +57,7 @@ class GraphLocationMisclassifiedDistribution:
         return keys, values
 
     def __generate_graph(self):
+        plt.figure(figsize=(15/2.54, 30/2.54))
         x, y = self.__calculate_location_misclassified()
         plt.bar(x, y)
         plt.xlabel("Ort (Diskret)")

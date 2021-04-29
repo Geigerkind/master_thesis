@@ -10,6 +10,7 @@ class GraphWindowConfidence():
         self.prediction = prediction
 
         # Configuration
+        self.max_entry_draw_size = 2000
         self.window_size = 25
         self.file_path = path + prefix + "/"
         try:
@@ -25,8 +26,9 @@ class GraphWindowConfidence():
     def __generate_graph(self):
         location_changes_in_window = self.__get_window_confidence_data(self.prediction)
 
+        plt.figure(figsize=(15/2.54, 30/2.54))
         fig, ax1 = plt.subplots()
-        ax1.plot(range(len(location_changes_in_window)), location_changes_in_window, "o-b")
+        ax1.plot(range(min(self.max_entry_draw_size, len(location_changes_in_window))), location_changes_in_window[self.max_entry_draw_size:], "o-b")
         ax1.set_xlabel("Pfadeintrag (Diskret)")
         ax1.set_ylabel("Akkumulierte Positionswahrscheinlichkeit im Fenster")
         ax1.set_title("Akkumulierte Positionswahrscheinlichkeit im Fenster ({0})".format(self.window_size))

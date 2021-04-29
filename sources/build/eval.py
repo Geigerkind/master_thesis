@@ -29,6 +29,11 @@ if __name__ == "__main__":
     FRACTION_PREDICTION_LABELED = 0.5
     NUM_EPOCHS_PER_CYCLE = ffnn_num_epochs
 
+    try:
+        os.mkdir(BIN_FOLDER_PATH + "/" + evaluation_name + "/")
+    except:
+        pass
+
     features = [Features.PreviousLocation, Features.AccessPointDetection, Features.Temperature,
                 Features.Heading, Features.Volume, Features.Time, Features.Angle, Features.Acceleration,
                 Features.Light]
@@ -38,11 +43,6 @@ if __name__ == "__main__":
         data = DataCompiler(res_input_data_sets, features, True, encode_paths_between_as_location, False, 0.2)
 
         print("Saving data...")
-        try:
-            os.mkdir(BIN_FOLDER_PATH + "/" + evaluation_name + "/")
-        except:
-            pass
-
         with open(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_data.pkl", 'wb') as file:
             pickle.dump(data, file)
 
