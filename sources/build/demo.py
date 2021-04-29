@@ -360,6 +360,7 @@ def run(args):
 
     prediction = None
     prediction_proba = None
+    prediction_proba_arr = None
     if not (current_features is None):
         if current_feature_index > 0:
             prev_prediction = prediction_history[current_feature_index - 1]
@@ -442,7 +443,7 @@ def run(args):
         last_prediction_anomaly_topology_guesser = int(
             topology_guesser.predict(prev_distinct_prediction, prediction))
 
-        confidence_std = np.asarray(prediction_proba[5:]).std()
+        confidence_std = np.asarray(sorted(prediction_proba_arr, key=lambda i: i, reverse=True)[:5]).std()
 
         anomaly_features = [
             # last_prediction_anomaly,

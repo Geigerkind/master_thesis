@@ -28,7 +28,7 @@ class GraphWindowLocationChanges():
 
         plt.figure(figsize=(15/2.54, 30/2.54))
         fig, ax1 = plt.subplots()
-        ax1.plot(range(min(self.max_entry_draw_size, len(location_changes_in_window))), location_changes_in_window[self.max_entry_draw_size:], "o-b")
+        ax1.plot(range(min(self.max_entry_draw_size, len(location_changes_in_window))), location_changes_in_window[:self.max_entry_draw_size], "o-b")
         ax1.set_xlabel("Pfadeintrag (Diskret)")
         ax1.set_ylabel("Positionsänderungen im Fenster")
         ax1.set_title("Positionsänderungen im Fenster ({0})".format(self.window_size))

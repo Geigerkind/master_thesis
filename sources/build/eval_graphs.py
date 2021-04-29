@@ -35,6 +35,8 @@ def generate_graphs(path, prefix, model_dt, test_set_features_dt, test_set_featu
                     test_set_labels_knn, num_outputs, use_continued_prediction, feature_name_map, evaluation_name):
     # Loaded here cause it cant be pickled
     model_knn = keras.models.load_model(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_knn_model.h5")
+    model_anomaly_knn = keras.models.load_model(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_knn_anomaly_model.h5")
+
     GraphFeatureImportance(path, "evaluation", model_dt, model_knn, test_set_features_knn, test_set_labels_knn,
                            test_set_features_dt, test_set_labels_dt, feature_name_map)
 
@@ -95,6 +97,7 @@ with open(pregen_path, 'rb') as file:
     with open(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_dt_model.pkl", 'rb') as file:
         map_args = []
         model_dt = pickle.load(file)
+        model_anomaly_dt = pickle.load(open(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_dt_anomaly_model.pkl", 'rb'))
 
 
         def glue_test_sets(features_dt, labels_dt, features_knn, labels_knn):
