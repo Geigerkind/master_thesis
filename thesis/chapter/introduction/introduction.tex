@@ -5,30 +5,38 @@ Ein bekanntes Beispiel ist das \textit{Global Positioning System} (GPS) \cite{ka
 Bei GPS berechnet das empfangende Gerät seine Position basierend auf den empfangenden Signalen der Satelliten.
 \newline
 \newline
-GPS bedarf aber direkten Kontakt zu den Satelliten, ansonsten ist die Signalstärke zu den Satelliten extrem eingeschränkt.
+In Gebäuden ist die Signalstärke der GPS-Satelliten jedoch stark eingeschränkt, sodass die Ortung ungenau wird oder überhaupt nicht funktioniert.
 Aus diesem Grund werden für \textit{Indoor}-Lokalisation andere Ansätze verfolgt.
 Je nach Genauigkeit können Objekte mit Sendern, RFID Tags oder Barcodes markiert werden \cite{xiao2016survey}.
 Meistens wird eine komplexe Infrastruktur benötigt, die diese Lokalisierungssysteme vergleichsweise teuer macht.
 \newline
 \newline
+Eine weitere Art der Lokalisation ist der Orientierungssinn von Mensch und Tier.
+Anhand von Orientierungspunkten wird so von einem Punkt zu einem anderen Punkt navigiert.
+Beispielsweise Honigbienen navigieren auf Basis von gelernten Orientierungspunkten, um Nahrungsquelle und Nest zu finden \cite{menzel1996knowledge}.
+\newline
+\newline
 In dieser Arbeit wird die diskrete Positionsbestimmung basierend auf Sensordaten untersucht.
-Dabei soll eine bestimmte Anzahl an Orten anhand verschiedener Sensorwerten unterschieden werden.
-Dies ist vergleichbar mit dem Orientierungssinn von Tieren und Menschen.
-Zum Beispiel navigieren Honigbienen auf Basis von gelernten Orientierungspunkten, um Nahrungsquelle und Nest zu finden \cite{menzel1996knowledge}.
+Dabei soll eine bestimmte Anzahl von Standorten anhand verschiedener Sensorwerte unterschieden werden.
+Dies ähnelt dem zuvor beschriebenen Orientierungssinn.
 Mit Hilfe maschinellen Lernens sollen künstliche neuronale Netze (KNN) und Entscheidungsbäume trainiert werden.
 Als Eingabedaten werden aus den gesammelten Sensordaten Features extrahiert, d. h. Attribute und Eigenschaften dieser Daten.
-Dieses System bedarf keine Infrastruktur muss aber für jedes Gebäude individuell trainiert werden.
+Dieses System bedarf keiner Infrastruktur, muss aber für jedes Gebäude individuell trainiert werden.
+Damit unterscheided sich diese Arbeit sich von anderen Arbeiten, da mehrere Sensoren zur diskreten Standorterkennung kombiniert werden für den Einsatz auf einem Mikrocontroller.
 \newline
 \newline
-TODO: Was wurde in dieser Arbeit gemacht.
-\newline
-TODO: Was unterscheided diese Arbeit von anderen Arbeiten?
+Es wird ein Evaluierungsprozess der Sensordaten erstellt, um Standorte und Anomalien mit Hilfe von ML-Modellen zu unterscheiden.
+Dafür werden Sensordaten mit CoppeliaSim simuliert, da Echtdaten eines Prototyps zum Zeitpunkt dieser Arbeit noch nicht Verfügbar sind.
+Die simulativ erfassten Sensordaten werden mit weiteren Sensordaten auf Basis vereinfachter Modelle ergänzt.
+Es wird die Klassifizierungsgenauigkeit der ML-Modelle untersucht im Hinblick auf Skalierbarkeit der Anzahl der Standorte, sowie Robustheit gegenüber mögliche Fehler.
+Außerdem wird die Klassifizierungsgenauigkeit des Anomalieerkennungsmodells untersucht.
+Zuletzt wird der Speicher- und Energieverbrauch eingeschätzt für den Betrieb auf einem batteriegestützten Mikrocontroller.
 \newline
 \newline
 Kapitel 2 führt Entscheidungsbäume und Ensemble-Methoden ein.
-Kapitel 3 führt künstliche neuronale Netze (KNN) ein mit dem Fokus auf Feed Forward neuronale Netze (FFNN).
+Kapitel 3 führt künstliche neuronale Netze (KNN) mit dem Fokus auf Feed Forward neuronale Netze (FFNN) ein.
 In Kapitel 4 wird auf den Stand der Forschung für Standortbestimmung mit Hilfe von maschinellen Lernen (ML) eingegangen.
-Die Generierung von Trainings- und Validationsdaten auf Basis von Simulationen wird in Kapitel 5 erläutert.
-Kapitel 6 stellt die trainierten ML Modelle mit Entscheidungsbäumen und FFNN vor.
+Das Trainieren der ML-Modelle mit Entscheidungsbäumen und FFNN wird in Kapitel 5 erläutert.
+Kapitel 6 geht auf die Generierung von Trainings- und Validationsdaten auf Basis von Simulationen ein.
 Darauf folgt die Evaluation der Klassifizierungsgenauigkeit, Fehlertoleranz und Resourcennutzung in Kapitel 7.
 Kapitel 8 enthält einen kritischen Rückblick auf die Entscheidungen dieser Arbeit, bevor Kapitel 9 Schlussfolgerungen zieht.
