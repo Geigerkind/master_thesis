@@ -15,7 +15,7 @@ hintereinander liegende Feature-Mengen zu einer Feature-Menge konkatiniert werde
 Zudem werden die zuletzt besuchten Standorte in Form einer exponentiell fallenenden Funktion über die Zeit als weitere Features hinzugefügt.
 \newline
 \newline
-Mit dieser Eingabe trainierte Mian ein FFNN mit einer Rückwärtskante von der Ausgabe- zur Eingabeschicht,
+Mit dieser Eingabe trainierte Mian ein FFNN mit einer Rückwärtskante (FBNN) von der Ausgabe- zur Eingabeschicht,
 um die zuletzt bestimmten Standorte als Features nutzen zu können.
 Die Rückwärtskante wurde im Training simuliert, indem die Trainingsdaten in zwei Teilmengen partitioniert wurden.
 Mit der ersten Teilmenge wurde das FFNN mit korrekt beschrifteten Trainingsdaten trainiert.
@@ -23,5 +23,30 @@ Das trainierte FFNN wurde dann genutzt, um die Standorte der zweiten Teilmenge z
 Daraufhin wurde das FFNN mit der zweiten Teilmenge trainiert, bevor es auf einer Testmenge validiert wurde.
 \newline
 \newline
-Mian validierte sein Modell auf einer Testmenge die aus sechs distinkten Standorten besteht über fünf Zyklen.
-Mit einem Datenfenster ab 25 konnten Klassifizierungsgenauigkeiten von bis zu 96\% erreicht werden.
+Mian unterscheidet vier Modellarchitekturen: FFNN, FBNN, WFFNN (FFNN mit Datenfenster) und WFBNN (FBNN mit Datenfenster).
+Er stellte fest, dass das FFNN nicht in der Lage war verschiedene Standorte zu unterscheiden,
+unabhängig von der Anzahl der verdeckten Schichten und dessen Anzahl von Neuronen.
+\newline
+\newline
+Das FBNN hingegen konnte bei einer Route mit einem Pfad und sechs Standorten Testgenauigkeiten von bis zu 86,73\% erzielen.
+Allerdings bedarf es dafür zwei verdeckte Schichten mit jeweils 64 Neuronen.
+Mit weniger Schichten oder Neuronen wurden deutlich schlechtere Ergebnisse erzielt.
+Bei mehr Pfaden und Standorten wurden ebenfalls schlechtere Ergebnisse erzielt.
+\newline
+\newline
+Mit der Einführung eines Datenfensters (WFFNN und WFBNN) hat sich die Klassifizierungsgenauigkeit signifikant erhöht.
+Ein WFFNN mit zwei verdeckten Schichten mit jeweils 16 Neuronen und einem Datenfenster von 25 konnte eine Testgenauigkeit von 93,31\%
+bei einem Pfad und sechs Standorten erreichen.
+Durch das Vergrößern des Datenfensters und mehr Neuronen pro verdeckte Schicht konnte Mian die Klassifizierungsgenauigkeit auf bis zu 95,57\% erhöhen.
+Das WFBNN hat keine signifikante Änderung zum WFFNN gezeigt.
+\newline
+\newline
+Mian stellte fest, dass sich die Klassifizierungsgenauigkeiten weiter verbessern ließen,
+wenn er eine Lichtquelle an Standorten setzt, wo sich die neuronalen Netze unsicher sind.
+Allerdings würden Fehler durch den Sensor oder Veränderungen der Lichtverhältnisse
+einen größeren Einfluss auf die Klassifizierungsgenauigkeit des Modells haben.
+\newline
+\newline
+Mian konkludierte, dass ein Kompromiss zwischen Klassifizierungsgenauigkeit und Modellgröße geschlossen werden müsste,
+da die Modellgröße und Klassifizierungsgenauigkeit proportional mit der Anzahl der verdeckten Schichten und Neuronen,
+sowie der Datenfenstergröße zusammenhinge.
