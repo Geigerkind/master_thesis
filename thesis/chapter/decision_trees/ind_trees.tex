@@ -1,6 +1,6 @@
 \section{Einzelne Entscheidungsbäume}
 \label{sec:dt_ind_decision_trees}
-Der einzelne Entscheidungsbaum ist eine rekursive Datenstruktur um Entscheidungsregeln darzustellen \cite{quinlan1990decision}.
+Ein einzelner Entscheidungsbaum ist eine rekursive Datenstruktur um Entscheidungsregeln darzustellen \cite{quinlan1990decision}.
 Jeder innere Knoten ist ein \textit{Test}, welcher eine arbiträre Anzahl von sich gegenseitig auschließenden Ergebnissen hat.
 Das Ergebnis eines Tests bestimmt mit welchem Kindknoten fortgefahren wird.
 Die Blätter des Baumes stellen die Entscheidungen dar bzw. die Klassen des Entscheidungsbaumklassifizierers.
@@ -24,5 +24,6 @@ sich in ihrer Strategie \cite{quinlan1986induction}.
 \newline
 \newline
 Scikit-Learn implementiert eine optimierte Version des \textit{CART} (\textbf{C}lassification \textbf{A}nd \textbf{R}egression \textbf{T}rees) Algorithmus \cite{ScikitLearnCART}.
-CART partitioniert die Trainingsmenge indem lokal immer die beste Teilung ausgewählt wird, d. h. es wird für die momentane Teilmenge immer die beste Teilungsregel ausgewählt.
+CART partitioniert die Trainingsmenge indem lokal immer die beste Teilung ausgewählt wird.
+Die beste Teilung ist die Teilungregel, die Einträge mit der gleichen Beschriftung möglichst gut von anderen Einträgen trennt.
 Dieser Vorgang wird rekursiv mit jeder Teilmenge wiederholt, bis keine weitere Teilung mehr möglich ist oder alle Einträge einer Partitionierung die gleiche Beschriftung tragen \cite{steinbergCART}.
