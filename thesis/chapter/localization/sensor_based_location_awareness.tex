@@ -7,15 +7,16 @@ Dabei werden als Standorte die Teilstücke der Routen bezeichnet aus denen die R
 \newline
 \newline
 Mian entschied sich die aufgenommen Sensordaten vorzuverarbeiten.
-Zunächst werden die Sensoren über fünf Stichproben über den Median geglättet.
+Zunächst werden die Sensoren für fünf Stichproben über den Median geglättet.
 Aus den resultierenden Sensorwerten wird die Veränderung zum vorherigen Sensorwert für jeden Sensor ermittelt.
-Daraus wird der Betrag gebildet, welches als Feature für jeden Sensor jeweils verwendet wird.
-Zudem werden die zuletzt besuchten Standorte in Form einer exponentiell fallenenden Funktion über Zeit als weiteres Feature hinzugefügt.
+Für jeden Sensor wird als Feature der Betrag dieser Differenz verwendet.
 Um Muster aus einer Folge von Feature-Mengen zu inferieren hat Mian ein Datenfenster eingeführt, über das
 hintereinander liegende Feature-Mengen zu einer Feature-Menge konkatiniert werden.
+Zudem werden die zuletzt besuchten Standorte in Form einer exponentiell fallenenden Funktion über die Zeit als weitere Features hinzugefügt.
 \newline
 \newline
-Mit dieser Eingabe trainierte Mian ein FFNN mit einer Rückwärtskante, um den zuletzt bestimmten Standort als Feature nutzen zu können.
+Mit dieser Eingabe trainierte Mian ein FFNN mit einer Rückwärtskante von der Ausgabe- zur Eingabeschicht,
+um die zuletzt bestimmten Standorte als Features nutzen zu können.
 Die Rückwärtskante wurde im Training simuliert, indem die Trainingsdaten in zwei Teilmengen partitioniert wurden.
 Mit der ersten Teilmenge wurde das FFNN mit korrekt beschrifteten Trainingsdaten trainiert.
 Das trainierte FFNN wurde dann genutzt, um die Standorte der zweiten Teilmenge zu bestimmen.

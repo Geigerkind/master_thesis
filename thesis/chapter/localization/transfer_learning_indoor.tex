@@ -1,22 +1,22 @@
 \section{WiFi basierte Indoor-Lokalisierung mit Transfer Lernen}
 Pan et al. untersuchten Indoor-Lokaliserung basierend auf WiFi RSS Daten \cite{pan2008transfer}.
-\textit{Received Signal Strength} (RSS) wird von dem Empfänger von mehreren Sendern gemessen.
-Dadurch steht ein Vektor von Signalstärken zur Verfügung aus denen die Position approximiert werden kann.
+Der Empfänger misst die \textit{Received Signal Strength} (RSS) mehrerer Sender.
+Dadurch steht ein Vektor von Signalstärken zur Verfügung aus dem die Position approximiert werden kann.
 \newline
 \newline
-Sie bemerken, dass bei ML Ansätzen oft zwei Annahmen getroffen werden.
+Pan et al. stellen fest, dass bei ML Ansätzen oft zwei Annahmen getroffen werden.
 Zum einen wird eine \textit{Offline}-Phase vorausgesetzt mit ausreichend beschrifteten Daten,
 d. h. eine Trainingsphase bevor das Modell eingesetzt wird.
 Zum anderen wird angenommen, dass das gelernte Modell statisch über Zeit, Raum und Geräte ist.
 \newline
 \newline
-Beispielsweise können sich Daten über die Zeit ändern, wenn Mitarbeiter Mittags zur Kantine gehen.
+In der Praxis können sich Modelle jedoch über die Zeit ändern, z.~B. wenn Mitarbeiter Mittags zur Kantine gehen.
 Es kann schwierig sein ausreichend Daten für große Gebäude zu sammeln.
 Verschiedene Geräte können verschiedene Sensorwerte erfassen.
-Dies führt zu erheblichen Kalibrierungsaufwand der ML Modelle.
+Dies führt zu einen erheblichen Kalibrierungsaufwand der ML Modelle.
 \newline
 \newline
-Die Autoren schlagen Transfer Learning vor, um dieses Problem zu lösen.
+Pan et al. schlagen Transfer Learning vor, um dieses Problem zu lösen.
 Transfer Learning befasst sich mit dem Problem, wenn Trainings- und Testdaten verschiedener Verteilungen folgen oder in verschiedenen Feature-Räumen repräsentiert sind.
 Die gewonnene Erfahrung beim Training soll dabei auf das neue, ähnliche Problem übertragen werden.
 Dafür müssen Beziehungen gefunden werden, die den Erfahrungstransfer ermöglichen.
