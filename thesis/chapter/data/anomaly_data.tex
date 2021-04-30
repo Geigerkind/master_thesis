@@ -8,7 +8,7 @@ die von dem ML-Modell zur Anomalieerkennung verwendet werden.
 \newline
 \newline
 Wenn eine Anomalie vorliegt, wird erwartet, dass das ML-Modell unsicherer wird und stärker fluktuiert,
-wodurch zwei Features motiviert sind.
+wodurch drei Features motiviert sind.
 Das erste Feature ist abgeleitet aus der Anzahl der Standortänderungen.
 Zum einen wird die durchschnittliche Anzahl der Standortänderungen in einem Datenfenster bestimmt.
 Zum anderen wird die durchschnittliche Anzahl der Standortänderungen bestimmt, wenn keine Anomalie vorliegt.
@@ -21,8 +21,15 @@ Das ML-Modell zur Standorterkennung hat keine diskrete Ausgabe, sondern gibt ein
 der für jeden Standort die Klassifizierungswahrscheinlichkeit angibt.
 Dabei gilt der klassifizierte Standort als der Eintrag im Vektor mit der höchsten Wahrscheinlichkeit.
 Diese Wahrscheinlichkeit wird dann analog zu den Standortänderungen summiert.
+Das dritte Feature ist die Standardabweichung der ersten fünf Einträge dieses Vektors, der absteigend sortiert ist.
 \newline
 \newline
 Zusätzlich wird das Ergebnis des Modells auf Basis der Topologie als Feature verwendet.
 Dieses Feature indiziert, dass das ML-Modell zur Standorterkennung ein Fehler gemacht haben muss
 oder dass tatsächlich eine Anomalie vorliegt, da die Topologie verletzt wurde.
+\newline
+\newline
+Daneben wurde ebenfalls eine Rückwärtskante in Betracht gezogen,
+da es wahrscheinlich ist, dass wenn zuvor eine Anomalie vorlag, danach immer noch eine Anomalie vorliegt.
+Im Training wurden damit zwar sehr gute Ergebnisse erreicht,
+in der Praxis war das Modell aber equivalent zu dem \textit{Immer-Falsch} Modell.
