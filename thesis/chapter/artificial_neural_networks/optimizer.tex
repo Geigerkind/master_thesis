@@ -11,22 +11,21 @@ mit Momentum und \textit{RMSprop} vereinigt \cite{kingma2014adam, higham2019deep
 \newline
 SGD ist eine Approximation von \textit{Gradient Descent} (GD) \cite{bengio2017deep}.
 GD ist ein iterativer Algorithmus, der den Gradienten in Richtung des Extremum folgt und dementsprechend die Eingabeparameter aktualisiert.
-\begin{align}
-    \label{formular:gradient_descent}
-    \theta_{k+1} := \theta_k - \text{sign}(C^{\prime}(\theta_k))\eta
-\end{align}
-Gleichung \ref{formular:gradient_descent} illustriert diesen iterativen Prozess für Minimierung im eindimensionalen Fall,
+\newline
+\newline
+In (\ref{formular:gradient_descent}) wird der iterative Prozess zur Minimierung im eindimensionalen Fall gezeigt,
 wobei $\eta > 0$ eine angemessene \textit{Lernrate}, $\theta$ der Eingabeparameter und $C$ die Kostenfunktion ist.
 Ist die Lernrate zu groß könnte keine Verbesserung beobachtet werden, da das Maxima immer übersprungen wird.
 Ist die Lernrate zu klein könnte die Konvergenz sehr langsam sein.
 Wenn ein Sattelpunkt erreicht wird ist der Gradient 0.
 Aus diesem Grund können mit dieser Technik globale Extremum verfehlt werden.
-\newline
-\newline
-Im mehrdimensionalen Fall wird für jede Komponente des Eingabevektors dieser Prozess durchgeführt, sodass für jede Komponente
+\begin{align}
+    \label{formular:gradient_descent}
+    \theta_{k+1} := \theta_k - \text{sign}(C^{\prime}(\theta_k))\eta
+\end{align}
+Im mehrdimensionalen Fall (\ref{formular:gd_multi_dim}) wird für jede Komponente des Eingabevektors dieser Prozess durchgeführt, sodass für jede Komponente
 die Richtung des Extremum verfolgt wird.
 Dies impliziert, dass GD für Eingabevektoren mit hohen Dimensionen sehr aufwendig zu berechnen ist.
-Gleichung \ref{formular:gd_multi_dim} zeigt die iterative Berechnung im mehrdimensionalen Fall.
 \begin{align}
     \label{formular:gd_multi_dim}
     \boldsymbol\theta_{k+1} = \boldsymbol\theta_k - \bigtriangledown C(\boldsymbol\theta_k)\eta
@@ -41,9 +40,8 @@ Folglich werden mit jedem Mini-Batch die Parameter des KNN aktualisiert, wodurch
 Ziel dieser Approximierung ist eine Laufzeitverbesserung.
 \newline
 \newline
-(S)GD mit Momentum versucht zu vermeiden, dass lokale Extremum gefunden werden anstatt globale Extremum, indem Momentum aus
+(S)GD mit Momentum (\ref{formular:sgd_momentum}) versucht zu vermeiden, dass lokale Extremum gefunden werden anstatt globale Extremum, indem Momentum aus
 vorherigen Gradienten beibehalten wird, um aus lokalen Extremum wieder raus zu finden \cite{higham2019deep}.
-Gleichung \ref{formular:sgd_momentum} zeigt die iterative Berechnung.
 \begin{align}
     \label{formular:sgd_momentum}
     \textbf{v}_{-1} = \textbf{0}, \hspace{0.6cm} \textbf{v}_k = \textbf{v}_{k-1}\gamma +
@@ -57,7 +55,7 @@ Der Unterschied zu GD (\ref{formular:gd_multi_dim}) ist der Anteil vergangener G
 RMSprop ist eine Generalisierung von \textit{Adagrad} \cite{mukkamala2017variants}.
 Adagrad passt die Lernrate $\eta$ an, sodass Komponenten des Eingabevektors die überrepräsentiert sind eine geringere Lernrate erhalten und
 unterrepräsentierte Komponenten eine im Verhältnis größere Lernrate \cite{duchi2011adaptive}.
-Gleichung \ref{formular:adagrad} zeigt, wie sich iterativ die Lernrate antiproportional
+In (\ref{formular:adagrad}) wird Adagrad skizziert, wobei sich iterativ die Lernrate antiproportional
 zur kummulierten Norm der Gradienten der Kostenfunktion verringert \cite{lydia2019adagrad, kingma2014adam}.
 Dabei wird für $\epsilon$ eine kleine Zahl gewählt, um Teilen durch 0 zu vermeiden aber keinen signifikanten Einfluss auf die Berechnung zu haben.
 \begin{align}
@@ -76,7 +74,7 @@ exponentiell gewichteter gleitender Mittelwert verwendet wird \cite{bengio2017de
     \textbf{w}_k = \textbf{w}_{k-1}\gamma + \textbf{g}_k^2 (1-\gamma), \hspace{0.6cm}
     \boldsymbol\theta_{k+1} = \boldsymbol\theta_k - \textbf{g}_k \circ \frac{\eta}{\sqrt{\textbf{w}_k + \epsilon}}
 \end{align}
-Gleichung \ref{formular:adam} zeigt, wie Adam RMSprop und (S)GD mit Momentum vereint, wobei $\gamma_1 < \gamma_2 < 1$ \cite{kingma2014adam} ist.
+Adam (\ref{formular:adam}) vereint RMSprop und (S)GD mit Momentum, wobei $\gamma_1 < \gamma_2 < 1$ \cite{kingma2014adam} ist.
 Adam beinhaltet RMSprop und hat eine Momentum Komponente, indem das Moment der ersten Ordnung mit exponentieller Gewichtung approximiert wird \cite{bengio2017deep}.
 Zudem korrigiert Adam den Bias das Momente der ersten und zweiten Ordnung der durch die Initialisierung entsteht.
 \begin{align}

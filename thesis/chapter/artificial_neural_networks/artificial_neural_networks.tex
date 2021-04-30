@@ -4,7 +4,7 @@ Dieses Modell ist eine Abstraktion des biologischen Neuronen als logischer Mecha
 \newline
 \newline
 Das Nervensystem besteht aus einem Netz von Neuronen, die miteinander verbunden sind und über elektrische Impulse miteinander interagieren \cite{rosenblatt1961principles}.
-Man unterscheided beim biologischen Neuronen zwischen \textit{Afferent}-Neuronen, \textit{Efferent}-Neuronen und \textit{Inter}-Neuronen.
+Man unterscheidet beim biologischen Neuronen zwischen \textit{Afferent}-Neuronen, \textit{Efferent}-Neuronen und \textit{Inter}-Neuronen.
 Afferent-Neuronen nehmen elektrische Signale von Organen entgegen und können als \textit{Input} interpretiert werden.
 Efferent-Neuronen geben elektrische Signale an \textit{Effektorzellen} weiter und können als \textit{Output} interpretiert werden.
 Inter-Neuronen nehmen elektrische Signale von Afferent-Neuronen oder Inter-Neuronen entgegen und geben sie an Inter-Neuronen oder Efferent-Neuronen weiter.
@@ -13,7 +13,7 @@ anderes Neuron oder Effektorzellen übertragen.
 \newline
 \newline
 Diese Charakteristiken werden mathematisch als ein Vergleich von einer gewichtete Summe von eingehenden Signalen mit einem Schwellenwert modelliert \cite{higham2019deep}.
-Gleichung \ref{formular:neuron_activation} stellt diesen Zusammenhang dar.
+Dieser Zusammenhang wird durch (\ref{formular:neuron_activation}) formalisiert.
 \begin{align}
     \label{formular:neuron_activation}
     y = \sigma(\sum_{i=1}^n\textbf{w}_i\textbf{x}_i + b)
@@ -29,8 +29,8 @@ möglichst gut von der Approximationsfunktion $f$ abgebildet wird \cite{bengio20
 Das KNN ist in Schichten organisiert. Analog zu den biologischen Neuron, gibt es eine \textit{Eingabeschicht (engl. Input-Layer)},
 \textit{Ausgabeschicht (engl. Output-Layer)} und \textit{verdeckte Schichten (engl. Hidden-Layer)}.
 Dies wird in Abbildung \ref{fig:neural_network_example} illustriert.
-Analog zur Aktivierung eines einzelnen Neuronen, dargestellt in Gleichung \ref{formular:neuron_activation}, stellt
-Gleichung \ref{formular:layer_activation} die Aktivierung einer Schicht dar \cite{higham2019deep}.
+Analog zur Aktivierung eines einzelnen Neuronen, dargestellt in (\ref{formular:neuron_activation}), stellt
+(\ref{formular:layer_activation}) die Aktivierung einer Schicht dar \cite{higham2019deep}.
 \begin{align}
     \label{formular:layer_activation}
     \textbf{a}_{l} = \sigma_l(\textbf{z}_l), \hspace{2cm} \textbf{z}_l := \textbf{W}_l\textbf{a}_{l-1} + \textbf{b}_l
@@ -46,7 +46,7 @@ Das allgemeine KNN verfügt über $L\in\mathbb{N}$ Schichten. Jede Schicht $l$ v
 Die Aktivierungsfunktion $\sigma_l:\mathbb{R}^{n_{l}}\mapsto\mathbb{R}^{n_{l}}$ berechnet die Aktivierung mit der gewichteten Summe $\textbf{z}_l$.
 Die gewichtete Summe setzt sich zusammen aus der Aktivierung der vorherigen Schicht $\textbf{a}_{l-1}$ die mit $W_i\in\mathbb{R}^{n_{l}\times{n_{l-1}}}$ gewichtet wird.
 Die Schwellenwerte der Neuronen werden durch die Biase $\textbf{b}_l\in\mathbb{R}^{n_{l}}$ dargestellt.
-Gleichung \ref{formular:general_knn} zeigt, wie das allgemeine KNN mit einer rekursiven Funktion modelliert werden kann.
+In (\ref{formular:general_knn}) wird das allgemeine KNN mit einer rekursiven Funktion modelliert.
 \begin{align}
     \label{formular:general_knn}
     \textbf{a}_1 := \textbf{x}, \hspace{1cm}
