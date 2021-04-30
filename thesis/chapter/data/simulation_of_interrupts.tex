@@ -14,12 +14,34 @@ und führt das nächste mal nur einen Interrupt aus, wenn sich der Sensorwert um
 Dadurch wird einerseits ein realistischeres Szenario dargestellt,
 denn von einer Sensorenbox die still steht würde auch keine Aktivität erwartet werden.
 Andererseits verringert sich die Datenmenge, wodurch die Trainingszeit verringert wird.
+\newline
+\newline
+Unterschieden werden drei Ansätze, um Interrupts zu erzeugen.
+Der erste Ansatz vergleicht den Betrag der Differenz mit einem festen Schwellenwert.
+Der zweite Ansatz erfordert, dass die Änderung einen Prozentsatz des vorherigen Wertes ausmacht.
+Der dritte Ansatz erfordert nur eine Änderung.
+\newline
+\newline
+Die verwendeten Ansätze und Schwellenwerte sind Tabelle \ref{tab:interrupt_values} zu entnehmen.
+Für Sensorwerte des Accelerometers und Gyroskops, sowie des Magnetfeldsensors wurde der erste Ansatz verwendet,
+da signifikante Änderungswerte nicht relativ zu dem vorherigen Sensorwert sind, sondern lediglich eine absolute Änderung erzeugen.
+Für Sensorwerte des Temperatur-, Licht- und Geräuschsensors wurde der zweite Ansatz verwendet,
+da diese ein allgegenwärtiges Rauschen aufnehmen, das je nach Umgebung varrieren kann.
+Für die WLAN-Zugangspunkte wird der dritte Ansatz verwendet, da die Sensorwerte binär sind.
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{ | l | c | c | c | }
+        \hline
+        Sensordaten & Fester Schwellenwert & Variabler Schwellenwert & Änderung \\\hline
+        Accelerometer & 0.1 & - & - \\\hline
+        Gyroskop & 0.1 & - & - \\\hline
+        Magnetfeld & 8 & - & - \\\hline
+        Temperatur & - & 0.12 & - \\\hline
+        Licht & - & 0.12 & - \\\hline
+        Geräusch & - & 0.16 & - \\\hline
+        WLAN-Zugangspunkte & - & - & 1 \\\hline
+    \end{tabular}
+    \caption{Schwellenwerte der simulierten Interrupts.}
+    \label{tab:interrupt_values}
+\end{table}
 
-\iffalse
-% Möglicherweise schlecht, wegen dem Datenfenster
-\newline
-\newline
-Allerdings hat sich gezeigt, dass manche Standorte deutlich unterrepräsentiert sind in der Trainingsmenge.
-Aus diesem Grund wurde zusätzlich für die Trainingsmenge eine Mindestabtastrate von 4 Hertz eingeführt,
-falls in diesem Zeitraum kein Interrupt für diesen Standort stattgefunden hat.
-\fi
