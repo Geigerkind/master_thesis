@@ -7,9 +7,18 @@ d. h. ob das Modell sich an einem unbekannten Standort oder auf einem unbekannte
 \newline
 Abbildung \ref{fig:model_idea} zeigt die Architektur des verfolgten Ansatzes.
 Zunächst werden aus den Sensorwerten Features extrahiert.
-Die resultierende Feature-Menge wird dann von dem ML-Modell genutzt, um den Standort zu klassifizieren.
+Die resultierende Feature-Menge wird dann vom ML-Modell genutzt, um den Standort zu klassifizieren.
 Zuletzt wird auf Basis historischer Daten und dem Klassifizierungsergebnis von einem weiteren ML-Modell zur Anomalieerkennung bestimmt, ob eine Anomalie vorliegt.
-Im Vergleich zur Architektur von Mian \cite{naveedThesis} können die Klassifizierungsergebnisse bei der Feature-Extrahierung weiter verarbeitet werden.
+\newline
+\newline
+Mian verwendete eine ähnliche Architektur \cite{naveedThesis}.
+Sein FFNN zur Standorterkennung hatte ebenfalls eine Rückwärtskante, um die zuletzt erkannten Standorte als Features zu verwenden.
+In dieser Arbeit wird zusätzlich versucht Anomalien zu erkennen.
+Dafür wird ein weiteres ML-Modell verwendet, welches aus dem Klassifizierungsverhalten des ML-Modells zur Standorterkennung schließt, ob eine Anomalie vorliegt.
+Dies motiviert die Erweiterung, um eine weitere Phase zur Feature-Extrahierung aus den zuletzt erkannten Standorten,
+sowie einer Phase zur Evaluierung des ML-Modells zur Anomalieerkennung aus der resultierenden Feature-Menge.
+Die Anomalieerkennung ist somit eine Information, die aus dem Standorterkennungsverhalten des vorangestellen ML-Modells resultiert,
+weshalb sowohl der Standort als auch die Einschätzung als Anomalie als Ergebnis zurückgegeben wird.
 \begin{figure}[h!]
     \centering
     \includegraphics[width=\linewidth]{images/model_idea.png}
@@ -20,7 +29,7 @@ Im Vergleich zur Architektur von Mian \cite{naveedThesis} können die Klassifizi
 In dieser Arbeit werden Entscheidungsbaum basierte Klassifizierer mit KNN verglichen, insbesondere den von Mian verwendeten Ansatz mit FFNN.
 Entscheidungsbäume sind deutlich effizienter in der Ausführungszeit als KNN \cite{dymelThesis},
 allerdings sind sie in ihrer Generalisierungsfähigkeit durch die berechneten Features begrenzt,
-wohingegen KNN komplexe Features selbst erlernen können.
+wohingegen KNN komplexe Features selbst erlernen können \cite{seide2011feature}.
 
 \input{chapter/model/location_encoding}
 \input{chapter/model/decision_tree}
