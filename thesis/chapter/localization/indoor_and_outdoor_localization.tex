@@ -3,10 +3,12 @@ GPS ist eine weit verbreites Standortbestimmungssystem im Outdoor-Kontext  und k
 z. B. Tracking, Navigation oder Rettungsaktionen \cite{kaplan2005understanding}.
 Es skaliert zu einer arbiträren Anzahl von Nutzern, da es einen device-based Ansatz verwendet.
 Die Geräte berechnen aus den empfangenden Signalen von mehreren Satelliten ihre Position.
-Dabei ist die Positionsbestimmung bis zu 5 m genau \cite{sadowski2018rssi}.
-Das GPS Modul ist aber sehr teuer und bedarf viel Energie.
-Außerdem kann es im Indoor-Kontext nicht eingesetzt werden, da die Signalstärke zu den Satelliten stark beeinträchtigt ist.
-Aus diesem Grund ist es für Mikrocontroller im Indoor-Bereich ungeeignet.
+Dabei ist die Standortbestimmung bis zu 5 m genau \cite{sadowski2018rssi},
+wobei es Varianten gibt, die noch bessere Auflösungen erzielen können \cite{parkinson1996differential}.
+Der Energieverbrauch ist sehr hoch \cite{jurdak2013energy}, wodurch es ungeeignet für kleine batteriegestützte Systeme ist.
+In einem Indoor-Kontext kann GPS aber meistens nicht eingesetzt werden,
+da das Gebäude die benötigte Signalstärke zu den Satteliten beeinträchtigen kann \cite{xiao2016survey, jin2006indoor}.
+Aus diesem Grund ist es für batteriegestützte Mikrocontroller im Indoor-Bereich suboptimal.
 \newline
 \newline
 Indoor-Lokalisierung bedarf meist einer hohen Auflösung, muss sicherheitskritische Vorgaben einhalten,
@@ -14,15 +16,15 @@ energieeffizient sein, skalierbar sein und geringe Kosten haben \cite{xiao2016su
 Es gibt verschiedene Ansätze, die entweder device-based oder device-free sind.
 \newline
 \newline
-Device-based Ansätze nutzen die Sensoren des Geräts, um die Position zu bestimmen.
-Beispielsweise können visuelle Features mit der Kamera extrahiert werden,
-RSS Messungen des WiFi Netzwerkes durchgeführt werden, oder Bewegungs- und Lichtsensoren verwendet werden.
-Der Vorteil sind die geringen Infrastrukturkosten.
+Device-based Ansätze nutzen die Sensoren des Geräts, um die Position zu bestimmen \cite{xiao2016survey}.
+Beispielsweise können visuelle Features mit der Kamera extrahiert werden \cite{poulose2019hybrid, cunha2011using},
+RSS Messungen des WiFi Netzwerkes durchgeführt werden \cite{pan2008transfer},
+Bewegungs- oder Lichtsensoren verwendet werden \cite{poulose2019hybrid, wang2018deepml, xiao2016survey}.
+Der Vorteil sind die geringen Infrastrukturkosten \cite{xiao2016survey}.
 \newline
 \newline
-Device-free Ansätze bedürfen einer Infrastruktur, um Objekte im Interessebereich wahrzunehmen.
-Dafür können zum einen TOA (\textbf{T}ime \textbf{O}f \textbf{A}rrival) basierte System verwendet werden, d.~h. die Position wird über
-die Reflektion von Radio- oder Schallwellen ermittelt.
-Zum anderen kommen auch \textit{Tag}-Systeme zum Einsatz, in denen die RFID-Tags des Objektes an vorinstallierten Orten gelesen wird.
-Dadurch kann die Position approximiert werden.
-Dabei ist die Auflösung abhängig von der Verteilung und Anzahl der lesenden Geräte im Interessebereich.
+Device-free Ansätze bedürfen einer Infrastruktur, um Objekte im Interessebereich wahrzunehmen \cite{xiao2016survey}.
+Diese werden zum Beispiel für Überwachsungsszenarien eingesetzt \cite{qian2018widar2}.
+Ansätze nutzen beispielsweise die bestehende Kamerainfrastruktur aus \cite{kim2019info},
+WiFi basierte Ansätze \cite{qian2018widar2}, Infrarot basierte Ansätze \cite{kemper2010passive}
+oder RFID basiert Ansätze \cite{yang2015see}.
