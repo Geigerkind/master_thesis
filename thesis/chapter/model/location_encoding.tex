@@ -1,24 +1,22 @@
 \section{Standortenkodierung}
 \label{sec:model_location_encoding}
 Als Standort wird ein einzigartiger diskreter Ort im Indoor-Szenario bezeichnet.
-Bei der Klassifizierung können Standorte auf verschiedenen Arten im ML-Modell enkodiert werden.
+Bei der Klassifizierung können Standorte auf verschiedene Arten im ML-Modell kodiert werden.
 Mian enkodierte die Pfade zwischen Punkten, die von Interesse sind, als Standorte,
 d. h. das Klassifizierungsergebnis ist der Pfad auf dem sich der Mikrocontroller befindet \cite{naveedThesis}.
 \newline
 \newline
-Daneben wurden in dieser Arbeit noch zwei weitere Ansätze untersucht, die mit Mians Ansatz zusammenhängen.
-Eine Route kann als zyklischen Graphen betrachtet werden, wie in Abbildung \ref{fig:location_encoding} illustriert.
+In dieser Arbeit wird neben der Erkennung von Pfaden auch die Erkennung von Knoten, sowie die Erkennung von Pfaden und Knoten untersucht.
+Pfade und Knoten liegen auf Routen, die als zyklischen Graphen betrachtet werden können, wie in Abbildung \ref{fig:location_encoding} illustriert.
 Der Ansatz von Mian versucht die Kanten dieses Graphen zu klassifizieren und definiert diese als Standorte.
-Daneben können nur die Knoten als Standorte enkodiert werden und alle restlichen Datensätze als \textit{unbekannten Standort}.
+Daneben können auch nur die Knoten als Standorte enkodiert werden und alle restlichen Datensätze als \textit{unbekannten Standort}.
 Zuletzt können sowohl die Knoten und Kanten als Standorte definiert werden.
-\newline
-\newline
 Die Knoten werden durch alle Datensätze dargestellt, die innerhalb eines Umkreises von einem Punkt sind, der von Interesse ist.
-Folglich sind alle restlichen Datensätze Kanten zwischen zwei Kanten oder gelten als \textit{unbekannt}.
+Folglich befinden sich alle restlichen Datensätze auf Kanten zwischen zwei Knoten oder gelten als \textit{unbekannt}.
 \begin{figure}[h!]
     \centering
     \includegraphics[width=\linewidth]{images/location_encoding.png}
-    \caption{Standortenkodierung der Orte und Pfade.}
+    \caption{Standortenkodierung der Knoten und Pfade.}
     \label{fig:location_encoding}
 \end{figure}
 \newline

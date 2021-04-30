@@ -1,6 +1,6 @@
 \chapter{Machine Learning Modelle}
 In dieser Arbeit wird die Device-Based Indoor-Lokalisation auf Basis von Sensorwerten untersucht.
-Dieser Ansatz ist inspiriert von dem Orientierungssinn von Mensch und Tier.
+Der Ansatz ist inspiriert von dem Orientierungssinn von Mensch und Tier.
 Dabei werden diskrete Standorte unterschieden, sowie ob eine Anomalie entdeckt wurde,
 d. h. ob das Modell sich an einem unbekannten Standort oder auf einem unbekannten Pfad befindet.
 \newline
@@ -9,7 +9,7 @@ Abbildung \ref{fig:model_idea} zeigt die Architektur des verfolgten Ansatzes.
 Zunächst werden aus den Sensorwerten Features extrahiert.
 Die resultierende Feature-Menge wird dann von dem ML-Modell genutzt, um den Standort zu klassifizieren.
 Zuletzt wird auf Basis historischer Daten und dem Klassifizierungsergebnis von einem weiteren ML-Modell zur Anomalieerkennung bestimmt, ob eine Anomalie vorliegt.
-Im Vergleich zu der Architektur von Mian \cite{naveedThesis} können die Klassifizierungsergebnisse bei der Feature-Extrahierung weiter verarbeitet werden.
+Im Vergleich zur Architektur von Mian \cite{naveedThesis} können die Klassifizierungsergebnisse bei der Feature-Extrahierung weiter verarbeitet werden.
 \begin{figure}[h!]
     \centering
     \includegraphics[width=\linewidth]{images/model_idea.png}
@@ -18,7 +18,8 @@ Im Vergleich zu der Architektur von Mian \cite{naveedThesis} können die Klassif
 \end{figure}
 \newline
 In dieser Arbeit werden Entscheidungsbaum basierte Klassifizierer mit KNN verglichen, insbesondere den von Mian verwendeten Ansatz mit FFNN.
-Entscheidungsbäume sind deutlich effizienter als KNN, allerdings sind sie in ihrer Generalisierungsfähigkeit durch die berechneten Features begrenzt,
+Entscheidungsbäume sind deutlich effizienter in der Ausführungszeit als KNN \cite{dymelThesis},
+allerdings sind sie in ihrer Generalisierungsfähigkeit durch die berechneten Features begrenzt,
 wohingegen KNN komplexe Features selbst erlernen können.
 
 \input{chapter/model/location_encoding}
