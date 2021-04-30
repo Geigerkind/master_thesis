@@ -10,6 +10,7 @@ from sources.config import BIN_FOLDER_PATH, NUM_CORES, parse_cmd_args
 from sources.ffnn.gen_ffnn import GenerateFFNN
 from sources.metric.compile_log import CompileLog
 from sources.metric.graph_feature_importance import GraphFeatureImportance
+from sources.metric.graph_location_distribution import GraphLocationDistribution
 from sources.metric.graph_location_misclassified import GraphLocationMisclassified
 from sources.metric.graph_location_misclassified_distribution import GraphLocationMisclassifiedDistribution
 from sources.metric.graph_location_missclassification import GraphLocationMisclassification
@@ -32,13 +33,15 @@ pregen_path, evaluation_name, res_input_data_sets = parse_cmd_args()
 
 
 def generate_graphs(path, prefix, model_dt, test_set_features_dt, test_set_features_knn, test_set_labels_dt,
-                    test_set_labels_knn, num_outputs, use_continued_prediction, feature_name_map, evaluation_name, is_anomaly):
+                    test_set_labels_knn, num_outputs, use_continued_prediction, feature_name_map, evaluation_name,
+                    is_anomaly):
     # Loaded here cause it cant be pickled
     model_knn = 0
     extra_suffix = ""
     if is_anomaly:
         extra_suffix = "_anomaly"
-        model_knn = keras.models.load_model(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_knn_anomaly_model.h5")
+        model_knn = keras.models.load_model(
+            BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_knn_anomaly_model.h5")
     else:
         model_knn = keras.models.load_model(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_knn_model.h5")
 
@@ -64,7 +67,8 @@ def generate_graphs(path, prefix, model_dt, test_set_features_dt, test_set_featu
         GraphLocationMisclassification(path, prefix + "_dt", True, test_set_labels_dt, num_outputs, predicted_dt)
         GraphLocationMisclassification(path, prefix + "_knn", False, test_set_labels_knn, num_outputs, predicted_knn)
 
-        GraphLocationMisclassifiedDistribution(path, prefix + "_dt", True, test_set_labels_dt, num_outputs, predicted_dt)
+        GraphLocationMisclassifiedDistribution(path, prefix + "_dt", True, test_set_labels_dt, num_outputs,
+                                               predicted_dt)
         GraphLocationMisclassifiedDistribution(path, prefix + "_knn", False, test_set_labels_knn, num_outputs,
                                                predicted_knn)
 
@@ -95,7 +99,8 @@ def exec_gen_graphs(args):
     path, prefix, model_dt, test_set_features_dt, test_set_features_knn, test_set_labels_dt, \
     test_set_labels_knn, num_outputs, use_continued_prediction, feature_name_map, evaluation_name, is_anomaly = args
     generate_graphs(path, prefix, model_dt, test_set_features_dt, test_set_features_knn, test_set_labels_dt,
-                    test_set_labels_knn, num_outputs, use_continued_prediction, feature_name_map, evaluation_name, is_anomaly)
+                    test_set_labels_knn, num_outputs, use_continued_prediction, feature_name_map, evaluation_name,
+                    is_anomaly)
 
 
 with open(pregen_path, 'rb') as file:
@@ -104,7 +109,8 @@ with open(pregen_path, 'rb') as file:
     with open(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_dt_model.pkl", 'rb') as file:
         map_args = []
         model_dt = pickle.load(file)
-        model_anomaly_dt = pickle.load(open(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_dt_anomaly_model.pkl", 'rb'))
+        model_anomaly_dt = pickle.load(
+            open(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_dt_anomaly_model.pkl", 'rb'))
 
 
         def glue_test_sets(features_dt, labels_dt, features_knn, labels_knn):
@@ -120,6 +126,13 @@ with open(pregen_path, 'rb') as file:
 
             return new_set_dt, new_labels_dt, new_set_knn, new_labels_knn
 
+
+        train_labels = []
+        for i in range(len(data.result_labels_dt)):
+            for cycle in range(data.num_cycles):
+                train_labels = train_labels + data.result_labels_dt[i][cycle]
+
+        GraphLocationDistribution(BIN_FOLDER_PATH + "/", train_labels)
 
         test_set_names = []
         test_sets_dt = []
@@ -202,9 +215,9 @@ with open(pregen_path, 'rb') as file:
                 test_set_features_dt_random_location[i][0] = random.randint(0, data.num_outputs - 1)
                 test_set_features_dt_random_location[i][1] = random.randint(1, data.num_outputs - 1)
                 test_set_features_knn_random_location[i][0] = random.randint(0, data.num_outputs - 1) / (
-                            data.num_outputs - 1)
+                        data.num_outputs - 1)
                 test_set_features_knn_random_location[i][1] = random.randint(1, data.num_outputs - 1) / (
-                            data.num_outputs - 1)
+                        data.num_outputs - 1)
 
             map_args.append([path, "random_prev_location", model_dt, test_set_features_dt_random_location,
                              test_set_features_knn_random_location, test_set_labels_dt, test_set_labels_knn,
@@ -247,7 +260,8 @@ with open(pregen_path, 'rb') as file:
                 data.temporary_test_set_features_knn[i],
                 data.temporary_test_set_labels_knn[i])
 
-            path = BIN_FOLDER_PATH + "/" + evaluation_name + "/anomaly_model_" + data.name_map_data_sets_temporary[i] + "/"
+            path = BIN_FOLDER_PATH + "/" + evaluation_name + "/anomaly_model_" + data.name_map_data_sets_temporary[
+                i] + "/"
             # Create folder
             try:
                 os.mkdir(path)
@@ -265,9 +279,10 @@ with open(pregen_path, 'rb') as file:
             test_set_labels_dt = np.asarray(test_labels_dt[k]).copy()
             test_set_labels_knn = np.asarray(test_labels_knn[k]).copy()
 
-            map_args.append([path, "evaluation_continued", model_anomaly_dt, test_set_features_dt, test_set_features_knn,
-                             test_set_labels_dt, test_set_labels_knn, data.num_outputs, True, data.name_map_features,
-                             evaluation_name, True])
+            map_args.append(
+                [path, "evaluation_continued", model_anomaly_dt, test_set_features_dt, test_set_features_knn,
+                 test_set_labels_dt, test_set_labels_knn, data.num_outputs, True, data.name_map_features,
+                 evaluation_name, True])
 
             map_args.append([path, "evaluation", model_anomaly_dt, test_set_features_dt, test_set_features_knn,
                              test_set_labels_dt, test_set_labels_knn, data.num_outputs, False, data.name_map_features,
