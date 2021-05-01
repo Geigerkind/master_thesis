@@ -1,5 +1,17 @@
 \chapter{Evaluation}
-TODO: Erkläre irgendwo die Metriken, die verwendet werden
+In der Evaluation werden drei Aspekte betrachtet: Klassifizierungsgenauigkeit, Robustheit und Resourcennutzung.
+Bei der Klassifizierungsgenauigkeit wird einerseits die Standorterkennung und andererseits die Anomalieerkennung evaluiert.
+Dabei wird sowohl auf verschiedene Größen von FFNN und Entscheidungswälder eingegangen,
+als auch auf verschieden viele zu unterscheidenden Standorte.
+\newline
+\newline
+Bei der Robustheit wird auf den Fehler des besten FFNN und Entscheidungswald bei verschiedene Fehlerszenarien eingegangen.
+Diese bestehen aus fehlerhafte Sensordaten durch Rauschen oder ausgefallenen Sensoren,
+Routen mit permutierten Teilstücken und Routen, bei denen simuliert wird, dass der letzte Standort übersprungen wurde.
+\newline
+\newline
+Bei der Resourcennutzung wird auf die Programmgröße und die Ausführungszeit der besten ML-Modelle eingegangen.
+Außderdem wird der Energieverbrauch für verschiedene Szenarien eingeschätzt.
 
 \input{chapter/evaluation/accuracy}
 \input{chapter/evaluation/robustness}
