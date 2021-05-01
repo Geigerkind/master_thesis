@@ -1,66 +1,7 @@
 \chapter{Evaluation}
 TODO: Erkläre irgendwo die Metriken, die verwendet werden
 
-\section{Klassifizierungsgenauigkeit}
-\begin{itemize}
-    \item Metriken
-    \item Wie groß ist die Wahrscheinlichkeit, dass die Orte korrekt erkannt werden?
-    \item Entscheidungsbaum vs KNN
-    \item Skalierung mit Anzahl der Orte
-    \item Signifikanz der Features
-    \item Einfluss von einzelnen Features für die Klassifizierungsgenauigkeit(?) => Last Distinct location möglicherweise schlecht, da die eigentliche Last Distinct Location oft durch fehlende Interrupts übersprungen wird
-    \item Welche Feature werden genutzt? => Abhängig von Feature Importance und wie günstig zu berechnen
-    \item Ist es sinnvoll für jeden Ort ein Feature zu haben, dass auf eins gesetzt wird, wenn der Ort erkannt wurde und ansonsten exponentiell abfällt. Wie schnell sollte es fallen, wenn ja?
-    \item Werden mehr Trainingsdaten benötigt mit steigender Ort Anzahl? Wenn ja wie viel? (Hier oder bei ML-Modell Training)
-    \item Irgendwo drüber reden wie wir evaluieren, also continued predict vs predict und die ganzen Testsets
-    \item Wie viele Trainingsdaten werden benötigt?
-    \begin{itemize}
-        \item Um KNN zu trainieren?
-        \item Um Entscheidungsbaum zu trainieren?
-        \item Ggf. Unterschiede klären
-        \item (Gehört das schon in eine Evaluation, oder ist das hier okay?)
-    \end{itemize}
-\end{itemize}
-
-\section{Fehlertoleranz}
-\begin{itemize}
-    \item Irgendwas über Robustheit
-    \item Metriken => Insbesondere continued\_predict hier erwähnen
-    \item Wenn falscher Ort erkannt wurde, wie lange dauert es um wieder den korrekten Ort zu finden? Was ist die Wahrscheinlichkeit dafür? Wovon hängt es ab, dass wieder der richtige Ort erkannt wurde?
-    \item Was passiert wenn Sensoren ausfallen? Wie robust ist es dagegen?
-    \item Transportbox nicht dem trainierten Pfad folgt? Wie Robust ist sie dagegen? => Sezenarien enumiereren, wo sowas passieren kann, dann Testszenario erklären.
-    \item Änderungen der Fabrik, e.g. Licht, Wärme, Magnet, Schnelligkeit der Fließbänder
-    \item Einfluss von einzelnen Features für die Fehlertoleranz(?)
-    \item In welchen Fällen ist die Ortung unzuverlässig? => Welche Fälle sind schwierig?
-    \item Schlussfolgerung: Wie Fehlertolerant ist die Ortung? => Zusammenfassende Metriken über alle Testsets?
-\end{itemize}
-
-\section{Ressourcennutzung}
-\begin{itemize}
-    \item Metriken(?)
-    \item Entscheidungsbaum Ausführung
-    \item FFNN Ausführung
-    \item Feature extrahierung
-    \begin{itemize}
-        \item Verhältnis von Kosten zu Nutzen
-    \end{itemize}
-    \item Daten Sammlung => Interrupts (Wakeups)
-    \item Einfluss von einzelnen Features für den Ressourcenverbrauch(?)
-    \item Braucht man mehr Neuronen/Hidden Layer mit steigender Ort Anzahl? (Hier oder bei ML-Modell FFNN)
-    \item Irgendwo über den impact von Interrupts reden. Bei Simulationsdaten konnte damit bis zu 95\% der Events eingespart werden.
-    \item Wie viel Speicherverbrauch spart man durch die Feature-Selection zusätzlich ein?
-\end{itemize}
-
-\section{Anomalieerkennung}
-\label{sec:eval_anomalieerkennung}
-\begin{itemize}
-    \item Was ist das?
-    \item Zusammenhang zu Enkodierungsansatz
-    \item Schwierig zu trainieren, da man einerseits Robust sein will und andererseits nicht weiß was trainiert werden soll
-    \item Post Processing
-    \item Metriken: Location Change Frequency, Accumulated Confididence, Fraction Zero
-    \item Sag Motivation, warum diese Metriken (Indikatoren)
-    \item Beispiele
-    \item Wie zuverlässig können Anomalien erkannt werden?
-    \item Vergleich mit Coin-Toss, True und False
-\end{itemize}
+\input{chapter/evaluation/accuracy}
+\input{chapter/evaluation/robustness}
+\input{chapter/evaluation/resource_usage}
+\input{chapter/evaluation/anomaly_detection}
