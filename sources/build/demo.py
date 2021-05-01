@@ -20,7 +20,13 @@ _, is_dt, evaluation_name, simulation_file_path, skip_n = sys.argv
 is_dt = int(is_dt) == 1
 skip_n = int(skip_n)
 encode_path_as_location = int(evaluation_name[5]) == 1
-data_sets = evaluation_name[-int(evaluation_name[-1]):]
+data_sets = []
+for i in range(1, 5):
+    if evaluation_name[-i].isdigit():
+        data_sets.insert(0, evaluation_name[-i])
+    else:
+        break
+data_sets = "".join(data_sets)
 
 WINDOW_SIZE = 35
 
@@ -42,19 +48,19 @@ for i in range(len(tmp_features[0])):
 """
 
 model = 0
-if is_dt:
-    with open(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_dt_model.pkl", 'rb') as file:
-        model = pickle.load(file)
-else:
-    model = keras.models.load_model(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_knn_model.h5")
+#if is_dt:
+#    with open(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_dt_model.pkl", 'rb') as file:
+#        model = pickle.load(file)
+#else:
+#    model = keras.models.load_model(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_knn_model.h5")
 
 model_anomaly = 0
-if is_dt:
-    with open(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_dt_anomaly_model.pkl", 'rb') as file:
-        model_anomaly = pickle.load(file)
-else:
-    model_anomaly = keras.models.load_model(
-        BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_knn_anomaly_model.h5")
+#if is_dt:
+#    with open(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_dt_anomaly_model.pkl", 'rb') as file:
+#        model_anomaly = pickle.load(file)
+#else:
+#    model_anomaly = keras.models.load_model(
+#        BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_knn_anomaly_model.h5")
 
 # Prepare everything
 feature_history = []
@@ -140,8 +146,13 @@ def redraw():
     ax.set_title("Simulationskarte")
     ax.set_xlabel("x-axis")
     ax.set_ylabel("y-axis")
-    ax.set_ylim([-1, 5])
-    ax.set_xlim([-1, 5])
+    min_x = int(math.floor(min([x[0] for x in data.position_map.values()]))) - 1
+    max_x = int(math.ceil(max([x[0] for x in data.position_map.values()]))) + 1
+    min_y = int(math.floor(min([x[1] for x in data.position_map.values()]))) - 1
+    max_y = int(math.ceil(max([x[1] for x in data.position_map.values()]))) + 1
+
+    ax.set_ylim([min_y, max_y])
+    ax.set_xlim([min_x, max_x])
 
     ax2.set_title("Wahrheit vs. Vorhersage: Standort")
     ax2.set_xlabel("Eintrag (Diskret)")

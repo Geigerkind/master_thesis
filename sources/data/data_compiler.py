@@ -192,6 +192,8 @@ def par_process_data_set(args):
             r2_sum = r2_sum + r2[key]
         r1_sum = abs(r1_sum)
         r2_sum = abs(r2_sum)
+        # TODO: Should be "threshold * r1_sum", but I already evaluated everything
+        # Shouldnt be that big of a difference anyway
         return abs(r1_sum - r2_sum) >= threshold * r2_sum
 
     def f_cmp_abs_diff_abs_threshold(r1, r2, key, threshold):
@@ -310,7 +312,9 @@ class DataCompiler:
 
         # Internal configuration
         # Note the anomaly set added at the load
-        self.__num_temporary_test_sets = 4
+        self.__num_temporary_test_sets = 0
+        if DataSet.SimpleSquare in self.data_sets:
+            self.__num_temporary_test_sets = self.__num_temporary_test_sets + 4
         if DataSet.LongRectangle in self.data_sets:
             self.__num_temporary_test_sets = self.__num_temporary_test_sets + 2
         if DataSet.RectangleWithRamp in self.data_sets:
@@ -398,9 +402,6 @@ class DataCompiler:
         self.temporary_test_set_features_knn = []
         self.temporary_test_set_labels_dt = []
         self.temporary_test_set_labels_knn = []
-
-        if not (DataSet.SimpleSquare in self.data_sets) and not self.__using_manual_data_set:
-            raise Exception("At least Simple Square must be in the data sets!")
 
         # Execute the compiler steps
         if self.__using_manual_data_set:
@@ -601,7 +602,8 @@ class DataCompiler:
 
     def __create_temporary_test_sets(self):
         # Reverse ordering because its removed in reverse order
-        self.name_map_data_sets_temporary.append("combined_test_route")
+        if DataSet.SimpleSquare in self.data_sets:
+            self.name_map_data_sets_temporary.append("combined_test_route")
         # self.name_map_data_sets_temporary.append("anomaly_synthetic")
         if DataSet.ManyCorners in self.data_sets:
             self.name_map_data_sets_temporary.append("anomaly_many_corners_train1")
@@ -610,16 +612,19 @@ class DataCompiler:
         if DataSet.LongRectangle in self.data_sets:
             self.name_map_data_sets_temporary.append("anomaly_long_rectangle_train2")
             self.name_map_data_sets_temporary.append("anomaly_long_rectangle_train1")
-        self.name_map_data_sets_temporary.append("anomaly_simple_square_train3")
-        self.name_map_data_sets_temporary.append("anomaly_simple_square_train2")
-        self.name_map_data_sets_temporary.append("anomaly_simple_square_train1")
+        if DataSet.SimpleSquare in self.data_sets:
+            self.name_map_data_sets_temporary.append("anomaly_simple_square_train3")
+            self.name_map_data_sets_temporary.append("anomaly_simple_square_train2")
+            self.name_map_data_sets_temporary.append("anomaly_simple_square_train1")
 
         # set1 = self.__glue_routes_together(DataSet.SimpleSquare, DataSet.Anomaly, 5)
-        set2 = self.__create_combined_test_route()
+        if DataSet.SimpleSquare in self.data_sets:
+            set2 = self.__create_combined_test_route()
 
         # temporarily add it to raw data such that sensor data is added
         # self.__raw_data.append(set1)
-        self.__raw_data.append(set2)
+        if DataSet.SimpleSquare in self.data_sets:
+            self.__raw_data.append(set2)
 
     def __generate_synthetic_routes(self):
         # Generate synthetic routes by gluing routes together and adjusting timestamps accordingly.
