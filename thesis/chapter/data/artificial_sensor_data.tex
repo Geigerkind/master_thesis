@@ -23,8 +23,7 @@ zeigen eine analoge Karte für die restlichen Routen.
 Magnetfeldsensoren messen das Magnetfeld auf Basis von Effekten die dadurch induziert werden, z. B. die Lorentzkraft oder der Hall-Effekt \cite{thompsonMEMS}.
 Eine Anwendung dieses Sensors ist der Kompass.
 Dieser richtet sich nach dem Magnetfeld der Erde aus und wird daher traditionell zur Navigation verwendet.
-\newline
-\newline
+\newpage
 Das vereinfachte Modell des simulierten Magnetfeldsensors fungiert wie ein Kompass.
 Die Ausgabe ist der relative Richtungsunterschied von der Sensorenbox zum magnetischen Nordpol.
 Dabei können starke magnetische Objekte in der Umgebung Einfluss auf den Sensor haben,
@@ -77,6 +76,7 @@ sodass die Ausrichtung von $p_{o}$ zum beeinflussten magnetischen Nordpol aus Fo
     \label{formular:magnetic_sensor_new_heading}
     \gamma^{\prime} = (\gamma + (360 - \beta))\mod 360
 \end{align}
+\newpage
 Zu beachten ist schließlich der Einfluss $\eta$, der abhänging von der Distanz von $p_{m}$ zu $p_{o}$ ist.
 Formel \ref{formular:magnetic_sensor_influence} modelliert den Einfluss als quadratisch abfallende Funktion mit zunehmender Distanz $d$ und maximaler Einflussdistanz $d_{\max}$,
 wobei der maximale Einfluss 1 ist und der minimale Einfluss 0 ist.
@@ -136,6 +136,7 @@ Formel \ref{formular:sound_sensor_constant_sound} zeigt die Berechnung für die 
                      \frac{(V_{\max} - V_H)d^2}{d_{\max}} + V_H & \text{, ansonsten}
     \end{cases}
 \end{align}
+\newpage
 Periodische Lautstärkequellen emittieren ein Geräusch in regelmäßigen Abständen.
 Dies wird modelliert durch eine quadratisch verringerde Lautstärke über 500 ms,
 wenn die Lautstärke gemessen wird nachdem das Geräusch stattgefunden hat,

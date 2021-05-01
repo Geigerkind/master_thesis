@@ -13,8 +13,7 @@ Für jeden Sensor wird als Feature der Betrag dieser Differenz verwendet.
 Um Muster aus einer Folge von Feature-Mengen zu inferieren hat Mian ein Datenfenster eingeführt, über das
 hintereinander liegende Feature-Mengen zu einer Feature-Menge konkatiniert werden.
 Zudem werden die zuletzt besuchten Standorte in Form einer exponentiell fallenenden Funktion über die Zeit als weitere Features hinzugefügt.
-\newline
-\newline
+\newpage
 Mit dieser Eingabe trainierte Mian ein FFNN mit einer Rückwärtskante (FBNN) von der Ausgabe- zur Eingabeschicht,
 um die zuletzt bestimmten Standorte als Features nutzen zu können.
 Die Rückwärtskante wurde im Training simuliert, indem die Trainingsdaten in zwei Teilmengen partitioniert wurden.

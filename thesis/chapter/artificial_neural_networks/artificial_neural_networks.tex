@@ -20,8 +20,7 @@ Dieser Zusammenhang wird durch (\ref{formular:neuron_activation}) formalisiert.
 \end{align}
 Die Vergleichsoperation ist die \textit{Aktivierungsfunktion} $\sigma: \mathbb{R}\mapsto\mathbb{R}$, die in diesem Fall die Stufenfunktion ist.
 Die Eingabe $\textbf{x}\in\mathbb{R}^n$ wird mit $\textbf{w}\in[0, 1]^n$ gewichtet und der \textit{Bias} $b\in\mathbb{R}$ wird addiert. Der Bias stellt den Schwellenwert dar.
-\newline
-\newline
+\newpage
 Das künstliche neuronale Netz approximiert eine arbiträre Funktion $f^*$. Dazu findet es eine Menge von Parametern $\boldsymbol\theta$, wodurch $f^*(\textbf{x})\approx f(\textbf{x}, \boldsymbol\theta)$
 möglichst gut von der Approximationsfunktion $f$ abgebildet wird \cite{bengio2017deep}.
 \newline
@@ -53,6 +52,7 @@ In (\ref{formular:general_knn}) wird das allgemeine KNN mit einer rekursiven Fun
     \textbf{z}_l := \textbf{W}_l\textbf{a}_{l-1} + \textbf{b}_l, \hspace{1cm}
     \textbf{a}_l := \sigma_l(\textbf{z}_l), \hspace{1cm} \textbf{f(x)} := \textbf{a}_L
 \end{align}
+\newpage
 Diese Arbeit nutzt ausschließlich \textit{Feed Forward neuronale Netzwerke}.
 Diese werden durch \textit{dichte Schichten (engl. Dense-Layer)} charakterisiert, d. h. Schichten in denen alle Neuronen
 einer Schicht mit allen Neuronen der folgenden Schicht verbunden sind \cite{bengio2017deep}.
