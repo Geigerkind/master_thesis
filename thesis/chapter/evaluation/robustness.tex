@@ -1,7 +1,7 @@
 \section{Fehlertoleranz}
 \begin{itemize}
     \item Irgendwas über Robustheit
-    \item Metriken => Insbesondere continued\_predict hier erwähnen
+    \item Metriken => Insbesondere continued\_predict hier erwähnen, i.e. dass es dadurch instabiler wird, weil der Fehler propagiert wird.
     \item Wenn falscher Ort erkannt wurde, wie lange dauert es um wieder den korrekten Ort zu finden? Was ist die Wahrscheinlichkeit dafür? Wovon hängt es ab, dass wieder der richtige Ort erkannt wurde?
     \item Was passiert wenn Sensoren ausfallen? Wie robust ist es dagegen?
     \item Transportbox nicht dem trainierten Pfad folgt? Wie Robust ist sie dagegen? => Sezenarien enumiereren, wo sowas passieren kann, dann Testszenario erklären.
@@ -9,4 +9,5 @@
     \item Einfluss von einzelnen Features für die Fehlertoleranz(?)
     \item In welchen Fällen ist die Ortung unzuverlässig? => Welche Fälle sind schwierig?
     \item Schlussfolgerung: Wie Fehlertolerant ist die Ortung? => Zusammenfassende Metriken über alle Testsets?
+    \item Diskutieren, dass an fast jedem Standort mehrere Sensoren verfügbar sind, weswegen eine gewisse Robustheit möglich sein sollte.
 \end{itemize}
