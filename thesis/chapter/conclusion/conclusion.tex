@@ -1,6 +1,4 @@
 \chapter{Schlussfolgerungen}
-TODO
-
 \begin{itemize}
     \item Kurze, knappe und gut formulierte Schlussfolgerung
     \begin{itemize}
@@ -12,15 +10,21 @@ TODO
         \item Wie gut könenn Anomalien erkannt werden?
     \end{itemize}
     \item Kurze Zusammenfassung wichtigster Dinge
-    \item Zukünftige Arbeit
-    \item Future Work:
-    \begin{itemize}
-        \item Weitere Optimierung der Modelle damit Größe und Laufzeit verringert werden kann,
-              e. g. greedy Verkleinerung guter Modelle oder GA für die Suche guter Parameter
-        \item Bei Entscheidungsbäume kann man das Cherry-Pickung über verschiedene Ensemble Methoden erweitern
-        \item Man könnte RNN untersuchen, diese sollten sehr gut für diese Aufgabe geeignet sein. Außerdem spielt Evaluierungszeit nicht wirklich eine Rolle, solange es nicht häufig evaluiert wird.
-        Es wäre interessant zu sehen, wie gut man werden kann.
-        \item FFNN wie Mian trainieren nur mit vielen sehr kleinen Hidden Layern. Anschließend Prunen und Layer entfernen (siehe Begriff von Mathe NN), die keine Features erlernten bzw. nicht relevant sind.
-        Also Vorteile von Deep NN nutzen.
-    \end{itemize}
 \end{itemize}
+Zukünfitge Arbeiten sollten drei Bereiche weiter untersuchen.
+Zunächst sollten diese ML-Modelle mit Echtdaten untersucht werden.
+Dafür müsste ein Prototyp der Sensorenbox konstruiert werden und in
+einem geeigneten Szenario ausreichend Daten aufgenommen werden.
+Möglicherweise könnte ein Arduino Board mit handelsüblichen, vergleichbaren Sensoren ausreichen.
+\newline
+\newline
+Weitere Optimierungen der ML-Modelle sollten untersucht werden.
+Zunächst könnte die Anzahl der Features reduziert werden durch eine sorgfältige Auswahl mit Hilfe eines Optimierungsverfahrens.
+Dort sollte die Klassifizierungsgenauigkeit und Ausführungszeit maximiert werden unter Einhaltung der Hardwarelimitierungen.
+Zur Optimierung von KNN könnten die Ansatze von Giese aufgegriffen werden \cite{gieseThesis}.
+\newline
+\newline
+Ein Energiemodell zur Einschätzung des Energieverbrauchs der verschiedenen ML-Modelle könnte erstellt werden.
+Dieses könnte für verschiedene Batteriegrößen und Mikrocontroller, Einschätzungen für obere Schranken der Größe von
+verschiedenen ML-Ansätzen angeben.
+Damit können dann gezielter weitere Ansätze untersucht werden.
