@@ -20,14 +20,7 @@ Standort klassifiziert wird mit einer Gesamttoleranz von fünf bzw. zehn Klassif
     &\Theta(i) := i-\Psi(i)\leq\epsilon\wedge\hspace{-0.3cm} \bigwedge\limits_{\max(0, \Psi(i))\leq q \leq i}\hspace{-0.3cm} L_q=K_{\Psi(i)} \nonumber\\
     &P(B) := \frac{\#\{L_i | L_i=K_i \vee \Omega(i) \vee \Theta(i)\text{ für } i\in\{0, 1, ..., \#L - 1\}\}}{\#K}
 \end{flalign}
-Die Testmenge existiert in zwei Varianten, die sich durch die Bestimmung des vorherigen Standortes in den beinhalteten Feature-Mengen unterscheidet.
-In der ersten Variante sind alle vorherigen Standorte korrekt.
-In der zweiten Variante ist der erste vorherige Standort 0 und alle folgenden vorherigen Standorte werden iterativ durch das ML-Modell bestimmt,
-d.~h. in dieser Variante wird der propagierte Fehler durch die Rückwärtskante des ML-Modells betrachtet.
-\newline
-\newline
-Für die zweite Variante sind zwei weitere Metriken relevant.
-Bei diesen Metriken wird die Klassifizierungsgenauigkeit bestimmt, unter der Bedingung, dass der vorherige
+Zuletzt zwei Metriken bei denen die Klassifizierungsgenauigkeit bestimmt wird, unter der Bedingung, dass der vorherige
 Standort korrekt (\ref{formular:accuracy_previous_was_correct}) bzw. falsch (\ref{formular:accuracy_previous_was_wrong}) war.
 \begin{align}
     \label{formular:accuracy_previous_was_correct}

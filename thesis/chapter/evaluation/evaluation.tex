@@ -12,6 +12,13 @@ Routen mit permutierten Teilstücken und Routen, bei denen simuliert wird, dass 
 \newline
 Bei der Resourcennutzung wird auf die Programmgröße und die Ausführungszeit der besten ML-Modelle eingegangen.
 Außderdem wird der Energieverbrauch für verschiedene Szenarien eingeschätzt.
+\newline
+\newline
+Unterschieden werden zwei Varianten der Testmengen.
+Diese unterscheiden sich in der Art, wie der die Features für den vorherigen Standort bestimmt werden.
+In der ersten Variante sind alle vorherigen Standorte korrekt.
+In der zweiten Variante ist der erste vorherige Standort 0 und alle folgenden vorherigen Standorte werden iterativ durch das ML-Modell bestimmt,
+d.~h. in dieser Variante wird der propagierte Fehler durch die Rückwärtskante des ML-Modells betrachtet.
 
 \input{chapter/evaluation/metrics}
 \input{chapter/evaluation/accuracy}
