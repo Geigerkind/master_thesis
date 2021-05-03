@@ -696,7 +696,7 @@ class DataCompiler:
             if self.__is_verbose:
                 print("Adjusting pos...")
             adjust_pos_offset = location_offset if len(data_set.value) == 2 else \
-            self.__reference_locations[data_set.value[3]][1]
+            self.__reference_locations[data_set.value[3]][0]
             data = parallelize(data, par_lrd_adjust_pos, adjust_pos_offset)
             if not (data_set in anomaly_data_sets):
                 test_set = parallelize(test_set, par_lrd_adjust_pos, adjust_pos_offset)
@@ -739,7 +739,7 @@ class DataCompiler:
                 location_map = dict()
                 previous_non_zero_pos = 0
                 init_offset = location_offset if len(data_set.value) == 2 else \
-                self.__reference_locations[data_set.value[3]][1]
+                self.__reference_locations[data_set.value[3]][0]
                 # For some weird reason I have to do this here this way and for the test set I dont
                 # I have no idea whats happening here...
                 for row_index in range(len(data)):

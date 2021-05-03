@@ -212,6 +212,8 @@ class GenerateDecisionTree:
         data_copy = np.asarray(data).copy()
         predictions = []
         data_copy_len = len(data_copy)
+        data_copy[0][0] = 0
+        data_copy[0][1] = 0
         prediction = self.predict([data_copy[0]])[0]
         if use_predict_proba:
             predictions.append(self.predict_proba([data_copy[0]])[0])
@@ -219,7 +221,7 @@ class GenerateDecisionTree:
             predictions.append(prediction)
         last_distinct_locations = [0, 0]
         for i in range(1, data_copy_len):
-            prediction_proba = self.predict_proba([data_copy[i]])[0]
+            prediction_proba = self.predict_proba(data_copy[i:i+1])[0]
             prediction = np.asarray(prediction_proba).argmax()
             if i < data_copy_len - 1:
                 predicted_location = prediction

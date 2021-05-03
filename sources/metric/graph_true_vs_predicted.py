@@ -41,63 +41,71 @@ class GraphTrueVsPredicted:
                 accuracy_given_location_is_cont_the_same_and_within_5_entries = accuracy_given_location_is_cont_the_same_and_within_5_entries + 1
                 accuracy_given_location_is_cont_the_same_and_within_10_entries = accuracy_given_location_is_cont_the_same_and_within_10_entries + 1
             else:
-                is_within_5 = True
-                has_gotten_right_location = False
                 # Check 5 before
+                prediction_index = None
                 for j in range(i, max(i - 5, 0) - 1, -1):
-                    is_within_5 = is_within_5 and y_predicted_position[i] == y_predicted_position[j]
-                    has_gotten_right_location = has_gotten_right_location or y_true_position[j] == y_predicted_position[
-                        j]
-                    if has_gotten_right_location:
+                    if y_true_position[i] != y_true_position[j]:
+                        prediction_index = j
                         break
 
-                if has_gotten_right_location and is_within_5:
-                    accuracy_given_location_is_cont_the_same_and_within_5_entries = accuracy_given_location_is_cont_the_same_and_within_5_entries + 1
-                    accuracy_given_location_is_cont_the_same_and_within_10_entries = accuracy_given_location_is_cont_the_same_and_within_10_entries + 1
-                    continue
+                if not (prediction_index is None):
+                    is_within = True
+                    for j in range(i, prediction_index - 1, -1):
+                        is_within = is_within and y_true_position[prediction_index] == y_predicted_position[j]
 
-                is_within_10 = True
-                has_gotten_right_location = False
-                # Check 10 before
-                for j in range(i, max(i - 10, 0) - 1, -1):
-                    is_within_10 = is_within_10 and y_predicted_position[i] == y_predicted_position[j]
-                    has_gotten_right_location = has_gotten_right_location or y_true_position[j] == y_predicted_position[
-                        j]
-                    if has_gotten_right_location:
-                        break
+                    if is_within:
+                        accuracy_given_location_is_cont_the_same_and_within_5_entries = accuracy_given_location_is_cont_the_same_and_within_5_entries + 1
+                        accuracy_given_location_is_cont_the_same_and_within_10_entries = accuracy_given_location_is_cont_the_same_and_within_10_entries + 1
+                        continue
 
-                if has_gotten_right_location and is_within_10:
-                    accuracy_given_location_is_cont_the_same_and_within_10_entries = accuracy_given_location_is_cont_the_same_and_within_10_entries + 1
-                    continue
-
-                is_within_5 = True
-                has_gotten_right_location = False
                 # Check 5 after
+                prediction_index = None
                 for j in range(i, min(i + 5, len(y_true_position))):
-                    is_within_5 = is_within_5 and y_predicted_position[i] == y_predicted_position[j]
-                    has_gotten_right_location = has_gotten_right_location or y_true_position[j] == y_predicted_position[
-                        j]
-                    if has_gotten_right_location:
+                    if y_true_position[i] != y_true_position[j]:
+                        prediction_index = j
                         break
 
-                if has_gotten_right_location and is_within_5:
-                    accuracy_given_location_is_cont_the_same_and_within_5_entries = accuracy_given_location_is_cont_the_same_and_within_5_entries + 1
-                    accuracy_given_location_is_cont_the_same_and_within_10_entries = accuracy_given_location_is_cont_the_same_and_within_10_entries + 1
-                    continue
+                if not (prediction_index is None):
+                    is_within = True
+                    for j in range(i, prediction_index):
+                        is_within = is_within and y_true_position[prediction_index] == y_predicted_position[j]
 
-                is_within_10 = True
-                has_gotten_right_location = False
+                    if is_within:
+                        accuracy_given_location_is_cont_the_same_and_within_5_entries = accuracy_given_location_is_cont_the_same_and_within_5_entries + 1
+                        accuracy_given_location_is_cont_the_same_and_within_10_entries = accuracy_given_location_is_cont_the_same_and_within_10_entries + 1
+                        continue
+
+                # Check 10 before
+                prediction_index = None
+                for j in range(i, max(i - 10, 0) - 1, -1):
+                    if y_true_position[i] != y_true_position[j]:
+                        prediction_index = j
+                        break
+
+                if not (prediction_index is None):
+                    is_within = True
+                    for j in range(i, prediction_index - 1, -1):
+                        is_within = is_within and y_true_position[prediction_index] == y_predicted_position[j]
+
+                    if is_within:
+                        accuracy_given_location_is_cont_the_same_and_within_10_entries = accuracy_given_location_is_cont_the_same_and_within_10_entries + 1
+                        continue
+
                 # Check 10 after
+                prediction_index = None
                 for j in range(i, min(i + 10, len(y_true_position))):
-                    is_within_10 = is_within_10 and y_predicted_position[i] == y_predicted_position[j]
-                    has_gotten_right_location = has_gotten_right_location or y_true_position[j] == y_predicted_position[
-                        j]
-                    if has_gotten_right_location:
+                    if y_true_position[i] != y_true_position[j]:
+                        prediction_index = j
                         break
 
-                if has_gotten_right_location and is_within_10:
-                    accuracy_given_location_is_cont_the_same_and_within_10_entries = accuracy_given_location_is_cont_the_same_and_within_10_entries + 1
-                    continue
+                if not (prediction_index is None):
+                    is_within = True
+                    for j in range(i, prediction_index):
+                        is_within = is_within and y_true_position[prediction_index] == y_predicted_position[j]
+
+                    if is_within:
+                        accuracy_given_location_is_cont_the_same_and_within_10_entries = accuracy_given_location_is_cont_the_same_and_within_10_entries + 1
+                        continue
 
         accuracy = accuracy / len(y_true_position)
         accuracy_given_location_is_cont_the_same_and_within_5_entries = accuracy_given_location_is_cont_the_same_and_within_5_entries / len(
@@ -106,34 +114,45 @@ class GraphTrueVsPredicted:
             y_true_position)
 
         accuracy_given_previous_location_was_correct = 0
+        accuracy_given_previous_location_was_incorrect = 0
         total_prev_location_correct = 0
+        total_prev_location_incorrect = 0
         for i in range(1, len(y_true_position)):
             if y_true_position[i - 1] == y_predicted_position[i - 1]:
                 total_prev_location_correct = total_prev_location_correct + 1
                 if y_true_position[i] == y_predicted_position[i]:
                     accuracy_given_previous_location_was_correct = accuracy_given_previous_location_was_correct + 1
+            else:
+                total_prev_location_incorrect = total_prev_location_incorrect + 1
+                if y_true_position[i] == y_predicted_position[i]:
+                    accuracy_given_previous_location_was_incorrect = accuracy_given_previous_location_was_incorrect + 1
+
         if total_prev_location_correct == 0:
             accuracy_given_previous_location_was_correct = -1
         accuracy_given_previous_location_was_correct = accuracy_given_previous_location_was_correct / total_prev_location_correct
 
+        if total_prev_location_incorrect == 0:
+            accuracy_given_previous_location_was_incorrect = -1
+        accuracy_given_previous_location_was_incorrect = accuracy_given_previous_location_was_incorrect / total_prev_location_incorrect
+
         log_file = open(self.file_path + "log_true_vs_predicted.csv", "w")
-        log_file.write("accuracy,accuracy_given_previous_location_was_correct,"
+        log_file.write("accuracy,accuracy_given_previous_location_was_correct,accuracy_given_previous_location_was_incorrect,"
                        "accuracy_given_location_is_cont_the_same_and_within_5_entries,"
                        "accuracy_given_location_is_cont_the_same_and_within_10_entries\n")
-        log_file.write("{0},{1},{2},{3}".format(accuracy, accuracy_given_previous_location_was_correct,
+        log_file.write("{0},{1},{2},{3},{4}".format(accuracy, accuracy_given_previous_location_was_correct,
+                                                accuracy_given_previous_location_was_incorrect,
                                                 accuracy_given_location_is_cont_the_same_and_within_5_entries,
                                                 accuracy_given_location_is_cont_the_same_and_within_10_entries))
         log_file.close()
 
-        plt.figure(figsize=(15/2.54, 30/2.54))
-        fig, ax1 = plt.subplots()
-        ax1.plot(range(min(self.max_entry_draw_size, len(self.prediction))), y_true_position[:self.max_entry_draw_size], "o-g")
-        ax1.plot(range(min(self.max_entry_draw_size, len(self.prediction))), y_predicted_position[:self.max_entry_draw_size], "*-b")
-        ax1.set_xlabel("Pfadeintrag (Diskret)")
-        ax1.set_ylabel("Position (Diskret)")
-        ax1.set_ylim([0, self.num_outputs - 1])
-        ax1.set_title("Ist vs. Soll Position")
-        fig.legend(['Ist Position', 'Soll Position'], loc=[0.68, 0.77])
+        fig = plt.figure(figsize=(30/2.54, 15/2.54))
+        plt.plot(range(min(self.max_entry_draw_size, len(self.prediction))), y_true_position[:self.max_entry_draw_size], "o-g")
+        plt.plot(range(min(self.max_entry_draw_size, len(self.prediction))), y_predicted_position[:self.max_entry_draw_size], "*-b")
+        plt.xlabel("Pfadeintrag (Diskret)")
+        plt.ylabel("Position (Diskret)")
+        plt.ylim([0, self.num_outputs - 1])
+        plt.title("Ist vs. Soll Position")
+        plt.legend(['Ist Position', 'Soll Position'], loc=[0.68, 0.77])
         plt.savefig("{0}{1}".format(self.file_path, self.__graph_name()))
         plt.clf()
         plt.close(fig)

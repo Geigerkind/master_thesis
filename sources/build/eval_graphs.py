@@ -45,7 +45,7 @@ def generate_graphs(path, prefix, model_dt, test_set_features_dt, test_set_featu
     else:
         model_knn = keras.models.load_model(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_knn_model.h5")
 
-    GraphFeatureImportance(path, "evaluation", model_dt, model_knn, test_set_features_knn, test_set_labels_knn,
+    GraphFeatureImportance(path, "evaluation" + extra_suffix, model_dt, model_knn, test_set_features_knn, test_set_labels_knn,
                            test_set_features_dt, test_set_labels_dt, feature_name_map)
 
     predicted_dt = model_dt.continued_predict(test_set_features_dt) if use_continued_prediction else model_dt.predict(
@@ -105,7 +105,8 @@ def exec_gen_graphs(args):
 
 with open(pregen_path, 'rb') as file:
     data = pickle.load(file)
-    anomaly_data = pickle.load(open(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_anomaly_data.pkl"))
+    anomaly_file = open(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_anomaly_data.pkl", "rb")
+    anomaly_data = pickle.load(anomaly_file)
     with open(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_dt_model.pkl", 'rb') as file:
         map_args = []
         model_dt = pickle.load(file)
@@ -207,6 +208,7 @@ with open(pregen_path, 'rb') as file:
                              test_set_labels_dt, test_set_labels_knn, data.num_outputs, False, data.name_map_features,
                              evaluation_name, False])
 
+            """
             # Wrong previous location
             test_set_features_dt_random_location = np.asarray(test_sets_dt[k]).copy()
             test_set_features_knn_random_location = np.asarray(test_sets_knn[k]).copy()
@@ -237,6 +239,7 @@ with open(pregen_path, 'rb') as file:
             map_args.append([path, "continued_pred_with_faulty_start", model_dt, test_set_features_dt,
                              test_set_features_knn, test_set_labels_dt, test_set_labels_knn, data.num_outputs,
                              True, data.name_map_features, evaluation_name, False])
+            """
 
             log_compiled = open(path + "evaluation/log_compiled.csv", "w")
             log_compiled.write("accuracy,accuracy_given_previous_location_was_correct,"
@@ -253,6 +256,7 @@ with open(pregen_path, 'rb') as file:
             log_compiled.write("path_segment,recognized_after,times_misclassified,path_len\n")
             log_compiled.close()
 
+        """
         for i in range(len(data.temporary_test_set_labels_dt)):
             new_set_dt, new_labels_dt, new_set_knn, new_labels_knn = glue_test_sets(
                 data.temporary_test_set_features_dt[i],
@@ -287,6 +291,7 @@ with open(pregen_path, 'rb') as file:
             map_args.append([path, "evaluation", model_anomaly_dt, test_set_features_dt, test_set_features_knn,
                              test_set_labels_dt, test_set_labels_knn, data.num_outputs, False, data.name_map_features,
                              evaluation_name, True])
+        """
 
         # Evaluate all graphs in parallel
         with Pool(NUM_CORES) as pool:

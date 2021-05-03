@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from tensorflow import keras
 
+from sources.anomaly.anomaly_data import DumpAnomalyData
 from sources.anomaly.topology_guesser import AnomalyTopologyGuesser
 from sources.config import BIN_FOLDER_PATH, NUM_CORES, parse_cmd_args
 from sources.decision_tree.ensemble_method import EnsembleMethod
@@ -253,20 +254,6 @@ if __name__ == "__main__":
         return af_dt, al, af_dt_val, al_val, af_knn, af_knn_val, predicted_dt_val, predicted_knn_val
 
 
-    class DumpAnomalyData:
-        def __init__(self, t_f_dt, t_f_knn, t_f_dt_val, t_f_knn_val, t_l, t_l_val, test_f_dt, test_f_knn, test_l):
-            self.train_features_dt = t_f_dt
-            self.train_features_knn = t_f_knn
-            self.train_features_dt_val = t_f_dt_val
-            self.train_features_knn_val = t_f_knn_val
-            self.train_labels = t_l
-            self.train_labels_val = t_l_val
-
-            self.test_features_dt = test_f_dt
-            self.test_features_knn = test_f_knn
-            self.test_labels = test_l
-
-
     print("Loading data and models...")
     with open(pregen_path, 'rb') as file:
         data = pickle.load(file)
@@ -297,7 +284,7 @@ if __name__ == "__main__":
 
             with Pool(processes=NUM_CORES) as pool:
                 result = pool.map(calculate_data_set, args)
-                for i in [1, 2]:
+                for i in [0, 1]:
                     af_dt, al, af_dt_val, al_val, af_knn, af_knn_val, pred_dt_val, pred_knn_val = result[i]
 
                     anomaly_features_dt = anomaly_features_dt + af_dt
@@ -310,7 +297,7 @@ if __name__ == "__main__":
 
                     predicted_dt_val = predicted_dt_val + pred_dt_val
                     predicted_knn_val = predicted_knn_val + pred_knn_val
-                for i in range(3, len(data.temporary_test_set_labels_dt)):
+                for i in range(2, len(data.temporary_test_set_labels_dt) - 1):
                     af_dt, al, af_dt_val, al_val, af_knn, af_knn_val, pred_dt_val, pred_knn_val = result[i]
 
                     anomaly_features_dt_test = anomaly_features_dt_test + af_dt + af_dt_val

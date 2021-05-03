@@ -21,7 +21,7 @@ class GraphLocationDistribution:
         if 0 in result:
             log_file.write("{0},{1}\n".format(0, result[0]))
         total = sum([result[i] for i in range(1, len(result.values()))])
-        keys = range(len(result.values()))
+        keys = range(1, len(result.values()))
         values = []
         for i in range(1, len(result.values())):
             values.append(result[i] / total)
@@ -30,10 +30,11 @@ class GraphLocationDistribution:
         return keys, values
 
     def __generate_graph(self):
-        plt.figure(figsize=(15 / 2.54, 30 / 2.54))
+        fig = plt.figure(figsize=(30 / 2.54, 15 / 2.54))
         x, y = self.__calculate_location_distribution()
         plt.bar(x, y)
         plt.xlabel("Standort (Diskret)")
         plt.ylabel("Anteil")
         plt.savefig("{0}location_distribution.png".format(self.path))
         plt.clf()
+        plt.close(fig)

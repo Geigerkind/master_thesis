@@ -68,7 +68,7 @@ class GraphRecognizedPathSegment:
         return np.asarray(result)
 
     def __generate_graph(self):
-        plt.figure(figsize=(15/2.54, 30/2.54))
+        fig = plt.figure(figsize=(30/2.54, 15/2.54))
         path_segments = self.__calculate_path_segments()
 
         log_file = open(self.file_path + "log_recognized_path_segment.csv", "w")
@@ -91,3 +91,4 @@ class GraphRecognizedPathSegment:
         plt.title("Pfadabschnitterkennung")
         plt.savefig("{0}{1}".format(self.file_path, self.__graph_name()))
         plt.clf()
+        plt.close(fig)

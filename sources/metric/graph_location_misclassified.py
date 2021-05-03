@@ -62,7 +62,7 @@ class GraphLocationMisclassified:
         return keys, values
 
     def __generate_graph(self):
-        plt.figure(figsize=(15/2.54, 30/2.54))
+        fig = plt.figure(figsize=(30/2.54, 15/2.54))
         x, y = self.__calculate_location_misclassified()
         plt.bar(x, y)
         plt.xlabel("Ort (Diskret)")
@@ -71,3 +71,4 @@ class GraphLocationMisclassified:
         plt.title("Anteil Orte falsch klassifiziert")
         plt.savefig("{0}{1}".format(self.file_path, self.__graph_name()))
         plt.clf()
+        plt.close(fig)

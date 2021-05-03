@@ -26,12 +26,11 @@ class GraphWindowConfidenceNotZero():
     def __generate_graph(self):
         location_changes_in_window = self.__get_window_confidence_data(self.prediction)
 
-        plt.figure(figsize=(15 / 2.54, 30 / 2.54))
-        fig, ax1 = plt.subplots()
-        ax1.plot(range(min(self.max_entry_draw_size, len(location_changes_in_window))), location_changes_in_window[:self.max_entry_draw_size], "o-b")
-        ax1.set_xlabel("Pfadeintrag (Diskret)")
-        ax1.set_ylabel("Akkumulierte Positionswahrscheinlichkeit im Fenster")
-        ax1.set_title("Akkumulierte Positionswahrscheinlichkeit im Fenster ({0}) ohne 0-Ort".format(self.window_size))
+        fig = plt.figure(figsize=(30 / 2.54, 15 / 2.54))
+        plt.plot(range(min(self.max_entry_draw_size, len(location_changes_in_window))), location_changes_in_window[:self.max_entry_draw_size], "o-b")
+        plt.xlabel("Pfadeintrag (Diskret)")
+        plt.ylabel("Akkumulierte Positionswahrscheinlichkeit im Fenster")
+        plt.title("Akkumulierte Positionswahrscheinlichkeit im Fenster ({0}) ohne 0-Ort".format(self.window_size))
         plt.savefig("{0}{1}".format(self.file_path, self.__graph_name()))
         plt.clf()
         plt.close(fig)

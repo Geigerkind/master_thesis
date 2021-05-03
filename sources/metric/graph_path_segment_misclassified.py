@@ -70,7 +70,7 @@ class GraphPathSegmentMisclassified:
         return values
 
     def __generate_graph(self):
-        plt.figure(figsize=(15/2.54, 30/2.54))
+        fig = plt.figure(figsize=(30/2.54, 15/2.54))
         y = self.__calculate_path_segment_misclassified()
         plt.bar(range(len(y)), y)
         plt.xlabel("Pfadsegment (Diskret)")
@@ -79,3 +79,4 @@ class GraphPathSegmentMisclassified:
         plt.title("Anteil Pfadsegmente falsch klassifiziert")
         plt.savefig("{0}{1}".format(self.file_path, self.__graph_name()))
         plt.clf()
+        plt.close(fig)
