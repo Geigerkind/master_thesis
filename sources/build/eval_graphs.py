@@ -2,6 +2,7 @@ import os
 import pickle
 import random
 from multiprocessing import Pool
+import time
 
 import numpy as np
 from tensorflow import keras
@@ -41,18 +42,22 @@ def generate_graphs(path, prefix, model_dt, test_set_features_dt, test_set_featu
     if is_anomaly:
         extra_suffix = "_anomaly"
         model_knn = keras.models.load_model(
-            BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_knn_anomaly_model.h5")
+            BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_knn_anomaly_model.h5", compile=False)
     else:
-        model_knn = keras.models.load_model(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_knn_model.h5")
+        model_knn = keras.models.load_model(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_knn_model.h5", compile=False)
 
     GraphFeatureImportance(path, "evaluation" + extra_suffix, model_dt, model_knn, test_set_features_knn, test_set_labels_knn,
                            test_set_features_dt, test_set_labels_dt, feature_name_map)
 
+    now = time.time()
     predicted_dt = model_dt.continued_predict(test_set_features_dt) if use_continued_prediction else model_dt.predict(
         test_set_features_dt)
+    print("DT needed: {0} => ({1})".format(time.time() - now, use_continued_prediction))
+    now = time.time()
     predicted_knn = GenerateFFNN.static_continued_predict(model_knn, test_set_features_knn,
                                                           num_outputs) if use_continued_prediction else model_knn.predict(
         test_set_features_knn)
+    print("KNN needed: {0} => ({1})".format(time.time() - now, use_continued_prediction))
 
     GraphTrueVsPredicted(path, prefix + "_dt" + extra_suffix, True, test_set_labels_dt, num_outputs, predicted_dt)
     GraphTrueVsPredicted(path, prefix + "_knn" + extra_suffix, False, test_set_labels_knn, num_outputs, predicted_knn)

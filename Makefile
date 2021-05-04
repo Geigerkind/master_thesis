@@ -5,7 +5,7 @@ BIBTEX = bibtex
 BASH = bash
 
 eval:
-	PYTHONPATH="/home/shino/Uni/master_thesis" TF_CPP_MIN_LOG_LEVEL=2 $(PYTHON) sources/build/eval.py 0 8 32 1 32 75 1 0
+	PYTHONPATH="/home/shino/Uni/master_thesis" TF_CPP_MIN_LOG_LEVEL=2 $(PYTHON) sources/build/eval.py 1 8 32 1 32 75 1 0
 
 anomaly:
 	PYTHONPATH="/home/shino/Uni/master_thesis" TF_CPP_MIN_LOG_LEVEL=2 $(PYTHON) sources/build/eval_anomaly.py 0 8 32 1 32 75 1 1

@@ -26,6 +26,10 @@ class GraphTrueVsPredicted:
         return "{0}_true_vs_predicted.png".format(self.prefix)
 
     def __generate_graph(self):
+        if len(self.test_labels) == 0:
+            print("TEST LABELS IS 0 FOR {0}".format(self.__graph_name()))
+            return
+
         y_true_position = self.test_labels
         y_predicted_position = self.prediction
         if not self.is_dt:
@@ -129,11 +133,13 @@ class GraphTrueVsPredicted:
 
         if total_prev_location_correct == 0:
             accuracy_given_previous_location_was_correct = -1
-        accuracy_given_previous_location_was_correct = accuracy_given_previous_location_was_correct / total_prev_location_correct
+        else:
+            accuracy_given_previous_location_was_correct = accuracy_given_previous_location_was_correct / total_prev_location_correct
 
         if total_prev_location_incorrect == 0:
             accuracy_given_previous_location_was_incorrect = -1
-        accuracy_given_previous_location_was_incorrect = accuracy_given_previous_location_was_incorrect / total_prev_location_incorrect
+        else:
+            accuracy_given_previous_location_was_incorrect = accuracy_given_previous_location_was_incorrect / total_prev_location_incorrect
 
         log_file = open(self.file_path + "log_true_vs_predicted.csv", "w")
         log_file.write("accuracy,accuracy_given_previous_location_was_correct,accuracy_given_previous_location_was_incorrect,"

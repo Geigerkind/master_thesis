@@ -71,30 +71,7 @@ class GenerateFFNN:
         Iteratively predicts the location of the provided data.
         For through explanation see GenerateDecisionTree or thesis.
         """
-        # Assumes that feature 0 and 1 are previous locations
-        data_copy = np.asarray(data).copy()
-        data_copy[0][0] = 0
-        data_copy[0][1] = 0
-        predictions = []
-        data_copy_len = len(data_copy)
-        prediction = self.predict([data_copy[0]])[0]
-        predictions.append(prediction)
-        last_distinct_locations = [0, 0]
-        for i in range(1, data_copy_len):
-            prediction = self.predict(data_copy[i:i+1])[0]
-            if i < data_copy_len - 1:
-                predicted_location = np.asarray(prediction).argmax()
-                if 0 < predicted_location != last_distinct_locations[-1]:
-                    last_distinct_locations.append(predicted_location)
-                    last_distinct_locations.pop(0)
-
-                data_copy[i + 1][0] = predicted_location
-                if predicted_location == 0:
-                    data_copy[i + 1][1] = last_distinct_locations[-1] / (self.output_size - 1)
-                else:
-                    data_copy[i + 1][1] = last_distinct_locations[-2] / (self.output_size - 1)
-            predictions.append(prediction)
-        return predictions
+        return GenerateFFNN.static_continued_predict(self, data, self.output_size)
 
     @staticmethod
     def static_continued_predict(model, data, output_size):
@@ -107,11 +84,11 @@ class GenerateFFNN:
         data_copy[0][1] = 0
         predictions = []
         data_copy_len = len(data_copy)
-        prediction = model.predict(np.asarray([data_copy[0]]))[0]
+        prediction = model.predict_on_batch(np.asarray([data_copy[0]]))[0]
         predictions.append(prediction)
         last_distinct_locations = [0, 0]
         for i in range(1, data_copy_len):
-            prediction = model.predict(data_copy[i:i+1])[0]
+            prediction = model.predict_on_batch(data_copy[i:i+1])[0]
             if i < data_copy_len - 1:
                 predicted_location = np.asarray(prediction).argmax()
                 if 0 < predicted_location != last_distinct_locations[-1]:
