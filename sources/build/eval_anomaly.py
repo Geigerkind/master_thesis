@@ -29,7 +29,8 @@ if __name__ == "__main__":
     WINDOW_SIZE = 35
 
 
-    def calculate_anomaly_features_and_labels(predicted_dt, predicted_knn, data_set_index, real_labels, data):
+    def calculate_anomaly_features_and_labels(predicted_dt, predicted_knn, data_set_index, real_labels,
+                                              location_neighbor_graph, temporary_test_set_raw_data):
         global WITH_FEEDBACK_EDGE
 
         res_features_dt = []
@@ -53,21 +54,21 @@ if __name__ == "__main__":
         distinct_locations_knn = [0, 0]
 
         num_outputs = len(predicted_dt[0])
-        topology_guesser_dt = AnomalyTopologyGuesser(data.location_neighbor_graph)
-        topology_guesser_knn = AnomalyTopologyGuesser(data.location_neighbor_graph)
+        topology_guesser_dt = AnomalyTopologyGuesser(location_neighbor_graph)
+        topology_guesser_knn = AnomalyTopologyGuesser(location_neighbor_graph)
 
         real_previous_location = 0
         # Find first non zero location and take the previous of it
         for label in real_labels:
             if label > 0:
                 # Otherwise its anomaly data
-                if label in data.location_neighbor_graph:
-                    real_previous_location = data.location_neighbor_graph[label][0]
+                if label in location_neighbor_graph:
+                    real_previous_location = location_neighbor_graph[label][0]
                 break
 
         for i in range(len(predicted_dt)):
             # Preparing the labels
-            if data.temporary_test_set_raw_data[data_set_index].iloc[i]["is_anomaly"]:
+            if temporary_test_set_raw_data[data_set_index].iloc[i]["is_anomaly"]:
                 res_labels.append(1)
             else:
                 res_labels.append(0)
@@ -86,8 +87,8 @@ if __name__ == "__main__":
             # Just like the other model this will be gradually overwritten
             if WITH_FEEDBACK_EDGE:
                 if i > 0:
-                    features_dt.append(int(data.temporary_test_set_raw_data[data_set_index].iloc[i - 1]["is_anomaly"]))
-                    features_knn.append(int(data.temporary_test_set_raw_data[data_set_index].iloc[i - 1]["is_anomaly"]))
+                    features_dt.append(int(temporary_test_set_raw_data[data_set_index].iloc[i - 1]["is_anomaly"]))
+                    features_knn.append(int(temporary_test_set_raw_data[data_set_index].iloc[i - 1]["is_anomaly"]))
                 else:
                     features_dt.append(0)
                     features_knn.append(0)
@@ -138,7 +139,7 @@ if __name__ == "__main__":
             # features_knn.append(sum(amount_zero_loc_knn[-WINDOW_SIZE:]) / WINDOW_SIZE)
 
             # Deviation no anomaly
-            if i > 0 and not data.temporary_test_set_raw_data[data_set_index].iloc[i - 1]["is_anomaly"]:
+            if i > 0 and not temporary_test_set_raw_data[data_set_index].iloc[i - 1]["is_anomaly"]:
                 location_changes_no_anomaly_dt.append(location_changes_dt[-2])
                 location_changes_no_anomaly_knn.append(location_changes_knn[-2])
                 confidence_no_anomaly_dt.append(confidence_dt[-2])
@@ -167,15 +168,15 @@ if __name__ == "__main__":
             # I choose to use random values in case its an anomaly,
             # because I dont want to learn it a particular mapping there
             """
-            if data.temporary_test_set_raw_data[data_set_index].iloc[i]["is_anomaly"] or (
-            not (real_previous_location in data.location_neighbor_graph)):
+            if temporary_test_set_raw_data[data_set_index].iloc[i]["is_anomaly"] or (
+            not (real_previous_location in location_neighbor_graph)):
                 features_dt.append(random.randint(0, num_outputs - 1))
                 features_dt.append(random.randint(0, num_outputs - 1))
                 features_knn.append(random.randint(0, num_outputs - 1) / (num_outputs - 1))
                 features_knn.append(random.randint(0, num_outputs - 1) / (num_outputs - 1))
             else:
-                features_dt.append(data.location_neighbor_graph[real_previous_location][0])
-                features_knn.append(data.location_neighbor_graph[real_previous_location][0] / (num_outputs - 1))
+                features_dt.append(location_neighbor_graph[real_previous_location][0])
+                features_knn.append(location_neighbor_graph[real_previous_location][0] / (num_outputs - 1))
                 features_dt.append(real_labels[i])
                 features_knn.append(real_labels[i] / (num_outputs - 1))
             """
@@ -202,9 +203,12 @@ if __name__ == "__main__":
 
 
     def calculate_data_set(args):
-        data_set_index, data, model_dt = args
+        data_set_index, model_dt, temporary_test_set_features_dt, temporary_test_set_features_knn, \
+        temporary_test_set_labels_dt, num_outputs, location_neighbor_graph, temporary_test_set_raw_data, \
+        num_cycles, num_validation_cycles = args
 
-        model_knn = keras.models.load_model(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_knn_model.h5")
+        model_knn = keras.models.load_model(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_knn_model.h5",
+                                            compile=False)
         af_dt = []
         af_knn = []
         al = []
@@ -217,16 +221,17 @@ if __name__ == "__main__":
         data_set_features_dt = []
         data_set_features_knn = []
         data_set_labels = []
-        for cycle in range(data.num_cycles - data.num_validation_cycles + 1):
-            data_set_features_dt = data_set_features_dt + data.temporary_test_set_features_dt[data_set_index][cycle]
-            data_set_features_knn = data_set_features_knn + data.temporary_test_set_features_knn[data_set_index][cycle]
-            data_set_labels = data_set_labels + data.temporary_test_set_labels_dt[data_set_index][cycle]
+        for cycle in range(num_cycles - num_validation_cycles + 1):
+            data_set_features_dt = data_set_features_dt + temporary_test_set_features_dt[data_set_index][cycle]
+            data_set_features_knn = data_set_features_knn + temporary_test_set_features_knn[data_set_index][cycle]
+            data_set_labels = data_set_labels + temporary_test_set_labels_dt[data_set_index][cycle]
 
         predicted_dt = model_dt.continued_predict_proba(data_set_features_dt)
-        predicted_knn = GenerateFFNN.static_continued_predict(model_knn, data_set_features_knn, data.num_outputs)
+        predicted_knn = GenerateFFNN.static_continued_predict(model_knn, data_set_features_knn, num_outputs)
 
         res_features_dt, res_labels, res_features_knn = calculate_anomaly_features_and_labels(
-            predicted_dt, predicted_knn, data_set_index, data_set_labels, data)
+            predicted_dt, predicted_knn, data_set_index, data_set_labels, location_neighbor_graph,
+            temporary_test_set_raw_data)
 
         af_dt = af_dt + res_features_dt
         af_knn = af_knn + res_features_knn
@@ -236,16 +241,17 @@ if __name__ == "__main__":
         data_set_features_dt = []
         data_set_features_knn = []
         data_set_labels = []
-        for cycle in range(data.num_cycles - data.num_validation_cycles + 1, data.num_cycles):
-            data_set_features_dt = data_set_features_dt + data.temporary_test_set_features_dt[data_set_index][cycle]
-            data_set_features_knn = data_set_features_knn + data.temporary_test_set_features_knn[data_set_index][cycle]
-            data_set_labels = data_set_labels + data.temporary_test_set_labels_dt[data_set_index][cycle]
+        for cycle in range(num_cycles - num_validation_cycles + 1, num_cycles):
+            data_set_features_dt = data_set_features_dt + temporary_test_set_features_dt[data_set_index][cycle]
+            data_set_features_knn = data_set_features_knn + temporary_test_set_features_knn[data_set_index][cycle]
+            data_set_labels = data_set_labels + temporary_test_set_labels_dt[data_set_index][cycle]
 
         predicted_dt_val = model_dt.continued_predict_proba(data_set_features_dt)
-        predicted_knn_val = GenerateFFNN.static_continued_predict(model_knn, data_set_features_knn, data.num_outputs)
+        predicted_knn_val = GenerateFFNN.static_continued_predict(model_knn, data_set_features_knn, num_outputs)
 
         res_features_dt, res_labels, res_features_knn = calculate_anomaly_features_and_labels(
-            predicted_dt_val, predicted_knn_val, data_set_index, data_set_labels, data)
+            predicted_dt_val, predicted_knn_val, data_set_index, data_set_labels, location_neighbor_graph,
+            temporary_test_set_raw_data)
 
         af_dt_val = af_dt_val + res_features_dt
         af_knn_val = af_knn_val + res_features_knn
@@ -265,7 +271,10 @@ if __name__ == "__main__":
             args = []
 
             for data_set_index in range(1, len(data.temporary_test_set_labels_dt)):
-                args.append([data_set_index, data, model_dt])
+                args.append([data_set_index, model_dt, data.temporary_test_set_features_dt,
+                             data.temporary_test_set_features_knn, data.temporary_test_set_labels_dt, data.num_outputs,
+                             data.location_neighbor_graph, data.temporary_test_set_raw_data, data.num_cycles,
+                             data.num_validation_cycles])
 
             anomaly_features_dt = []
             anomaly_features_knn = []
