@@ -1,7 +1,7 @@
 export PYTHONPATH="/home/shino/Uni/master_thesis"
 export TF_CPP_MIN_LOG_LEVEL=2
 
-NUM_ALLOWED_JOBS=1
+NUM_ALLOWED_JOBS=2
 
 function eval_model {
   if [[ ! -f "${PYTHONPATH}/bin/eval_${1}_DT_${2}_${3}_KNN_${4}_${5}_${6}_DS_${8}/evaluation_knn_model.h5" ]]; then
@@ -27,7 +27,7 @@ function exec_model_in_parallel {
 }
 
 function eval_data_sets {
-  bool_arr=( 0 1 )
+  bool_arr=( 1 )
   for encode_path_as_locations in "${bool_arr[@]}"; do
     # Max height and num neurons
     exec_model_in_parallel ${encode_path_as_locations} 16 8 1 16 75 ${1} ${2}
