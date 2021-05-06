@@ -182,7 +182,7 @@ class GenerateDecisionTree:
         """
         return self.result.predict_proba(data)
 
-    def continued_predict_proba(self, data):
+    def continued_predict_proba(self, data, paths_encoded=False):
         """
         Predict the results of the provided test data iteratively by using the predict function.
         Instead of using the provided previous location, it uses its predicted previous location.
@@ -191,9 +191,9 @@ class GenerateDecisionTree:
         :param data: Array of feature sets that should be predicted
         :return: Array of discrete results
         """
-        return self.__continued_predict(data, True)
+        return self.__continued_predict(data, True, paths_encoded)
 
-    def continued_predict(self, data):
+    def continued_predict(self, data, paths_encoded=False):
         """
         Predict the results of the provided test data iteratively by using the predict_proba function.
         Instead of using the provided previous location, it uses its predicted previous location.
@@ -202,9 +202,9 @@ class GenerateDecisionTree:
         :param data: Array of feature sets that should be predicted
         :return: Array of results encoded as CDFs
         """
-        return self.__continued_predict(data, False)
+        return self.__continued_predict(data, False, paths_encoded)
 
-    def __continued_predict(self, data, use_predict_proba=False):
+    def __continued_predict(self, data, use_predict_proba=False, paths_encoded=False):
         """
         See continued_predict.
         """
@@ -223,6 +223,9 @@ class GenerateDecisionTree:
         for i in range(1, data_copy_len):
             prediction_proba = self.predict_proba(data_copy[i:i+1])[0]
             prediction = np.asarray(prediction_proba).argmax()
+            if paths_encoded:
+                prediction = prediction + 1  # Because the unknown location does not exist in this encoding for the DT
+
             if i < data_copy_len - 1:
                 predicted_location = prediction
                 if 0 < predicted_location != last_distinct_locations[-1]:

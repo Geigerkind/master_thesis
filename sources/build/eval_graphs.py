@@ -36,7 +36,7 @@ pregen_path, evaluation_name, res_input_data_sets = parse_cmd_args()
 
 def generate_graphs(path, prefix, model_dt, test_set_features_dt, test_set_features_knn, test_set_labels_dt,
                     test_set_labels_knn, num_outputs, use_continued_prediction, feature_name_map, evaluation_name,
-                    is_anomaly):
+                    is_anomaly, encode_paths_between_as_location):
     # Loaded here cause it cant be pickled
     model_knn = 0
     extra_suffix = ""
@@ -51,7 +51,7 @@ def generate_graphs(path, prefix, model_dt, test_set_features_dt, test_set_featu
                            test_set_features_dt, test_set_labels_dt, feature_name_map)
 
     # now = time.time()
-    # predicted_dt = model_dt.continued_predict(test_set_features_dt) if use_continued_prediction else model_dt.predict(
+    # predicted_dt = model_dt.continued_predict(test_set_features_dt, encode_paths_between_as_location) if use_continued_prediction else model_dt.predict(
     #    test_set_features_dt)
     # print("DT needed: {0} => ({1})".format(time.time() - now, use_continued_prediction))
     now = time.time()
@@ -82,7 +82,7 @@ def generate_graphs(path, prefix, model_dt, test_set_features_dt, test_set_featu
         GraphPathSegmentMisclassified(path, prefix + "_knn", False, test_set_labels_knn, predicted_knn)
 
         # predicted_dt = model_dt.continued_predict_proba(
-        #     test_set_features_dt) if use_continued_prediction else model_dt.predict_proba(
+        #     test_set_features_dt, encode_paths_between_as_location) if use_continued_prediction else model_dt.predict_proba(
         #     test_set_features_dt)
 
         # GraphWindowLocationChanges(path, prefix + "_dt", predicted_dt)
@@ -103,10 +103,10 @@ def generate_graphs(path, prefix, model_dt, test_set_features_dt, test_set_featu
 
 def exec_gen_graphs(args):
     path, prefix, model_dt, test_set_features_dt, test_set_features_knn, test_set_labels_dt, \
-    test_set_labels_knn, num_outputs, use_continued_prediction, feature_name_map, evaluation_name, is_anomaly = args
+    test_set_labels_knn, num_outputs, use_continued_prediction, feature_name_map, evaluation_name, is_anomaly, encode_paths_between_as_location = args
     generate_graphs(path, prefix, model_dt, test_set_features_dt, test_set_features_knn, test_set_labels_dt,
                     test_set_labels_knn, num_outputs, use_continued_prediction, feature_name_map, evaluation_name,
-                    is_anomaly)
+                    is_anomaly, encode_paths_between_as_location)
 
 
 with open(pregen_path, 'rb') as file:
@@ -211,11 +211,11 @@ with open(pregen_path, 'rb') as file:
 
                 map_args.append([path, "evaluation_continued", model_dt, test_set_features_dt, test_set_features_knn,
                                  test_set_labels_dt, test_set_labels_knn, data.num_outputs, True, data.name_map_features,
-                                 evaluation_name, False])
+                                 evaluation_name, False, encode_paths_between_as_location])
 
                 # map_args.append([path, "evaluation", model_dt, test_set_features_dt, test_set_features_knn,
                 #                  test_set_labels_dt, test_set_labels_knn, data.num_outputs, False, data.name_map_features,
-                #                  evaluation_name, False])
+                #                  evaluation_name, False, encode_paths_between_as_location])
 
                 """
                 # Wrong previous location
@@ -232,7 +232,7 @@ with open(pregen_path, 'rb') as file:
     
                 map_args.append([path, "random_prev_location", model_dt, test_set_features_dt_random_location,
                                  test_set_features_knn_random_location, test_set_labels_dt, test_set_labels_knn,
-                                 data.num_outputs, False, data.name_map_features, evaluation_name, False])
+                                 data.num_outputs, False, data.name_map_features, evaluation_name, False, encode_paths_between_as_location])
     
                 # Continued prediction with faulty beginning
                 test_set_features_dt = np.asarray(test_sets_dt[k]).copy()
@@ -247,7 +247,7 @@ with open(pregen_path, 'rb') as file:
     
                 map_args.append([path, "continued_pred_with_faulty_start", model_dt, test_set_features_dt,
                                  test_set_features_knn, test_set_labels_dt, test_set_labels_knn, data.num_outputs,
-                                 True, data.name_map_features, evaluation_name, False])
+                                 True, data.name_map_features, evaluation_name, False, encode_paths_between_as_location])
                 """
 
                 log_compiled = open(path + "evaluation/log_compiled.csv", "w")
@@ -301,9 +301,9 @@ with open(pregen_path, 'rb') as file:
             map_args.append(
                 [path, "evaluation_continued", model_anomaly_dt, test_set_features_dt, test_set_features_knn,
                  test_set_labels_dt, test_set_labels_knn, data.num_outputs, True, data.name_map_features,
-                 evaluation_name, True])
+                 evaluation_name, True, encode_paths_between_as_location])
 
             map_args.append([path, "evaluation", model_anomaly_dt, test_set_features_dt, test_set_features_knn,
                              test_set_labels_dt, test_set_labels_knn, data.num_outputs, False, data.name_map_features,
-                             evaluation_name, True])
+                             evaluation_name, True, encode_paths_between_as_location])
         """

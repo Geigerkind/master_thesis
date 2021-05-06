@@ -17,7 +17,7 @@ class CompileAll:
         acc_types = ["acc", "acc_pc", "acc_5", "acc_10", "acc_cont", "acc_pc_cont", "acc_5_cont", "acc_10_cont"]
 
         # Here is where the action happens
-        locale.setlocale(locale.LC_ALL, 'de_DE')
+        locale.setlocale(locale.LC_ALL, 'de_DE.UTF-8')
         self.prediction_accuracies = self.__load_log_accuracies()
         self.prediction_accuracies.to_csv(self.bin_path + "/log_compiled.csv")
 
@@ -79,7 +79,7 @@ class CompileAll:
                     if not (is_faulty or is_test_data):
                         continue
 
-                    route = dir[subdir_len + 8:] if is_faulty else dir[subdir_len + 1]
+                    route = dir[7:] if is_faulty else dir
 
                     dt_acc, dt_acc_pc, dt_acc_5, dt_acc_10 = extract_accuracies_from_file(
                         subdir + "/" + dir + "/evaluation_dt/log_true_vs_predicted.csv")

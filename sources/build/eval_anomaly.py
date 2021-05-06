@@ -205,7 +205,7 @@ if __name__ == "__main__":
     def calculate_data_set(args):
         data_set_index, model_dt, temporary_test_set_features_dt, temporary_test_set_features_knn, \
         temporary_test_set_labels_dt, num_outputs, location_neighbor_graph, temporary_test_set_raw_data, \
-        num_cycles, num_validation_cycles = args
+        num_cycles, num_validation_cycles, encode_paths_between_as_location = args
 
         model_knn = keras.models.load_model(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_knn_model.h5",
                                             compile=False)
@@ -226,7 +226,7 @@ if __name__ == "__main__":
             data_set_features_knn = data_set_features_knn + temporary_test_set_features_knn[data_set_index][cycle]
             data_set_labels = data_set_labels + temporary_test_set_labels_dt[data_set_index][cycle]
 
-        predicted_dt = model_dt.continued_predict_proba(data_set_features_dt)
+        predicted_dt = model_dt.continued_predict_proba(data_set_features_dt, encode_paths_between_as_location)
         predicted_knn = GenerateFFNN.static_continued_predict(model_knn, data_set_features_knn, num_outputs)
 
         res_features_dt, res_labels, res_features_knn = calculate_anomaly_features_and_labels(
@@ -246,7 +246,7 @@ if __name__ == "__main__":
             data_set_features_knn = data_set_features_knn + temporary_test_set_features_knn[data_set_index][cycle]
             data_set_labels = data_set_labels + temporary_test_set_labels_dt[data_set_index][cycle]
 
-        predicted_dt_val = model_dt.continued_predict_proba(data_set_features_dt)
+        predicted_dt_val = model_dt.continued_predict_proba(data_set_features_dt, encode_paths_between_as_location)
         predicted_knn_val = GenerateFFNN.static_continued_predict(model_knn, data_set_features_knn, num_outputs)
 
         res_features_dt, res_labels, res_features_knn = calculate_anomaly_features_and_labels(
@@ -274,7 +274,7 @@ if __name__ == "__main__":
                 args.append([data_set_index, model_dt, data.temporary_test_set_features_dt,
                              data.temporary_test_set_features_knn, data.temporary_test_set_labels_dt, data.num_outputs,
                              data.location_neighbor_graph, data.temporary_test_set_raw_data, data.num_cycles,
-                             data.num_validation_cycles])
+                             data.num_validation_cycles, encode_paths_between_as_location])
 
             anomaly_features_dt = []
             anomaly_features_knn = []
