@@ -1,6 +1,7 @@
 \section{Metriken}
 In dieser Arbeit werden verschiedene Metriken zur Ermittlung der Klassifizierungsgenauigkeit ermittelt.
 Zunächst die übliche Klassifizierungsgenauigkeit (\ref{formular:simple_accuracy}), in der die Anzahl der korrekt klassifizierten Standorte mit der Gesamtanzahl verglichen werden.
+Diese Metrik wird auch von Mian verwendet und ist für den direkten Vergleich erforderlich.
 \begin{align}
     \label{formular:simple_accuracy}
     P(A) := \frac{\text{Anzahl korrekter Klassifizierungen}}{\text{Gesamtanzahl}}
@@ -9,6 +10,11 @@ Die zweite Metrik (\ref{formular:accuracy_metrik2}) betrachtet die Klassifizieru
 fünf bzw. zehn Klassifizierungen kontinuierlich zu früh oder zu spät verlassen wurde,
 d.~h. Fehlklassifizierungen werden vernachlässigt, wenn kontinuierlich der letzte korrekte Standort bzw. der nächste korrekte
 Standort klassifiziert wird mit einer Gesamttoleranz von fünf bzw. zehn Klassifizierungen.
+Diese Metrik ist besonders gut für den Vergleich geeignet, da, entgegen der Beschriftung in der Testmenge,
+harte Übergänge zwischen zwei benachbarten Standorten nicht der Wirklichkeit entsprechen.
+Im Übergang können Sensorwerte möglicherweise mehrdeutig sein und dies sollte bei der Standorterkennung beachtet werden, solange sie konsequent ist.
+Dadurch wird im Vergleich das Rauschen in der Klassifizierungsgenauigkeit reduziert, dass durch diese Mehrdeutigkeit im Übergang entsteht,
+wodurch die ML-Modelle besser vergleichbar sind.
 \begin{flalign}
     \label{formular:accuracy_metrik2}
     &\epsilon \in \{5, 10\} \nonumber\\
@@ -21,12 +27,9 @@ Standort klassifiziert wird mit einer Gesamttoleranz von fünf bzw. zehn Klassif
     &P(B) := \frac{\#\{L_i | L_i=K_i \vee \Omega(i) \vee \Theta(i)\text{ für } i\in\{0, 1, ..., \#L - 1\}\}}{\#K}
 \end{flalign}
 Zuletzt zwei Metriken bei denen die Klassifizierungsgenauigkeit bestimmt wird, unter der Bedingung, dass der vorherige
-Standort korrekt (\ref{formular:accuracy_previous_was_correct}) bzw. falsch (\ref{formular:accuracy_previous_was_wrong}) war.
+Standort korrekt bzw. inkorrekt (\ref{formular:accuracy_previous_was_in_correct}) war.
+Diese Metriken sind besonders relevant bei der Beurteilung der Stabilität der ML-Modelle, insbesondere wenn das ML-Modell einen Fehler gemacht hat.
 \begin{align}
-    \label{formular:accuracy_previous_was_correct}
-    P(C) := \frac{\text{Anzahl korrekter Klassifizierungen, wenn vorheriger Standort korrekt war}}{\text{Alle Klassifizierungen, wenn vorheriger Standort korrekt war}}
-\end{align}
-\begin{align}
-    \label{formular:accuracy_previous_was_wrong}
-    P(D) := \frac{\text{Anzahl korrekter Klassifizierungen, wenn vorheriger Standort falsch war}}{\text{Alle Klassifizierungen, wenn vorheriger Standort falsch war}}
+    \label{formular:accuracy_previous_was_in_correct}
+    P(C)\text{ bzw. }P(D) := \frac{\text{Anzahl korrekter Klassifizierungen, wenn vorheriger Standort (in)korrekt war}}{\text{Alle Klassifizierungen, wenn vorheriger Standort (in)korrekt war}}
 \end{align}

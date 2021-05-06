@@ -186,7 +186,7 @@ with open(pregen_path, 'rb') as file:
             test_sets_knn.append(np.asarray(new_set_knn).copy())
             test_labels_knn.append(np.asarray(new_labels_knn).copy())
 
-        multiplier = 14
+        multiplier = 10
         half = int(math.ceil(len(test_set_names) / multiplier))
         for q in range(multiplier):
             map_args = []
