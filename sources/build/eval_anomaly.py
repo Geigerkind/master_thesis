@@ -276,6 +276,12 @@ if __name__ == "__main__":
                              data.location_neighbor_graph, data.temporary_test_set_raw_data, data.num_cycles,
                              data.num_validation_cycles, encode_paths_between_as_location])
 
+            location_neighbor_graph = data.location_neighbor_graph
+            temp_set_len = len(data.temporary_test_set_labels_dt)
+
+
+            data = 0
+
             anomaly_features_dt = []
             anomaly_features_knn = []
             anomaly_labels = []
@@ -306,7 +312,7 @@ if __name__ == "__main__":
 
                     predicted_dt_val = predicted_dt_val + pred_dt_val
                     predicted_knn_val = predicted_knn_val + pred_knn_val
-                for i in range(2, len(data.temporary_test_set_labels_dt) - 1):
+                for i in range(2, temp_set_len - 1):
                     af_dt, al, af_dt_val, al_val, af_knn, af_knn_val, pred_dt_val, pred_knn_val = result[i]
 
                     anomaly_features_dt_test = anomaly_features_dt_test + af_dt + af_dt_val
@@ -416,8 +422,8 @@ if __name__ == "__main__":
                 else:
                     res_previous_distinct_locations_knn.append(previous_distinct_locations_knn[-2])
 
-            topology_guesser_dt = AnomalyTopologyGuesser(data.location_neighbor_graph)
-            topology_guesser_knn = AnomalyTopologyGuesser(data.location_neighbor_graph)
+            topology_guesser_dt = AnomalyTopologyGuesser(location_neighbor_graph)
+            topology_guesser_knn = AnomalyTopologyGuesser(location_neighbor_graph)
             guessed_dt = []
             guessed_knn = []
             for i in range(len(res_previous_distinct_locations_dt)):
