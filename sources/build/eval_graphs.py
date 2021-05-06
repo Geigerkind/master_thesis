@@ -50,8 +50,7 @@ def generate_graphs(path, prefix, model_dt, test_set_features_dt, test_set_featu
                            test_set_features_dt, test_set_labels_dt, feature_name_map)
 
     now = time.time()
-    predicted_dt = model_dt.continued_predict(test_set_features_dt,
-                                              encode_paths_between_as_location) if use_continued_prediction else model_dt.predict(
+    predicted_dt = model_dt.continued_predict(test_set_features_dt, encode_paths_between_as_location) if use_continued_prediction else model_dt.predict(
         test_set_features_dt)
     print("DT needed: {0} => ({1})".format(time.time() - now, use_continued_prediction))
     # now = time.time()
@@ -86,13 +85,13 @@ def generate_graphs(path, prefix, model_dt, test_set_features_dt, test_set_featu
             encode_paths_between_as_location) if use_continued_prediction else model_dt.predict_proba(
             test_set_features_dt)
 
-        GraphWindowLocationChanges(path, prefix + "_dt", predicted_dt)
+        GraphWindowLocationChanges(path, prefix + "_dt", predicted_dt, encode_paths_between_as_location)
         # GraphWindowLocationChanges(path, prefix + "_knn", predicted_knn)
 
-        GraphWindowConfidence(path, prefix + "_dt", predicted_dt)
+        GraphWindowConfidence(path, prefix + "_dt", predicted_dt, encode_paths_between_as_location)
         # GraphWindowConfidence(path, prefix + "_knn", predicted_knn)
 
-        GraphWindowConfidenceNotZero(path, prefix + "_dt", predicted_dt)
+        GraphWindowConfidenceNotZero(path, prefix + "_dt", predicted_dt, encode_paths_between_as_location)
         # GraphWindowConfidenceNotZero(path, prefix + "_knn", predicted_knn)
 
         LogMetrics(path, prefix + "_dt", predicted_dt)

@@ -5,9 +5,11 @@ import numpy as np
 
 
 class GraphWindowConfidenceNotZero():
-    def __init__(self, path, prefix, prediction):
+    def __init__(self, path, prefix, prediction, is_dt, encode_paths):
         self.prefix = prefix
         self.prediction = prediction
+        self.is_dt = is_dt
+        self.encode_paths = encode_paths
 
         # Configuration
         self.max_entry_draw_size = 2000
@@ -49,4 +51,6 @@ class GraphWindowConfidenceNotZero():
         return window_confidence
 
     def __get_discrete_label(self, label):
+        if self.is_dt and self.encode_paths:
+            return np.asarray(label).argmax() + 1
         return np.asarray(label).argmax()

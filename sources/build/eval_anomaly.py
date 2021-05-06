@@ -30,7 +30,8 @@ if __name__ == "__main__":
 
 
     def calculate_anomaly_features_and_labels(predicted_dt, predicted_knn, data_set_index, real_labels,
-                                              location_neighbor_graph, temporary_test_set_raw_data):
+                                              location_neighbor_graph, temporary_test_set_raw_data,
+                                              encode_paths_between_as_location):
         global WITH_FEEDBACK_EDGE
 
         res_features_dt = []
@@ -48,6 +49,9 @@ if __name__ == "__main__":
         amount_zero_loc_dt = []
         amount_zero_loc_knn = []
         current_location_dt = np.asarray(predicted_dt[0]).argmax()
+        if encode_paths_between_as_location:
+            current_location_dt = current_location_dt + 1
+
         current_location_knn = np.asarray(predicted_knn[0]).argmax()
 
         distinct_locations_dt = [0, 0]
@@ -77,6 +81,8 @@ if __name__ == "__main__":
                 real_previous_location = real_labels[i]
 
             new_location_dt = np.asarray(predicted_dt[i]).argmax()
+            if encode_paths_between_as_location:
+                new_location_dt = new_location_dt + 1
             new_location_knn = np.asarray(predicted_knn[i]).argmax()
 
             # Preparing the features
@@ -231,7 +237,7 @@ if __name__ == "__main__":
 
         res_features_dt, res_labels, res_features_knn = calculate_anomaly_features_and_labels(
             predicted_dt, predicted_knn, data_set_index, data_set_labels, location_neighbor_graph,
-            temporary_test_set_raw_data)
+            temporary_test_set_raw_data, encode_paths_between_as_location)
 
         af_dt = af_dt + res_features_dt
         af_knn = af_knn + res_features_knn
@@ -251,7 +257,7 @@ if __name__ == "__main__":
 
         res_features_dt, res_labels, res_features_knn = calculate_anomaly_features_and_labels(
             predicted_dt_val, predicted_knn_val, data_set_index, data_set_labels, location_neighbor_graph,
-            temporary_test_set_raw_data)
+            temporary_test_set_raw_data, encode_paths_between_as_location)
 
         af_dt_val = af_dt_val + res_features_dt
         af_knn_val = af_knn_val + res_features_knn
