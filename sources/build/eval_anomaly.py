@@ -120,7 +120,10 @@ if __name__ == "__main__":
             # features_knn.append(sum(location_changes_knn[-WINDOW_SIZE:]) / WINDOW_SIZE)
 
             # Accumulated confidence
-            confidence_dt.append(predicted_dt[i][new_location_dt])
+            if encode_paths_between_as_location:
+                confidence_dt.append(predicted_dt[i][new_location_dt - 1])
+            else:
+                confidence_dt.append(predicted_dt[i][new_location_dt])
             confidence_knn.append(predicted_knn[i][new_location_knn])
 
             # features_dt.append(sum(confidence_dt[-WINDOW_SIZE:]))
@@ -285,7 +288,6 @@ if __name__ == "__main__":
             location_neighbor_graph = data.location_neighbor_graph
             temp_set_len = len(data.temporary_test_set_labels_dt)
 
-
             data = 0
 
             anomaly_features_dt = []
@@ -408,6 +410,8 @@ if __name__ == "__main__":
             res_previous_distinct_locations_knn = []
             for i in range(len(predicted_dt_val)):
                 prediction_dt = np.asarray(predicted_dt_val[i]).argmax()
+                if encode_paths_between_as_location:
+                    prediction_dt = prediction_dt + 1
                 prediction_knn = np.asarray(predicted_knn_val[i]).argmax()
 
                 if 0 < prediction_dt != previous_distinct_locations_dt[-1]:
@@ -433,8 +437,11 @@ if __name__ == "__main__":
             guessed_dt = []
             guessed_knn = []
             for i in range(len(res_previous_distinct_locations_dt)):
-                guessed_dt.append(int(topology_guesser_dt.predict(res_previous_distinct_locations_dt[i],
-                                                                  np.asarray(predicted_dt_val[i]).argmax())))
+                prediction_dt = np.asarray(predicted_dt_val[i]).argmax()
+                if encode_paths_between_as_location:
+                    prediction_dt = prediction_dt + 1
+                guessed_dt.append(
+                    int(topology_guesser_dt.predict(res_previous_distinct_locations_dt[i], prediction_dt)))
                 guessed_knn.append(int(topology_guesser_knn.predict(res_previous_distinct_locations_knn[i],
                                                                     np.asarray(predicted_knn_val[i]).argmax())))
 
