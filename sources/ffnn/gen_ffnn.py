@@ -95,7 +95,7 @@ class GenerateFFNN:
                     last_distinct_locations.append(predicted_location)
                     last_distinct_locations.pop(0)
 
-                data_copy[i + 1][0] = predicted_location
+                data_copy[i + 1][0] = predicted_location / (output_size - 1)
                 if predicted_location == 0:
                     data_copy[i + 1][1] = last_distinct_locations[-1] / (output_size - 1)
                 else:

@@ -7,12 +7,12 @@ function eval_model {
   if [[ ! -f "${PYTHONPATH}/bin/eval_${1}_DT_${2}_${3}_KNN_${4}_${5}_${6}_DS_${8}/evaluation_knn_model.h5" ]]; then
     python3 sources/build/eval.py ${1} ${2} ${3} ${4} ${5} ${6} ${7} 1
   fi
-  if [[ ! -f "${PYTHONPATH}/bin/eval_${1}_DT_${2}_${3}_KNN_${4}_${5}_${6}_DS_${8}/evaluation_knn_anomaly_model.h5" ]]; then
+  #if [[ ! -f "${PYTHONPATH}/bin/eval_${1}_DT_${2}_${3}_KNN_${4}_${5}_${6}_DS_${8}/evaluation_knn_anomaly_model.h5" ]]; then
     python3 sources/build/eval_anomaly.py ${1} ${2} ${3} ${4} ${5} ${6} ${7} 1
-  fi
-  if [[ ! -f "${PYTHONPATH}/bin/eval_${1}_DT_${2}_${3}_KNN_${4}_${5}_${6}_DS_${8}/combined_test_route/evaluation_continued_knn/log_general_metrics.csv" ]]; then
+  #fi
+  #if [[ ! -f "${PYTHONPATH}/bin/eval_${1}_DT_${2}_${3}_KNN_${4}_${5}_${6}_DS_${8}/combined_test_route/evaluation_continued_knn/log_general_metrics.csv" ]]; then
     python3 sources/build/eval_graphs.py ${1} ${2} ${3} ${4} ${5} ${6} ${7} 1
-  fi
+  #fi
 }
 
 function exec_model_in_parallel {

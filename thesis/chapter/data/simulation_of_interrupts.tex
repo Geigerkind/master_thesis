@@ -27,6 +27,8 @@ da signifikante Änderungswerte nicht relativ zu dem vorherigen Sensorwert sind,
 Für Sensorwerte des Temperatur-, Licht- und Geräuschsensors wurde der zweite Ansatz verwendet,
 da diese ein allgegenwärtiges Rauschen aufnehmen, das je nach Umgebung varrieren kann.
 Für die WLAN-Zugangspunkte wird der dritte Ansatz verwendet, da die Sensorwerte binär sind.
+Die Schwellenwerte wurden so gewählt, dass jeder Standort Interrupts auslöst und nicht mehr als 50\% der Ursprungsdaten genutzt werden.
+Je nach Route werden zwischen 15\% und 50\% verwendet.
 \begin{table}[h!]
     \centering
     \begin{tabular}{ | l | c | c | c | }
