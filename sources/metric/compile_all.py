@@ -14,7 +14,8 @@ class CompileAll:
 
         # Internal helper variables
         self.distinct_number_of_locations = [9, 16, 17, 25, 32, 48, 52, 102]
-        acc_types = ["acc", "acc_pc", "acc_5", "acc_10", "acc_cont", "acc_pc_cont", "acc_5_cont", "acc_10_cont"]
+        acc_types = ["acc", "acc_pc", "acc_pic", "acc_5", "acc_10", "acc_cont", "acc_pc_cont", "acc_pic_cont",
+                     "acc_5_cont", "acc_10_cont"]
 
         # Here is where the action happens
         locale.setlocale(locale.LC_ALL, 'de_DE.UTF-8')
@@ -40,6 +41,7 @@ class CompileAll:
         def extract_accuracies_from_file(file):
             data_set = pandas.read_csv(file)
             return data_set.iloc[0]["accuracy"], data_set.iloc[0]["accuracy_given_previous_location_was_correct"], \
+                   data_set.iloc[0]["accuracy_given_previous_location_was_incorrect"], \
                    data_set.iloc[0]["accuracy_given_location_is_cont_the_same_and_within_5_entries"], \
                    data_set.iloc[0]["accuracy_given_location_is_cont_the_same_and_within_10_entries"]
 
@@ -48,6 +50,12 @@ class CompileAll:
         regex_template = re.compile("\d+")
         for subdir, dirs, files in os.walk(self.bin_path):
             subdir_len = len(subdir)
+            if "DS_1" == subdir[-4:] or "DS_12" == subdir[-5:] or "DS_123" == subdir[-6:] or "DS_1234" == subdir[-7:]:
+                continue
+
+            if "/evaluation" in subdir or "combined" in subdir or "anomaly" in subdir:
+                continue
+
             if "bin/eval" in subdir:
                 re_match = regex_template.findall(subdir[bin_path_len:])
                 path_encoded = int(re_match[0]) == 1
@@ -55,7 +63,7 @@ class CompileAll:
                 max_depth = int(re_match[2])
                 num_layers = int(re_match[3])
                 num_neurons = int(re_match[4])
-                data_sets = int(re_match[5])
+                data_sets = int(re_match[6])
 
                 num_locations = 0
                 if data_sets == 1:
@@ -64,7 +72,7 @@ class CompileAll:
                     num_locations = 16
                 elif data_sets == 123:
                     num_locations = 24
-                elif data_sets == 124:
+                elif data_sets == 1234:
                     num_locations = 51
 
                 if path_encoded:
@@ -72,38 +80,40 @@ class CompileAll:
                 else:
                     num_locations = num_locations + 1
 
-                for dir in dirs:
-                    is_faulty = "faulty" in dir
-                    is_test_data = "_test" in dir
+                is_faulty = "faulty" in subdir
+                is_test_data = "_test" in subdir
 
-                    if not (is_faulty or is_test_data):
-                        continue
+                if not (is_faulty or is_test_data):
+                    continue
 
-                    route = dir[7:] if is_faulty else dir
+                slash_index = list(reversed(subdir)).index("/")
+                route = subdir[-slash_index + 7:] if is_faulty else subdir[-slash_index:]
 
-                    dt_acc, dt_acc_pc, dt_acc_5, dt_acc_10 = extract_accuracies_from_file(
-                        subdir + "/" + dir + "/evaluation_dt/log_true_vs_predicted.csv")
+                dt_acc, dt_acc_pc, dt_acc_pic, dt_acc_5, dt_acc_10 = extract_accuracies_from_file(
+                    subdir + "/evaluation_dt/log_true_vs_predicted.csv")
 
-                    dt_acc_cont, dt_acc_pc_cont, dt_acc_5_cont, dt_acc_10_cont = extract_accuracies_from_file(
-                        subdir + "/" + dir + "/evaluation_continued_dt/log_true_vs_predicted.csv")
+                dt_acc_cont, dt_acc_pc_cont, dt_acc_pic_cont, dt_acc_5_cont, dt_acc_10_cont = extract_accuracies_from_file(
+                    subdir + "/evaluation_continued_dt/log_true_vs_predicted.csv")
 
-                    knn_acc, knn_acc_pc, knn_acc_5, knn_acc_10 = extract_accuracies_from_file(
-                        subdir + "/" + dir + "/evaluation_knn/log_true_vs_predicted.csv")
+                knn_acc, knn_acc_pc, knn_acc_pic, knn_acc_5, knn_acc_10 = extract_accuracies_from_file(
+                    subdir + "/evaluation_knn/log_true_vs_predicted.csv")
 
-                    knn_acc_cont, knn_acc_pc_cont, knn_acc_5_cont, knn_acc_10_cont = extract_accuracies_from_file(
-                        subdir + "/" + dir + "/evaluation_continued_knn/log_true_vs_predicted.csv")
+                knn_acc_cont, knn_acc_pc_cont, knn_acc_pic_cont, knn_acc_5_cont, knn_acc_10_cont = extract_accuracies_from_file(
+                    subdir + "/evaluation_continued_knn/log_true_vs_predicted.csv")
 
-                    data.append([route, is_faulty, num_trees, max_depth, num_layers, num_neurons, num_locations, dt_acc,
-                                 dt_acc_pc, dt_acc_5, dt_acc_10, dt_acc_cont, dt_acc_pc_cont, dt_acc_5_cont,
-                                 dt_acc_10_cont, knn_acc, knn_acc_pc, knn_acc_5, knn_acc_10, knn_acc_cont,
-                                 knn_acc_pc_cont, knn_acc_5_cont, knn_acc_10_cont])
+                data.append([route, is_faulty, num_trees, max_depth, num_layers, num_neurons, num_locations, dt_acc,
+                             dt_acc_pc, dt_acc_pic, dt_acc_5, dt_acc_10, dt_acc_cont, dt_acc_pc_cont, dt_acc_pic_cont,
+                             dt_acc_5_cont, dt_acc_10_cont, knn_acc, knn_acc_pc, knn_acc_pic, knn_acc_5, knn_acc_10,
+                             knn_acc_cont, knn_acc_pc_cont, knn_acc_pic_cont, knn_acc_5_cont, knn_acc_10_cont])
 
         return DataFrame(data, columns=["route", "is_faulty",
                                         "trees", "max_depth", "layers", "neurons", "num_locations",
-                                        "dt_acc", "dt_acc_pc", "dt_acc_5", "dt_acc_10",
-                                        "dt_acc_cont", "dt_acc_pc_cont", "dt_acc_5_cont", "dt_acc_10_cont",
-                                        "knn_acc", "knn_acc_pc", "knn_acc_5", "knn_acc_10",
-                                        "knn_acc_cont", "knn_acc_pc_cont", "knn_acc_5_cont", "knn_acc_10_cont"])
+                                        "dt_acc", "dt_acc_pc", "dt_acc_pic", "dt_acc_5", "dt_acc_10",
+                                        "dt_acc_cont", "dt_acc_pc_cont", "dt_acc_pic_cont", "dt_acc_5_cont",
+                                        "dt_acc_10_cont",
+                                        "knn_acc", "knn_acc_pc", "knn_acc_pic", "knn_acc_5", "knn_acc_10",
+                                        "knn_acc_cont", "knn_acc_pc_cont", "knn_acc_pic_cont", "knn_acc_5_cont",
+                                        "knn_acc_10_cont"])
 
     def __generate_graph_best_dt_vs_best_ffnn(self, acc_kind):
         dt_accs = []
@@ -113,7 +123,7 @@ class CompileAll:
             accs_per_dt = dict()
             accs_per_knn = dict()
             for row in by_loc.iterrows():
-                key_dt = (row[1]["num_trees"], row[1]["max_depth"])
+                key_dt = (row[1]["trees"], row[1]["max_depth"])
                 if key_dt in accs_per_dt:
                     accs_per_dt[key_dt].append(row[1]["dt_" + acc_kind])
                 else:
@@ -130,13 +140,12 @@ class CompileAll:
             max_config_knn = max(accs_per_knn, key=lambda i: sum(accs_per_knn[i]))
             knn_accs.append(sum(accs_per_knn[max_config_knn]) / len(accs_per_knn[max_config_knn]))
 
-        plt.figure(figsize=(15 / 2.54, 30 / 2.54))
-        fig, ax1 = plt.subplots()
-        ax1.plot(self.prediction_accuracies, dt_accs, "o-g")
-        ax1.plot(self.prediction_accuracies, knn_accs, "*-b")
-        ax1.set_xlabel("Anzahl Standorte (Diskret)")
-        ax1.set_ylabel("Klassifizierungsgenauigkeit")
-        ax1.set_ylim([0, 1])
+        fig = plt.figure(figsize=(30 / 2.54, 15 / 2.54))
+        plt.plot(self.distinct_number_of_locations, dt_accs, "o-g")
+        plt.plot(self.distinct_number_of_locations, knn_accs, "*-b")
+        plt.xlabel("Anzahl Standorte (Diskret)")
+        plt.ylabel("Klassifizierungsgenauigkeit")
+        plt.ylim([0, 1])
         fig.legend(['Entscheidungsbaum', 'FFNN'], loc=[0.68, 0.77])
         plt.savefig("{0}/best_dt_vs_best_ffnn_over_num_loc_using_{1}.png".format(self.bin_path, acc_kind))
         plt.clf()
@@ -159,17 +168,16 @@ class CompileAll:
             for entry in accs_per.keys():
                 value = sum(accs_per[entry]) / len(accs_per[entry])
                 if entry in accs:
-                    accs.append(value)
+                    accs[entry].append(value)
                 else:
                     accs[entry] = [value]
 
-        plt.figure(figsize=(15 / 2.54, 30 / 2.54))
-        fig, ax1 = plt.subplots()
+        fig = plt.figure(figsize=(30 / 2.54, 15 / 2.54))
         for group in possible_groups:
-            ax1.plot(self.distinct_number_of_locations, accs[group])
-        ax1.set_xlabel("Anzahl Standorte (Diskret)")
-        ax1.set_ylabel("Klassifizierungsgenauigkeit")
-        ax1.set_ylim([0, 1])
+            plt.plot(self.distinct_number_of_locations, accs[group])
+        plt.xlabel("Anzahl Standorte (Diskret)")
+        plt.ylabel("Klassifizierungsgenauigkeit")
+        plt.ylim([0, 1])
         fig.legend([label_function(x) for x in possible_groups], loc=[0.68, 0.77])
         plt.savefig("{0}/multiple_best_by_group_{1}_{2}_{3}.png".format(self.bin_path, ml_kind, grouping_key, acc_kind))
         plt.clf()
@@ -183,7 +191,7 @@ class CompileAll:
             accs_per_dt = dict()
             accs_per_knn = dict()
             for row in by_loc.iterrows():
-                key_dt = (row[1]["num_trees"], row[1]["max_depth"])
+                key_dt = (row[1]["trees"], row[1]["max_depth"])
                 if key_dt in accs_per_dt:
                     accs_per_dt[key_dt].append(row[1]["dt_" + acc_kind])
                 else:
@@ -209,32 +217,34 @@ class CompileAll:
                 else:
                     knn_accs[key] = [value]
 
-        group_order1 = []
-        group_order2 = []
+        group_order1 = [(16, 8), (16, 16), (16, 32), (16, 64), (8, 32), (16, 32), (32, 32), (64, 32), (32, 64)]
+        group_order2 = [(1, 16), (1, 32), (1, 64), (1, 128), (2, 32), (4, 32), (8, 32), (4, 64)]
 
-        file = open(self.bin_path + "/predictions_by_" + acc_kind + ".tex")
+        file = open(self.bin_path + "/predictions_by_" + acc_kind + ".tex", "w")
         file.write("\\begin{table}[h!]\n")
+        file.write("\\hspace{-1.5cm}\n")
         file.write("\\begin{tabular}{ | c | c | c | c | c | c | c | c | c | c | }\n")
+        file.write("\\hline\n")
         file.write(
             "\\multicolumn{2}{ | l |}{" + acc_kind + " / Standorte } & 9 & 16 & 17 & 25 & 32 & 48 & 52 & 102 \\\\\\hline\n")
-        file.write("\\multicolumn{9}{| l |}{\\textbf{Entscheidungswälder}}\\\\\\hline\n")
-        file.write("Waldgröße & Max. Baumgröße & \\multicolumn{7}{| c |}{}\\\\\\hline\n")
+        file.write("\\multicolumn{10}{| l |}{\\textbf{Entscheidungswälder}}\\\\\\hline\n")
+        file.write("Waldgröße & Max. Baumgröße & \\multicolumn{8}{ c |}{}\\\\\\hline\n")
         for group in group_order1:
-            file.write("{0} & {1} & {2:.2f}% & {3:.2f}% & {4:.2f}% & {5:.2f}% & {6:.2f}% & {7:.2f}% & {8:.2f}% "
-                       "& {9:.2f}% \\\\\\hline\n".format(group[0], group[1], dt_accs[group][0],
-                                                                     dt_accs[group][1], dt_accs[group][2],
-                                                                     dt_accs[group][3], dt_accs[group][4],
-                                                                     dt_accs[group][5], dt_accs[group][6],
-                                                                     dt_accs[group][7]))
-        file.write("\\multicolumn{9}{| l |}{\\textbf{Feed Forward neuronale Netzwerke}}\\\\\\hline\n")
-        file.write("#Schichten & #Neuronen & \\multicolumn{7}{| c |}{}\\\\\\hline\n")
+            file.write("{0} & {1} & {2:.2f}\\% & {3:.2f}\\% & {4:.2f}\\% & {5:.2f}\\% & {6:.2f}\\% & {7:.2f}\\% & {8:.2f}\\% "
+                       "& {9:.2f}\\% \\\\\\hline\n".format(group[0], group[1], 100 * dt_accs[group][0],
+                                                         100 * dt_accs[group][1], 100 * dt_accs[group][2],
+                                                         100 * dt_accs[group][3], 100 * dt_accs[group][4],
+                                                         100 * dt_accs[group][5], 100 * dt_accs[group][6],
+                                                         100 * dt_accs[group][7]))
+        file.write("\\multicolumn{10}{| l |}{\\textbf{Feed Forward neuronale Netzwerke}}\\\\\\hline\n")
+        file.write("\\#Schichten & \\#Neuronen & \\multicolumn{8}{ c |}{}\\\\\\hline\n")
         for group in group_order2:
-            file.write("{0} & {1} & {2:.2f}% & {3:.2f}% & {4:.2f}% & {5:.2f}% & {6:.2f}% & {7:.2f}% & {8:.2f}% "
-                       "& {9:.2f}% \\\\\\hline\n".format(group[0], group[1], knn_accs[group][0],
-                                                         knn_accs[group][1], knn_accs[group][2],
-                                                         knn_accs[group][3], knn_accs[group][4],
-                                                         knn_accs[group][5], knn_accs[group][6],
-                                                         knn_accs[group][7]))
+            file.write("{0} & {1} & {2:.2f}\\% & {3:.2f}\\% & {4:.2f}\\% & {5:.2f}\\% & {6:.2f}\\% & {7:.2f}\\% & {8:.2f}\\% "
+                       "& {9:.2f}\\% \\\\\\hline\n".format(group[0], group[1], 100 * knn_accs[group][0],
+                                                         100 * knn_accs[group][1], 100 * knn_accs[group][2],
+                                                         100 * knn_accs[group][3], 100 * knn_accs[group][4],
+                                                         100 * knn_accs[group][5], 100 * knn_accs[group][6],
+                                                         100 * knn_accs[group][7]))
         file.write("\\end{tabular}\n")
         file.write("\\caption{TODO: Caption}\n")
         file.write("\\label{tab:TODO_LABEL}\n")

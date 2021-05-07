@@ -259,21 +259,6 @@ with open(pregen_path, 'rb') as file:
                              True, name_map_features, evaluation_name, False, encode_paths_between_as_location])
             """
 
-            log_compiled = open(path + "evaluation/log_compiled.csv", "w")
-            log_compiled.write("accuracy,accuracy_given_previous_location_was_correct,"
-                               "accuracy_given_location_is_cont_the_same_and_within_5_entries,"
-                               "accuracy_given_location_is_cont_the_same_and_within_10_entries,"
-                               "average_path_recognition_delay,times_not_found_path\n")
-            log_compiled.close()
-
-            log_compiled = open(path + "evaluation/log_compiled_location.csv", "w")
-            log_compiled.write("location,times_misclassified_as,times_misclassified,total_location\n")
-            log_compiled.close()
-
-            log_compiled = open(path + "evaluation/log_compiled_path.csv", "w")
-            log_compiled.write("path_segment,recognized_after,times_misclassified,path_len\n")
-            log_compiled.close()
-
             while len(workers) >= NUM_CORES:
                 for worker_index in range(len(workers)):
                     if workers[worker_index].ready():

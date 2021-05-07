@@ -86,9 +86,9 @@ class GraphRecognizedPathSegment:
                 plt.text(i, (max_value - min_value) // 2, "INF", ha="center")
 
         plt.xlabel("Pfadabschnitt (Diskret)")
-        plt.ylabel("Erkennung des Abschnitts nach Anzahl Pfadeinträgen (Diskret)")
+        plt.ylabel("Erkennung nach Anzahl Pfadeinträgen (Diskret)")
         plt.ylim([min_value, max_value])
-        plt.title("Pfadabschnitterkennung")
+        # plt.title("Pfadabschnitterkennung")
         plt.savefig("{0}{1}".format(self.file_path, self.__graph_name()))
         plt.clf()
         plt.close(fig)

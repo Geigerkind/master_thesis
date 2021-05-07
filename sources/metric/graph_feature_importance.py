@@ -45,7 +45,7 @@ class GraphFeatureImportance:
         else:
             plt.ylabel("Klassifizierungsfehler")
         plt.ylim([0, min(1, 2 * np.asarray(importances).max())])
-        plt.title("Wichtigkeit der Features")
+        # plt.title("Wichtigkeit der Features")
         plt.tight_layout()
         plt.savefig("{0}{1}".format(self.file_path, self.__graph_name(suffix)))
         plt.clf()

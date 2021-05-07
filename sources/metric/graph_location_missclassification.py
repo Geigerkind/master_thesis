@@ -67,7 +67,7 @@ class GraphLocationMisclassification:
         plt.xlabel("Ort (Diskret)")
         plt.ylabel("Anteil Klassifizierung")
         plt.ylim([0, 1])
-        plt.title("Verteilung von als was etwas missklassifiziert wurde")
+        # plt.title("Verteilung von als was etwas missklassifiziert wurde")
         plt.savefig("{0}{1}".format(self.file_path, self.__graph_name()))
         plt.clf()
         plt.close(fig)
