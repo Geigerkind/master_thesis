@@ -1,16 +1,15 @@
 import copy
-import math
 import multiprocessing
 import os
+import time
 
 import numpy as np
 from sklearn import tree
 from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier, BaggingClassifier, ExtraTreesClassifier
 from sklearn.model_selection import train_test_split
 
-from sources.decision_tree.ensemble_method import EnsembleMethod
 from sources.config import NUM_CORES
-
+from sources.decision_tree.ensemble_method import EnsembleMethod
 
 
 class GenerateDecisionTree:
@@ -32,7 +31,7 @@ class GenerateDecisionTree:
         # Constant Parameters
         # Configuration
         self.debug_mode = False
-        self.cherry_pick_iterations = 128
+        self.cherry_pick_iterations = 64
         self.num_cores = NUM_CORES
 
         # Tree related
@@ -63,18 +62,22 @@ class GenerateDecisionTree:
 
         :return: Best model from the monte carlo optimization
         """
+
         best_classifier = None
-        num_iterations = int(math.ceil(self.cherry_pick_iterations / self.num_cores))
         with multiprocessing.get_context("spawn").Pool(processes=self.num_cores) as pool:
-            for j in range(num_iterations):
-                args = []
-                for i in range(self.num_cores):
-                    args.append(self.model(i + j * self.num_cores))
-                classifier = pool.map(self.evaluate_classifier, args)
-                classifier.sort(key=lambda x: x[1], reverse=True)
-                if best_classifier is None or best_classifier[1] < classifier[0][1]:
-                    best_classifier = classifier[0]
-        return best_classifier[0]
+            workers = []
+            for j in range(self.cherry_pick_iterations):
+                workers.append(pool.apply_async(self.evaluate_classifier, args=(self.model(j),)))
+                while len(workers) >= NUM_CORES:
+                    for worker_index in range(len(workers)):
+                        if workers[worker_index].ready():
+                            result = workers[worker_index].get()
+                            if best_classifier is None or best_classifier[1] < result[1]:
+                                best_classifier = result
+                            workers.pop(worker_index)
+                            break
+                    time.sleep(0.5)
+        return best_classifier
 
     def evaluate_classifier(self, clf):
         """
@@ -221,7 +224,7 @@ class GenerateDecisionTree:
             predictions.append(prediction)
         last_distinct_locations = [0, 0]
         for i in range(1, data_copy_len):
-            prediction_proba = self.predict_proba(data_copy[i:i+1])[0]
+            prediction_proba = self.predict_proba(data_copy[i:i + 1])[0]
             prediction = np.asarray(prediction_proba).argmax()
             if paths_encoded:
                 prediction = prediction + 1  # Because the unknown location does not exist in this encoding for the DT

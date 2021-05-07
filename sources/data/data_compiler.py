@@ -83,7 +83,7 @@ def par_ef_calculate_features(args):
 
         prev_location = 0
         current_location = window.iloc[window_size - 1]["location"]
-        for j in range(i - window_offset + window_size, 0):
+        for j in range(i - window_offset + window_size, 0, -1):
             if current_location != data.iloc[j]["location"] and data.iloc[j]["location"] > 0:
                 prev_location = data.iloc[j]["location"]
                 break
@@ -192,9 +192,7 @@ def par_process_data_set(args):
             r2_sum = r2_sum + r2[key]
         r1_sum = abs(r1_sum)
         r2_sum = abs(r2_sum)
-        # TODO: Should be "threshold * r1_sum", but I already evaluated everything
-        # Shouldnt be that big of a difference anyway
-        return abs(r1_sum - r2_sum) >= threshold * r2_sum
+        return abs(r1_sum - r2_sum) >= threshold * r1_sum
 
     def f_cmp_abs_diff_abs_threshold(r1, r2, key, threshold):
         if abs(r1[key] - r2[key]) >= threshold:
@@ -701,8 +699,10 @@ class DataCompiler:
             if not (data_set in anomaly_data_sets):
                 test_set = parallelize(test_set, par_lrd_adjust_pos, adjust_pos_offset)
 
+            location_medi_offset = 0
             if len(data_set.value) == 2:
                 location_offset = data["pos"].max()
+                location_medi_offset = location_offset
 
             if self.__is_verbose:
                 print("Setting Location...")
@@ -739,7 +739,7 @@ class DataCompiler:
                 location_map = dict()
                 previous_non_zero_pos = 0
                 init_offset = location_offset if len(data_set.value) == 2 else \
-                self.__reference_locations[data_set.value[3]][0]
+                self.__reference_locations[data_set.value[3]][1]
                 # For some weird reason I have to do this here this way and for the test set I dont
                 # I have no idea whats happening here...
                 for row_index in range(len(data)):
@@ -796,7 +796,7 @@ class DataCompiler:
 
             self.__data_sets[data_set] = data
             if len(data_set.value) == 2:
-                self.__reference_locations[data_set.value[1]] = [start_location_offset, location_offset]
+                self.__reference_locations[data_set.value[1]] = [start_location_offset, location_medi_offset, location_offset]
         return location_offset
 
     def __create_combined_test_route(self):
@@ -805,7 +805,7 @@ class DataCompiler:
             glued = self.__glue_routes_together(DataSet.SimpleSquare, DataSet.ManyCorners, 3, glued)
         if DataSet.LongRectangle in self.data_sets:
             glued = self.__glue_routes_together(DataSet.SimpleSquare, DataSet.LongRectangle, 5, glued)
-        if DataSet.ManyCorners in self.data_sets:
+        if DataSet.RectangleWithRamp in self.data_sets:
             glued = self.__glue_routes_together(DataSet.SimpleSquare, DataSet.RectangleWithRamp, 2, glued)
         return glued
 
