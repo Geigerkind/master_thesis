@@ -35,6 +35,8 @@ pregen_path, evaluation_name, res_input_data_sets = parse_cmd_args()
 def generate_graphs(path, prefix, model_dt, test_set_features_dt, test_set_features_knn, test_set_labels_dt,
                     test_set_labels_knn, num_outputs, use_continued_prediction, feature_name_map, evaluation_name,
                     is_anomaly, encode_paths_between_as_location):
+    start_eval = time.time()
+
     # Loaded here cause it cant be pickled
     model_knn = 0
     extra_suffix = ""
@@ -50,56 +52,60 @@ def generate_graphs(path, prefix, model_dt, test_set_features_dt, test_set_featu
                            test_set_labels_knn,
                            test_set_features_dt, test_set_labels_dt, feature_name_map)
 
-    # now = time.time()
-    # predicted_dt = model_dt.continued_predict(test_set_features_dt, encode_paths_between_as_location) if use_continued_prediction else model_dt.predict(
-    #    test_set_features_dt)
-    # print("DT needed: {0} => ({1})".format(time.time() - now, use_continued_prediction))
+    now = time.time()
+    predicted_dt = model_dt.continued_predict(test_set_features_dt,
+                                              encode_paths_between_as_location) if use_continued_prediction else model_dt.predict(
+        test_set_features_dt)
+    print("DT needed: {0} => ({1})".format(time.time() - now, use_continued_prediction))
     now = time.time()
     predicted_knn = GenerateFFNN.static_continued_predict(model_knn, test_set_features_knn,
                                                           num_outputs) if use_continued_prediction else model_knn.predict(
         test_set_features_knn)
     print("KNN needed: {0} => ({1})".format(time.time() - now, use_continued_prediction))
 
-    # GraphTrueVsPredicted(path, prefix + "_dt" + extra_suffix, True, test_set_labels_dt, num_outputs, predicted_dt)
+    GraphTrueVsPredicted(path, prefix + "_dt" + extra_suffix, True, test_set_labels_dt, num_outputs, predicted_dt)
     GraphTrueVsPredicted(path, prefix + "_knn" + extra_suffix, False, test_set_labels_knn, num_outputs, predicted_knn)
 
     if not is_anomaly:
-        # GraphRecognizedPathSegment(path, prefix + "_dt", True, test_set_labels_dt, predicted_dt)
+        GraphRecognizedPathSegment(path, prefix + "_dt", True, test_set_labels_dt, predicted_dt)
         GraphRecognizedPathSegment(path, prefix + "_knn", False, test_set_labels_knn, predicted_knn)
 
-        # GraphLocationMisclassified(path, prefix + "_dt", True, test_set_labels_dt, num_outputs, predicted_dt)
+        GraphLocationMisclassified(path, prefix + "_dt", True, test_set_labels_dt, num_outputs, predicted_dt)
         GraphLocationMisclassified(path, prefix + "_knn", False, test_set_labels_knn, num_outputs, predicted_knn)
 
-        # GraphLocationMisclassification(path, prefix + "_dt", True, test_set_labels_dt, num_outputs, predicted_dt)
+        GraphLocationMisclassification(path, prefix + "_dt", True, test_set_labels_dt, num_outputs, predicted_dt)
         GraphLocationMisclassification(path, prefix + "_knn", False, test_set_labels_knn, num_outputs, predicted_knn)
 
-        # GraphLocationMisclassifiedDistribution(path, prefix + "_dt", True, test_set_labels_dt, num_outputs,
-        #                                       predicted_dt)
+        GraphLocationMisclassifiedDistribution(path, prefix + "_dt", True, test_set_labels_dt, num_outputs,
+                                               predicted_dt)
         GraphLocationMisclassifiedDistribution(path, prefix + "_knn", False, test_set_labels_knn, num_outputs,
                                                predicted_knn)
 
-        # GraphPathSegmentMisclassified(path, prefix + "_dt", True, test_set_labels_dt, predicted_dt)
+        GraphPathSegmentMisclassified(path, prefix + "_dt", True, test_set_labels_dt, predicted_dt)
         GraphPathSegmentMisclassified(path, prefix + "_knn", False, test_set_labels_knn, predicted_knn)
 
-        # predicted_dt = model_dt.continued_predict_proba(
-        #    test_set_features_dt,
-        #    encode_paths_between_as_location) if use_continued_prediction else model_dt.predict_proba(
-        #    test_set_features_dt)
+        now = time.time()
+        predicted_dt = model_dt.continued_predict_proba(
+            test_set_features_dt,
+            encode_paths_between_as_location) if use_continued_prediction else model_dt.predict_proba(
+            test_set_features_dt)
+        print("DT2 needed: {0} => ({1})".format(time.time() - now, use_continued_prediction))
 
-        # GraphWindowLocationChanges(path, prefix + "_dt", predicted_dt, encode_paths_between_as_location)
+        GraphWindowLocationChanges(path, prefix + "_dt", predicted_dt, encode_paths_between_as_location)
         GraphWindowLocationChanges(path, prefix + "_knn", predicted_knn)
 
-        # GraphWindowConfidence(path, prefix + "_dt", predicted_dt, encode_paths_between_as_location)
+        GraphWindowConfidence(path, prefix + "_dt", predicted_dt, encode_paths_between_as_location)
         GraphWindowConfidence(path, prefix + "_knn", predicted_knn)
 
-        # GraphWindowConfidenceNotZero(path, prefix + "_dt", predicted_dt, encode_paths_between_as_location)
+        GraphWindowConfidenceNotZero(path, prefix + "_dt", predicted_dt, encode_paths_between_as_location)
         GraphWindowConfidenceNotZero(path, prefix + "_knn", predicted_knn)
 
-        # LogMetrics(path, prefix + "_dt", predicted_dt)
+        LogMetrics(path, prefix + "_dt", predicted_dt)
         LogMetrics(path, prefix + "_knn", predicted_knn)
 
-        # CompileLog(path, prefix + "_dt")
+        CompileLog(path, prefix + "_dt")
         CompileLog(path, prefix + "_knn")
+    print("Whole evaluation: {0} => ({1})".format(time.time() - start_eval, use_continued_prediction))
 
 
 with open(pregen_path, 'rb') as file:
@@ -206,12 +212,12 @@ with open(pregen_path, 'rb') as file:
             test_set_labels_dt = np.asarray(test_labels_dt[k]).copy()
             test_set_labels_knn = np.asarray(test_labels_knn[k]).copy()
 
-            # workers.append(pool.apply_async(generate_graphs,
-            #                                args=(path, "evaluation_continued", model_dt, test_set_features_dt,
-            #                                      test_set_features_knn,
-            #                                      test_set_labels_dt, test_set_labels_knn, num_outputs, True,
-            #                                      name_map_features,
-            #                                      evaluation_name, False, encode_paths_between_as_location, )))
+            workers.append(pool.apply_async(generate_graphs,
+                                            args=(path, "evaluation_continued", model_dt, test_set_features_dt,
+                                                  test_set_features_knn,
+                                                  test_set_labels_dt, test_set_labels_knn, num_outputs, True,
+                                                  name_map_features,
+                                                  evaluation_name, False, encode_paths_between_as_location,)))
 
             workers.append(pool.apply_async(generate_graphs,
                                             args=(path, "evaluation", model_dt, test_set_features_dt,

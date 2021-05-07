@@ -46,6 +46,8 @@ if __name__ == "__main__":
         with open(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_data.pkl", 'wb') as file:
             pickle.dump(data, file)
 
+    # print([(data.result_labels_dt[0][0][i], data.result_features_dt[0][0][i][0], data.result_features_dt[0][0][i][1]) for i in range(len(data.result_features_dt[0][0]))])
+
     print("")
     print("Training models:")
     print("Training...")
@@ -117,12 +119,24 @@ if __name__ == "__main__":
     last_dt_prediction = []
     last_knn_prediction = []
 
-    for cycle in range(data.num_cycles - data.num_validation_cycles + 1):
+    num_cycles = data.num_cycles
+    num_outputs = data.num_outputs
+    num_validation_cycles = data.num_validation_cycles
+    num_inputs = data.num_inputs
+    data_sets = data.data_sets
+    result_features_dt = data.result_features_dt
+    result_labels_dt = data.result_labels_dt
+    result_features_knn = data.result_features_knn
+    result_labels_knn = data.result_labels_knn
+    num_warmup_cycles = data.num_warmup_cycles
+    data = 0
+
+    for cycle in range(num_cycles - num_validation_cycles + 1):
         print("Training cycle: {0}".format(cycle))
         print("Initializing...")
         # Reinitializing to make sure that there is no partial learning
         model_dt = GenerateDecisionTree(EnsembleMethod.RandomForest, dt_forest_size, dt_max_height)
-        model_knn = GenerateFFNN(data.num_inputs, data.num_outputs, ffnn_num_hidden_layers,
+        model_knn = GenerateFFNN(num_inputs, num_outputs, ffnn_num_hidden_layers,
                                  ffnn_num_nodes_per_hidden_layer,
                                  ffnn_num_epochs)
 
@@ -142,19 +156,19 @@ if __name__ == "__main__":
         dt_next_cycle_labels_faulty = []
         knn_next_cycle_labels_faulty = []
         # BIG NOTE: We change the data that is present in "data", because this is a reference not a copy
-        for data_set_index in range(len(data.data_sets)):
-            dt_next_cycle_features = dt_next_cycle_features + data.result_features_dt[data_set_index][cycle + 1]
-            dt_next_cycle_labels = dt_next_cycle_labels + data.result_labels_dt[data_set_index][cycle + 1]
-            knn_next_cycle_features = knn_next_cycle_features + data.result_features_knn[data_set_index][cycle + 1]
-            knn_next_cycle_labels = knn_next_cycle_labels + data.result_labels_knn[data_set_index][cycle + 1]
+        for data_set_index in range(len(data_sets)):
+            dt_next_cycle_features = dt_next_cycle_features + result_features_dt[data_set_index][cycle + 1]
+            dt_next_cycle_labels = dt_next_cycle_labels + result_labels_dt[data_set_index][cycle + 1]
+            knn_next_cycle_features = knn_next_cycle_features + result_features_knn[data_set_index][cycle + 1]
+            knn_next_cycle_labels = knn_next_cycle_labels + result_labels_knn[data_set_index][cycle + 1]
 
-        for data_set_index in range(len(data.data_sets), len(data.result_features_dt)):
-            dt_next_cycle_features_faulty = dt_next_cycle_features_faulty + data.result_features_dt[data_set_index][
+        for data_set_index in range(len(data_sets), len(result_features_dt)):
+            dt_next_cycle_features_faulty = dt_next_cycle_features_faulty + result_features_dt[data_set_index][
                 cycle + 1]
-            dt_next_cycle_labels_faulty = dt_next_cycle_labels_faulty + data.result_labels_dt[data_set_index][cycle + 1]
-            knn_next_cycle_features_faulty = knn_next_cycle_features_faulty + data.result_features_knn[data_set_index][
+            dt_next_cycle_labels_faulty = dt_next_cycle_labels_faulty + result_labels_dt[data_set_index][cycle + 1]
+            knn_next_cycle_features_faulty = knn_next_cycle_features_faulty + result_features_knn[data_set_index][
                 cycle + 1]
-            knn_next_cycle_labels_faulty = knn_next_cycle_labels_faulty + data.result_labels_knn[data_set_index][
+            knn_next_cycle_labels_faulty = knn_next_cycle_labels_faulty + result_labels_knn[data_set_index][
                 cycle + 1]
 
         print("Training Decision Tree Model...")
@@ -173,7 +187,7 @@ if __name__ == "__main__":
         print("Accuracy: {0}".format(
             model_knn.evaluate_accuracy(knn_prediction, knn_next_cycle_labels)))
 
-        if cycle >= data.num_warmup_cycles and cycle < data.num_cycles - data.num_validation_cycles - 1 and Features.PreviousLocation in features:
+        if cycle >= num_warmup_cycles and cycle < num_cycles - num_validation_cycles - 1 and Features.PreviousLocation in features:
             print("")
             print("Relabeling next cycle's set...")
 
@@ -198,7 +212,7 @@ if __name__ == "__main__":
 
             permutation = np.random.permutation(len(dt_next_cycle_features))
             frac_pred_labeled = min(1,
-                                    FRACTION_PREDICTION_LABELED + (1 / 128) * ((cycle - data.num_warmup_cycles) ** 2))
+                                    FRACTION_PREDICTION_LABELED + (1 / 128) * ((cycle - num_warmup_cycles) ** 2))
             for perm_index in range(0, int(len(dt_next_cycle_features) * frac_pred_labeled)):
                 i = permutation[perm_index]
                 if i == 0:
@@ -206,7 +220,7 @@ if __name__ == "__main__":
 
                 dt_next_cycle_features[i][0] = dt_prediction[i - 1]
                 dt_next_cycle_features[i][1] = find_last_distinct_prediction(dt_prediction, last_dt_prediction, i, True)
-                knn_next_cycle_features[i][0] = np.array(knn_prediction[i - 1]).argmax() / (data.num_outputs - 1)
+                knn_next_cycle_features[i][0] = np.array(knn_prediction[i - 1]).argmax() / (num_outputs - 1)
                 knn_next_cycle_features[i][1] = find_last_distinct_prediction(knn_prediction, last_knn_prediction, i,
                                                                               False)
 
@@ -233,8 +247,8 @@ if __name__ == "__main__":
         knn_hist = model_knn.get_history()
         for i in range(NUM_EPOCHS_PER_CYCLE):
             log_knn_hist.write(
-                "{0},{1},{2},{3},{4},{5}\n".format(cycle, i, knn_hist["loss"][i], knn_hist["accuracy"][i],
-                                                   knn_hist["val_loss"][i], knn_hist["val_accuracy"][i]))
+                "{0},{1},{2},{3},{4},{5}\n".format(cycle, i, knn_hist["loss"][i], knn_hist["acc"][i],
+                                                   knn_hist["val_loss"][i], knn_hist["val_acc"][i]))
 
     log_acc_per_cycle.close()
     log_knn_hist.close()
@@ -247,7 +261,7 @@ if __name__ == "__main__":
 
     print("")
 
-    print("Collecting data...")
+    print("Collecting ..")
     knn_hist = model_knn.get_history()
 
     print("")
@@ -255,8 +269,8 @@ if __name__ == "__main__":
     print("Generating fancy plots...")
     # Accuracy on the validation set over cycles
     fig, ax1 = plt.subplots()
-    ax1.plot(range(data.num_cycles - data.num_validation_cycles + 1), [x[0] for x in acc_per_cycle], "o-g")
-    ax1.plot(range(data.num_cycles - data.num_validation_cycles + 1), [x[1] for x in acc_per_cycle], "*-b")
+    ax1.plot(range(num_cycles - num_validation_cycles + 1), [x[0] for x in acc_per_cycle], "o-g")
+    ax1.plot(range(num_cycles - num_validation_cycles + 1), [x[1] for x in acc_per_cycle], "*-b")
     ax1.set_xlabel("Zyklus")
     ax1.set_ylabel("Klassifizierungsgenauigkeit")
     ax1.set_ylim([0, 1])
@@ -273,7 +287,7 @@ if __name__ == "__main__":
     ax1.set_ylabel("Loss")
     ax1.set_title("Loss und Klassifizierungsgenauigkeit über Trainingsepochen")
     ax2 = ax1.twinx()
-    ax2.plot(range(NUM_EPOCHS_PER_CYCLE), knn_hist["accuracy"], "*-b")
+    ax2.plot(range(NUM_EPOCHS_PER_CYCLE), knn_hist["acc"], "*-b")
     ax2.set_ylabel("Klassifizierungsgenauigkeit")
     ax2.set_ylim([0, 1])
     fig.legend(['Loss', 'Klassifizierungsgenauigkeit'], loc='upper left')
@@ -288,7 +302,7 @@ if __name__ == "__main__":
     ax1.set_ylabel("Loss")
     ax1.set_title("Validation Loss und Klassifizierungsgenauigkeit über Trainingsepochen")
     ax2 = ax1.twinx()
-    ax2.plot(range(NUM_EPOCHS_PER_CYCLE), knn_hist["val_accuracy"], "*-b")
+    ax2.plot(range(NUM_EPOCHS_PER_CYCLE), knn_hist["val_acc"], "*-b")
     ax2.set_ylabel("Klassifizierungsgenauigkeit")
     ax2.set_ylim([0, 1])
     fig.legend(['Loss', 'Klassifizierungsgenauigkeit'], loc='upper left')
@@ -300,8 +314,8 @@ if __name__ == "__main__":
 
     # Accuracy on the validation set over cycles
     fig, ax1 = plt.subplots()
-    ax1.plot(range(data.num_cycles - data.num_validation_cycles + 1), [x[0] for x in acc_per_cycle_test], "o-g")
-    ax1.plot(range(data.num_cycles - data.num_validation_cycles + 1), [x[1] for x in acc_per_cycle_test], "*-b")
+    ax1.plot(range(num_cycles - num_validation_cycles + 1), [x[0] for x in acc_per_cycle_test], "o-g")
+    ax1.plot(range(num_cycles - num_validation_cycles + 1), [x[1] for x in acc_per_cycle_test], "*-b")
     ax1.set_xlabel("Zyklus")
     ax1.set_ylabel("Klassifizierungsgenauigkeit")
     ax1.set_ylim([0, 1])

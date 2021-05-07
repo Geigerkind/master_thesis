@@ -46,9 +46,9 @@ class GenerateFFNN:
         # Train the model
         self.keras_model = self.model()
         if self.is_binary:
-            self.keras_model.compile(optimizer='adam', loss='binary_crossentropy', metrics=["accuracy"])
+            self.keras_model.compile(optimizer='adam', loss='binary_crossentropy', metrics=["acc"])
         else:
-            self.keras_model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=["accuracy"])
+            self.keras_model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=["acc"])
         # self.keras_model.summary()
 
     def fit(self, training_data_x, training_data_y, validation_data_x, validation_data_y):

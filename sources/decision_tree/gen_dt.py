@@ -77,7 +77,7 @@ class GenerateDecisionTree:
                             workers.pop(worker_index)
                             break
                     time.sleep(0.5)
-        return best_classifier
+        return best_classifier[0]
 
     def evaluate_classifier(self, clf):
         """

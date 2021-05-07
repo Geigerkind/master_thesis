@@ -60,106 +60,96 @@ def par_lrd_set_location(input_args):
 
 
 def par_ef_calculate_features(args):
-    data, i, window_size, features, lookback_window = args
+    data, i, window_size, features = args
     result = []
 
-    for lw_i in range(lookback_window):
-        window_offset = int(window_size * (lw_i + 1))
-        window = data.iloc[(i - window_offset):(i - window_offset + window_size), :]
+    window = data.iloc[(i - window_size + 1):i+1, :]
 
-        # x_acc_col_list = window["x_acc"].tolist()
-        # y_acc_col_list = window["y_acc"].tolist()
-        # z_acc_col_list = window["z_acc"].tolist()
-        acc_total_abs_col_list = (window["x_acc"] + window["y_acc"] + window["z_acc"]).abs().tolist()
-        ang_total_abs_col_list = (window["x_ang"] + window["y_ang"] + window["z_ang"]).abs().tolist()
-        # x_ang_col_list = window["x_ang"].tolist()
-        # y_ang_col_list = window["y_ang"].tolist()
-        # z_ang_col_list = window["z_ang"].tolist()
-        light_col_list = window["light"].tolist()
-        temperature_col_list = window["temperature"].tolist()
-        heading_col_list = window["heading"].tolist()
-        volume_col_list = window["volume"].tolist()
-        time_col_list = window["t_stamp"].tolist()
+    acc_total_abs_col_list = (window["x_acc"] + window["y_acc"] + window["z_acc"]).abs().tolist()
+    ang_total_abs_col_list = (window["x_ang"] + window["y_ang"] + window["z_ang"]).abs().tolist()
+    light_col_list = window["light"].tolist()
+    temperature_col_list = window["temperature"].tolist()
+    heading_col_list = window["heading"].tolist()
+    volume_col_list = window["volume"].tolist()
+    time_col_list = window["t_stamp"].tolist()
 
-        prev_location = 0
-        current_location = window.iloc[window_size - 1]["location"]
-        for j in range(i - window_offset + window_size, 0, -1):
-            if current_location != data.iloc[j]["location"] and data.iloc[j]["location"] > 0:
-                prev_location = data.iloc[j]["location"]
+    prev_location = 0
+    current_location = window.iloc[window_size - 1]["location"]
+    for j in range(i - 1, 0, -1):
+        if current_location != data.iloc[j]["location"] and data.iloc[j]["location"] > 0:
+            prev_location = int(data.iloc[j]["location"])
+            break
+
+    # NOTE: Changes to the features also require changes in __populate_feature_name_map()
+    if Features.PreviousLocation in features:
+        result.append(window.iloc[window_size - 2]["location"])
+        result.append(prev_location)
+
+    if Features.Acceleration in features:
+        result.append(acc_total_abs_col_list[-1])
+        result.append(FeatureStandardDeviation(acc_total_abs_col_list).feature)
+        result.append(FeatureMax(acc_total_abs_col_list).feature)
+        result.append(FeatureMin(acc_total_abs_col_list).feature)
+        result.append(FeatureMean(acc_total_abs_col_list).feature)
+
+    if Features.Light in features:
+        result.append(light_col_list[-1])
+        result.append(FeatureStandardDeviation(light_col_list).feature)
+        result.append(FeatureMax(light_col_list).feature)
+        result.append(FeatureMin(light_col_list).feature)
+        result.append(FeatureMean(light_col_list).feature)
+
+    if Features.AccessPointDetection in features:
+        result.append(int(window.iloc[window_size - 1]["access_point_0"]))
+        result.append(int(window.iloc[window_size - 1]["access_point_1"]))
+        result.append(int(window.iloc[window_size - 1]["access_point_2"]))
+        result.append(int(window.iloc[window_size - 1]["access_point_3"]))
+        result.append(int(window.iloc[window_size - 1]["access_point_4"]))
+
+    if Features.Temperature in features:
+        result.append(temperature_col_list[-1])
+        result.append(FeatureStandardDeviation(temperature_col_list).feature)
+        result.append(FeatureMax(temperature_col_list).feature)
+        result.append(FeatureMin(temperature_col_list).feature)
+        result.append(FeatureMean(temperature_col_list).feature)
+
+    if Features.Heading in features:
+        result.append(heading_col_list[-1])
+        result.append(FeatureStandardDeviation(heading_col_list).feature)
+        result.append(FeatureMax(heading_col_list).feature)
+        result.append(FeatureMin(heading_col_list).feature)
+        result.append(FeatureMean(heading_col_list).feature)
+
+    if Features.Volume in features:
+        result.append(volume_col_list[-1])
+        result.append(FeatureStandardDeviation(volume_col_list).feature)
+        result.append(FeatureMax(volume_col_list).feature)
+        result.append(FeatureMin(volume_col_list).feature)
+        result.append(FeatureMean(volume_col_list).feature)
+
+    if Features.Time in features:
+        result.append(FeatureStandardDeviation(time_col_list).feature)
+        # Time since last interrupt
+        # result.append(time_col_list[window_size - 1] - time_col_list[window_size - 2])
+        # Time since last discrete position changed
+        # TODO: This requires changes to the prediction data relabeling algo
+        """
+        time_since = 0
+        for j in range(i, 0):
+            if prev_location == data.iloc[j]["location"]:
+                time_since = time_col_list[window_size - 1] - data.iloc[j]["t_stamp"]
                 break
+        result.append(time_since)
+        """
 
-        # NOTE: Changes to the features also require changes in __populate_feature_name_map()
-        if Features.PreviousLocation in features:
-            result.append(window.iloc[window_size - 2]["location"])
-            result.append(prev_location)
+    if Features.Angle in features:
+        result.append(ang_total_abs_col_list[-1])
+        result.append(FeatureStandardDeviation(ang_total_abs_col_list).feature)
+        result.append(FeatureMax(ang_total_abs_col_list).feature)
+        result.append(FeatureMin(ang_total_abs_col_list).feature)
+        result.append(FeatureMean(ang_total_abs_col_list).feature)
 
-        if Features.Acceleration in features:
-            result.append(acc_total_abs_col_list[-1])
-            result.append(FeatureStandardDeviation(acc_total_abs_col_list).feature)
-            result.append(FeatureMax(acc_total_abs_col_list).feature)
-            result.append(FeatureMin(acc_total_abs_col_list).feature)
-            result.append(FeatureMean(acc_total_abs_col_list).feature)
-
-        if Features.Light in features:
-            result.append(light_col_list[-1])
-            result.append(FeatureStandardDeviation(light_col_list).feature)
-            result.append(FeatureMax(light_col_list).feature)
-            result.append(FeatureMin(light_col_list).feature)
-            result.append(FeatureMean(light_col_list).feature)
-
-        if Features.AccessPointDetection in features:
-            result.append(int(window.iloc[window_size - 1]["access_point_0"]))
-            result.append(int(window.iloc[window_size - 1]["access_point_1"]))
-            result.append(int(window.iloc[window_size - 1]["access_point_2"]))
-            result.append(int(window.iloc[window_size - 1]["access_point_3"]))
-            result.append(int(window.iloc[window_size - 1]["access_point_4"]))
-
-        if Features.Temperature in features:
-            result.append(temperature_col_list[-1])
-            result.append(FeatureStandardDeviation(temperature_col_list).feature)
-            result.append(FeatureMax(temperature_col_list).feature)
-            result.append(FeatureMin(temperature_col_list).feature)
-            result.append(FeatureMean(temperature_col_list).feature)
-
-        if Features.Heading in features:
-            result.append(heading_col_list[-1])
-            result.append(FeatureStandardDeviation(heading_col_list).feature)
-            result.append(FeatureMax(heading_col_list).feature)
-            result.append(FeatureMin(heading_col_list).feature)
-            result.append(FeatureMean(heading_col_list).feature)
-
-        if Features.Volume in features:
-            result.append(volume_col_list[-1])
-            result.append(FeatureStandardDeviation(volume_col_list).feature)
-            result.append(FeatureMax(volume_col_list).feature)
-            result.append(FeatureMin(volume_col_list).feature)
-            result.append(FeatureMean(volume_col_list).feature)
-
-        if Features.Time in features:
-            result.append(FeatureStandardDeviation(time_col_list).feature)
-            # Time since last interrupt
-            # result.append(time_col_list[window_size - 1] - time_col_list[window_size - 2])
-            # Time since last discrete position changed
-            # TODO: This requires changes to the prediction data relabeling algo
-            """
-            time_since = 0
-            for j in range(i, 0):
-                if prev_location == data.iloc[j]["location"]:
-                    time_since = time_col_list[window_size - 1] - data.iloc[j]["t_stamp"]
-                    break
-            result.append(time_since)
-            """
-
-        if Features.Angle in features:
-            result.append(ang_total_abs_col_list[-1])
-            result.append(FeatureStandardDeviation(ang_total_abs_col_list).feature)
-            result.append(FeatureMax(ang_total_abs_col_list).feature)
-            result.append(FeatureMin(ang_total_abs_col_list).feature)
-            result.append(FeatureMean(ang_total_abs_col_list).feature)
-
-    # TODO: Ist das mitm lbwindow > 1 noch korrekt?
-    window = data.iloc[(i - window_size):i, :]
-    return window.iloc[window_size - 1]["cycle"], window.iloc[window_size - 1]["location"], result
+    return window.iloc[window_size - 1]["cycle"], current_location, result
 
 
 def par_process_data_set(args):
@@ -984,8 +974,8 @@ class DataCompiler:
                 last_distinct_locations_dt = []
                 last_distinct_locations_knn = []
 
-                f_copy_dt = copy.copy(self.result_features_dt[data_set_index])
-                f_copy_knn = copy.copy(self.result_features_knn[data_set_index])
+                f_copy_dt = copy.deepcopy(self.result_features_dt[data_set_index])
+                f_copy_knn = copy.deepcopy(self.result_features_knn[data_set_index])
 
                 for cycle in range(self.num_cycles):
                     for label_index in range(len(self.result_labels_dt[data_set_index][cycle])):
@@ -1016,8 +1006,8 @@ class DataCompiler:
                 last_distinct_locations_dt = []
                 last_distinct_locations_knn = []
 
-                f_copy_dt = copy.copy(self.test_features_dt[data_set_index])
-                f_copy_knn = copy.copy(self.test_features_knn[data_set_index])
+                f_copy_dt = copy.deepcopy(self.test_features_dt[data_set_index])
+                f_copy_knn = copy.deepcopy(self.test_features_knn[data_set_index])
 
                 for cycle in range(self.num_cycles):
                     for label_index in range(len(self.test_labels_dt[data_set_index][cycle])):
@@ -1284,7 +1274,7 @@ class DataCompiler:
         if self.__is_verbose:
             print("Extracting features...")
 
-        def extract_from_data_sets(data_sets, window_size, input_features, input_num_outputs, lookback_window, normalization_parameters):
+        def extract_from_data_sets(data_sets, window_size, input_features, normalization_parameters):
             count = 1
             result_features_dt = []
             result_features_knn = []
@@ -1299,8 +1289,8 @@ class DataCompiler:
                 cycles = []
                 with Pool(processes=NUM_CORES) as pool:
                     args = []
-                    for i in range((window_size * lookback_window) + 1, len(data_set)):
-                        args.append([data_set, i, window_size, input_features, lookback_window])
+                    for i in range(window_size, len(data_set)):
+                        args.append([data_set, i, window_size, input_features])
                     result = pool.map(par_ef_calculate_features, args)
                     for (cycle, label, features) in result:
                         cycles.append(cycle)
@@ -1380,7 +1370,7 @@ class DataCompiler:
         if self.__is_verbose:
             print("Raw data...")
         result_features_dt, result_features_knn, result_labels_dt, result_labels_knn = extract_from_data_sets(
-            self.__raw_data, self.window_size, self.features, self.num_outputs, self.lookback_window, self.normalization_parameters)
+            self.__raw_data, self.window_size, self.features, self.normalization_parameters)
         self.result_labels_dt = result_labels_dt
         self.result_labels_knn = result_labels_knn
         self.result_features_dt = result_features_dt
@@ -1390,7 +1380,7 @@ class DataCompiler:
             if self.__is_verbose:
                 print("Test data...")
             test_features_dt, test_features_knn, test_labels_dt, test_labels_knn = extract_from_data_sets(
-                self.test_raw_data, self.window_size, self.features, self.num_outputs, self.lookback_window, self.normalization_parameters)
+                self.test_raw_data, self.window_size, self.features, self.normalization_parameters)
             self.test_labels_dt = test_labels_dt
             self.test_labels_knn = test_labels_knn
             self.test_features_dt = test_features_dt
@@ -1399,7 +1389,7 @@ class DataCompiler:
             if self.__is_verbose:
                 print("Faulty data...")
             faulty_features_dt, faulty_features_knn, faulty_labels_dt, faulty_labels_knn = extract_from_data_sets(
-                self.faulty_raw_data, self.window_size, self.features, self.num_outputs, self.lookback_window, self.normalization_parameters)
+                self.faulty_raw_data, self.window_size, self.features, self.normalization_parameters)
             self.faulty_labels_dt = faulty_labels_dt
             self.faulty_labels_knn = faulty_labels_knn
             self.faulty_features_dt = faulty_features_dt
@@ -1408,7 +1398,7 @@ class DataCompiler:
             if self.__is_verbose:
                 print("Faulty test data...")
             faulty_test_features_dt, faulty_test_features_knn, faulty_test_labels_dt, faulty_test_labels_knn = extract_from_data_sets(
-                self.faulty_test_raw_data, self.window_size, self.features, self.num_outputs, self.lookback_window, self.normalization_parameters)
+                self.faulty_test_raw_data, self.window_size, self.features, self.normalization_parameters)
             self.faulty_test_labels_dt = faulty_test_labels_dt
             self.faulty_test_labels_knn = faulty_test_labels_knn
             self.faulty_test_features_dt = faulty_test_features_dt
