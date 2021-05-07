@@ -10,9 +10,9 @@ function eval_model {
   if [[ ! -f "${PYTHONPATH}/bin/eval_${1}_DT_${2}_${3}_KNN_${4}_${5}_${6}_DS_${8}/evaluation_knn_anomaly_model.h5" ]]; then
     python3 sources/build/eval_anomaly.py ${1} ${2} ${3} ${4} ${5} ${6} ${7} 1
   fi
-  #if [[ ! -f "${PYTHONPATH}/bin/eval_${1}_DT_${2}_${3}_KNN_${4}_${5}_${6}_DS_${8}/combined_test_route/evaluation_continued_knn/log_general_metrics.csv" ]]; then
+  if [[ ! -f "${PYTHONPATH}/bin/eval_${1}_DT_${2}_${3}_KNN_${4}_${5}_${6}_DS_${8}/combined_test_route/evaluation_continued_knn/log_general_metrics.csv" ]]; then
     python3 sources/build/eval_graphs.py ${1} ${2} ${3} ${4} ${5} ${6} ${7} 1
-  #fi
+  fi
 }
 
 function exec_model_in_parallel {
@@ -27,7 +27,7 @@ function exec_model_in_parallel {
 }
 
 function eval_data_sets {
-  bool_arr=( 1 )
+  bool_arr=( 0 1 )
   for encode_path_as_locations in "${bool_arr[@]}"; do
     # Max height and num neurons
     exec_model_in_parallel ${encode_path_as_locations} 16 8 1 16 75 ${1} ${2}

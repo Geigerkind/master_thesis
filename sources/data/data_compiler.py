@@ -1407,8 +1407,7 @@ class DataCompiler:
             if self.__is_verbose:
                 print("Temporary test sets data...")
             tr_features_dt, tr_features_knn, tr_labels_dt, tr_labels_knn = extract_from_data_sets(
-                self.temporary_test_set_raw_data, self.window_size, self.features, self.num_outputs,
-                self.lookback_window, self.normalization_parameters)
+                self.temporary_test_set_raw_data, self.window_size, self.features, self.normalization_parameters)
             self.temporary_test_set_labels_dt = tr_labels_dt
             self.temporary_test_set_labels_knn = tr_labels_knn
             self.temporary_test_set_features_dt = tr_features_dt
