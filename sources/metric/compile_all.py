@@ -1,5 +1,6 @@
 import locale
 import os
+import pickle
 import re
 
 import matplotlib as mpl
@@ -41,6 +42,7 @@ class CompileAll:
 
             # Latex tables
             self.__generate_latex_table(acc_type)
+        self.__generate_latex_table("loc_size")
 
     def __load_log_accuracies(self):
         def extract_accuracies_from_file(file):
@@ -53,6 +55,7 @@ class CompileAll:
         data = []
         bin_path_len = len(self.bin_path)
         regex_template = re.compile("\d+")
+        size_map = dict()
         for subdir, dirs, files in os.walk(self.bin_path):
             subdir_len = len(subdir)
             if "DS_1" == subdir[-4:] or "DS_12" == subdir[-5:] or "DS_123" == subdir[-6:] or "DS_1234" == subdir[-7:]:
@@ -61,7 +64,7 @@ class CompileAll:
             if "/evaluation" in subdir or "combined" in subdir or "anomaly" in subdir:
                 continue
 
-            if "bin/eval" in subdir:
+            if "bin/failure1/eval" in subdir:
                 re_match = regex_template.findall(subdir[bin_path_len:])
                 path_encoded = int(re_match[0]) == 1
                 num_trees = int(re_match[1])
@@ -110,10 +113,36 @@ class CompileAll:
                     knn_acc_cont, knn_acc_pc_cont, knn_acc_pic_cont, knn_acc_5_cont, knn_acc_10_cont = extract_accuracies_from_file(
                         subdir + "/evaluation_continued_knn/log_true_vs_predicted.csv")
 
+                # This could be taken out of the loop
+                size_key = ((subdir[::-1])[slash_index + 1:])[::-1]
+                if size_key in size_map:
+                    loc_real_max_depth, loc_size_dt, loc_size_knn, anomaly_real_max_depth, \
+                    anomaly_size_dt, anomaly_size_knn = size_map.get(size_key)
+                else:
+                    file_dt_loc = open(size_key + "/evaluation_dt_model.pkl", "rb")
+                    file_dt_anomaly = open(size_key + "/evaluation_dt_anomaly_model.pkl", "rb")
+                    model_loc_dt = pickle.load(file_dt_loc)
+                    model_anomaly_dt = pickle.load(file_dt_anomaly)
+
+                    loc_real_max_depth = model_loc_dt.max_depth_forest()
+                    loc_size_dt = model_loc_dt.calculate_size()
+                    loc_size_knn = num_neurons * (34 + num_locations + (num_layers - 1) * num_neurons) * 4
+
+                    anomaly_real_max_depth = model_anomaly_dt.max_depth_forest()
+                    anomaly_size_dt = model_anomaly_dt.calculate_size()
+                    anomaly_size_knn = 32 * 35 * 4
+
+                    file_dt_loc.close()
+                    file_dt_anomaly.close()
+                    size_map[size_key] = [loc_real_max_depth, loc_size_dt, loc_size_knn, anomaly_real_max_depth,
+                                          anomaly_size_dt, anomaly_size_knn]
+
                 data.append([route, is_faulty, num_trees, max_depth, num_layers, num_neurons, num_locations, dt_acc,
                              dt_acc_pc, dt_acc_pic, dt_acc_5, dt_acc_10, dt_acc_cont, dt_acc_pc_cont, dt_acc_pic_cont,
                              dt_acc_5_cont, dt_acc_10_cont, knn_acc, knn_acc_pc, knn_acc_pic, knn_acc_5, knn_acc_10,
-                             knn_acc_cont, knn_acc_pc_cont, knn_acc_pic_cont, knn_acc_5_cont, knn_acc_10_cont])
+                             knn_acc_cont, knn_acc_pc_cont, knn_acc_pic_cont, knn_acc_5_cont, knn_acc_10_cont,
+                             loc_real_max_depth, loc_size_dt, loc_size_knn, anomaly_real_max_depth, anomaly_size_dt,
+                             anomaly_size_knn])
 
         return DataFrame(data, columns=["route", "is_faulty",
                                         "trees", "max_depth", "layers", "neurons", "num_locations",
@@ -122,7 +151,8 @@ class CompileAll:
                                         "dt_acc_10_cont",
                                         "knn_acc", "knn_acc_pc", "knn_acc_pic", "knn_acc_5", "knn_acc_10",
                                         "knn_acc_cont", "knn_acc_pc_cont", "knn_acc_pic_cont", "knn_acc_5_cont",
-                                        "knn_acc_10_cont"])
+                                        "knn_acc_10_cont", "loc_real_max_depth", "dt_loc_size", "knn_loc_size",
+                                        "anomaly_real_max_depth", "dt_anomaly_size", "knn_anomaly_size"])
 
     def __generate_graph_best_dt_vs_best_ffnn(self, acc_kind):
         dt_accs = []
@@ -239,7 +269,11 @@ class CompileAll:
             "acc_10_cont": "$P(B=10)_{\\text{cont}}$",
             "acc_pc_cont": "$P(C)_{\\text{cont}}$",
             "acc_pic_cont": "$P(D)_{\\text{cont}}$",
+            "loc_size": "Größe in KB",
+            "anomaly_size": "Größe in KB",
         }
+        acc_kind_factor = 0.001 if acc_kind == "loc_size" else 100
+        row_format = "{0} & {1} & {2:.1f} & {3:.1f} & {4:.1f} & {5:.1f} & {6:.1f} & {7:.1f} & {8:.1f} & {9:.1f} \\\\\\hline\n" if acc_kind == "loc_size" else "{0} & {1} & {2:.2f} & {3:.2f}\\% & {4:.2f}\\% & {5:.2f}\\% & {6:.2f}\\% & {7:.2f}\\% & {8:.2f}\\% & {9:.2f}\\% \\\\\\hline\n"
 
         file = open(self.bin_path + "/predictions_by_" + acc_kind + ".tex", "w")
         file.write("\\begin{table}[h!]\n")
@@ -247,29 +281,35 @@ class CompileAll:
         file.write("\\begin{tabular}{ | c | c | c | c | c | c | c | c | c | c | }\n")
         file.write("\\hline\n")
         file.write(
-            "\\multicolumn{2}{ | l |}{" + label_map.get(acc_kind) + " über Standorte} & 9 & 16 & 17 & 25 & 32 & 48 & 52 & 102 \\\\\\hline\n")
+            "\\multicolumn{2}{ | l |}{" + label_map.get(
+                acc_kind) + " über Standorte} & 9 & 16 & 17 & 25 & 32 & 48 & 52 & 102 \\\\\\hline\n")
         file.write("\\multicolumn{10}{| l |}{\\textbf{Entscheidungswälder}}\\\\\\hline\n")
         file.write("Waldgröße & Max. Baumgröße & \\multicolumn{8}{ c |}{}\\\\\\hline\n")
         for group in group_order1:
-            file.write("{0} & {1} & {2:.2f}\\% & {3:.2f}\\% & {4:.2f}\\% & {5:.2f}\\% & {6:.2f}\\% & {7:.2f}\\% & {8:.2f}\\% "
-                       "& {9:.2f}\\% \\\\\\hline\n".format(group[0], group[1], 100 * dt_accs[group][0],
-                                                         100 * dt_accs[group][1], 100 * dt_accs[group][2],
-                                                         100 * dt_accs[group][3], 100 * dt_accs[group][4],
-                                                         100 * dt_accs[group][5], 100 * dt_accs[group][6],
-                                                         100 * dt_accs[group][7]))
+            file.write(row_format.format(group[0], group[1], acc_kind_factor * dt_accs[group][0],
+                                         acc_kind_factor * dt_accs[group][1],
+                                         acc_kind_factor * dt_accs[group][2],
+                                         acc_kind_factor * dt_accs[group][3],
+                                         acc_kind_factor * dt_accs[group][4],
+                                         acc_kind_factor * dt_accs[group][5],
+                                         acc_kind_factor * dt_accs[group][6],
+                                         acc_kind_factor * dt_accs[group][7]))
         file.write("\\multicolumn{10}{| l |}{\\textbf{Feed Forward neuronale Netzwerke}}\\\\\\hline\n")
         file.write("\\#Schichten & \\#Neuronen & \\multicolumn{8}{ c |}{}\\\\\\hline\n")
         for group in group_order2:
-            file.write("{0} & {1} & {2:.2f}\\% & {3:.2f}\\% & {4:.2f}\\% & {5:.2f}\\% & {6:.2f}\\% & {7:.2f}\\% & {8:.2f}\\% "
-                       "& {9:.2f}\\% \\\\\\hline\n".format(group[0], group[1], 100 * knn_accs[group][0],
-                                                         100 * knn_accs[group][1], 100 * knn_accs[group][2],
-                                                         100 * knn_accs[group][3], 100 * knn_accs[group][4],
-                                                         100 * knn_accs[group][5], 100 * knn_accs[group][6],
-                                                         100 * knn_accs[group][7]))
+            file.write(row_format.format(group[0], group[1], acc_kind_factor * knn_accs[group][0],
+                                         acc_kind_factor * knn_accs[group][1],
+                                         acc_kind_factor * knn_accs[group][2],
+                                         acc_kind_factor * knn_accs[group][3],
+                                         acc_kind_factor * knn_accs[group][4],
+                                         acc_kind_factor * knn_accs[group][5],
+                                         acc_kind_factor * knn_accs[group][6],
+                                         acc_kind_factor * knn_accs[group][7]))
         file.write("\\end{tabular}\n")
-        file.write("\\caption{Metrik " + label_map.get(acc_kind) + " über Standorte und verschiedenen Konfigurationen der ML-Modelle.}\n")
+        file.write("\\caption{Metrik " + label_map.get(
+            acc_kind) + " über Standorte und verschiedenen Konfigurationen der ML-Modelle.}\n")
         file.write("\\label{tab:predictions_by_" + acc_kind + "}\n")
         file.write("\\end{table}\n")
 
 
-CompileAll("/home/shino/Uni/master_thesis/bin")
+CompileAll("/home/shino/Uni/master_thesis/bin/failure1")

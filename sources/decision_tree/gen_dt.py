@@ -7,6 +7,7 @@ import numpy as np
 from sklearn import tree
 from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier, BaggingClassifier, ExtraTreesClassifier
 from sklearn.model_selection import train_test_split
+from sklearn.tree import _tree
 
 from sources.config import NUM_CORES
 from sources.decision_tree.ensemble_method import EnsembleMethod
@@ -300,3 +301,28 @@ class GenerateDecisionTree:
             importances.append(abs(test_accuracy - ctf_accuracy))
 
         return importances
+
+    def calculate_size(self):
+        def __recurse(tree_, node):
+            DATATYPE_SIZE_IN_BYTES = 4
+            result = 0
+            if tree_.feature[node] != _tree.TREE_UNDEFINED:
+                # Comparison
+                # 5 Instructions needed and one threshold
+                result = result + 6 * DATATYPE_SIZE_IN_BYTES
+                result = result + __recurse(tree_, tree_.children_left[node])
+                result = result + __recurse(tree_, tree_.children_right[node])
+            else:
+                # Return instructions
+                result = result + 2 * DATATYPE_SIZE_IN_BYTES
+                # Number of instructions for the probability distribution
+                # 2 Instructions per + 2 constant values that need to be saved
+                num_results_higher_zero = len(list(filter(lambda x: x > 0, tree_.value[node][0])))
+                if num_results_higher_zero > 1:
+                    result = result + num_results_higher_zero * 4 * DATATYPE_SIZE_IN_BYTES
+            return result
+
+        end_result = 0
+        for clf in self.result.estimators_:
+            end_result = end_result + __recurse(clf.tree_, 0)
+        return end_result
