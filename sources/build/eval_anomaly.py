@@ -7,7 +7,7 @@ from tensorflow import keras
 
 from sources.anomaly.anomaly_data import DumpAnomalyData
 from sources.anomaly.topology_guesser import AnomalyTopologyGuesser
-from sources.config import BIN_FOLDER_PATH, NUM_CORES, parse_cmd_args
+from sources.config import BIN_FOLDER_PATH, NUM_CORES, parse_cmd_args, WITHOUT_PREVIOUS_EDGE
 from sources.decision_tree.ensemble_method import EnsembleMethod
 from sources.decision_tree.gen_dt import GenerateDecisionTree
 from sources.ffnn.gen_ffnn import GenerateFFNN
@@ -235,8 +235,14 @@ if __name__ == "__main__":
             data_set_features_knn = data_set_features_knn + temporary_test_set_features_knn[data_set_index][cycle]
             data_set_labels = data_set_labels + temporary_test_set_labels_dt[data_set_index][cycle]
 
-        predicted_dt = model_dt.continued_predict_proba(data_set_features_dt, encode_paths_between_as_location)
-        predicted_knn = GenerateFFNN.static_continued_predict(model_knn, data_set_features_knn, num_outputs)
+        predicted_dt = 0
+        predicted_knn = 0
+        if WITHOUT_PREVIOUS_EDGE:
+            predicted_dt = model_dt.predict_proba(data_set_features_dt)
+            predicted_knn = model_knn.predict(data_set_features_knn)
+        else:
+            predicted_dt = model_dt.continued_predict_proba(data_set_features_dt, encode_paths_between_as_location)
+            predicted_knn = GenerateFFNN.static_continued_predict(model_knn, data_set_features_knn, num_outputs)
 
         res_features_dt, res_labels, res_features_knn = calculate_anomaly_features_and_labels(
             predicted_dt, predicted_knn, data_set_index, data_set_labels, location_neighbor_graph,
@@ -255,8 +261,14 @@ if __name__ == "__main__":
             data_set_features_knn = data_set_features_knn + temporary_test_set_features_knn[data_set_index][cycle]
             data_set_labels = data_set_labels + temporary_test_set_labels_dt[data_set_index][cycle]
 
-        predicted_dt_val = model_dt.continued_predict_proba(data_set_features_dt, encode_paths_between_as_location)
-        predicted_knn_val = GenerateFFNN.static_continued_predict(model_knn, data_set_features_knn, num_outputs)
+        predicted_dt_val = 0
+        predicted_knn_val = 0
+        if WITHOUT_PREVIOUS_EDGE:
+            predicted_dt_val = model_dt.predict_proba(data_set_features_dt)
+            predicted_knn_val = model_knn.predict(data_set_features_knn)
+        else:
+            predicted_dt_val = model_dt.continued_predict_proba(data_set_features_dt, encode_paths_between_as_location)
+            predicted_knn_val = GenerateFFNN.static_continued_predict(model_knn, data_set_features_knn, num_outputs)
 
         res_features_dt, res_labels, res_features_knn = calculate_anomaly_features_and_labels(
             predicted_dt_val, predicted_knn_val, data_set_index, data_set_labels, location_neighbor_graph,

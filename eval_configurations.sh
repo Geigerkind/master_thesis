@@ -1,7 +1,7 @@
 export PYTHONPATH="/home/shino/Uni/master_thesis"
 export TF_CPP_MIN_LOG_LEVEL=2
 
-NUM_ALLOWED_JOBS=1
+NUM_ALLOWED_JOBS=2
 
 function eval_model {
   if [[ ! -f "${PYTHONPATH}/bin/eval_${1}_DT_${2}_${3}_KNN_${4}_${5}_${6}_DS_${8}/evaluation_knn_model.h5" ]]; then
@@ -50,7 +50,7 @@ function do_evaluation {
   eval_data_sets 1 1
   eval_data_sets 1,2 12
   eval_data_sets 1,2,3 123
-  eval_data_sets 1,2,3,4 1234
+  #eval_data_sets 1,2,3,4 1234
 }
 
 do_evaluation

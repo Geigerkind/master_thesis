@@ -6,7 +6,7 @@ from multiprocessing import Pool
 import numpy as np
 from tensorflow import keras
 
-from sources.config import BIN_FOLDER_PATH, NUM_CORES, parse_cmd_args
+from sources.config import BIN_FOLDER_PATH, NUM_CORES, parse_cmd_args, WITHOUT_PREVIOUS_EDGE
 from sources.ffnn.gen_ffnn import GenerateFFNN
 from sources.metric.compile_log import CompileLog
 from sources.metric.graph_feature_importance import GraphFeatureImportance
@@ -212,12 +212,13 @@ with open(pregen_path, 'rb') as file:
             test_set_labels_dt = np.asarray(test_labels_dt[k]).copy()
             test_set_labels_knn = np.asarray(test_labels_knn[k]).copy()
 
-            workers.append(pool.apply_async(generate_graphs,
-                                            args=(path, "evaluation_continued", model_dt, test_set_features_dt,
-                                                  test_set_features_knn,
-                                                  test_set_labels_dt, test_set_labels_knn, num_outputs, True,
-                                                  name_map_features,
-                                                  evaluation_name, False, encode_paths_between_as_location,)))
+            if not WITHOUT_PREVIOUS_EDGE:
+                workers.append(pool.apply_async(generate_graphs,
+                                                args=(path, "evaluation_continued", model_dt, test_set_features_dt,
+                                                      test_set_features_knn,
+                                                      test_set_labels_dt, test_set_labels_knn, num_outputs, True,
+                                                      name_map_features,
+                                                      evaluation_name, False, encode_paths_between_as_location,)))
 
             workers.append(pool.apply_async(generate_graphs,
                                             args=(path, "evaluation", model_dt, test_set_features_dt,
@@ -225,39 +226,6 @@ with open(pregen_path, 'rb') as file:
                                                   test_set_labels_dt, test_set_labels_knn, num_outputs, False,
                                                   name_map_features,
                                                   evaluation_name, False, encode_paths_between_as_location,)))
-
-            """
-            # Wrong previous location
-            test_set_features_dt_random_location = np.asarray(test_sets_dt[k]).copy()
-            test_set_features_knn_random_location = np.asarray(test_sets_knn[k]).copy()
-    
-            for i in range(len(test_set_features_dt)):
-                test_set_features_dt_random_location[i][0] = random.randint(0, num_outputs - 1)
-                test_set_features_dt_random_location[i][1] = random.randint(1, num_outputs - 1)
-                test_set_features_knn_random_location[i][0] = random.randint(0, num_outputs - 1) / (
-                        num_outputs - 1)
-                test_set_features_knn_random_location[i][1] = random.randint(1, num_outputs - 1) / (
-                        num_outputs - 1)
-    
-            map_args.append([path, "random_prev_location", model_dt, test_set_features_dt_random_location,
-                             test_set_features_knn_random_location, test_set_labels_dt, test_set_labels_knn,
-                             num_outputs, False, name_map_features, evaluation_name, False, encode_paths_between_as_location])
-    
-            # Continued prediction with faulty beginning
-            test_set_features_dt = np.asarray(test_sets_dt[k]).copy()
-            test_set_features_knn = np.asarray(test_sets_knn[k]).copy()
-            test_set_labels_dt = np.asarray(test_labels_dt[k]).copy()
-            test_set_labels_knn = np.asarray(test_labels_knn[k]).copy()
-    
-            test_set_features_dt[0][0] = 5
-            test_set_features_dt[0][1] = 5
-            test_set_features_knn[0][0] = 5 / (num_outputs - 1)
-            test_set_features_knn[0][1] = 5 / (num_outputs - 1)
-    
-            map_args.append([path, "continued_pred_with_faulty_start", model_dt, test_set_features_dt,
-                             test_set_features_knn, test_set_labels_dt, test_set_labels_knn, num_outputs,
-                             True, name_map_features, evaluation_name, False, encode_paths_between_as_location])
-            """
 
             while len(workers) >= NUM_CORES:
                 for worker_index in range(len(workers)):

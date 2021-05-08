@@ -3,7 +3,8 @@ import sys
 from sources.data.data_set import DataSet
 
 BIN_FOLDER_PATH = "/home/shino/Uni/master_thesis/bin"
-NUM_CORES = 16
+NUM_CORES = 10
+WITHOUT_PREVIOUS_EDGE = False
 
 
 def parse_cmd_args():

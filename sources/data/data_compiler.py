@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 from pandas import DataFrame
 
-from sources.config import BIN_FOLDER_PATH, NUM_CORES
+from sources.config import BIN_FOLDER_PATH, NUM_CORES, WITHOUT_PREVIOUS_EDGE
 from sources.data.data_set import DataSet
 from sources.data.features import Features
 from sources.feature.max import FeatureMax
@@ -81,7 +81,7 @@ def par_ef_calculate_features(args):
             break
 
     # NOTE: Changes to the features also require changes in __populate_feature_name_map()
-    if Features.PreviousLocation in features:
+    if Features.PreviousLocation in features and not WITHOUT_PREVIOUS_EDGE:
         result.append(window.iloc[window_size - 2]["location"])
         result.append(prev_location)
 
@@ -410,12 +410,12 @@ class DataCompiler:
         self.__populate_normalization_parameters()
         self.__extract_features()
         self.result_raw_data = self.__raw_data
-        if not self.__using_manual_data_set:
+        if not self.__using_manual_data_set and not WITHOUT_PREVIOUS_EDGE:
             self.__create_faulty_route_with_skipped_locations()
         self.__configure_variables()
 
     def __populate_normalization_parameters(self):
-        if Features.PreviousLocation in self.features:
+        if Features.PreviousLocation in self.features and not WITHOUT_PREVIOUS_EDGE:
             self.normalization_parameters.append([0, self.num_outputs - 1])
             self.normalization_parameters.append([0, self.num_outputs - 1])
 
@@ -472,7 +472,7 @@ class DataCompiler:
             self.normalization_parameters.append([0, 8])
 
     def __populate_features_name_map(self):
-        if Features.PreviousLocation in self.features:
+        if Features.PreviousLocation in self.features and not WITHOUT_PREVIOUS_EDGE:
             self.name_map_features.append("previous_location")
             self.name_map_features.append("previous_distinct_location")
 
@@ -968,7 +968,7 @@ class DataCompiler:
             count = count + 1
 
     def __create_faulty_route_with_skipped_locations(self):
-        if Features.PreviousLocation in self.features:
+        if Features.PreviousLocation in self.features and not WITHOUT_PREVIOUS_EDGE:
             for data_set_index in range(len(self.result_labels_dt)):
                 # Build a map of last distinct locations that are not 0
                 last_distinct_locations_dt = []

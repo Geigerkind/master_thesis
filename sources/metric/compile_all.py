@@ -219,6 +219,18 @@ class CompileAll:
 
         group_order1 = [(16, 8), (16, 16), (16, 32), (16, 64), (8, 32), (16, 32), (32, 32), (64, 32), (32, 64)]
         group_order2 = [(1, 16), (1, 32), (1, 64), (1, 128), (2, 32), (4, 32), (8, 32), (4, 64)]
+        label_map = {
+            "acc": "$P(A)$",
+            "acc_5": "$P(B=5)$",
+            "acc_10": "$P(B=10)$",
+            "acc_pc": "$P(C)$",
+            "acc_pic": "$P(D)$",
+            "acc_cont": "$P(A)_{\\text{cont}}$",
+            "acc_5_cont": "$P(B=5)_{\\text{cont}}$",
+            "acc_10_cont": "$P(B=10)_{\\text{cont}}$",
+            "acc_pc_cont": "$P(C)_{\\text{cont}}$",
+            "acc_pic_cont": "$P(D)_{\\text{cont}}$",
+        }
 
         file = open(self.bin_path + "/predictions_by_" + acc_kind + ".tex", "w")
         file.write("\\begin{table}[h!]\n")
@@ -226,7 +238,7 @@ class CompileAll:
         file.write("\\begin{tabular}{ | c | c | c | c | c | c | c | c | c | c | }\n")
         file.write("\\hline\n")
         file.write(
-            "\\multicolumn{2}{ | l |}{" + acc_kind + " / Standorte } & 9 & 16 & 17 & 25 & 32 & 48 & 52 & 102 \\\\\\hline\n")
+            "\\multicolumn{2}{ | l |}{" + label_map.get(acc_kind) + " über Standorte} & 9 & 16 & 17 & 25 & 32 & 48 & 52 & 102 \\\\\\hline\n")
         file.write("\\multicolumn{10}{| l |}{\\textbf{Entscheidungswälder}}\\\\\\hline\n")
         file.write("Waldgröße & Max. Baumgröße & \\multicolumn{8}{ c |}{}\\\\\\hline\n")
         for group in group_order1:
@@ -246,8 +258,8 @@ class CompileAll:
                                                          100 * knn_accs[group][5], 100 * knn_accs[group][6],
                                                          100 * knn_accs[group][7]))
         file.write("\\end{tabular}\n")
-        file.write("\\caption{TODO: Caption}\n")
-        file.write("\\label{tab:TODO_LABEL}\n")
+        file.write("\\caption{Metrik " + label_map.get(acc_kind) + " über Standorte und verschiedenen Konfigurationen der ML-Modelle.}\n")
+        file.write("\\label{tab:predictions_by_" + acc_kind + "}\n")
         file.write("\\end{table}\n")
 
 
