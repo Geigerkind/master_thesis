@@ -3,6 +3,9 @@ import os
 import re
 
 import matplotlib as mpl
+
+from sources.config import WITHOUT_PREVIOUS_EDGE
+
 mpl.use('Agg')
 import matplotlib.pyplot as plt
 import pandas
@@ -94,14 +97,18 @@ class CompileAll:
                 dt_acc, dt_acc_pc, dt_acc_pic, dt_acc_5, dt_acc_10 = extract_accuracies_from_file(
                     subdir + "/evaluation_dt/log_true_vs_predicted.csv")
 
-                dt_acc_cont, dt_acc_pc_cont, dt_acc_pic_cont, dt_acc_5_cont, dt_acc_10_cont = extract_accuracies_from_file(
-                    subdir + "/evaluation_continued_dt/log_true_vs_predicted.csv")
+                dt_acc_cont, dt_acc_pc_cont, dt_acc_pic_cont, dt_acc_5_cont, dt_acc_10_cont = (0, 0, 0, 0, 0)
+                if not WITHOUT_PREVIOUS_EDGE:
+                    dt_acc_cont, dt_acc_pc_cont, dt_acc_pic_cont, dt_acc_5_cont, dt_acc_10_cont = extract_accuracies_from_file(
+                        subdir + "/evaluation_continued_dt/log_true_vs_predicted.csv")
 
                 knn_acc, knn_acc_pc, knn_acc_pic, knn_acc_5, knn_acc_10 = extract_accuracies_from_file(
                     subdir + "/evaluation_knn/log_true_vs_predicted.csv")
 
-                knn_acc_cont, knn_acc_pc_cont, knn_acc_pic_cont, knn_acc_5_cont, knn_acc_10_cont = extract_accuracies_from_file(
-                    subdir + "/evaluation_continued_knn/log_true_vs_predicted.csv")
+                knn_acc_cont, knn_acc_pc_cont, knn_acc_pic_cont, knn_acc_5_cont, knn_acc_10_cont = (0, 0, 0, 0, 0)
+                if not WITHOUT_PREVIOUS_EDGE:
+                    knn_acc_cont, knn_acc_pc_cont, knn_acc_pic_cont, knn_acc_5_cont, knn_acc_10_cont = extract_accuracies_from_file(
+                        subdir + "/evaluation_continued_knn/log_true_vs_predicted.csv")
 
                 data.append([route, is_faulty, num_trees, max_depth, num_layers, num_neurons, num_locations, dt_acc,
                              dt_acc_pc, dt_acc_pic, dt_acc_5, dt_acc_10, dt_acc_cont, dt_acc_pc_cont, dt_acc_pic_cont,
