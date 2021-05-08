@@ -1,6 +1,8 @@
 import pickle
 from multiprocessing import Pool
 
+import matplotlib as mpl
+mpl.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
 from tensorflow import keras
@@ -238,8 +240,8 @@ if __name__ == "__main__":
         predicted_dt = 0
         predicted_knn = 0
         if WITHOUT_PREVIOUS_EDGE:
-            predicted_dt = model_dt.predict_proba(data_set_features_dt)
-            predicted_knn = model_knn.predict(data_set_features_knn)
+            predicted_dt = model_dt.predict_proba(data_set_features_dt).tolist()
+            predicted_knn = model_knn.predict(np.asarray(data_set_features_knn)).tolist()
         else:
             predicted_dt = model_dt.continued_predict_proba(data_set_features_dt, encode_paths_between_as_location)
             predicted_knn = GenerateFFNN.static_continued_predict(model_knn, data_set_features_knn, num_outputs)
@@ -264,8 +266,8 @@ if __name__ == "__main__":
         predicted_dt_val = 0
         predicted_knn_val = 0
         if WITHOUT_PREVIOUS_EDGE:
-            predicted_dt_val = model_dt.predict_proba(data_set_features_dt)
-            predicted_knn_val = model_knn.predict(data_set_features_knn)
+            predicted_dt_val = model_dt.predict_proba(data_set_features_dt).tolist()
+            predicted_knn_val = model_knn.predict(np.asarray(data_set_features_knn)).tolist()
         else:
             predicted_dt_val = model_dt.continued_predict_proba(data_set_features_dt, encode_paths_between_as_location)
             predicted_knn_val = GenerateFFNN.static_continued_predict(model_knn, data_set_features_knn, num_outputs)

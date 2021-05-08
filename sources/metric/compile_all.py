@@ -2,6 +2,8 @@ import locale
 import os
 import re
 
+import matplotlib as mpl
+mpl.use('Agg')
 import matplotlib.pyplot as plt
 import pandas
 from pandas import DataFrame
