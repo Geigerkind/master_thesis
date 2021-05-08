@@ -1,4 +1,59 @@
 \section{Ressourcennutzung}
+Bei dir Ressourcennutzung muss einerseits der benötigte Programmspeicher, der benötigte RAM, sowie die Ausführungszeit der ML-Modelle betrachtet werden.
+Außerdem muss für den Energiebedarf abgewogen werden, was die Ausführungsfrequenz in bestimmten Szenarien ist.
+
+\subsection{Programmspeicher}
+Der Großteil des Programmspeichers wird für das ML-Modell benötigt.
+Aus diesem Grund wird der Anteil des Programmspeichers vernachlässigt, der für die restlichen Funktionen und für die Feature-Extrahierung benötigt wird.
+Zudem ist der benötigte Programmspeicher dieses Anteils konstant und skaliert nicht mit der Größe, wie die ML-Modelle.
+Zur Estimierung des Programmspeichers der Entscheidungsbäume wird der hybride Ansatz mit einer Toleranz von $\epsilon=0$ angenommen.
+Als Datentyp für die Vergleiche und allen Features wird angenommen, dass ein vier Byte Datentyp verwendet wird.
+Für die FFNNs wird der selbe Datentyp für die Biase und die Gewichte angenommen.
+
+\subsection{RAM}
+Für den benötigten RAM muss neben dem Anteil der ML-Modelle, die Historie der Sensorwerte und die berechneten Features betrachtet werden.
+Wichtig ist dabei der größte akkumulierte benötigte RAM, der zu einem Zeitpunkt benötigt werden kann.
+\newline
+\newline
+Für jeden Sensorwert, bis auf der Detektion von WLAN-Zugangspunkten, wird ein vier Byte Datentyp angenommen.
+Für die Detektion der Zugangspunkte wird ein ein Byte Datentyp angenommen.
+Insgesamt beträgt der benötigte RAM für einen Vektor von Sensorwerten damit 61 Byte.
+Dies setzt sich zusammen aus dem Zeitstempel, der xyz-Komponente von Accelerometer und Gyroskop, dem Lichtsensor,
+der Temperatursensor, der Magnetfeldsensor, der Geräuschsensor und fünf möglichen WLAN-Zugangspunkten.
+Bei einem Datenfenster von drei Einträgen wird damit 183 Byte für Sensorwerte benötigt.
+\newline
+\newline
+Der Anteil der Features ist abhängig von den Features die für ein bestimmtes Szenario eingesetzt werden.
+Insgesamt werden aber 34 Features verwendet, die vereinfacht alle als 4 Byte Datentyp angenommen werden.
+Zur Evaluierung des ML-Modells wird nur die aktuelle Feature-Menge benötigt.
+Damit wird für die Feature-Menge insgesamt 136 Byte benötigt, wenn alle Features verwendet werden.
+\newline
+\newline
+Zur Ausführung eines Entscheidungswaldes wird für die Rückgabe der Wahrscheinlichkeitsverteilung für jeden Standort vier Byte benötigt.
+Je nach Implementierung würde dieser Vektor mehrmals benötigt werden, z. B. bei der parallelen Evaluierung der Entscheidungsbäume skaliert dies mit der Anzahl der Prozessor.
+In diesem Fall wird keine Nebenläufigkeit angenommen.
+In dieser Arbeit wurden zwischen 9 und 102 Standorte untersucht, d. h. es wurden zwischen 36 und 408 Byte benötigt.
+Die Anzahl der Standorte ist aber abhängig von dem Einsatzszenario.
+Die anschließende Evaluierung eines Entscheidungswaldes zur Anomalieerkennung kann vernachlässigt werden,
+da dieser ein diskretes Ergebnis zurückgeben kann und die benötigte Feature-Menge deutlich kleiner ist.
+Damit wird für $N$ Standorte und $K$ Features mit einem Entscheidungswald als ML-Modell zu einem Zeitpunkt
+ca. $183 + 4(N + K)$ Byte benötigt, d. h. bei 102 Standorten und 34 Features ca. 727 Byte.
+\newline
+\newline
+Zur Ausführung eines KNN können nur wenige Byte verwendet werden, um die nötigen Multiplikationen eines Neuronen durchzuführen.
+Dies würde die Ausführungszeit, und den Energiebedarf, aber signifikant erhöhen, da die benötigten Gewichte ständig aus dem Programmspeicher geladen werden müssen.
+Das heißt, es müssen mindestens die Zwischenergebnisse einer Schicht im RAM gehalten werden, sowie ein Gewicht und und ein Bias.
+Damit benötigt ein FFNN, dessen größte Schicht $M$ Neuronen hat, mindestens $4(M+2)$ Byte.
+Maximal wird $4M$ Byte, zuzüglich der Modellgröße benötigt.
+Der maximale RAM, der zu einem Zeitpunkt benötigt wird mit einem FFNN, beträgt damit mindestestens $183 + 4(M + K)$,
+wobei $M$ die Schicht mit den meisten Neuronen von entweder dem ML-Modell zur Standort- oder Anomalieerkennung ist.
+
+\subsection{Ausführungszeit}
+TODO
+
+\subsection{Benötigte Energie}
+TODO
+
 \begin{itemize}
     \item Metriken(?)
     \item Entscheidungsbaum Ausführung
@@ -13,5 +68,7 @@
     \item Irgendwo über den impact von Interrupts reden. Bei Simulationsdaten konnte damit bis zu 95\% der Events eingespart werden.
     \item Wie viel Speicherverbrauch spart man durch die Feature-Selection zusätzlich ein?
     \item Einfluss der Interrupts
-    \item Simulation vs. Realität: Wir simulieren, dass sie sich immer bewegt, was eigentlich unrealistisch ist
+    \item Simulation vs. Realität: Wir simulieren, dass sie sich immer bewegt, was eigentlich unrealistisch ist.
+    \item Irgendwo eine Zahl für den Verbrauch pro Zyklus herbekommen. Dann eine benötigte Batteriekapazität für 3 Jahre estimieren.
+    \item Ausführungszeit von FFNN schwer zu estimieren, wenn das Modell nicht vollständig im RAM ist.
 \end{itemize}

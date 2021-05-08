@@ -35,7 +35,7 @@ Aus diesem Grund verringert diese Optimierung die Ausführungszeit, erhöht aber
 Im Umkehrschluss könnten durch die Verwendung von Funktionen der nutzen des Programmspeichers verringert werden, Ausführungszeit und Energieverbrauch aber erhöht werden.
 
 \newpage
-\subsection{Programmgröße}
+\subsection{Programmgröße und RAM}
 \label{sub_sec:dt_ru_programm_size}
 Die Programmgröße ist die Gesamtheit aller Instruktionen die für das Programm benötigt werden \cite{dymelThesis}.
 Dabei ist der Anteil für die Entscheidungswälder integral und der Anteil für die perifären Funktionalitäten zu vernachlässigen.
@@ -58,3 +58,7 @@ Die Instruktionen, um den Rückgabevektor zu befüllen, können durch \textit{Ba
 Zudem können Zuweisungen ausgelassen werden, die die Wahrscheinlichkeit 0 zuweisen, da der Vektor mit Nullen initialisiert wird.
 Dennoch werden signifikant mehr Instruktionen benötigt als bei der diskreten Variante.
 Aus diesem Grund wurde ein hybrider Ansatz vorgeschlagen, der im Falle eines eindeutigen Ergebnisses mit einer Toleranz von $\epsilon\in [0, 1]$ die diskrete Klasse statt der Wahrscheinlichkeitsverteilung zurück gibt.
+\newline
+\newline
+Der bentötigte RAM ist abhängig von der Größe der Feature-Menge und Anzahl zu klassifizierenden Klassen.
+Für die Rückgabe wird zwischen ein Byte und $mQ$ Byte benötigt, wobei Q die größe des verwendeten Datentypen ist, um eine Gleitkommazahl zu speichern.
