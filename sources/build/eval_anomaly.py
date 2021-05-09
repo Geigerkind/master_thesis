@@ -204,8 +204,8 @@ if __name__ == "__main__":
                 features_knn.append(int(topology_guesser_knn.predict(distinct_locations_knn[-2], new_location_knn)))
 
             # Express confidence by the standard deviation of the top 5 guesses
-            features_dt.append(np.asarray(sorted(predicted_dt[i], key=lambda i: i, reverse=True)[:5]).std())
-            features_knn.append(np.asarray(sorted(predicted_knn[i], key=lambda i: i, reverse=True)[:5]).std())
+            features_dt.append(np.asarray(sorted(predicted_dt[i], key=lambda j: j, reverse=True)[:5]).std())
+            features_knn.append(np.asarray(sorted(predicted_knn[i], key=lambda j: j, reverse=True)[:5]).std())
 
             res_features_dt.append(features_dt)
             res_features_knn.append(features_knn)

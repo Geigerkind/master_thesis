@@ -41,6 +41,11 @@ und der Anzahl der Neuronen pro Schicht bzw. der maximalen Baumhöhe.
 Der von den Entscheidungswäldern benötigte Programmspeicher ist für fast alle Fälle zu viel
 für die Limitierungen eines kleinen eingebetteten Systems.
 Die FFNNs hingegen benötigen deutlich weniger Programmspeicher und könnten innerhalb der Limitierungen der kleinen eingebetten Systeme passen.
+\newline
+\newline
+TODO: Braucht man mehr Neuronen/Hidden Layer mit steigender Ort Anzahl? (Hier oder bei ML-Modell FFNN)
+\newline
+TODO: Wie viel Speicherverbrauch spart man durch die Feature-Selection zusätzlich ein?
 \begin{table}[h!]
     \hspace{-0.75cm}
     \begin{tabular}{ | c | c | c | c | c | c | c | c | c | c | }
@@ -109,32 +114,36 @@ Damit benötigt ein FFNN, dessen größte Schicht $M$ Neuronen hat, mindestens $
 Maximal wird $4M$ Byte, zuzüglich der Größe aller Gewichte und Biase benötigt.
 Der maximale RAM, der zu einem Zeitpunkt benötigt wird mit einem FFNN, beträgt damit mindestestens $183 + 4(M + K)$,
 wobei $M$ die Schicht mit den meisten Neuronen von entweder dem ML-Modell zur Standort- oder Anomalieerkennung ist.
+
+\subsection{Ausführungszeit und benötigte Energie}
+Es ist sehr problemetisch eine sinvolle Estimierung für die benötigte Ausführungszeit und Energie anzugeben.
+Ausführungszeit und die benötigte Energie sind abhängig von dem verwendeten Mikrocontroller.
+Vergleichbare 32-Bit Mikrocontroller mit FPU (Floating Point Unit), zu den Microcontrollern die Dymel verwendet hat \cite{dymelThesis}, sind aus der AVR C Serie (TODO: Cite).
+Leider ist deren Datenblätter keine Information über die Ausführungszeit von Gleitkommazahlinstruktionen und kein Energiemodell zu entnehmen.
+Es ist aber anzunehmen, dass deutlich weniger Cyclen benötigt werden für hardwareunterstützte Gleitkommazahloperationen, als Software basierte Alternativen.
+Aus diesem Grund wird die Ausführungszeit in Gleitkommazahl- Vergleichen, Multiplikationen und Additionen angegeben,
+da diese die integralen Bestandteile der Feature-Extrahierung und Evaluation der ML-Modelle sind.
 \newline
 \newline
-TODO: KNN RAM Modellgrößen Tabelle
-TODO: Grundlagenbeschreibung anpassen
-
-\subsection{Ausführungszeit}
-TODO
-
-\subsection{Benötigte Energie}
-TODO
-
-\begin{itemize}
-    \item Metriken(?)
-    \item Entscheidungsbaum Ausführung
-    \item FFNN Ausführung
-    \item Feature extrahierung
-    \begin{itemize}
-        \item Verhältnis von Kosten zu Nutzen
-    \end{itemize}
-    \item Daten Sammlung => Interrupts (Wakeups)
-    \item Einfluss von einzelnen Features für den Ressourcenverbrauch(?)
-    \item Braucht man mehr Neuronen/Hidden Layer mit steigender Ort Anzahl? (Hier oder bei ML-Modell FFNN)
-    \item Irgendwo über den impact von Interrupts reden. Bei Simulationsdaten konnte damit bis zu 95\% der Events eingespart werden.
-    \item Wie viel Speicherverbrauch spart man durch die Feature-Selection zusätzlich ein?
-    \item Einfluss der Interrupts
-    \item Simulation vs. Realität: Wir simulieren, dass sie sich immer bewegt, was eigentlich unrealistisch ist.
-    \item Irgendwo eine Zahl für den Verbrauch pro Zyklus herbekommen. Dann eine benötigte Batteriekapazität für 3 Jahre estimieren.
-    \item Ausführungszeit von FFNN schwer zu estimieren, wenn das Modell nicht vollständig im RAM ist.
-\end{itemize}
+Hier werden die Konfigurationen (TODO) betrachtet, da diese die beste Klassifizierungsgenauigkeit erzielt in Relation zu ihrer Größe erzielt haben.
+Die in dieser Arbeit vorgeschlagene Architektur (\ref{fig:model_idea}) hat fünf Bestandteile, die jeweils zur Gesamtausführungszeit beitragen.
+Die Aufnahme der Sensorwerte wird als konstanter Energieverbrauch angenommen und in dieser Rechnung vernachlässigt.
+In der ersten Feature-Extrahierung werden 34 Features aus dem Datenfenster extrahiert.
+Tabelle (TODO) zeigt die estimierte Anzahl der Operationen, die pro Art des Features benötigt werden.
+\newline
+\newline
+Tabelle (TODO) zeigt die estimierte Anzahl der Operationen, die jeweils für den besten Entscheidungswäldern und FFNNs zur Standorterkennung benötigt werden.
+Die Anzahl der Vergleichsoperationen und Multiplikationen hängen nicht mit der Anzahl der Standorte zusammen,
+jedoch haben sich verschieden komplexe Strukturen für diese Fälle als Beste erwiesen.
+\newline
+\newline
+Bei der Feature-Extrahierung für das ML-Modell zur Anomalieerkennung werden nur vier Features extrahiert.
+Tabelle (TODO) zeigt die estimierte Anzahl der Operationen, die für die einzelnen Features benötigt werden.
+Der Entscheidungswald zur Anomalieerkennung benötigt (TODO) Vergleiche und das FFNN zur Anomalieerkennung benötigt (TODO) Multiplikationen.
+\newline
+\newline
+Tabelle (TODO) fasst die Anzahl der Operationen für eine Konfiguration mit ausschließlich Entscheidungswäldern und FFNNs zusammen.
+Es ist zu erwarten, dass die Entscheidungswälder weniger Ausführungszeit benötigen als die FFNNs, da deutlich weniger Operationen benötigt werden,
+wodurch sich ein Entscheidungsbaum basierter Klasifizierer in Hinsicht auf die benötigte Energie besser eignet.
+Bei konstanter Bewegung wurde in den Testszenarien der Mikrocontroller alle (TODO)s aufgeweckt.
+Dies ist aber unrealistisch, da die Sensorenbox auch für lange Zeit an einem Ort verbleiben kann, was sich positiv auf den Energiebedarf auswirkt.

@@ -269,8 +269,8 @@ class CompileAll:
             "acc_10_cont": "$P(B=10)_{\\text{cont}}$",
             "acc_pc_cont": "$P(C)_{\\text{cont}}$",
             "acc_pic_cont": "$P(D)_{\\text{cont}}$",
-            "loc_size": "Größe in KB",
-            "anomaly_size": "Größe in KB",
+            "loc_size": "Programmgröße in KB",
+            "anomaly_size": "Programmgröße in KB",
         }
         acc_kind_factor = 0.001 if acc_kind == "loc_size" else 100
         row_format = "{0} & {1} & {2:.1f} & {3:.1f} & {4:.1f} & {5:.1f} & {6:.1f} & {7:.1f} & {8:.1f} & {9:.1f} \\\\\\hline\n" if acc_kind == "loc_size" else "{0} & {1} & {2:.2f} & {3:.2f}\\% & {4:.2f}\\% & {5:.2f}\\% & {6:.2f}\\% & {7:.2f}\\% & {8:.2f}\\% & {9:.2f}\\% \\\\\\hline\n"
