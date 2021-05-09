@@ -1,0 +1,58 @@
+\section{Ausführungszeit und benötigte Energie}
+Es ist sehr problemetisch eine sinvolle Estimierung für die benötigte Ausführungszeit und Energie anzugeben.
+Ausführungszeit und die benötigte Energie sind abhängig von dem verwendeten Mikrocontroller.
+Vergleichbare 32-Bit Mikrocontroller mit FPU (Floating Point Unit), zu den Microcontrollern die Dymel verwendet hat \cite{dymelThesis}, sind aus der AVR C Serie \cite{avr32BitDatasheet}.
+Leider ist deren Datenblätter keine Information über die Ausführungszeit von Gleitkommazahlinstruktionen und kein Energiemodell zu entnehmen.
+Es ist aber anzunehmen, dass deutlich weniger Cyclen benötigt werden für hardwareunterstützte Gleitkommazahloperationen, als Software basierte Alternativen.
+Aus diesem Grund wird die Ausführungszeit in Gleitkommazahl- Vergleichen, Multiplikationen, Division, Additionen und Wurzel angegeben,
+da diese die integralen Bestandteile der Feature-Extrahierung und Evaluation der ML-Modelle sind.
+\newline
+\newline
+Hier werden die Konfigurationen (TODO) betrachtet, da diese die beste Klassifizierungsgenauigkeit erzielt in Relation zu ihrer Größe erzielt haben.
+Die in dieser Arbeit vorgeschlagene Architektur (\ref{fig:model_idea}) hat fünf Bestandteile, die jeweils zur Gesamtausführungszeit beitragen.
+Die Aufnahme der Sensorwerte wird als konstanter Energieverbrauch angenommen und in dieser Rechnung vernachlässigt.
+In der ersten Feature-Extrahierung werden 34 Features aus dem Datenfenster extrahiert.
+Tabelle \ref{tab:feature_operation_complexity} zeigt die estimierte Anzahl der Operationen, die pro Art des Features benötigt werden.
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{ | l | c | c | c | c | c | }
+        \hline
+        Art des Features & Vergleich & Multiplikation & Division & Addition & Wurzel \\\hline
+        Standardabweichung (\textbf{7}) & 0 & 3 & 2 & 7 & 1 \\\hline
+        Minimum (\textbf{6}) / Maximum (\textbf{6}) & 2 & 0 & 0 & 0 & 0 \\\hline
+        Durchschnitt (\textbf{6}) & 0 & 0 & 1 & 2 & 0 \\\hline
+        Wert (\textbf{9}) & 0 & 0 & 0 & 0 & 0 \\\hline
+    \end{tabular}
+    \caption{Estimierte Anzahl der Operationen pro Art des Features bei einer Datenfenstergröße von 3. Fettgedruckte Zahl zeigt die Verwendungsanazahl in der Feature-Menge an.}
+    \label{tab:feature_operation_complexity}
+\end{table}
+\newline
+\newline
+Tabelle (TODO) zeigt die estimierte Anzahl der Operationen, die jeweils für den besten Entscheidungswäldern und FFNNs zur Standorterkennung benötigt werden.
+Die Anzahl der Vergleichsoperationen und Multiplikationen hängen nicht mit der Anzahl der Standorte zusammen,
+jedoch haben sich verschieden komplexe Strukturen für diese Fälle als Beste erwiesen.
+\newline
+\newline
+Bei der Feature-Extrahierung für das ML-Modell zur Anomalieerkennung werden nur vier Features extrahiert.
+Tabelle \ref{tab:anomaly_feature_operation_complexity} zeigt die estimierte Anzahl der Operationen, die für die einzelnen Features benötigt werden.
+Der Entscheidungswald zur Anomalieerkennung benötigt (TODO) Vergleiche und das FFNN zur Anomalieerkennung benötigt (TODO) Multiplikationen.
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{ | p{4.5cm} | c | c | c | c | c | }
+        \hline
+        Feature & Vergleich & Multiplikation & Division & Addition & Wurzel \\\hline
+        Abweichung zum ØStandortänderungen & 4 & 0 & 2 & 5 & 0 \\\hline
+        Abweichung zum ØKlassifizierungswahrscheinlichkeit & 4 & 0 & 2 & 5 & 0 \\\hline
+        Topologieverletzung & 5 & 1 & 0 & 1 & 0 \\\hline
+        Standardabweichung Top 5 Klassifizierungen & 0 & 5 & 2 & 13 & 1 \\\hline
+    \end{tabular}
+    \caption{Estimierte Anzahl der Operationen pro Feature der Anomalieerkennung.}
+    \label{tab:anomaly_feature_operation_complexity}
+\end{table}
+\newline
+\newline
+Tabelle (TODO) fasst die Anzahl der Operationen für eine Konfiguration mit ausschließlich Entscheidungswäldern und FFNNs zusammen.
+Es ist zu erwarten, dass die Entscheidungswälder weniger Ausführungszeit benötigen als die FFNNs, da deutlich weniger Operationen benötigt werden,
+wodurch sich ein Entscheidungsbaum basierter Klasifizierer in Hinsicht auf die benötigte Energie besser eignet.
+Bei konstanter Bewegung wurde in den Testszenarien der Mikrocontroller alle (TODO)s aufgeweckt.
+Dies ist aber unrealistisch, da die Sensorenbox auch für lange Zeit an einem Ort verbleiben kann, was sich positiv auf den Energiebedarf auswirkt.

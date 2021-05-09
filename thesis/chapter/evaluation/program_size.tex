@@ -1,0 +1,71 @@
+\section{Programmspeicher}
+Der Großteil des Programmspeichers wird für das ML-Modell benötigt.
+Aus diesem Grund wird der Anteil des Programmspeichers $X$ in der Evaluation vernachlässigt,
+der für die restlichen Funktionen und für die Feature-Extrahierung benötigt wird.
+Zudem ist der benötigte Programmspeicher dieses Anteils konstant und skaliert nicht mit der Größe, wie die ML-Modelle.
+\newline
+\newline
+Zur Estimierung des Programmspeichers der Entscheidungsbäume wird der hybride Ansatz mit einer Toleranz von $\epsilon=0$ angenommen,
+d. h. es werden für eindeutige Ergebnisse diskrete Rückgaben zurückgegeben, anstatt der Wahrscheinlichkeitsverteilung.
+Als Datentyp für die Vergleiche und allen Features wird angenommen, dass ein vier Byte Datentyp verwendet wird.
+Für einen Vergleich werden fünf Instruktionen benötigt \cite{dymelThesis}.
+Für eine Rückgabe werden zwischen zwei und $2(N+1)$ Instruktionen und zwischen 0 und $2N$ Parameter benötigt,
+wobei $N$ die Anzahl der möglichen Standorte ist.
+Die Größe einer Instruktion ist 4 Byte, da eine 32-Bit CPU angenommen wird.
+Die Größe des zusammenfassenden Klassifizierers $Z$ wird vernachlässigt.
+\newline
+\newline
+Für die FFNNs wird ebenfalls ein vier Byte Datentyp für die Biase und die Gewichte angenommen.
+Die Größe des Algorithmus zur Ausführung des KNN ist unbekannt und wird als konstanter Wert $Y$ angenommen,
+liegt aber, den Zahlen in Gieses Arbeit nach zu urteilen, zwischen 6 und 7 KB \cite{gieseThesis}.
+\newline
+\newline
+Tabelle \ref{tab:predictions_by_loc_size} zeigt Estimierungen des benötigten Programmspeichers der verschiedenen Konfigurationen der ML-Modelle,
+wobei die konstanten Anteile vernachlässigt werden.
+Potentielle Optimierungen, z. B. durch den Compiler, wurden dabei nicht betrachtet,
+sowie potentielle Optimierungen des FFNN, wie Giese sie vorgeschlagen hat \cite{gieseThesis}.
+Giese hat mit dem CSC-MA-Bit Format die Programmgröße um 39\% reduzieren können.
+Kompilierung mit der Optimierungsstufe \textit{O2} konnte experimentell generierten C-Code
+eines Entscheidungswaldes um bis zu 21,3\% reduzieren.
+\newline
+\newline
+Der benötigte Programmspeicher beider ML-Modelle skaliert mit der Anzahl der zu klassifizierenden Standorte, der Anzahl der Schichten bzw. Bäume
+und der Anzahl der Neuronen pro Schicht bzw. der maximalen Baumhöhe.
+Der von den Entscheidungswäldern benötigte Programmspeicher ist für fast alle Fälle zu viel
+für die Limitierungen eines kleinen eingebetteten Systems.
+Die FFNNs hingegen benötigen deutlich weniger Programmspeicher und könnten innerhalb der Limitierungen der kleinen eingebetten Systeme passen.
+\newline
+\newline
+TODO: Braucht man mehr Neuronen/Hidden Layer mit steigender Ort Anzahl? (Hier oder bei ML-Modell FFNN)
+\newline
+TODO: Wie viel Speicherverbrauch spart man durch die Feature-Selection zusätzlich ein?
+\begin{table}[h!]
+    \hspace{-2cm}
+    \begin{tabular}{ | c | c | c | c | c | c | c | c | c | c | }
+        \hline
+        \multicolumn{2}{ | l |}{Größe in KB über Standorte} & 9 & 16 & 17 & 25 & 32 & 48 & 52 & 102 \\\hline
+        \multicolumn{10}{| l |}{\textbf{Entscheidungswälder}}\\\hline
+        Waldgröße & Max. Baumgröße & \multicolumn{8}{ c |}{}\\\hline
+        16 & 8 & 79.9 & 83.2 & 117.9 & 169.6 & 147.2 & 204.1 & 254.9 & 354.0 \\\hline
+        16 & 16 & 192.2 & 199.0 & 277.4 & 512.7 & 371.1 & 750.4 & 914.4 & 1350.0 \\\hline
+        16 & 32 & 185.7 & 197.6 & 287.2 & 550.2 & 394.5 & 875.6 & 1016.7 & 1582.3 \\\hline
+        16 & 64 & 185.7 & 197.6 & 287.2 & 543.0 & 394.5 & 875.6 & 943.6 & 1582.3 \\\hline
+        8 & 32 & 94.7 & 108.1 & 136.7 & 252.7 & 192.9 & 436.8 & 465.6 & 753.8 \\\hline
+        16 & 32 & 185.7 & 197.6 & 287.2 & 550.2 & 394.5 & 875.6 & 1016.7 & 1582.3 \\\hline
+        32 & 32 & 364.8 & 401.7 & 575.7 & 1055.9 & 803.9 & 1701.0 & 1962.6 & 3061.1 \\\hline
+        64 & 32 & 776.1 & 842.8 & 1173.8 & 2132.7 & 1584.7 & 3455.2 & 3987.8 & 6327.0 \\\hline
+        32 & 64 & 364.8 & 401.7 & 575.7 & 1055.9 & 803.9 & 1701.0 & 1962.6 & 3215.9 \\\hline
+        \multicolumn{10}{| l |}{\textbf{Feed Forward neuronale Netzwerke}}\\\hline
+        \#Schichten & \#Neuronen & \multicolumn{8}{ c |}{}\\\hline
+        1 & 16 & 2.8 & 3.2 & 3.3 & 3.8 & 4.2 & 5.2 & 5.5 & 8.7 \\\hline
+        1 & 32 & 5.5 & 6.4 & 6.5 & 7.6 & 8.4 & 10.5 & 11.0 & 17.4 \\\hline
+        1 & 64 & 11.0 & 12.8 & 13.1 & 15.1 & 16.9 & 21.0 & 22.0 & 34.8 \\\hline
+        1 & 128 & 22.0 & 25.6 & 26.1 & 30.2 & 33.8 & 42.0 & 44.0 & 69.6 \\\hline
+        2 & 32 & 9.6 & 10.5 & 10.6 & 11.6 & 12.5 & 14.6 & 15.1 & 21.5 \\\hline
+        4 & 32 & 17.8 & 18.7 & 18.8 & 19.8 & 20.7 & 22.8 & 23.3 & 29.7 \\\hline
+        8 & 32 & 34.2 & 35.1 & 35.2 & 36.2 & 37.1 & 39.2 & 39.7 & 46.1 \\\hline
+        4 & 64 & 60.2 & 62.0 & 62.2 & 64.3 & 66.0 & 70.1 & 71.2 & 84.0 \\\hline
+    \end{tabular}
+    \caption{Größe in KB über Standorte und verschiedenen Konfigurationen der ML-Modelle zur Standorterkennung.}
+    \label{tab:predictions_by_loc_size}
+\end{table}
