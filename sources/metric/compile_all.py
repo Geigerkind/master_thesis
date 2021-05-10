@@ -64,7 +64,7 @@ class CompileAll:
             if "/evaluation" in subdir or "combined" in subdir or "anomaly" in subdir:
                 continue
 
-            if "bin/failure1/eval" in subdir:
+            if "bin/eval" in subdir:
                 re_match = regex_template.findall(subdir[bin_path_len:])
                 path_encoded = int(re_match[0]) == 1
                 num_trees = int(re_match[1])
@@ -312,4 +312,4 @@ class CompileAll:
         file.write("\\end{table}\n")
 
 
-CompileAll("/home/shino/Uni/master_thesis/bin/failure1")
+CompileAll("/home/shino/Uni/master_thesis/bin")
