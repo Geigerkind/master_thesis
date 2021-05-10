@@ -24,7 +24,7 @@ wodurch die ML-Modelle besser vergleichbar sind.
     &\Psi(i) := \text{Index von dem vorherigen Standort.} \nonumber\\
     &\Omega(i) := \Phi(i)-i\leq\epsilon\wedge\hspace{-0.3cm} \bigwedge\limits_{i\leq q \leq \min(\#K, \Phi(i))}\hspace{-0.3cm} L_q=K_{\Phi(i)} \nonumber\\
     &\Theta(i) := i-\Psi(i)\leq\epsilon\wedge\hspace{-0.3cm} \bigwedge\limits_{\max(0, \Psi(i))\leq q \leq i}\hspace{-0.3cm} L_q=K_{\Psi(i)} \nonumber\\
-    &P(B) := \frac{\#\{L_i | L_i=K_i \vee \Omega(i) \vee \Theta(i)\text{ für } i\in\{0, 1, ..., \#L - 1\}\}}{\#K}
+    &P(B=\epsilon) := \frac{\#\{L_i | L_i=K_i \vee \Omega(i) \vee \Theta(i)\text{ für } i\in\{0, 1, ..., \#L - 1\}\}}{\#K}
 \end{flalign}
 Zuletzt zwei Metriken bei denen die Klassifizierungsgenauigkeit bestimmt wird, unter der Bedingung, dass der vorherige
 Standort korrekt bzw. inkorrekt (\ref{formular:accuracy_previous_was_in_correct}) war.

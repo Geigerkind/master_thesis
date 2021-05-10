@@ -3,3 +3,6 @@ external_sources
 venv
 *__pycache__*
 bin
+coppelia_sim
+evaluation.zip
+external_eval

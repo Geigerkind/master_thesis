@@ -43,6 +43,7 @@ class CompileAll:
             # Latex tables
             self.__generate_latex_table(acc_type)
         self.__generate_latex_table("loc_size")
+        self.__generate_graph_best_dt_vs_best_ffnn_vs_kind("acc", "acc_cont")
 
     def __load_log_accuracies(self):
         def extract_accuracies_from_file(file):
@@ -185,8 +186,64 @@ class CompileAll:
         plt.xlabel("Anzahl Standorte (Diskret)")
         plt.ylabel("Klassifizierungsgenauigkeit")
         plt.ylim([0, 1])
-        fig.legend(['Entscheidungsbaum', 'FFNN'], loc=[0.68, 0.77])
+        fig.legend(['Entscheidungsbaum', 'FFNN'], loc=[0.13, 0.13])
         plt.savefig("{0}/best_dt_vs_best_ffnn_over_num_loc_using_{1}.png".format(self.bin_path, acc_kind))
+        plt.clf()
+        plt.close(fig)
+
+    def __generate_graph_best_dt_vs_best_ffnn_vs_kind(self, acc_kind, vs_acc_kind):
+        dt_accs = []
+        dt_accs_vs = []
+        knn_accs = []
+        knn_accs_vs = []
+        for num_loc in self.distinct_number_of_locations:
+            by_loc = self.prediction_accuracies.query("not is_faulty and num_locations == " + str(num_loc))
+            accs_per_dt = dict()
+            accs_per_dt_vs = dict()
+            accs_per_knn = dict()
+            accs_per_knn_vs = dict()
+            for row in by_loc.iterrows():
+                key_dt = (row[1]["trees"], row[1]["max_depth"])
+                if key_dt in accs_per_dt:
+                    accs_per_dt[key_dt].append(row[1]["dt_" + acc_kind])
+                else:
+                    accs_per_dt[key_dt] = [row[1]["dt_" + acc_kind]]
+
+                if key_dt in accs_per_dt_vs:
+                    accs_per_dt_vs[key_dt].append(row[1]["dt_" + vs_acc_kind])
+                else:
+                    accs_per_dt_vs[key_dt] = [row[1]["dt_" + vs_acc_kind]]
+
+                key_knn = (row[1]["layers"], row[1]["neurons"])
+                if key_knn in accs_per_knn:
+                    accs_per_knn[key_knn].append(row[1]["knn_" + acc_kind])
+                else:
+                    accs_per_knn[key_knn] = [row[1]["knn_" + acc_kind]]
+                if key_knn in accs_per_knn_vs:
+                    accs_per_knn_vs[key_knn].append(row[1]["knn_" + vs_acc_kind])
+                else:
+                    accs_per_knn_vs[key_knn] = [row[1]["knn_" + vs_acc_kind]]
+
+            max_config_dt = max(accs_per_dt, key=lambda i: sum(accs_per_dt[i]))
+            dt_accs.append(sum(accs_per_dt[max_config_dt]) / len(accs_per_dt[max_config_dt]))
+            max_config_knn = max(accs_per_knn, key=lambda i: sum(accs_per_knn[i]))
+            knn_accs.append(sum(accs_per_knn[max_config_knn]) / len(accs_per_knn[max_config_knn]))
+
+            max_config_dt_vs = max(accs_per_dt_vs, key=lambda i: sum(accs_per_dt_vs[i]))
+            dt_accs_vs.append(sum(accs_per_dt_vs[max_config_dt_vs]) / len(accs_per_dt_vs[max_config_dt_vs]))
+            max_config_knn_vs = max(accs_per_knn_vs, key=lambda i: sum(accs_per_knn_vs[i]))
+            knn_accs_vs.append(sum(accs_per_knn_vs[max_config_knn_vs]) / len(accs_per_knn_vs[max_config_knn_vs]))
+
+        fig = plt.figure(figsize=(30 / 2.54, 15 / 2.54))
+        plt.plot(self.distinct_number_of_locations, dt_accs, "o-g")
+        plt.plot(self.distinct_number_of_locations, dt_accs_vs, "*-g")
+        plt.plot(self.distinct_number_of_locations, knn_accs, "o-b")
+        plt.plot(self.distinct_number_of_locations, knn_accs_vs, "*-b")
+        plt.xlabel("Anzahl Standorte (Diskret)")
+        plt.ylabel("Klassifizierungsgenauigkeit")
+        plt.ylim([0, 1])
+        fig.legend(['Entscheidungsbaum P(A)', 'Entscheidungsbaum P(A) (cont.)', 'FFNN P(A)', 'FFNN P(A) (cont.)'], loc=[0.13, 0.13])
+        plt.savefig("{0}/best_dt_vs_knn_{1}_vs_{2}.png".format(self.bin_path, acc_kind, vs_acc_kind))
         plt.clf()
         plt.close(fig)
 
@@ -217,7 +274,7 @@ class CompileAll:
         plt.xlabel("Anzahl Standorte (Diskret)")
         plt.ylabel("Klassifizierungsgenauigkeit")
         plt.ylim([0, 1])
-        fig.legend([label_function(x) for x in possible_groups], loc=[0.68, 0.77])
+        fig.legend([label_function(x) for x in possible_groups], loc=[0.13, 0.13])
         plt.savefig("{0}/multiple_best_by_group_{1}_{2}_{3}.png".format(self.bin_path, ml_kind, grouping_key, acc_kind))
         plt.clf()
         plt.close(fig)
