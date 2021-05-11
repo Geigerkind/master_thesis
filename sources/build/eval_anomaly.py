@@ -27,7 +27,7 @@ if __name__ == "__main__":
     ffnn_num_nodes_per_hidden_layer, ffnn_num_epochs, load_from_disk, \
     pregen_path, evaluation_name, res_input_data_sets = parse_cmd_args()
 
-    NUM_EPOCHS_PER_CYCLE = 150
+    NUM_EPOCHS_PER_CYCLE = 50
     WINDOW_SIZE = 35
 
 
@@ -321,7 +321,7 @@ if __name__ == "__main__":
 
             with Pool(processes=NUM_CORES) as pool:
                 result = pool.map(calculate_data_set, args)
-                for i in [0, 1]:
+                for i in [0, 1] + list(range(3, temp_set_len - 1)):
                     af_dt, al, af_dt_val, al_val, af_knn, af_knn_val, pred_dt_val, pred_knn_val = result[i]
 
                     anomaly_features_dt = anomaly_features_dt + af_dt
@@ -334,7 +334,7 @@ if __name__ == "__main__":
 
                     predicted_dt_val = predicted_dt_val + pred_dt_val
                     predicted_knn_val = predicted_knn_val + pred_knn_val
-                for i in range(2, temp_set_len - 1):
+                for i in [2]:
                     af_dt, al, af_dt_val, al_val, af_knn, af_knn_val, pred_dt_val, pred_knn_val = result[i]
 
                     anomaly_features_dt_test = anomaly_features_dt_test + af_dt + af_dt_val
@@ -342,8 +342,8 @@ if __name__ == "__main__":
                     anomaly_labels_test = anomaly_labels_test + al + al_val
 
             print("Training the anomaly detection models....")
-            model_anomaly_dt = GenerateDecisionTree(EnsembleMethod.RandomForest, 8, 20)
-            model_anomaly_knn = GenerateFFNN(len(anomaly_features_knn[0]), 2, 1, 32, NUM_EPOCHS_PER_CYCLE, True)
+            model_anomaly_dt = GenerateDecisionTree(EnsembleMethod.RandomForest, 4, 8)
+            model_anomaly_knn = GenerateFFNN(len(anomaly_features_knn[0]), 1, 1, 16, NUM_EPOCHS_PER_CYCLE, True)
 
             if not WITH_FEEDBACK_EDGE:
                 model_anomaly_dt.fit(anomaly_features_dt, anomaly_labels, 0.25)

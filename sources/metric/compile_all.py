@@ -313,7 +313,7 @@ class CompileAll:
                 else:
                     knn_accs[key] = [value]
 
-        group_order1 = [(16, 8), (16, 16), (16, 32), (16, 64), (8, 32), (16, 32), (32, 32), (64, 32), (32, 64)]
+        group_order1 = [(16, 8), (16, 16), (16, 32), (16, 64), (8, 32), (32, 32), (64, 32), (32, 64)]
         group_order2 = [(1, 16), (1, 32), (1, 64), (1, 128), (2, 32), (4, 32), (8, 32), (4, 64)]
         label_map = {
             "acc": "$P(A)$",
@@ -330,7 +330,7 @@ class CompileAll:
             "anomaly_size": "Programmgröße in KB",
         }
         acc_kind_factor = 0.001 if acc_kind == "loc_size" else 100
-        row_format = "{0} & {1} & {2:.1f} & {3:.1f} & {4:.1f} & {5:.1f} & {6:.1f} & {7:.1f} & {8:.1f} & {9:.1f} \\\\\\hline\n" if acc_kind == "loc_size" else "{0} & {1} & {2:.2f} & {3:.2f}\\% & {4:.2f}\\% & {5:.2f}\\% & {6:.2f}\\% & {7:.2f}\\% & {8:.2f}\\% & {9:.2f}\\% \\\\\\hline\n"
+        row_format = "{0} & {1} & {2:.1f} & {3:.1f} & {4:.1f} & {5:.1f} & {6:.1f} & {7:.1f} & {8:.1f} & {9:.1f} \\\\\\hline\n" if acc_kind == "loc_size" else "{0} & {1} & {2:.2f}\\% & {3:.2f}\\% & {4:.2f}\\% & {5:.2f}\\% & {6:.2f}\\% & {7:.2f}\\% & {8:.2f}\\% & {9:.2f}\\% \\\\\\hline\n"
 
         file = open(self.bin_path + "/predictions_by_" + acc_kind + ".tex", "w")
         file.write("\\begin{table}[h!]\n")

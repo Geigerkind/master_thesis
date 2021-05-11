@@ -1,5 +1,44 @@
 \section{Klassifizierungsgenauigkeit der Anomalien}
 \label{sec:eval_anomalieerkennung}
+Bei der Anomalieerkennung werden Entscheidungswälder und FFNNs mit den besten ML-Modellen zur Standorterkennung trainiert und mit den drei Baseline-Modellen verglichen.
+Tabelle \ref{tab:anomaly_detection_prediction_accuracy} zeigt die Klassifizierungsgenauigkeiten über die verschiedenen Standortkomplexitäten,
+wobei die Klassifizierungsgenauigkeit $P(A)$ nochmal genauer aufgeschlösselt ist in den Anteil der korrekten Klassifizierungen, wenn eine bzw. keine Anomalie vorlag.
+Die trainierten FFNNs sind immer equivalent zu dem Modell, dass immer keine Anomalie vorhersagt.
+Es ist unklar, warum die FFNNs sich so verhalten.
+Allerdings ist der Großteil der Trainingsdaten (ca. 75\%) stets keine Anomalie, wodurch dieses Ergebnis meistens besser ist als alle Baseline-Modelle.
+\begin{table}[h!]
+    \hspace{-1cm}
+    \begin{tabular}{ | l | c | c | c | c | c | c | c | c | }
+        \hline
+        Standorte & 9 & 16 & 17 & 25 & 32 & 48 & 52 & 102 \\\hline
+        \multicolumn{9}{ | l |}{$P(A)$}\\\hline
+        Entscheidungswald & 67,44\% & 81,99\% & 72,90\% & 81,64\% & 81,32\% & 80,69\% & 74,19\% & 75,52\% \\\hline
+        FFNN & 71,57\% & 72,01\% & 77,36\% & 77,45\% & 77,98\% & 77,85\% & 73,96\% & 73,94\% \\\hline
+        Immer-Wahr & 28,43\% & 27,99\% & 22,64\% & 22,55\% & 22,02\% & 22,15\% & 26,04\% & 26,06\% \\\hline
+        Immer-Falsch & 71,57\% & 72,01\% & 77,36\% & 77,45\% & 77,98\% & 77,85\% & 73,96\% & 73,94\% \\\hline
+        Topologie (DT) & 66,82\% & 70,86\% & 78,86\% & 77,85\% & 82,04\% & 61,18\% & 70,75\% & 77,73\% \\\hline
+        Topologie (KNN) & 67,41\% & 74,52\% & 76,71\% & 73,76\% & 71,96\% & 40,89\% & 68,45\% & 60,49\% \\\hline
+        \multicolumn{9}{ | l |}{Anteil korrekt klassifiziert, indem Anomalie vorlag}\\\hline
+        Entscheidungswald & 6,78\% & 69,27\% & 41,83\% & 42,98\% & 57,97\% & 49,56\% & 11,23\% & 9,00\% \\\hline
+        FFNN & 0,00\% & 0,00\% & 0,00\% & 0,00\% & 0,00\% & 0,00\% & 0,00\% & 0,00\% \\\hline
+        \multicolumn{9}{ | l |}{Anteil korrekt klassifiziert, indem keine Anomalie vorlag}\\\hline
+        Entscheidungswald & 91,54\% & 86,94\% & 81,98\% & 92,89\% & 87,91\% & 89,55\% & 96,35\% & 98,97\% \\\hline
+        FFNN & 100,00\% & 100,00\% & 100,00\% & 100,00\% & 100,00\% & 100,00\% & 100,00\% & 100,00\% \\\hline
+    \end{tabular}
+    \caption{Metrik $P(A)$ über Standorte und verschiedenen Konfigurationen der Modelle zur Anomalieerkennung.}
+    \label{tab:anomaly_detection_prediction_accuracy}
+\end{table}
+\newline
+\newline
+Die Entscheidungswälder hingegen scheinen sich besser zu eignen.
+Im Gegensatz zu den FFNNs werden zwischen 6,78\% und 69,27\% der Anomalien erkannt.
+Allerdings werden auch zwischen 1,03\% und 18,02\% falsch als Anomalien erkannt.
+Eine Abhängigkeit zu der Standortkomplexität ist nicht aus den Daten zu schließen,
+da sowohl bei einer geringer als auch bei einer sehr hohen Standorkomplexität geringe Klassifizierungsgenauigkeiten erzielt wurden.
+Dazwischen sind die Klassifizierungsgenauigkeiten sehr volatil.
+Wenn man die Standortkomplexitäten 9, 52 und 102 außenvor lässt, ist im Schnitt die Klassifizierungsgenauigkeit höher, wenn Kanten und Knoten enkodiert werden.
+
+
 \begin{itemize}
     \item Was ist das?
     \item Zusammenhang zu Enkodierungsansatz

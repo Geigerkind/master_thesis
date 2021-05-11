@@ -1,7 +1,55 @@
 \section{Signifikanz der Features}
-\begin{itemize}
-    \item Signifikanz der Features
-    \item Einfluss von einzelnen Features für die Klassifizierungsgenauigkeit(?) => Last Distinct location möglicherweise schlecht, da die eigentliche Last Distinct Location oft durch fehlende Interrupts übersprungen wird
-    \item Welche Feature werden genutzt? => Abhängig von Feature Importance und wie günstig zu berechnen
-    \item Ist es sinnvoll für jeden Ort ein Feature zu haben, dass auf eins gesetzt wird, wenn der Ort erkannt wurde und ansonsten exponentiell abfällt. Wie schnell sollte es fallen, wenn ja?
-\end{itemize}
+Die Signifikanz der Features wird über die Permutationswichtigkeit bestimmt.
+Die Permutationswichtigkeit ist der Fehler, der durch das permutieren eines Features in der Testmenge entsteht, im Vergleich zu der ursprünglichen Testmenge.
+Je größer der Fehler, desto wichtiger das Feature.
+\newline
+\newline
+Abbildungen \ref{fig:feature_significance_dt} und \ref{fig:feature_significance_knn} zeigen die Permutationswichtigkeit eines Entscheidungswaldes und FFNN.
+Die Permutationswichtigkeit von einzelnen Entscheidungswäldern bzw. FFNNs unterscheidet sich nicht stark.
+Beide ML-Modelle weisen den vorherigen Standorten eine hohe Signifikanz zu.
+Die Klassifizierunggenauigkeiten in Tabelle \ref{tab:predictions_by_acc_pic_cont} bestätigen diese Abhängigkeit.
+Demnach ist die Wahrscheinlichkeit sehr gering, dass der Standort korrekt klassifiziert wird, wenn der vorherige Standort inkorrekt war.
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\linewidth]{images/evaluation_feature_importance_dt_pi.png}
+    \caption{Permutationswichtigkeit der Features eines Entscheidungswaldes.}
+    \label{fig:feature_significance_dt}
+\end{figure}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\linewidth]{images/evaluation_feature_importance_knn_pi.png}
+    \caption{Permutationswichtigkeit der Features eines FFNN.}
+    \label{fig:feature_significance_knn}
+\end{figure}
+\newline
+\newline
+Für die Entscheidungswälder sind alle Features, bis auf die vorherige Position und die Standardabweichung in der Ausrichtung zum Magnetfeld unwichtig.
+Die FFNNs hingegen bedienen sich außerdem Features von dem Temperatursensor, dem Lichtsensor und vor allem der Detektierung von WLAN-Zugangspunkten.
+Allerdings sind FFNNs deutlich abhängiger von dem vorherigen Standort als Entscheidungswälder.
+\newline
+\newline
+Durch diese Abhängigkeit ist keine hohe Robustheit zu erwarten der ML-Modelle zu erwarten.
+Diese Abhängigkeit ließe sich Eliminieren, indem ohne die Rückwärtskante trainiert wird.
+Dies simplifiziert den Trainingsprozess, wodurch die ML-Modelle schneller zu trainieren sind.
+Tabelle \ref{tab:predictions_wo_feedback_edge_by_acc} zeigt, dass diese ML-Modelle vergleichbare Klassifizierungsgenauigkeiten erzielen.
+Insbesondere FFNNs erzielen deutlich bessere Klassfizierungsgenauigkeiten, erzielen aber dennoch schlechtere Ergebnisse als die Entscheidungswälder.
+Hier ist die Metrik $P(A)$ mit der Metrik $P(A)_{\text{cont}}$ vergleichbar, da der propagierte Fehler durch die Eliminierung der Rückwärtskante nicht mehr existiert.
+\newline
+\newline
+Abbildungen \ref{fig:feature_significance_dt_wo_fe} und \ref{fig:feature_significance_knn_wo_fe} zeigen die Permutationswichtigkeit der ML-Modelle ohne Rückwärtskante.
+Beide ML-Modelle gewichten Features aus anderen Sensorwerten deutlich mehr, im Vergleich zu den ML-Modellen mit Rückwärtskante.
+Die Entscheidungswälder gewichten dennoch nur die Standardabweichung der Ausrichtung zum Magnetfeld, due Detektierung der WLAN-Zugangspunkte und das Minimum des Lichtsensors stark.
+Die anderen Features sind im Vergleich deutlich unwichtiger.
+Das FFNN hingegen nutzt alle Features, wobei Features aus dem Accelerometer und Gyroskop unwichtiger sind.
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\linewidth]{images/fi_wo_fe_dt.png}
+    \caption{Permutationswichtigkeit der Features eines Entscheidungswaldes ohne Rückwärtskante.}
+    \label{fig:feature_significance_dt_wo_fe}
+\end{figure}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\linewidth]{images/fi_wo_fe_knn.png}
+    \caption{Permutationswichtigkeit der Features eines FFNN ohne Rückwärtskante.}
+    \label{fig:feature_significance_knn_wo_fe}
+\end{figure}

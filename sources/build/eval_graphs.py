@@ -65,7 +65,7 @@ def generate_graphs(path, prefix, model_dt, test_set_features_dt, test_set_featu
 
     GraphTrueVsPredicted(path, prefix + "_dt" + extra_suffix, True, test_set_labels_dt, num_outputs, predicted_dt)
     GraphTrueVsPredicted(path, prefix + "_knn" + extra_suffix, False, test_set_labels_knn, num_outputs, predicted_knn)
-
+    """
     if not is_anomaly:
         GraphRecognizedPathSegment(path, prefix + "_dt", True, test_set_labels_dt, predicted_dt)
         GraphRecognizedPathSegment(path, prefix + "_knn", False, test_set_labels_knn, predicted_knn)
@@ -106,6 +106,7 @@ def generate_graphs(path, prefix, model_dt, test_set_features_dt, test_set_featu
         CompileLog(path, prefix + "_dt")
         CompileLog(path, prefix + "_knn")
     print("Whole evaluation: {0} => ({1})".format(time.time() - start_eval, use_continued_prediction))
+    """
 
 
 with open(pregen_path, 'rb') as file:
@@ -146,6 +147,7 @@ with open(pregen_path, 'rb') as file:
         test_labels_knn = []
 
         # Parameter data sets
+        """
         for i in range(len(data.test_labels_dt)):
             test_set_names.append(data.name_map_data_sets_test[i])
             new_set_dt, new_labels_dt, new_set_knn, new_labels_knn = glue_test_sets(data.test_features_dt[i],
@@ -170,6 +172,7 @@ with open(pregen_path, 'rb') as file:
             test_labels_dt.append(np.asarray(new_labels_dt).copy())
             test_sets_knn.append(np.asarray(new_set_knn).copy())
             test_labels_knn.append(np.asarray(new_labels_knn).copy())
+        """
 
         # Anomaly data sets
         for i in range(len(data.temporary_test_set_labels_dt)):

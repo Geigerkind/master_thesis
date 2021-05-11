@@ -160,7 +160,7 @@ class GraphTrueVsPredicted:
         plt.ylabel("Standort (Diskret)")
         plt.ylim([0, self.num_outputs - 1])
         # plt.title("Ist vs. Soll Position")
-        plt.legend(['Ist Position', 'Soll Position'], loc=[0.68, 0.77])
+        plt.legend(['Soll Position', 'Ist Position'], loc=[0.83, 0.87])
         plt.savefig("{0}{1}".format(self.file_path, self.__graph_name()))
         plt.clf()
         plt.close(fig)
