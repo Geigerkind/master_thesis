@@ -23,7 +23,7 @@ just like how it is described in the thesis.
 if __name__ == "__main__":
     encode_paths_between_as_location, dt_forest_size, dt_max_height, ffnn_num_hidden_layers, \
     ffnn_num_nodes_per_hidden_layer, ffnn_num_epochs, load_from_disk, \
-    pregen_path, evaluation_name, res_input_data_sets = parse_cmd_args()
+    pregen_path, evaluation_name, res_input_data_sets, pregen_anamoly_path = parse_cmd_args()
 
     np.random.seed(0)
     os.environ['PYTHONHASHSEED'] = str(0)

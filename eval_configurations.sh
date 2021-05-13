@@ -1,18 +1,18 @@
 export PYTHONPATH="/home/shino/Uni/master_thesis"
 export TF_CPP_MIN_LOG_LEVEL=2
 
-NUM_ALLOWED_JOBS=2
+NUM_ALLOWED_JOBS=20
 
 function eval_model {
-  if [[ ! -f "${PYTHONPATH}/bin/eval_${1}_DT_${2}_${3}_KNN_${4}_${5}_${6}_DS_${8}/evaluation_knn_model.h5" ]]; then
-    python3 sources/build/eval.py ${1} ${2} ${3} ${4} ${5} ${6} ${7} 1
-  fi
-  #if [[ ! -f "${PYTHONPATH}/bin/eval_${1}_DT_${2}_${3}_KNN_${4}_${5}_${6}_DS_${8}/evaluation_knn_anomaly_model.h5" ]]; then
-  #  python3 sources/build/eval_anomaly.py ${1} ${2} ${3} ${4} ${5} ${6} ${7} 1
+  #if [[ ! -f "${PYTHONPATH}/bin/eval_${1}_DT_${2}_${3}_KNN_${4}_${5}_${6}_DS_${8}/evaluation_knn_model.h5" ]]; then
+  #  python3 sources/build/eval.py ${1} ${2} ${3} ${4} ${5} ${6} ${7} 1
   #fi
-  if [[ ! -f "${PYTHONPATH}/bin/eval_${1}_DT_${2}_${3}_KNN_${4}_${5}_${6}_DS_${8}/simple_square_test/evaluation_continued_knn/log_true_vs_predicted.csv" ]]; then
-    python3 sources/build/eval_graphs.py ${1} ${2} ${3} ${4} ${5} ${6} ${7} 1
-  fi
+  #if [[ ! -f "${PYTHONPATH}/bin/eval_${1}_DT_${2}_${3}_KNN_${4}_${5}_${6}_DS_${8}/evaluation_knn_anomaly_model.h5" ]]; then
+    python3 sources/build/eval_anomaly.py ${1} ${2} ${3} ${4} ${5} ${6} ${7} 1
+  #fi
+  #if [[ ! -f "${PYTHONPATH}/bin/eval_${1}_DT_${2}_${3}_KNN_${4}_${5}_${6}_DS_${8}/simple_square_test/evaluation_continued_knn/log_true_vs_predicted.csv" ]]; then
+  #  python3 sources/build/eval_graphs.py ${1} ${2} ${3} ${4} ${5} ${6} ${7} 1
+  #fi
 }
 
 function exec_model_in_parallel {

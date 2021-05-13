@@ -3,7 +3,7 @@ import sys
 from sources.data.data_set import DataSet
 
 BIN_FOLDER_PATH = "/home/shino/Uni/master_thesis/bin"
-NUM_CORES = 10
+NUM_CORES = 1
 WITHOUT_PREVIOUS_EDGE = False
 
 
@@ -39,5 +39,7 @@ def parse_cmd_args():
     load_from_disk = int(load_from_disk) == 1
     pregen_path = BIN_FOLDER_PATH + "/pregen_data/data_" + raw_encode_paths_between_as_location + "_" + "".join(
         [str(x) for x in input_data_sets]) + ".pkl"
+    pregen_anamoly_path = BIN_FOLDER_PATH + "/pregen_data/data_anamoly_" + raw_encode_paths_between_as_location + "_" + "".join(
+        [str(x) for x in input_data_sets]) + ".pkl"
 
-    return encode_paths_between_as_location, dt_forest_size, dt_max_height, ffnn_num_hidden_layers, ffnn_num_nodes_per_hidden_layer, ffnn_num_epochs, load_from_disk, pregen_path, evaluation_name, res_input_data_sets
+    return encode_paths_between_as_location, dt_forest_size, dt_max_height, ffnn_num_hidden_layers, ffnn_num_nodes_per_hidden_layer, ffnn_num_epochs, load_from_disk, pregen_path, evaluation_name, res_input_data_sets, pregen_anamoly_path

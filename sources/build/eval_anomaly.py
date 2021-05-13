@@ -1,3 +1,4 @@
+import os
 import pickle
 from multiprocessing import Pool
 
@@ -25,7 +26,7 @@ WITH_FEEDBACK_EDGE = False
 if __name__ == "__main__":
     encode_paths_between_as_location, dt_forest_size, dt_max_height, ffnn_num_hidden_layers, \
     ffnn_num_nodes_per_hidden_layer, ffnn_num_epochs, load_from_disk, \
-    pregen_path, evaluation_name, res_input_data_sets = parse_cmd_args()
+    pregen_path, evaluation_name, res_input_data_sets, pregen_anamoly_path = parse_cmd_args()
 
     NUM_EPOCHS_PER_CYCLE = 50
     WINDOW_SIZE = 35
@@ -280,20 +281,39 @@ if __name__ == "__main__":
         af_knn_val = af_knn_val + res_features_knn
         al_val = al_val + res_labels
 
-        return af_dt, al, af_dt_val, al_val, af_knn, af_knn_val, predicted_dt_val, predicted_knn_val
+        return af_dt, al, af_dt_val, al_val, af_knn, af_knn_val, predicted_dt_val, predicted_knn_val, predicted_dt, predicted_knn
 
 
     print("Loading data and models...")
-    with open(pregen_path, 'rb') as file:
-        data = pickle.load(file)
-        with open(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_dt_model.pkl", 'rb') as file:
-            map_args = []
-            model_dt = pickle.load(file)
+    with open(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_dt_model.pkl", 'rb') as file:
+        map_args = []
+        model_dt = pickle.load(file)
+
+        anomaly_features_dt = []
+        anomaly_features_knn = []
+        anomaly_labels = []
+
+        anomaly_features_dt_val = []
+        anomaly_features_knn_val = []
+        anomaly_labels_val = []
+
+        predicted_dt_val = []
+        predicted_knn_val = []
+
+        predicted_dt_test = []
+        predicted_knn_test = []
+
+        if not os.path.isfile(pregen_anamoly_path):
+
+            anomaly_features_dt_test = []
+            anomaly_features_knn_test = []
+            anomaly_labels_test = []
 
             print("Generating Training and Validation Data...")
+            data = pickle.load(open(pregen_path, 'rb'))
             args = []
 
-            for data_set_index in range(1, len(data.temporary_test_set_labels_dt)):
+            for data_set_index in range(len(data.temporary_test_set_labels_dt) - 4, len(data.temporary_test_set_labels_dt)):
                 args.append([data_set_index, model_dt, data.temporary_test_set_features_dt,
                              data.temporary_test_set_features_knn, data.temporary_test_set_labels_dt, data.num_outputs,
                              data.location_neighbor_graph, data.temporary_test_set_raw_data, data.num_cycles,
@@ -304,25 +324,10 @@ if __name__ == "__main__":
 
             data = 0
 
-            anomaly_features_dt = []
-            anomaly_features_knn = []
-            anomaly_labels = []
-
-            anomaly_features_dt_val = []
-            anomaly_features_knn_val = []
-            anomaly_labels_val = []
-
-            predicted_dt_val = []
-            predicted_knn_val = []
-
-            anomaly_features_dt_test = []
-            anomaly_features_knn_test = []
-            anomaly_labels_test = []
-
             with Pool(processes=NUM_CORES) as pool:
                 result = pool.map(calculate_data_set, args)
-                for i in [0, 1] + list(range(3, temp_set_len - 1)):
-                    af_dt, al, af_dt_val, al_val, af_knn, af_knn_val, pred_dt_val, pred_knn_val = result[i]
+                for i in [2, 1]:
+                    af_dt, al, af_dt_val, al_val, af_knn, af_knn_val, pred_dt_val, pred_knn_val, predicted_dt, predicted_knn = result[i]
 
                     anomaly_features_dt = anomaly_features_dt + af_dt
                     anomaly_labels = anomaly_labels + al
@@ -334,180 +339,212 @@ if __name__ == "__main__":
 
                     predicted_dt_val = predicted_dt_val + pred_dt_val
                     predicted_knn_val = predicted_knn_val + pred_knn_val
-                for i in [2]:
-                    af_dt, al, af_dt_val, al_val, af_knn, af_knn_val, pred_dt_val, pred_knn_val = result[i]
+                for i in [0]:
+                    af_dt, al, af_dt_val, al_val, af_knn, af_knn_val, pred_dt_val, pred_knn_val, predicted_dt, predicted_knn = result[i]
 
                     anomaly_features_dt_test = anomaly_features_dt_test + af_dt + af_dt_val
                     anomaly_features_knn_test = anomaly_features_knn_test + af_knn + af_knn_val
                     anomaly_labels_test = anomaly_labels_test + al + al_val
 
-            print("Training the anomaly detection models....")
-            model_anomaly_dt = GenerateDecisionTree(EnsembleMethod.RandomForest, 4, 8)
-            model_anomaly_knn = GenerateFFNN(len(anomaly_features_knn[0]), 1, 1, 16, NUM_EPOCHS_PER_CYCLE, True)
+                    predicted_dt_test = predicted_dt_test + predicted_dt + pred_dt_val
+                    predicted_knn_test = predicted_knn_test + predicted_knn + pred_knn_val
 
-            if not WITH_FEEDBACK_EDGE:
-                model_anomaly_dt.fit(anomaly_features_dt, anomaly_labels, 0.25)
-                model_anomaly_knn.fit(anomaly_features_knn, anomaly_labels, anomaly_features_knn_val,
-                                      anomaly_labels_val)
-            else:
-                NUM_TRAINING_CYCLES = 10
-                NUM_WARMUP_CYCLES = 2
-                INITIAL_PREDICT_FRACTION = 0.5
-                CYCLE_WHERE_EVERYTHING_IS_PREDICTED = 10
+            print("Normalizing FFNN data...")
+            feature_min_max = []
+            for i in range(len(anomaly_features_knn[0])):
+                feature_min_max.append((min([x[i] for x in anomaly_features_knn]), max([x[i] for x in anomaly_features_knn])))
 
-                af_dt = np.array_split(anomaly_features_dt, NUM_TRAINING_CYCLES + NUM_WARMUP_CYCLES)
-                af_knn = np.array_split(anomaly_features_knn, NUM_TRAINING_CYCLES + NUM_WARMUP_CYCLES)
-                al = np.array_split(anomaly_labels, NUM_TRAINING_CYCLES + NUM_WARMUP_CYCLES)
+                for feature_set in anomaly_features_knn:
+                    feature_set[i] = (feature_set[i] - feature_min_max[i][0]) / (feature_min_max[i][1] - feature_min_max[i][0])
 
-                train_af_dt = []
-                train_af_knn = []
-                train_al = []
-                for cycle in range(NUM_WARMUP_CYCLES):
-                    train_af_dt = train_af_dt + af_dt[cycle].tolist()
-                    train_af_knn = train_af_knn + af_knn[cycle].tolist()
-                    train_al = train_al + al[cycle].tolist()
-
-                model_anomaly_dt.fit(train_af_dt, train_al, 0.25)
-                model_anomaly_knn.fit(train_af_knn, train_al, anomaly_features_knn_val, anomaly_labels_val)
-
-                for cycle in range(NUM_WARMUP_CYCLES, NUM_TRAINING_CYCLES + NUM_WARMUP_CYCLES):
-                    print("Training cycle {0} of {1}...".format(cycle + 1, NUM_TRAINING_CYCLES + NUM_WARMUP_CYCLES))
-                    # Predict a fraction of the dataset
-                    fraction_to_predict = min(1.0, ((1.0 - INITIAL_PREDICT_FRACTION) / (
-                            (CYCLE_WHERE_EVERYTHING_IS_PREDICTED - NUM_WARMUP_CYCLES) ** 2)) * (
-                                                      (cycle - NUM_WARMUP_CYCLES) ** 2) + INITIAL_PREDICT_FRACTION)
-
-                    # Of that fraction we pick samples randomly
-                    permutation = np.random.permutation(len(af_dt[cycle]))
-                    predictions_dt = model_anomaly_dt.predict(af_dt[cycle])
-                    predictions_knn = model_anomaly_knn.predict(af_knn[cycle])
-                    for perm_index in range(0, int(len(af_dt[cycle]) * fraction_to_predict)):
-                        i = permutation[perm_index]
-                        if i == 0:
-                            continue
-
-                        af_dt[cycle][i][0] = predictions_dt[i - 1]
-                        af_knn[cycle][i][0] = int(predictions_knn[i - 1][0] >= 0.5)
-
-                    train_af_dt = train_af_dt + af_dt[cycle].tolist()
-                    train_af_knn = train_af_knn + af_knn[cycle].tolist()
-                    train_al = train_al + al[cycle].tolist()
-
-                    model_anomaly_dt = GenerateDecisionTree(EnsembleMethod.RandomForest, 8, 20)
-                    model_anomaly_knn = GenerateFFNN(len(anomaly_features_knn[0]), 2, 1, 32, NUM_EPOCHS_PER_CYCLE, True)
-
-                    model_anomaly_dt.fit(train_af_dt, train_al, 0.25)
-                    model_anomaly_knn.fit(train_af_knn, train_al, anomaly_features_knn_val, anomaly_labels_val)
-
-            print("Validating the models...")
-            # TODO: Adjust features from validation set to use predicted values for the window deviation
-            dt_acc = model_anomaly_dt.evaluate_accuracy(model_anomaly_dt.predict(anomaly_features_dt_val),
-                                                        anomaly_labels_val)
-            knn_acc = model_anomaly_knn.evaluate_accuracy(model_anomaly_knn.predict(anomaly_features_knn_val),
-                                                          anomaly_labels_val)
-
-            print("Accuracy DT: {0}".format(dt_acc))
-            print("Accuracy KNN: {0}".format(knn_acc))
-
-            acc_always_true = model_anomaly_dt.evaluate_accuracy([1 for _ in range(len(anomaly_labels_val))],
-                                                                 anomaly_labels_val)
-            acc_always_false = model_anomaly_dt.evaluate_accuracy([0 for _ in range(len(anomaly_labels_val))],
-                                                                  anomaly_labels_val)
-            print("Accuracy always True: {0}".format(acc_always_true))
-            print("Accuracy always False: {0}".format(acc_always_false))
-
-            # Prepare previous distinct locations for guessed locations
-            previous_distinct_locations_dt = [0, 0]
-            previous_distinct_locations_knn = [0, 0]
-
-            res_previous_distinct_locations_dt = []
-            res_previous_distinct_locations_knn = []
-            for i in range(len(predicted_dt_val)):
-                prediction_dt = np.asarray(predicted_dt_val[i]).argmax()
-                if encode_paths_between_as_location:
-                    prediction_dt = prediction_dt + 1
-                prediction_knn = np.asarray(predicted_knn_val[i]).argmax()
-
-                if 0 < prediction_dt != previous_distinct_locations_dt[-1]:
-                    previous_distinct_locations_dt.append(prediction_dt)
-                    previous_distinct_locations_dt.pop(0)
-
-                if 0 < prediction_knn != previous_distinct_locations_knn[-1]:
-                    previous_distinct_locations_knn.append(prediction_knn)
-                    previous_distinct_locations_knn.pop(0)
-
-                if prediction_dt == 0:
-                    res_previous_distinct_locations_dt.append(previous_distinct_locations_dt[-1])
-                else:
-                    res_previous_distinct_locations_dt.append(previous_distinct_locations_dt[-2])
-
-                if prediction_knn == 0:
-                    res_previous_distinct_locations_knn.append(previous_distinct_locations_knn[-1])
-                else:
-                    res_previous_distinct_locations_knn.append(previous_distinct_locations_knn[-2])
-
-            topology_guesser_dt = AnomalyTopologyGuesser(location_neighbor_graph)
-            topology_guesser_knn = AnomalyTopologyGuesser(location_neighbor_graph)
-            guessed_dt = []
-            guessed_knn = []
-            for i in range(len(res_previous_distinct_locations_dt)):
-                prediction_dt = np.asarray(predicted_dt_val[i]).argmax()
-                if encode_paths_between_as_location:
-                    prediction_dt = prediction_dt + 1
-                guessed_dt.append(
-                    int(topology_guesser_dt.predict(res_previous_distinct_locations_dt[i], prediction_dt)))
-                guessed_knn.append(int(topology_guesser_knn.predict(res_previous_distinct_locations_knn[i],
-                                                                    np.asarray(predicted_knn_val[i]).argmax())))
-
-            acc_top_dt = model_anomaly_dt.evaluate_accuracy(guessed_dt, anomaly_labels_val)
-            acc_top_knn = model_anomaly_dt.evaluate_accuracy(guessed_knn, anomaly_labels_val)
-            print("Accuracy Anomaly Topology Guesser (DT): {0}".format(acc_top_dt))
-            print("Accuracy Anomaly Topology Guesser (KNN): {0}".format(acc_top_knn))
-
-            print("Saving anomaly models...")
-            with open(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_dt_anomaly_model.pkl", 'wb') as file:
-                pickle.dump(model_anomaly_dt, file)
-
-            model_anomaly_knn.save(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_knn_anomaly_model.h5")
+                for feature_set in anomaly_features_knn_test:
+                    feature_set[i] = (feature_set[i] - feature_min_max[i][0]) / (feature_min_max[i][1] - feature_min_max[i][0])
 
             print("")
             print("Saving processed features and labels...")
             with open(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_anomaly_data.pkl", 'wb') as file:
                 anomaly_data = DumpAnomalyData(anomaly_features_dt, anomaly_features_knn, anomaly_features_dt_val,
                                                anomaly_features_knn_val, anomaly_labels, anomaly_labels_val,
-                                               anomaly_features_dt_test, anomaly_features_knn_test, anomaly_labels_test)
+                                               anomaly_features_dt_test, anomaly_features_knn_test, anomaly_labels_test,
+                                               feature_min_max, predicted_dt_val, predicted_knn_val, predicted_dt_test,
+                                               predicted_knn_test)
                 pickle.dump(anomaly_data, file)
+        else:
+            anomaly_data = pickle.load(open(pregen_anamoly_path, "rb"))
 
-            print("")
+            anomaly_features_dt = anomaly_data.train_features_dt
+            anomaly_features_knn = anomaly_data.train_features_knn
+            anomaly_labels = anomaly_data.train_labels
 
-            print("Generating fancy plots...")
-            knn_hist = model_anomaly_knn.get_history()
-            # KNN: Loss and Accuracy
-            fig, ax1 = plt.subplots()
-            ax1.plot(range(NUM_EPOCHS_PER_CYCLE), knn_hist["loss"], "o-g")
-            ax1.set_xlabel("Epoche")
-            ax1.set_ylabel("Loss")
-            ax1.set_title("Loss und Klassifizierungsgenauigkeit über Trainingsepochen")
-            ax2 = ax1.twinx()
-            ax2.plot(range(NUM_EPOCHS_PER_CYCLE), knn_hist["acc"], "*-b")
-            ax2.set_ylabel("Klassifizierungsgenauigkeit")
-            ax2.set_ylim([0, 1])
-            fig.legend(['Loss', 'Klassifizierungsgenauigkeit'], loc='upper left')
-            plt.savefig(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_anomaly_loss_acc_training.png")
-            plt.clf()
-            plt.close(fig)
+            anomaly_features_dt_val = anomaly_data.train_features_dt_val
+            anomaly_features_knn_val = anomaly_data.train_features_knn_val
+            anomaly_labels_val = anomaly_data.train_labels_val
 
-            # Validation set
-            fig, ax1 = plt.subplots()
-            ax1.plot(range(NUM_EPOCHS_PER_CYCLE), knn_hist["val_loss"], "o-g")
-            ax1.set_xlabel("Epoche")
-            ax1.set_ylabel("Loss")
-            ax1.set_title("Validation Loss und Klassifizierungsgenauigkeit über Trainingsepochen")
-            ax2 = ax1.twinx()
-            ax2.plot(range(NUM_EPOCHS_PER_CYCLE), knn_hist["val_acc"], "*-b")
-            ax2.set_ylabel("Klassifizierungsgenauigkeit")
-            ax2.set_ylim([0, 1])
-            fig.legend(['Loss', 'Klassifizierungsgenauigkeit'], loc='upper left')
-            plt.savefig(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_anomaly_loss_acc_validation.png")
-            plt.clf()
-            plt.close(fig)
+            predicted_dt_val = anomaly_data.predicted_dt_val
+            predicted_knn_val = anomaly_data.predicted_knn_val
+
+
+        print("Training the anomaly detection models....")
+        model_anomaly_dt = GenerateDecisionTree(EnsembleMethod.RandomForest, 4, 8)
+        model_anomaly_knn = GenerateFFNN(len(anomaly_features_knn[0]), 1, 1, 16, NUM_EPOCHS_PER_CYCLE, True)
+
+        if not WITH_FEEDBACK_EDGE:
+            model_anomaly_dt.fit(anomaly_features_dt, anomaly_labels, 0.25)
+            model_anomaly_knn.fit(anomaly_features_knn, anomaly_labels, anomaly_features_knn_val,
+                                  anomaly_labels_val)
+        else:
+            NUM_TRAINING_CYCLES = 10
+            NUM_WARMUP_CYCLES = 2
+            INITIAL_PREDICT_FRACTION = 0.5
+            CYCLE_WHERE_EVERYTHING_IS_PREDICTED = 10
+
+            af_dt = np.array_split(anomaly_features_dt, NUM_TRAINING_CYCLES + NUM_WARMUP_CYCLES)
+            af_knn = np.array_split(anomaly_features_knn, NUM_TRAINING_CYCLES + NUM_WARMUP_CYCLES)
+            al = np.array_split(anomaly_labels, NUM_TRAINING_CYCLES + NUM_WARMUP_CYCLES)
+
+            train_af_dt = []
+            train_af_knn = []
+            train_al = []
+            for cycle in range(NUM_WARMUP_CYCLES):
+                train_af_dt = train_af_dt + af_dt[cycle].tolist()
+                train_af_knn = train_af_knn + af_knn[cycle].tolist()
+                train_al = train_al + al[cycle].tolist()
+
+            model_anomaly_dt.fit(train_af_dt, train_al, 0.25)
+            model_anomaly_knn.fit(train_af_knn, train_al, anomaly_features_knn_val, anomaly_labels_val)
+
+            for cycle in range(NUM_WARMUP_CYCLES, NUM_TRAINING_CYCLES + NUM_WARMUP_CYCLES):
+                print("Training cycle {0} of {1}...".format(cycle + 1, NUM_TRAINING_CYCLES + NUM_WARMUP_CYCLES))
+                # Predict a fraction of the dataset
+                fraction_to_predict = min(1.0, ((1.0 - INITIAL_PREDICT_FRACTION) / (
+                        (CYCLE_WHERE_EVERYTHING_IS_PREDICTED - NUM_WARMUP_CYCLES) ** 2)) * (
+                                                  (cycle - NUM_WARMUP_CYCLES) ** 2) + INITIAL_PREDICT_FRACTION)
+
+                # Of that fraction we pick samples randomly
+                permutation = np.random.permutation(len(af_dt[cycle]))
+                predictions_dt = model_anomaly_dt.predict(af_dt[cycle])
+                predictions_knn = model_anomaly_knn.predict(af_knn[cycle])
+                for perm_index in range(0, int(len(af_dt[cycle]) * fraction_to_predict)):
+                    i = permutation[perm_index]
+                    if i == 0:
+                        continue
+
+                    af_dt[cycle][i][0] = predictions_dt[i - 1]
+                    af_knn[cycle][i][0] = int(predictions_knn[i - 1][0] >= 0.5)
+
+                train_af_dt = train_af_dt + af_dt[cycle].tolist()
+                train_af_knn = train_af_knn + af_knn[cycle].tolist()
+                train_al = train_al + al[cycle].tolist()
+
+                model_anomaly_dt = GenerateDecisionTree(EnsembleMethod.RandomForest, 8, 20)
+                model_anomaly_knn = GenerateFFNN(len(anomaly_features_knn[0]), 2, 1, 32, NUM_EPOCHS_PER_CYCLE, True)
+
+                model_anomaly_dt.fit(train_af_dt, train_al, 0.25)
+                model_anomaly_knn.fit(train_af_knn, train_al, anomaly_features_knn_val, anomaly_labels_val)
+
+        print("Validating the models...")
+        # TODO: Adjust features from validation set to use predicted values for the window deviation
+        dt_acc = model_anomaly_dt.evaluate_accuracy(model_anomaly_dt.predict(anomaly_features_dt_val),
+                                                    anomaly_labels_val)
+        knn_acc = model_anomaly_knn.evaluate_accuracy(model_anomaly_knn.predict(anomaly_features_knn_val),
+                                                      anomaly_labels_val)
+
+        print("Accuracy DT: {0}".format(dt_acc))
+        print("Accuracy KNN: {0}".format(knn_acc))
+
+        acc_always_true = model_anomaly_dt.evaluate_accuracy([1 for _ in range(len(anomaly_labels_val))],
+                                                             anomaly_labels_val)
+        acc_always_false = model_anomaly_dt.evaluate_accuracy([0 for _ in range(len(anomaly_labels_val))],
+                                                              anomaly_labels_val)
+        print("Accuracy always True: {0}".format(acc_always_true))
+        print("Accuracy always False: {0}".format(acc_always_false))
+
+        # Prepare previous distinct locations for guessed locations
+        """
+        previous_distinct_locations_dt = [0, 0]
+        previous_distinct_locations_knn = [0, 0]
+
+        res_previous_distinct_locations_dt = []
+        res_previous_distinct_locations_knn = []
+        for i in range(len(predicted_dt_val)):
+            prediction_dt = np.asarray(predicted_dt_val[i]).argmax()
+            if encode_paths_between_as_location:
+                prediction_dt = prediction_dt + 1
+            prediction_knn = np.asarray(predicted_knn_val[i]).argmax()
+
+            if 0 < prediction_dt != previous_distinct_locations_dt[-1]:
+                previous_distinct_locations_dt.append(prediction_dt)
+                previous_distinct_locations_dt.pop(0)
+
+            if 0 < prediction_knn != previous_distinct_locations_knn[-1]:
+                previous_distinct_locations_knn.append(prediction_knn)
+                previous_distinct_locations_knn.pop(0)
+
+            if prediction_dt == 0:
+                res_previous_distinct_locations_dt.append(previous_distinct_locations_dt[-1])
+            else:
+                res_previous_distinct_locations_dt.append(previous_distinct_locations_dt[-2])
+
+            if prediction_knn == 0:
+                res_previous_distinct_locations_knn.append(previous_distinct_locations_knn[-1])
+            else:
+                res_previous_distinct_locations_knn.append(previous_distinct_locations_knn[-2])
+
+        topology_guesser_dt = AnomalyTopologyGuesser(location_neighbor_graph)
+        topology_guesser_knn = AnomalyTopologyGuesser(location_neighbor_graph)
+        guessed_dt = []
+        guessed_knn = []
+        for i in range(len(res_previous_distinct_locations_dt)):
+            prediction_dt = np.asarray(predicted_dt_val[i]).argmax()
+            if encode_paths_between_as_location:
+                prediction_dt = prediction_dt + 1
+            guessed_dt.append(
+                int(topology_guesser_dt.predict(res_previous_distinct_locations_dt[i], prediction_dt)))
+            guessed_knn.append(int(topology_guesser_knn.predict(res_previous_distinct_locations_knn[i],
+                                                                np.asarray(predicted_knn_val[i]).argmax())))
+
+        acc_top_dt = model_anomaly_dt.evaluate_accuracy(guessed_dt, anomaly_labels_val)
+        acc_top_knn = model_anomaly_dt.evaluate_accuracy(guessed_knn, anomaly_labels_val)
+        print("Accuracy Anomaly Topology Guesser (DT): {0}".format(acc_top_dt))
+        print("Accuracy Anomaly Topology Guesser (KNN): {0}".format(acc_top_knn))
+        """
+
+        print("Saving anomaly models...")
+        with open(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_dt_anomaly_model.pkl", 'wb') as file:
+            pickle.dump(model_anomaly_dt, file)
+
+        model_anomaly_knn.save(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_knn_anomaly_model.h5")
+
+        print("")
+
+        print("Generating fancy plots...")
+        knn_hist = model_anomaly_knn.get_history()
+        # KNN: Loss and Accuracy
+        fig, ax1 = plt.subplots()
+        ax1.plot(range(NUM_EPOCHS_PER_CYCLE), knn_hist["loss"], "o-g")
+        ax1.set_xlabel("Epoche")
+        ax1.set_ylabel("Loss")
+        ax1.set_title("Loss und Klassifizierungsgenauigkeit über Trainingsepochen")
+        ax2 = ax1.twinx()
+        ax2.plot(range(NUM_EPOCHS_PER_CYCLE), knn_hist["acc"], "*-b")
+        ax2.set_ylabel("Klassifizierungsgenauigkeit")
+        ax2.set_ylim([0, 1])
+        fig.legend(['Loss', 'Klassifizierungsgenauigkeit'], loc='upper left')
+        plt.savefig(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_anomaly_loss_acc_training.png")
+        plt.clf()
+        plt.close(fig)
+
+        # Validation set
+        fig, ax1 = plt.subplots()
+        ax1.plot(range(NUM_EPOCHS_PER_CYCLE), knn_hist["val_loss"], "o-g")
+        ax1.set_xlabel("Epoche")
+        ax1.set_ylabel("Loss")
+        ax1.set_title("Validation Loss und Klassifizierungsgenauigkeit über Trainingsepochen")
+        ax2 = ax1.twinx()
+        ax2.plot(range(NUM_EPOCHS_PER_CYCLE), knn_hist["val_acc"], "*-b")
+        ax2.set_ylabel("Klassifizierungsgenauigkeit")
+        ax2.set_ylim([0, 1])
+        fig.legend(['Loss', 'Klassifizierungsgenauigkeit'], loc='upper left')
+        plt.savefig(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_anomaly_loss_acc_validation.png")
+        plt.clf()
+        plt.close(fig)
