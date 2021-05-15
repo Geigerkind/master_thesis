@@ -159,7 +159,7 @@ class GenerateFFNN:
         self.keras_model.save(file_path)
 
     @staticmethod
-    def feature_importances(fitted_model, test_features, test_labels):
+    def feature_importances(fitted_model, test_features, test_labels, is_binary=False):
         """
         In comparison to Decision Trees, Neural Networks dont provide such a function.
         However there is something called "Permutation Importance".
@@ -175,7 +175,7 @@ class GenerateFFNN:
         """
 
         test_predictions = fitted_model.predict(test_features)
-        test_accuracy = GenerateFFNN.__evaluate_accuracy(test_predictions, test_labels)
+        test_accuracy = GenerateFFNN.__evaluate_accuracy(test_predictions, test_labels, is_binary)
 
         importances = []
         test_len = len(test_features)

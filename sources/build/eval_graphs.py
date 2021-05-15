@@ -6,7 +6,7 @@ from multiprocessing import Pool
 import numpy as np
 from tensorflow import keras
 
-from sources.config import BIN_FOLDER_PATH, NUM_CORES, parse_cmd_args, WITHOUT_PREVIOUS_EDGE
+from sources.config import BIN_FOLDER_PATH, NUM_CORES, parse_cmd_args
 from sources.ffnn.gen_ffnn import GenerateFFNN
 from sources.metric.compile_log import CompileLog
 from sources.metric.graph_feature_importance import GraphFeatureImportance
@@ -50,7 +50,7 @@ def generate_graphs(path, prefix, model_dt, test_set_features_dt, test_set_featu
 
     GraphFeatureImportance(path, "evaluation" + extra_suffix, model_dt, model_knn, test_set_features_knn,
                            test_set_labels_knn,
-                           test_set_features_dt, test_set_labels_dt, feature_name_map)
+                           test_set_features_dt, test_set_labels_dt, feature_name_map, is_anomaly)
 
     now = time.time()
     predicted_dt = model_dt.continued_predict(test_set_features_dt,
@@ -110,14 +110,14 @@ def generate_graphs(path, prefix, model_dt, test_set_features_dt, test_set_featu
 
 with open(pregen_path, 'rb') as file:
     data = pickle.load(file)
-    # anomaly_file = open(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_anomaly_data.pkl", "rb")
-    # anomaly_data = pickle.load(anomaly_file)
+    anomaly_file = open(pregen_anamoly_path, "rb")
+    anomaly_data = pickle.load(anomaly_file)
     with open(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_dt_model.pkl", 'rb') as file:
         model_dt = pickle.load(file)
 
+        model_anomaly_dt = pickle.load(
+            open(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_dt_anomaly_model.pkl", 'rb'))
 
-        # model_anomaly_dt = pickle.load(
-        #    open(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_dt_anomaly_model.pkl", 'rb'))
 
         def glue_test_sets(features_dt, labels_dt, features_knn, labels_knn):
             new_set_dt = []
@@ -175,6 +175,7 @@ with open(pregen_path, 'rb') as file:
         """
 
         # Anomaly data sets
+        """
         for i in range(len(data.temporary_test_set_labels_dt)):
             test_set_names.append(data.name_map_data_sets_temporary[i])
             new_set_dt, new_labels_dt, new_set_knn, new_labels_knn = glue_test_sets(
@@ -241,38 +242,27 @@ with open(pregen_path, 'rb') as file:
         pool.join()
 
         """
-        for i in range(len(data.temporary_test_set_labels_dt)):
-            new_set_dt, new_labels_dt, new_set_knn, new_labels_knn = glue_test_sets(
-                data.temporary_test_set_features_dt[i],
-                data.temporary_test_set_labels_dt[i],
-                data.temporary_test_set_features_knn[i],
-                data.temporary_test_set_labels_knn[i])
+        data = 0
 
-            path = BIN_FOLDER_PATH + "/" + evaluation_name + "/anomaly_model_" + data.name_map_data_sets_temporary[
-                i] + "/"
-            # Create folder
-            try:
-                os.mkdir(path)
-            except:
-                pass
+        path = BIN_FOLDER_PATH + "/" + evaluation_name + "/anomaly_model_test_set/"
+        # Create folder
+        try:
+            os.mkdir(path)
+        except:
+            pass
 
-            try:
-                os.mkdir(path + "evaluation/")
-            except:
-                pass
+        try:
+            os.mkdir(path + "evaluation/")
+        except:
+            pass
 
-            # Valid set
-            test_set_features_dt = np.asarray(test_sets_dt[k]).copy()
-            test_set_features_knn = np.asarray(test_sets_knn[k]).copy()
-            test_set_labels_dt = np.asarray(test_labels_dt[k]).copy()
-            test_set_labels_knn = np.asarray(test_labels_knn[k]).copy()
+        # Valid set
+        test_set_features_dt = np.asarray(anomaly_data.test_features_dt).copy()
+        test_set_features_knn = np.asarray(anomaly_data.test_features_knn).copy()
+        test_set_labels_dt = np.asarray(anomaly_data.test_labels).copy()
+        test_set_labels_knn = np.asarray(anomaly_data.test_labels).copy()
 
-            map_args.append(
-                [path, "evaluation_continued", model_anomaly_dt, test_set_features_dt, test_set_features_knn,
-                 test_set_labels_dt, test_set_labels_knn, num_outputs, True, name_map_features,
-                 evaluation_name, True, encode_paths_between_as_location])
-
-            map_args.append([path, "evaluation", model_anomaly_dt, test_set_features_dt, test_set_features_knn,
-                             test_set_labels_dt, test_set_labels_knn, num_outputs, False, name_map_features,
-                             evaluation_name, True, encode_paths_between_as_location])
-        """
+        generate_graphs(
+        path, "evaluation", model_anomaly_dt, test_set_features_dt, test_set_features_knn,
+        test_set_labels_dt, test_set_labels_knn, 2, False, ["Abweichung\nØStandortänderungen", "Abweichung\nØKlassifizierungs-\nwahrscheinlichkeit", "Topologieverletzung", "Standardabweichung\nTop 5 Klassifizierungen"],
+        evaluation_name, True, encode_paths_between_as_location)

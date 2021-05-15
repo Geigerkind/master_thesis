@@ -34,18 +34,16 @@ und von der Standortkomplexität.
 Je besser das Standorterkennungsmodell und je höher die Standortkomplexität, desto höher ist die Anomalieerkennungsrate.
 Aus diesem Grund ist die Klassifizierungsgenauigkeit bei den Standortkomplexitäten, die mit der Kodierungsmethode mit Kanten und Knoten zusammenhängen,
 geringer, als bei der Kodierungsmethode, bei der nur die Knoten kodiert werden.
-
-
-
-\begin{itemize}
-    \item Was ist das?
-    \item Zusammenhang zu Enkodierungsansatz
-    \item Schwierig zu trainieren, da man einerseits Robust sein will und andererseits nicht weiß was trainiert werden soll
-    \item Post Processing
-    \item Metriken: Location Change Frequency, Accumulated Confididence, Fraction Zero
-    \item Sag Motivation, warum diese Metriken (Indikatoren)
-    \item Beispiele
-    \item Wie zuverlässig können Anomalien erkannt werden?
-    \item Vergleich mit Coin-Toss, True und False
-    \item Vergleiche Enkodierungsansätze, ob einer besser als der andere ist
-\end{itemize}
+\newline
+\newline
+Abbildung \ref{fig:true_vs_predicted_anomaly} zeigt einen Auscchnitt der Anomalietestmenge, worauf der Entscheidungswald der Standortkomplexität 17 angewendet wurde.
+Die Anomalie wird nicht kontinuierlich erkannt und es werden auch fälschlicherweise Standorte als Anomalien klassifiziert.
+Allerdings treten falsch-positive Ergebnisse nur vereinzelt auf, wohingegen bei einer Anomalie, sehr häufig eine Anomalie erkannt wird.
+Die falsch-positiven Ergebnisse können somit durch Ausnutzen dieser Fluktuationen vermieden werden,
+indem beispielweise ein Schwellenwert an Ausschlägen in einer bestimmten Zeit eingeführt wird.
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\linewidth]{images/anomaly_true_vs_predicted.png}
+    \caption{Ausschnitt der Klassifizierungsergebnisse auf der Anomalietestmenge mit dem Entscheidungswald der Standortkomplexität 17. }
+    \label{fig:true_vs_predicted_anomaly}
+\end{figure}
