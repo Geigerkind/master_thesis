@@ -91,14 +91,14 @@ def generate_graphs(path, prefix, model_dt, test_set_features_dt, test_set_featu
             test_set_features_dt)
         print("DT2 needed: {0} => ({1})".format(time.time() - now, use_continued_prediction))
 
-        GraphWindowLocationChanges(path, prefix + "_dt", predicted_dt, encode_paths_between_as_location)
-        GraphWindowLocationChanges(path, prefix + "_knn", predicted_knn)
+        GraphWindowLocationChanges(path, prefix + "_dt", predicted_dt, True, encode_paths_between_as_location)
+        GraphWindowLocationChanges(path, prefix + "_knn", predicted_knn, False, encode_paths_between_as_location)
 
-        GraphWindowConfidence(path, prefix + "_dt", predicted_dt, encode_paths_between_as_location)
-        GraphWindowConfidence(path, prefix + "_knn", predicted_knn)
+        GraphWindowConfidence(path, prefix + "_dt", predicted_dt, True, encode_paths_between_as_location)
+        GraphWindowConfidence(path, prefix + "_knn", predicted_knn, False, encode_paths_between_as_location)
 
-        GraphWindowConfidenceNotZero(path, prefix + "_dt", predicted_dt, encode_paths_between_as_location)
-        GraphWindowConfidenceNotZero(path, prefix + "_knn", predicted_knn)
+        GraphWindowConfidenceNotZero(path, prefix + "_dt", predicted_dt, True, encode_paths_between_as_location)
+        GraphWindowConfidenceNotZero(path, prefix + "_knn", predicted_knn, False, encode_paths_between_as_location)
 
         LogMetrics(path, prefix + "_dt", predicted_dt)
         LogMetrics(path, prefix + "_knn", predicted_knn)
@@ -147,6 +147,7 @@ with open(pregen_path, 'rb') as file:
         test_labels_knn = []
 
         # Parameter data sets
+        """
         for i in range(len(data.test_labels_dt)):
             test_set_names.append(data.name_map_data_sets_test[i])
             new_set_dt, new_labels_dt, new_set_knn, new_labels_knn = glue_test_sets(data.test_features_dt[i],
@@ -159,7 +160,6 @@ with open(pregen_path, 'rb') as file:
             test_sets_knn.append(np.asarray(new_set_knn).copy())
             test_labels_knn.append(np.asarray(new_labels_knn).copy())
 
-        """
         # Faulty data sets
         for i in range(len(data.faulty_test_features_dt)):
             test_set_names.append(data.name_map_data_sets_faulty_test[i])

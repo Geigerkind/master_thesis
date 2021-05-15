@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-class GraphWindowLocationChanges():
+class GraphWindowLocationChanges:
     def __init__(self, path, prefix, prediction, is_dt, encode_paths):
         self.prefix = prefix
         self.prediction = prediction
