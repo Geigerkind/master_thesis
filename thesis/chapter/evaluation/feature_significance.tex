@@ -53,3 +53,21 @@ Das FFNN hingegen nutzt alle Features, wobei Features aus dem Accelerometer und 
     \caption{Permutationswichtigkeit der Features eines FFNN ohne Rückwärtskante.}
     \label{fig:feature_significance_knn_wo_fe}
 \end{figure}
+\newline
+\newline
+Abbildung \ref{fig:feature_significance_dt_anomaly} zeigt die Permutationswichtigkeit von einem Entscheidungswald zur Anomalieerkennung.
+Am wichtigsten sind die Features, die die Wahrscheinlichkeitsverteilung des Klassifizierungsergebnisses von dem ML-Modell zur Standorterkennung ausnutzen.
+Die Abweichung zu den durchschnittlichen Standortänderungen hat kaum Einfluss.
+Dies deutet darauf hin, dass die ML-Modelle zur Standorterkennung nicht so instabil in Anomalien sind, wie angenommen.
+Aus dem selben Grund hat das Feature der Topologieverletzung auch wenig Einfluss, da es bei Anomalien wenig ausschlägt.
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.65\linewidth]{images/fi_anomaly_dt.png}
+    \caption{Permutationswichtigkeit der Features eines Entscheidungswaldes zur Anomalieerkennung.}
+    \label{fig:feature_significance_dt_anomaly}
+\end{figure}
+\newline
+\newline
+Die Wichitgkeit der Features variiert mit dem Szenario, indem die ML-Modelle eingesetzt werden.
+Aus diesem Grund sollte die Analyse der Wichtigkeit der Features individuell für jedes Einsatzszenario durchgeführt werden,
+wodurch die Klassifizierungsgenauigkeit und der Ressourcenverbrauch maximiert werden.
