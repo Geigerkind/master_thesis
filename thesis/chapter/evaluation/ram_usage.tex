@@ -28,7 +28,7 @@ Damit wird für $N$ Standorte und $K$ Features mit einem Entscheidungswald als M
 ca. $183 + 4(N + K)$ Byte benötigt, d. h. bei 102 Standorten und 34 Features ca. 727 Byte.
 \newline
 \newline
-Zur Ausführung eines KNN können nur wenige Byte verwendet werden, um die nötigen Multiplikationen eines Neuronen durchzuführen.
+Zur Ausführung eines FFNN können nur wenige Byte verwendet werden, um die nötigen Multiplikationen eines Neuronen durchzuführen.
 Dies würde die Ausführungszeit, und den Energiebedarf, aber signifikant erhöhen, da die benötigten Gewichte ständig aus dem Programmspeicher geladen werden müssen.
 Das heißt, es müssen mindestens die Zwischenergebnisse einer Schicht im RAM gehalten werden, sowie ein Gewicht und und ein Bias.
 Damit benötigt ein FFNN, dessen größte Schicht $M$ Neuronen hat, mindestens $4(M+2)$ Byte.
