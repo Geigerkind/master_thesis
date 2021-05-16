@@ -1,5 +1,6 @@
 import locale
 import os
+import pickle
 import re
 
 import matplotlib as mpl
@@ -116,9 +117,8 @@ class CompileAll:
                         subdir + "/evaluation_continued_knn/log_true_vs_predicted.csv")
 
                 # This could be taken out of the loop
-                loc_real_max_depth, loc_size_dt, loc_size_knn, anomaly_real_max_depth, \
-                anomaly_size_dt, anomaly_size_knn = [0, 0, 0, 0, 0, 0]
-                """
+                #loc_real_max_depth, loc_size_dt, loc_size_knn, anomaly_real_max_depth, \
+                #anomaly_size_dt, anomaly_size_knn = [0, 0, 0, 0, 0, 0]
                 size_key = ((subdir[::-1])[slash_index + 1:])[::-1]
                 if size_key in size_map:
                     loc_real_max_depth, loc_size_dt, loc_size_knn, anomaly_real_max_depth, \
@@ -141,7 +141,6 @@ class CompileAll:
                     file_dt_anomaly.close()
                     size_map[size_key] = [loc_real_max_depth, loc_size_dt, loc_size_knn, anomaly_real_max_depth,
                                           anomaly_size_dt, anomaly_size_knn]
-                """
 
                 data.append([route, is_faulty, num_trees, max_depth, num_layers, num_neurons, num_locations, dt_acc,
                              dt_acc_pc, dt_acc_pic, dt_acc_5, dt_acc_10, dt_acc_cont, dt_acc_pc_cont, dt_acc_pic_cont,
