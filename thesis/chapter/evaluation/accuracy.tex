@@ -13,37 +13,70 @@ Für die Standortkomplexitäten 16, 32, 48 und 102 wurde der Kodierungsansatz ve
 Ein besserer Ansatz, um Daten mit beliebiger Komplexität zu generieren wird in Kapitel \ref{chapter:discussion} diskutiert.
 \newline
 \newline
-Zunächst wird die Klassifizierungsgenauigkeit $P(A)$ im Vergleich zu Mians Ergebnissen betrachtet.
-Mian konnte mit einem WFFNN bei einer Route mit drei Pfaden und 14 Standorten eine Klassifizierungsgenauigkeit von 94,1\% erreichen \cite{naveedThesis}.
-Abbildung \ref{fig:best_dt_acc_vs_knn_acc_vs_cont} vergleicht die Klassifizierungsgenauigkeiten der
-Entscheidungsbaum basierten Klassifizierer und FFNN über verschiedene Standortkomplexitäten.
+Mian hat die Klassifizierungsgenauigkeit $P(A)_{\text{cont}}$ betrachtet.
+Er konnte mit einem WFFNN bei einer Route mit drei Pfaden und 14 Standorten eine Klassifizierungsgenauigkeit von 94,1\% erreichen \cite{naveedThesis}.
+Abbildung \ref{fig:best_dt_acc_vs_knn_using_cont} vergleicht $P(A)_{\text{cont}}$ der Entscheidungsbaum basierten Klassifizierer und FFNN über verschiedene Standortkomplexitäten.
 Dabei wurde stets die höchste Klassifizierungsgenauigkeiten aller evaluierten Konfigurationen ausgewählt.
-Gezeigt werden sowohl die Klassifizierungsgenauigkeiten auf die Testmengen die korrekt beschriftet sind und die, die von den ML-Modellen beschriftet sind.
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=\linewidth]{images/best_dt_vs_knn_acc_vs_acc_cont.png}
-    \caption{Die besten Klassifizierungsgenauigkeiten aller evaluierten Konfigurationen der ML-Modelle über alle Standortkomplexitäten.}
-    \label{fig:best_dt_acc_vs_knn_acc_vs_cont}
+    \includegraphics[width=\linewidth]{images/best_dt_vs_best_ffnn_over_num_loc_using_acc_cont.png}
+    \caption{Die besten Klassifizierungsgenauigkeiten $P(A)_{\text{cont}}$ über Standortkomplexitäten.}
+    \label{fig:best_dt_acc_vs_knn_using_cont}
 \end{figure}
 \newline
 \newline
-Mian hat in seiner Evaluation die Klassifizierungsgenauigkeit $P(A)$ betrachtet.
-Die in dieser Arbeit evaluierten Standortkomplexität, die Mians Evaluation am nächsten kommt ist 16.
-Im Vergleich ist der beste Entscheidungsbaum basierte Klassifizierer mit einer Klassifizierungsgenauigkeit von 99,9\%, 5,8 Prozentpunkte besser
-und das beste FFNN mit einer Klassifizierungsgenauigkeit von 99,79\%, 5,69 Prozentpunkte besser (Tabelle \ref{tab:predictions_by_acc}).
+Mian kodierte in seinem Ansatz die Kanten als Standorte, welcher sich von den in dieser Arbeit benutzten Ansätzen unterscheidet.
+Die in dieser Arbeit evaluierten Standortkomplexitäten, die Mians Evaluation am nächsten kommen, sind 16, mit dem Kodierungsansatz, der Kanten und Knoten enkodiert,
+und 17, mit dem Kodierungsansatz, der nur Knoten kodiert.
 \newline
 \newline
-Dies betrachtet aber nicht den propagierten Fehler, der durch die Rekurrenz der ML-Modelle durch die Rückwärtskante entsteht.
-In Abbildung \ref{fig:best_dt_acc_vs_knn_acc_vs_cont} ist zu sehen, dass die Klassifizierungsgenauigkeit signifikant geringer ist bei allen Standortkomplexitäten,
-wenn die Features für die vorherigen Positionen iterativ bestimmt werden ($P(A)_{\text{cont}}$).
-Insbesondere die Standortkomplexität 16 hat eine signifikant geringere Klassifizierungsgenauigkeit, wobei dies eine Artefakt der Enkodierungsmethode sein kann,
-da bei der Standortkomplexität 17 immernoch Entscheidungsbaum basierte Klassifizierer mit einer Klassifizierungsgenauigkeit von 94,41\% gefunden wurden (Tabelle \ref{tab:predictions_by_acc_cont}).
-Die FFNNS hingegen erreichen lediglich maximal 87,22\% bei dieser Standortkomplexität.
+Aus Tabelle \ref{tab:predictions_by_acc_cont} können die Klassifizierungsergebnisse dieser Standortkomplexitäten entnommen werden.
+Der beste Entscheidungswald mit einer Standorkomplexität von 16 hat eine Klassifizierungsgenauigkeit $P(A)_{\text{cont}}$ von 83,52\%.
+Das ist 10,27 Prozentpunkte schlechter als Mians Ansatz.
+Das beste FFNN ist 30,16 Prozentpunkte schlechter.
+Der beste Entscheidungswald mit einer Standortkomplexität von 17 ist 0,31 Prozentpunkte besser als Mians Ansatz.
+Das beste FFNN ist 6,88 Prozentpunkte schlechter.
+Anzumerken ist aber, dass die Standortkomplexität höher ist und ein deutlich kleineres Datenfenster verwendet wurde,
+um die Feature-Menge zu generieren, wodurch die resultierenden ML-Modelle kleiner sind.
 \newline
 \newline
-Aus Tabelle \ref{tab:predictions_by_acc_10_cont} können die Klassifizierungsgenauigkeiten $P(B=10)$ entnommen werden.
-Der Entscheidungsbaum basierte Klassifizierer skaliert dabei sehr gut mit der steigenden Standortkomplexität.
-Aber einer Standortkomplexität von 32 wird konnte aber nurnoch eine Klassifizierungsgenauigkeit von 91,35\% erreicht werden, die bis auf 87,87\% bei 102 Standorten fällt.
+Fairer ist aber zu tolerieren, dass das ML-Modell den Standort etwas zu früh betritt oder etwas zu spät verlässt,
+solange es kontinuierlich den selben Standort angibt, da bei den Übergängen zwischen Standorten nicht immer eindeutig ein Standort bestimmt werden kann.
+Tabelle \ref{tab:predictions_by_acc_5_cont} gibt diese Klassifizierierungsgenauigkeit $P(B=5)$ an, wobei bis zu 5 Klassifizierungen toleriert werden.
+\begin{table}[h!]
+    \hspace{-2cm}
+    \begin{tabular}{ | c | c | c | c | c | c | c | c | c | c | }
+        \hline
+        \multicolumn{2}{ | l |}{$P(B=5)_{\text{cont}}$ über Standorte} & 9 & 16 & 17 & 25 & 32 & 48 & 52 & 102 \\\hline
+        \multicolumn{10}{| l |}{\textbf{Entscheidungswälder}}\\\hline
+        Waldgröße & Max. Baumgröße & \multicolumn{8}{ c |}{}\\\hline
+        16 & 8 & 98.24\% & 78.83\% & 97.98\% & 94.30\% & 82.18\% & 82.53\% & 80.22\% & 78.17\% \\\hline
+        16 & 16 & 97.07\% & 73.68\% & 97.66\% & 95.32\% & 89.54\% & 87.10\% & 82.73\% & 87.77\% \\\hline
+        16 & 32 & 97.91\% & 74.03\% & 97.42\% & 96.19\% & 85.19\% & 85.39\% & 85.70\% & 84.15\% \\\hline
+        16 & 64 & 97.91\% & 74.03\% & 97.42\% & 96.19\% & 85.19\% & 85.39\% & 85.70\% & 84.15\% \\\hline
+        8 & 32 & 96.73\% & 89.49\% & 98.35\% & 96.39\% & 88.34\% & 89.32\% & 89.60\% & 83.67\% \\\hline
+        32 & 32 & 97.84\% & 74.58\% & 98.64\% & 95.85\% & 87.38\% & 86.47\% & 85.37\% & 85.38\% \\\hline
+        64 & 32 & 98.11\% & 80.29\% & 98.42\% & 95.35\% & 87.93\% & 87.68\% & 84.17\% & 86.16\% \\\hline
+        32 & 64 & 97.84\% & 74.58\% & 98.64\% & 95.85\% & 87.38\% & 86.47\% & 85.37\% & 85.38\% \\\hline
+        \multicolumn{10}{| l |}{\textbf{Feed Forward neuronale Netzwerke}}\\\hline
+        \#Schichten & \#Neuronen & \multicolumn{8}{ c |}{}\\\hline
+        1 & 16 & 96.11\% & 71.77\% & 89.37\% & 77.19\% & 43.45\% & 45.03\% & 71.55\% & 40.74\% \\\hline
+        1 & 32 & 94.59\% & 72.18\% & 88.82\% & 80.91\% & 60.22\% & 45.08\% & 70.47\% & 43.07\% \\\hline
+        1 & 64 & 92.71\% & 63.21\% & 90.18\% & 84.11\% & 48.12\% & 38.78\% & 72.33\% & 32.70\% \\\hline
+        1 & 128 & 95.50\% & 69.99\% & 93.33\% & 83.66\% & 49.63\% & 31.27\% & 75.39\% & 41.06\% \\\hline
+        2 & 32 & 96.17\% & 57.58\% & 88.34\% & 80.28\% & 65.24\% & 33.54\% & 70.91\% & 34.12\% \\\hline
+        4 & 32 & 90.45\% & 66.50\% & 85.20\% & 76.55\% & 46.81\% & 26.17\% & 67.56\% & 36.70\% \\\hline
+        8 & 32 & 88.06\% & 57.44\% & 86.54\% & 78.26\% & 34.54\% & 34.35\% & 70.57\% & 48.82\% \\\hline
+        4 & 64 & 90.98\% & 62.21\% & 86.66\% & 81.08\% & 51.40\% & 22.54\% & 70.94\% & 45.54\% \\\hline
+    \end{tabular}
+    \caption{Metrik $P(B=5)_{\text{cont}}$ über Standorte und verschiedenen Konfigurationen der ML-Modelle.}
+    \label{tab:predictions_by_acc_5_cont}
+\end{table}
+\newline
+\newline
+Der Entscheidungsbaum basierte Klassifizierer skaliert sehr gut mit der steigenden Standortkomplexität.
+Im Schnitt fällt die Klassifizierungsgenauigkeit um 0,16\% pro zusätzlichen Standort.
+Bei einer Standortkomplexität von 102 wird immernoch eine Klassifizierungsgenauigkeit $P(B=5)_{\text{cont}}$ von 87,77\% erreicht.
 Als beste maximale Baumhöhe hat sich 16 herausgestellt, wobei 32 und 64 marginal schlechtere Ergebnisse produzierten.
 Eine maximale Baumhöhe von 8 war nicht ausreichend, da es für hohe Standortkomplexitäten schlechtere Ergebnisse erzielt hat.
 Bei gleicher Waldgröße haben die maximalen Baumhöhen und 32 und 64 equivalente Ergebnisse produziert,
@@ -52,46 +85,19 @@ Dies schließt aber nicht aus, dass andere Szenarien nicht von größeren maxima
 Die verschiedenen Waldgrößen unterscheiden sich nicht stark.
 Eine Waldgröße von 8 hat nur marginal schlechtere Ergenisse bei 102 Standorten erzielt, als die Waldgrößen 16, 32 und 64.
 Aus diesem Grund ist eine Waldgröße von 8 ausreichend, oder könnte womöglich reduziert werden.
-\begin{table}[h!]
-    \hspace{-2cm}
-    \begin{tabular}{ | c | c | c | c | c | c | c | c | c | c | }
-        \hline
-        \multicolumn{2}{ | l |}{$P(B=10)_{\text{cont}}$ über Standorte} & 9 & 16 & 17 & 25 & 32 & 48 & 52 & 102 \\\hline
-        \multicolumn{10}{| l |}{\textbf{Entscheidungswälder}}\\\hline
-        Waldgröße & Max. Baumgröße & \multicolumn{8}{ c |}{}\\\hline
-        16 & 8 & 99.75\% & 81.69\% & 99.68\% & 96.97\% & 82.88\% & 84.28\% & 86.21\% & 79.01\% \\\hline
-        16 & 16 & 99.06\% & 77.30\% & 99.09\% & 97.17\% & 91.35\% & 89.01\% & 86.01\% & 89.10\% \\\hline
-        16 & 32 & 99.51\% & 77.00\% & 98.55\% & 97.86\% & 86.55\% & 87.05\% & 88.73\% & 85.69\% \\\hline
-        16 & 64 & 99.51\% & 77.00\% & 98.55\% & 97.86\% & 86.55\% & 87.05\% & 88.73\% & 85.69\% \\\hline
-        8 & 32 & 99.20\% & 92.79\% & 99.67\% & 97.89\% & 90.27\% & 91.01\% & 91.59\% & 85.11\% \\\hline
-        32 & 32 & 99.50\% & 78.06\% & 99.65\% & 97.70\% & 88.83\% & 88.31\% & 88.24\% & 86.92\% \\\hline
-        64 & 32 & 99.58\% & 84.66\% & 99.51\% & 97.45\% & 89.65\% & 89.59\% & 86.96\% & 87.87\% \\\hline
-        32 & 64 & 99.50\% & 78.06\% & 99.65\% & 97.70\% & 88.83\% & 88.31\% & 88.24\% & 86.92\% \\\hline
-        \multicolumn{10}{| l |}{\textbf{Feed Forward neuronale Netzwerke}}\\\hline
-        \#Schichten & \#Neuronen & \multicolumn{8}{ c |}{}\\\hline
-        1 & 16 & 98.70\% & 76.69\% & 92.81\% & 80.31\% & 45.93\% & 46.61\% & 75.48\% & 42.39\% \\\hline
-        1 & 32 & 97.82\% & 77.04\% & 92.02\% & 83.61\% & 63.63\% & 47.25\% & 74.30\% & 44.73\% \\\hline
-        1 & 64 & 95.53\% & 68.52\% & 92.42\% & 86.31\% & 50.44\% & 40.67\% & 75.80\% & 33.87\% \\\hline
-        1 & 128 & 98.11\% & 75.39\% & 95.15\% & 86.21\% & 52.27\% & 32.42\% & 78.92\% & 42.56\% \\\hline
-        2 & 32 & 98.67\% & 63.99\% & 90.59\% & 83.71\% & 68.52\% & 34.81\% & 74.03\% & 35.48\% \\\hline
-        4 & 32 & 95.14\% & 71.53\% & 89.49\% & 80.25\% & 49.47\% & 27.07\% & 71.79\% & 38.66\% \\\hline
-        8 & 32 & 92.94\% & 62.31\% & 90.45\% & 82.21\% & 36.36\% & 35.73\% & 74.55\% & 51.15\% \\\hline
-        4 & 64 & 94.88\% & 67.74\% & 89.91\% & 84.34\% & 54.47\% & 23.57\% & 75.18\% & 47.55\% \\\hline
-    \end{tabular}
-    \caption{Metrik $P(B=10)_{\text{cont}}$ über Standorte und verschiedenen Konfigurationen der ML-Modelle.}
-    \label{tab:predictions_by_acc_10_cont}
-\end{table}
 \newline
 \newline
-Die evaluierten FFNNs skalieren deutlich schlechter als die Entscheidungsbaum basierten Klassifizierer mit steigender Standortkomplexität.
-Insbesondere die FFNNs der Standortkomplexitäten, die das Enkodierungsverfahren der Kanten und Knoten nutzten,
-konnten signifikant schlechtere Klassifizierungsergebnisse erzielen als die FFNNs die nur die Knoten kodierten.
-Aus den Daten ist nicht zu schließen, wie sich die Anzahl der Schichten und Neuronen pro Schicht auf die Klassifizierungsgenauigkeit auswirkt.
+Die evaluierten FFNNs skalieren deutlich schlechter als die Entscheidungswälder mit steigender Standortkomplexität.
+Im Schnitt fällt die Klassifizierungsgenauigkeit um 0,51\% pro zusätzlichen Standort.
+Auffallend ist, dass die Klassifizierungsergebnisse bei FFNNs mit dem Kodierungsansatz, in dem Kanten und Knoten kodiert werden,
+deutlich schlechter sind also beim Kodierungsansatz, in dem die Knoten nur kodiert werden.
+Wenn man nur den letzteren Kodierungsansatz betrachtet, fällt die Klassifizierungsgenauigkeit im Schnitt nur um 0,22\$ pro zusätzlichen Standort.
+Aus den Daten ist nicht zu schließen, wie sich die Anzahl der Schichten und Neuronen pro Schicht auf die Klassifizierungsgenauigkeit auswirken.
 Große FFNNs sind im Vergleich zu kleinen FFNNs aber sehr volatil in der Klassifizierungsgenauigkeit,
 d. h. sie können sowohl deutlich bessere Ergebnisse als die kleinen FFNNs erzielen, aber auch deutlich schlechtere Ergebnisse.
 \newline
 \newline
-Sowohl bei den Entscheidungswäldern, als auch bei den FFNNs, ist eine geringere Klassifizierungsgenauigkeit mit dem Kodierungsansatz der Kanten und Knoten enkodirt
+Sowohl bei den Entscheidungswäldern, als auch bei den FFNNs, ist eine geringere Klassifizierungsgenauigkeit mit dem Kodierungsansatz der Kanten und Knoten kodirt
 zu beobachten, als mit dem Kodierungsansatz der nur die Knoten kodiert.
 Insbesondere zwischen den Standortkomplexitäten 16 und 17, sowie 32, 48 und 52 ist diese Diskrepanz zu erkennen.
 Aus diesem Grund ist zu schließen, dass der Kodierungsansatz, der nur Knoten kodiert, besser skaliert, als der Kodierungsansatz, der Kanten und Knoten kodiert.
