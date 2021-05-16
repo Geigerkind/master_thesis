@@ -7,17 +7,16 @@ Diese Metrik wird auch von Mian verwendet und ist für den direkten Vergleich er
     P(A) := \frac{\text{Anzahl korrekter Klassifizierungen}}{\text{Gesamtanzahl}}
 \end{align}
 Die zweite Metrik (\ref{formular:accuracy_metrik2}) betrachtet die Klassifizierungsgenauigkeit unter Tolerierung, dass ein Standort
-fünf bzw. zehn Klassifizierungen kontinuierlich zu früh oder zu spät verlassen wurde,
+kontinuierlich zu früh oder zu spät verlassen wurde,
 d.~h. Fehlklassifizierungen werden vernachlässigt, wenn kontinuierlich der letzte korrekte Standort bzw. der nächste korrekte
-Standort klassifiziert wird mit einer Gesamttoleranz von fünf bzw. zehn Klassifizierungen.
-Diese Metrik ist besonders gut für den Vergleich geeignet, da, entgegen der Beschriftung in der Testmenge,
+Standort klassifiziert wird mit einer Gesamttoleranz von $\epsilon$ Klassifizierungen.
+Diese Metrik ist besonders gut für den Vergleich geeignet, da entgegen der Beschriftung in der Testmenge,
 harte Übergänge zwischen zwei benachbarten Standorten nicht der Wirklichkeit entsprechen.
 Im Übergang können Sensorwerte möglicherweise mehrdeutig sein und dies sollte bei der Standorterkennung beachtet werden, solange sie konsequent ist.
 Dadurch wird im Vergleich das Rauschen in der Klassifizierungsgenauigkeit reduziert, dass durch diese Mehrdeutigkeit im Übergang entsteht,
 wodurch die ML-Modelle besser vergleichbar sind.
 \begin{flalign}
     \label{formular:accuracy_metrik2}
-    &\epsilon \in \{5, 10\} \nonumber\\
     &L := \text{Menge von dem ML-Modell klassifizierten Standorte.} \nonumber\\
     &K := \text{Menge von den wirklichen Standorten.} \nonumber\\
     &\Phi(i) := \text{Index von dem nächsten Standort.} \nonumber\\
@@ -26,10 +25,9 @@ wodurch die ML-Modelle besser vergleichbar sind.
     &\Theta(i) := i-\Psi(i)\leq\epsilon\wedge\hspace{-0.3cm} \bigwedge\limits_{\max(0, \Psi(i))\leq q \leq i}\hspace{-0.3cm} L_q=K_{\Psi(i)} \nonumber\\
     &P(B=\epsilon) := \frac{\#\{L_i | L_i=K_i \vee \Omega(i) \vee \Theta(i)\text{ für } i\in\{0, 1, ..., \#L - 1\}\}}{\#K}
 \end{flalign}
-Zuletzt zwei Metriken bei denen die Klassifizierungsgenauigkeit bestimmt wird, unter der Bedingung, dass der vorherige
-Standort korrekt bzw. inkorrekt (\ref{formular:accuracy_previous_was_in_correct}) war.
-Diese Metriken sind besonders relevant bei der Beurteilung der Stabilität der ML-Modelle, insbesondere wenn das ML-Modell einen Fehler gemacht hat.
+Zuletzt eine Metrik, die die Klassifizierungsgenauigkeit betrachtet, unter der Bedingung, dass der vorherige Standort inkorrekt war.
+Diese Metrik ist besonders relevant bei der Beurteilung der Stabilität der ML-Modelle.
 \begin{align}
     \label{formular:accuracy_previous_was_in_correct}
-    P(C)\text{ bzw. }P(D) := \frac{\text{Anzahl korrekter Klassifizierungen, wenn vorheriger Standort (in)korrekt war}}{\text{Alle Klassifizierungen, wenn vorheriger Standort (in)korrekt war}}
+    P(C) := \frac{\text{Anzahl korrekter Klassifizierungen, wenn vorheriger Standort inkorrekt war}}{\text{Alle Klassifizierungen, wenn vorheriger Standort inkorrekt war}}
 \end{align}
