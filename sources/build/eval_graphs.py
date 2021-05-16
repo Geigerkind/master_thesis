@@ -6,7 +6,7 @@ from multiprocessing import Pool
 import numpy as np
 from tensorflow import keras
 
-from sources.config import BIN_FOLDER_PATH, NUM_CORES, parse_cmd_args
+from sources.config import BIN_FOLDER_PATH, NUM_CORES, parse_cmd_args, WITHOUT_PREVIOUS_EDGE
 from sources.ffnn.gen_ffnn import GenerateFFNN
 from sources.metric.compile_log import CompileLog
 from sources.metric.graph_feature_importance import GraphFeatureImportance
@@ -110,13 +110,13 @@ def generate_graphs(path, prefix, model_dt, test_set_features_dt, test_set_featu
 
 with open(pregen_path, 'rb') as file:
     data = pickle.load(file)
-    anomaly_file = open(pregen_anamoly_path, "rb")
-    anomaly_data = pickle.load(anomaly_file)
+    #anomaly_file = open(pregen_anamoly_path, "rb")
+    #anomaly_data = pickle.load(anomaly_file)
     with open(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_dt_model.pkl", 'rb') as file:
         model_dt = pickle.load(file)
 
-        model_anomaly_dt = pickle.load(
-            open(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_dt_anomaly_model.pkl", 'rb'))
+        #model_anomaly_dt = pickle.load(
+        #    open(BIN_FOLDER_PATH + "/" + evaluation_name + "/evaluation_dt_anomaly_model.pkl", 'rb'))
 
 
         def glue_test_sets(features_dt, labels_dt, features_knn, labels_knn):
@@ -159,6 +159,7 @@ with open(pregen_path, 'rb') as file:
             test_labels_dt.append(np.asarray(new_labels_dt).copy())
             test_sets_knn.append(np.asarray(new_set_knn).copy())
             test_labels_knn.append(np.asarray(new_labels_knn).copy())
+        """
 
         # Faulty data sets
         for i in range(len(data.faulty_test_features_dt)):
@@ -172,7 +173,6 @@ with open(pregen_path, 'rb') as file:
             test_labels_dt.append(np.asarray(new_labels_dt).copy())
             test_sets_knn.append(np.asarray(new_set_knn).copy())
             test_labels_knn.append(np.asarray(new_labels_knn).copy())
-        """
 
         # Anomaly data sets
         """
@@ -188,6 +188,7 @@ with open(pregen_path, 'rb') as file:
             test_labels_dt.append(np.asarray(new_labels_dt).copy())
             test_sets_knn.append(np.asarray(new_set_knn).copy())
             test_labels_knn.append(np.asarray(new_labels_knn).copy())
+        """
 
         num_outputs = data.num_outputs
         name_map_features = data.name_map_features
@@ -266,3 +267,4 @@ with open(pregen_path, 'rb') as file:
         path, "evaluation", model_anomaly_dt, test_set_features_dt, test_set_features_knn,
         test_set_labels_dt, test_set_labels_knn, 2, False, ["Abweichung\nØStandortänderungen", "Abweichung\nØKlassifizierungs-\nwahrscheinlichkeit", "Topologieverletzung", "Standardabweichung\nTop 5 Klassifizierungen"],
         evaluation_name, True, encode_paths_between_as_location)
+        """

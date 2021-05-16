@@ -1,6 +1,5 @@
 import locale
 import os
-import pickle
 import re
 
 import matplotlib as mpl
@@ -44,6 +43,8 @@ class CompileAll:
             self.__generate_latex_table(acc_type)
         self.__generate_latex_table("loc_size")
         self.__generate_graph_best_dt_vs_best_ffnn_vs_kind("acc", "acc_cont")
+        self.__generate_faulty_latex_table("acc_cont")
+        self.__generate_faulty_avg_over_trees("acc_cont")
 
     def __load_log_accuracies(self):
         def extract_accuracies_from_file(file):
@@ -116,7 +117,7 @@ class CompileAll:
 
                 # This could be taken out of the loop
                 loc_real_max_depth, loc_size_dt, loc_size_knn, anomaly_real_max_depth, \
-                anomaly_size_dt, anomaly_size_knn = [0,0,0,0,0,0]
+                anomaly_size_dt, anomaly_size_knn = [0, 0, 0, 0, 0, 0]
                 """
                 size_key = ((subdir[::-1])[slash_index + 1:])[::-1]
                 if size_key in size_map:
@@ -246,7 +247,8 @@ class CompileAll:
         plt.xlabel("Anzahl Standorte (Diskret)")
         plt.ylabel("Klassifizierungsgenauigkeit")
         plt.ylim([0, 1])
-        fig.legend(['Entscheidungsbaum P(A)', 'Entscheidungsbaum P(A) (cont.)', 'FFNN P(A)', 'FFNN P(A) (cont.)'], loc=[0.13, 0.13])
+        fig.legend(['Entscheidungsbaum P(A)', 'Entscheidungsbaum P(A) (cont.)', 'FFNN P(A)', 'FFNN P(A) (cont.)'],
+                   loc=[0.13, 0.13])
         plt.savefig("{0}/best_dt_vs_knn_{1}_vs_{2}.png".format(self.bin_path, acc_kind, vs_acc_kind))
         plt.clf()
         plt.close(fig)
@@ -372,5 +374,68 @@ class CompileAll:
         file.write("\\label{tab:predictions_by_" + acc_kind + "}\n")
         file.write("\\end{table}\n")
 
+    def __generate_faulty_latex_table(self, acc_kind):
+        location_complexity = 9
+        best_dt = (64, 32)
+        best_knn = (1, 128)
+
+        dt_data = self.prediction_accuracies.query(
+            "trees == " + str(best_dt[0]) + " and max_depth == " + str(best_dt[1]) + " and num_locations == " + str(
+                location_complexity))
+
+        knn_data = self.prediction_accuracies.query(
+            "layers == " + str(best_knn[0]) + " and neurons == " + str(best_knn[1]) + " and num_locations == " + str(
+                location_complexity))
+
+        dt_base_acc = dt_data.query("route == 'simple_square_test'").iloc[0]["dt_" + acc_kind]
+        knn_base_acc = knn_data.query("route == 'simple_square_test'").iloc[0]["knn_" + acc_kind]
+        dt_data = dt_data.query("is_faulty == True")
+        knn_data = knn_data.query("is_faulty == True")
+
+        route_accuracies = dict()
+        for row in dt_data.iterrows():
+            route_accuracies[row[1]["route"]] = (row[1]["dt_" + acc_kind] - dt_base_acc, 0)
+        for row in knn_data.iterrows():
+            route_accuracies[row[1]["route"]] = (route_accuracies[row[1]["route"]][0], row[1]["knn_" + acc_kind] - knn_base_acc)
+
+        file = open(self.bin_path + "/robustness_by_" + acc_kind + ".tex", "w")
+        file.write("\\begin{table}[h!]\n")
+        file.write("\\begin{tabular}{ | l | c | c | }\n")
+        file.write("\\hline\n")
+        file.write("Testmenge & Entscheidungswald & FFNN \\\\\\hline\n")
+        for route in route_accuracies:
+            file.write("{0} & {1:0.2f}\% & {2:0.2f}\% \\\\\\hline\n".format(route, 100 * route_accuracies[route][0], 100 * route_accuracies[route][1]))
+        file.write("\\end{tabular}\n")
+        file.write("\\caption{TODO}\n")
+        file.write("\\label{tab:robustness_by_" + acc_kind + "}\n")
+        file.write("\\end{table}\n")
+
+    def __generate_faulty_avg_over_trees(self, acc_kind):
+        dt_data = self.prediction_accuracies.query("max_depth == 32 and num_locations == 9")
+        dt_data_faulty = dt_data.query("is_faulty == True")
+
+        dt_accs = dict()
+        dt_count = dict()
+
+        for row in dt_data_faulty.iterrows():
+            if row[1]["route"] == "simple_square_test_skipped_location" or ('random' in row[1]["route"]):
+                continue
+
+            base_acc = dt_data.query("route == 'simple_square_test' and trees == " + str(row[1]["trees"])).iloc[0]["dt_" + acc_kind]
+            if row[1]["trees"] in dt_accs:
+                dt_accs[row[1]["trees"]] = dt_accs[row[1]["trees"]] + (row[1]["dt_" + acc_kind] - base_acc)
+                dt_count[row[1]["trees"]] = dt_count[row[1]["trees"]] + 1
+            else:
+                dt_accs[row[1]["trees"]] = row[1]["dt_" + acc_kind] - base_acc
+                dt_count[row[1]["trees"]] = 1
+
+        avg_accs = []
+        trees = []
+        for num_trees in dt_accs:
+            trees.append(num_trees)
+            avg_accs.append(dt_accs[num_trees] / dt_count[num_trees])
+
+        print(avg_accs)
+        print(trees)
 
 CompileAll("/home/shino/Uni/master_thesis/bin")

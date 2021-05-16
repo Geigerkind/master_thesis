@@ -1,13 +1,70 @@
 \section{Fehlertoleranz}
-\begin{itemize}
-    \item Irgendwas über Robustheit
-    \item Metriken => Insbesondere continued\_predict hier erwähnen, i.e. dass es dadurch instabiler wird, weil der Fehler propagiert wird.
-    \item Wenn falscher Ort erkannt wurde, wie lange dauert es um wieder den korrekten Ort zu finden? Was ist die Wahrscheinlichkeit dafür? Wovon hängt es ab, dass wieder der richtige Ort erkannt wurde?
-    \item Was passiert wenn Sensoren ausfallen? Wie robust ist es dagegen?
-    \item Transportbox nicht dem trainierten Pfad folgt? Wie Robust ist sie dagegen? => Sezenarien enumiereren, wo sowas passieren kann, dann Testszenario erklären.
-    \item Änderungen der Fabrik, e.g. Licht, Wärme, Magnet, Schnelligkeit der Fließbänder
-    \item Einfluss von einzelnen Features für die Fehlertoleranz(?)
-    \item In welchen Fällen ist die Ortung unzuverlässig? => Welche Fälle sind schwierig?
-    \item Schlussfolgerung: Wie Fehlertolerant ist die Ortung? => Zusammenfassende Metriken über alle Testsets?
-    \item Diskutieren, dass an fast jedem Standort mehrere Sensoren verfügbar sind, weswegen eine gewisse Robustheit möglich sein sollte.
-\end{itemize}
+Bei der Fehlertoleranz wird die Fähigkeit der ML-Modelle untersucht, mit fehlerhaften Sensordaten Standorte zu erkennen.
+Dafür wurde für jeden Sensor modifizierte Testmengen erstellt.
+Die erste Testmenge fügt ein Rauschen von 5\% hinzu und die zweite Testmenge simuliert den Ausfall des Sensors, indem alle Sensorwerte genullt werden.
+Zudem wurde untersucht, wenn die Sensorenbox nicht dem trainierten Pfad folgt, indem die Testmenge permutiert wurde.
+Verglichen werden die Differenzen der Klassifizierungsgenauigkeit $P(A)_{\text{cont}}$ von der originalen Testmenge zu der modifizierten Testmenge.
+Damit Entscheidungswald und FFNN fair verglichen werden können, werden die besten ML-Modelle der Standortkomplexität 9 verwendet.
+\newline
+\newline
+Tabelle \ref{tab:robustness_by_acc_cont} zeigt die Differenz.
+Die Testmenge mit einem Rauschen von 5\% wurde ausgelassen, da es keine Auswirkung auf die Klassifizierungsgenauigkeit hatte.
+Vermutlich sind 5\% Rauschen zu wenig.
+Entgegen den Erwartungen aus der Signifikanz der Features hat die Ausrichtung des Magnetfeldes sehr wenig Einfluss auf die Klassifizierungsgenauigkeit beim Entscheidungswald,
+wenn dieser Sensorwert genullt ist, d. h. grob Fehlerhafte Sensorwerte verursachen größere Fehler als genullte Sensorwerte.
+Deutlich signifikanter sind die Sensorwerte des Temperatursensors, die in der Permutationswichtigkeit insignifikant sind,
+d. h. Entscheidungswälder sind sehr anfällig, wenn der Temperatursensor ausfällt.
+Das ist vermutlich darauf zurückzuführen, dass der Temperatursensor immer eine Umgebungstemperatur misst und
+ein rapider Abfall der Temperatur in diesem Szenario mit einem Einflusspunkt sehr selten ist, und deswegen ein
+starker Einflussfaktor für den in Verbindung stehenden Standort ist.
+In Szenarien, in denen dies häufiger vorkommt, würde der Einfluss vermutlich deutlich geringer sein.
+Die permutation der Testmenge hat wenig Einfluss auf den Entscheidungswald, was erwartet wurde,
+da einzigen Langzeitabhängigkeiten die vorherigen Positionen sind, die schnell korrigiert werden können.
+Der durchschnittliche Fehler ist 5,1\%.
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{ | l | c | c | }
+        \hline
+        Testmenge & Entscheidungswald & FFNN \\\hline
+        Licht & -4.46\% & -4.65\% \\\hline
+        Geräusch & -3.20\% & -5.00\% \\\hline
+        Temperatur & -15.15\% & -6.60\% \\\hline
+        Ausrichtung zum Magnetfeld & -3.32\% & -19.94\% \\\hline
+        WLAN-Zugangspunkte & -2.60\% & -22.65\% \\\hline
+        Accelerometer & -1.41\% & -9.52\% \\\hline
+        Gyroskop & -8.52\% & -4.58\% \\\hline
+        Permutierte Testmenge & -2.27\% & 0.13\% \\\hline
+    \end{tabular}
+    \caption{Differenz von $P(A)_{\text{cont}}$ von genullten Testmengen und Permutierte Testmenge zur originalen Testmenge.}
+    \label{tab:robustness_by_acc_cont}
+\end{table}
+\newline
+\newline
+Das FFNN zeigt weniger Fehlertoleranz auf.
+Der größte Fehler kommt durch die genullten WLAN-Zugangspunkte zustande.
+Dies stimmt mit der bestimmten Signifikanz durch die Permutationswichtigkeit überein.
+Die WLAN-Zugangspunkte bilden 14,7\% der Feature-Menge, wodurch diese Features einen großen Einfluss ausüben können.
+Entgegen der Erwartung ist der Fehler durch die Nullung der Ausrichtung des Magnetfeldes und des Accelerometers.
+Die Permutationswichtigkeit bei den Sensorwerten des Accelerometers ist vermutlich geringer,
+da die Werte im gesamten Datensatz sehr homogen sind.
+Der durchschnittliche Fehler ist 9,1\%.
+\newline
+\newline
+Tabelle \ref{tab:predictions_by_acc_pic_cont} gibt die Klassifizierungsgenauigkeit $P(D)_{\text{cont}}$ über verschiedene Standortkomplexitäten an.
+Demnach ist zu erwarten, dass ein Entscheidungswald, bei einer Standortkomplexität von 9, ca. 5,3 Interrupts benötigt bis der korrekte Standort identifiziert wurde,
+wenn ein falscher Standort zuvor identifiziert wurde.
+Ein FFNN benötigt ca. 5,8 Interrupts.
+$P(D)_{\text{cont}}$ korreliert stark mit $P(A)_{\text{cont}}$, weshalb keine Aussage getroffen werden kann, ob Entscheidungswälder oder FFNNs schneller den korrekten Standort wieder erkennen.
+In diesem Fall ist die Klassifizierungsgenauigkeit $P(A)_{\text{cont}}$ der FFNNs geringer, weshalb mehr Interrupts benötigt werden.
+\newline
+\newline
+Von Entscheidungswäldern ist zu erwarten, dass sie mit steigender Waldgröße robuster werden, da sich die Feature-Mengen der einzelnen Entscheidungsbäume unterscheiden.
+Für 8, 16, 32 und 64 Bäume wurde ein durschnittlicher Fehler von 6,2\%, 5,8\%, 4,6\% und 5,1\% beobachtet.
+Der geringere Fehler ist aber darauf zurückzuführen, dass die Klassifizierungsgenauigkeit $P(A)_{\text{cont}}$ mit steigender Waldgröße ebenfalls steigt.
+\newline
+\newline
+In dieser Arbeit haben sich Entscheidungswälder als robuster gegenüber Fehler herausgestellt.
+Allerdings ist die erzielen die Entscheidungswälder in dieser Arbeit auch insgesamt bessere Klassifizierungsergebenisse, weswegen dies zu erwarten ist.
+Der durchschnittliche Fehler beider ML-Modelle ist vergleichbar, bei vergleichbarer Klassifizierungsgenauigkeit.
+Zusätzlich hat sich die Untersuchung von modifizierten Testmengen mit gezielten Veränderungen als Ergänzung zur Permutationwichtigkeit bewiesen,
+um die Signifikanz von einzelnen Features einzuschätzen.
