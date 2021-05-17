@@ -1,13 +1,13 @@
 \section{RAM}
 Für den benötigten RAM muss neben dem Anteil der ML-Modelle, die Historie der Sensorwerte und die berechneten Features betrachtet werden.
-Wichtig ist dabei der größte akkumulierte benötigte RAM, der zu einem Zeitpunkt benötigt werden kann.
+Wichtig ist dabei der meiste RAM, der zu einem Zeitpunkt benötigt werden kann.
 \newline
 \newline
 Für jeden Sensorwert, bis auf der Detektion von WLAN-Zugangspunkten, wird ein vier Byte Datentyp angenommen.
-Für die Detektion der Zugangspunkte wird ein ein Byte Datentyp angenommen.
+Für die Detektion der Zugangspunkte wird ein 1 Byte Datentyp angenommen.
 Insgesamt beträgt der benötigte RAM für einen Vektor von Sensorwerten damit 61 Byte.
 Dies setzt sich zusammen aus dem Zeitstempel, der xyz-Komponente von Accelerometer und Gyroskop, dem Lichtsensor,
-der Temperatursensor, der Magnetfeldsensor, der Geräuschsensor und fünf möglichen WLAN-Zugangspunkten.
+dem Temperatursensor, dem Magnetfeldsensor, dem Geräuschsensor und fünf möglichen WLAN-Zugangspunkten.
 Bei einem Datenfenster von drei Einträgen wird damit 183 Byte für Sensorwerte benötigt.
 \newline
 \newline
@@ -18,10 +18,10 @@ Damit wird für die Feature-Menge insgesamt 136 Byte benötigt, wenn alle Featur
 \newline
 \newline
 Zur Ausführung eines Entscheidungswaldes wird für die Rückgabe der Wahrscheinlichkeitsverteilung für jeden Standort vier Byte benötigt.
-Je nach Implementierung würde dieser Vektor mehrmals benötigt werden, z. B. bei der parallelen Evaluierung der Entscheidungsbäume skaliert dies mit der Anzahl der Prozessor.
+Je nach Implementierung würde dieser Vektor mehrmals benötigt werden, z. B. bei der parallelen Evaluierung der Entscheidungsbäume skaliert dies mit der Anzahl der Prozessoren.
 In diesem Fall wird keine Nebenläufigkeit angenommen.
 In dieser Arbeit wurden zwischen 9 und 102 Standorte untersucht, d. h. es wurden zwischen 36 und 408 Byte benötigt.
-Die Anzahl der Standorte ist aber abhängig von dem Einsatzszenario.
+Die Standortkomplexität ist aber abhängig von dem Einsatzszenario.
 Die anschließende Evaluierung eines Entscheidungswaldes zur Anomalieerkennung kann vernachlässigt werden,
 da dieser ein diskretes Ergebnis zurückgeben kann und die benötigte Feature-Menge deutlich kleiner ist.
 Damit wird für $N$ Standorte und $K$ Features mit einem Entscheidungswald als ML-Modell zu einem Zeitpunkt
