@@ -23,12 +23,12 @@ Demnach ist die Wahrscheinlichkeit sehr gering, dass der Standort korrekt klassi
 \end{figure}
 \newline
 \newline
-Für die Entscheidungswälder sind alle Features, bis auf die vorherige Position und die Standardabweichung in der Ausrichtung zum Magnetfeld unwichtig.
+Für die Entscheidungswälder sind alle Features, bis auf die vorherige Position und die Standardabweichung von der Ausrichtung zum Magnetfeld unwichtig.
 Die FFNNs hingegen bedienen sich außerdem Features von dem Temperatursensor, dem Lichtsensor und vor allem der Detektierung von WLAN-Zugangspunkten.
 Allerdings sind FFNNs deutlich abhängiger von dem vorherigen Standort als Entscheidungswälder.
 \newline
 \newline
-Durch diese Abhängigkeit ist keine hohe Robustheit zu erwarten der ML-Modelle zu erwarten.
+Durch diese Abhängigkeit ist keine hohe Robustheit der ML-Modelle zu erwarten.
 Diese Abhängigkeit ließe sich Eliminieren, indem ohne die Rückwärtskante trainiert wird.
 Dies simplifiziert den Trainingsprozess, wodurch die ML-Modelle schneller zu trainieren sind.
 Tabelle \ref{tab:predictions_wo_feedback_edge_by_acc} zeigt, dass diese ML-Modelle vergleichbare Klassifizierungsgenauigkeiten erzielen.
@@ -38,7 +38,7 @@ Hier ist die Metrik $P(A)$ mit der Metrik $P(A)_{\text{cont}}$ vergleichbar, da 
 \newline
 Abbildungen \ref{fig:feature_significance_dt_wo_fe} und \ref{fig:feature_significance_knn_wo_fe} zeigen die Permutationswichtigkeit der ML-Modelle ohne Rückwärtskante.
 Beide ML-Modelle gewichten Features aus anderen Sensorwerten deutlich mehr, im Vergleich zu den ML-Modellen mit Rückwärtskante.
-Die Entscheidungswälder gewichten dennoch nur die Standardabweichung der Ausrichtung zum Magnetfeld, due Detektierung der WLAN-Zugangspunkte und das Minimum des Lichtsensors stark.
+Die Entscheidungswälder gewichten dennoch nur die Standardabweichung der Ausrichtung zum Magnetfeld, die Detektierung der WLAN-Zugangspunkte und das Minimum des Lichtsensors stark.
 Die anderen Features sind im Vergleich deutlich unwichtiger.
 Das FFNN hingegen nutzt alle Features, wobei Features aus dem Accelerometer und Gyroskop unwichtiger sind.
 \begin{figure}[h!]
