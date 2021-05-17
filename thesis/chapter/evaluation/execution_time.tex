@@ -1,17 +1,17 @@
 \section{Ausführungszeit und benötigte Energie}
-Es ist problemetisch eine sinvolle Estimierung für die benötigte Ausführungszeit und Energie anzugeben, da
+Es ist problemetisch eine sinvolle Einschätzung für die benötigte Ausführungszeit und Energie anzugeben, da
 die Ausführungszeit und die benötigte Energie abhängig von dem verwendeten Mikrocontroller sind.
 Vergleichbare 32-Bit Mikrocontroller mit FPU (Floating Point Unit), zu den Microcontrollern die Dymel verwendet hat \cite{dymelThesis}, sind aus der AVR C-Serie \cite{avr32BitDatasheet}.
 Leider ist aus deren Datenblätter keine Information über die Ausführungszeit von Gleitkommazahlinstruktionen und kein Energiemodell zu entnehmen.
 Es ist aber anzunehmen, dass deutlich weniger Cyclen benötigt werden für hardwareunterstützte Gleitkommazahloperationen, als Software basierte Alternativen.
-Aus diesem Grund wird die Ausführungszeit in Gleitkommazahl- Vergleichen, Multiplikationen, Division, Additionen und Wurzel angegeben,
+Aus diesem Grund wird die Ausführungszeit in Gleitkommazahl- Vergleichen, Multiplikationen, Division, Additionen und Wurzeln angegeben,
 da diese die integralen Bestandteile der Feature-Extrahierung und Evaluation der ML-Modelle sind.
 \newline
 \newline
 Die in dieser Arbeit vorgeschlagene Architektur (\ref{fig:model_idea}) hat fünf Bestandteile, die jeweils zur Gesamtausführungszeit beitragen.
-Die Aufnahme der Sensorwerte wird als konstanter Energieverbrauch angenommen und in dieser Rechnung vernachlässigt.
+Die Aufnahme der Sensorwerte wird als konstanter Energieverbrauch angenommen und in dieser Evaluation vernachlässigt.
 In der ersten Feature-Extrahierung werden 34 Features aus dem Datenfenster extrahiert.
-Tabelle \ref{tab:feature_operation_complexity} zeigt die estimierte Anzahl der Operationen, die pro Art des Features benötigt werden.
+Tabelle \ref{tab:feature_operation_complexity} zeigt die estimierte Anzahl der Operationen, die pro Art des Features benötigt wird.
 \begin{table}[h!]
     \centering
     \begin{tabular}{ | l | c | c | c | c | c | }
@@ -22,7 +22,7 @@ Tabelle \ref{tab:feature_operation_complexity} zeigt die estimierte Anzahl der O
         Durchschnitt (\textbf{6}) & 0 & 0 & 1 & 2 & 0 \\\hline
         Wert (\textbf{9}) & 0 & 0 & 0 & 0 & 0 \\\hline
     \end{tabular}
-    \caption{Estimierte Anzahl der Operationen pro Art des Features bei einer Datenfenstergröße von 3. Fettgedruckte Zahl zeigt die Verwendungsanazahl in der Feature-Menge an.}
+    \caption{Estimierte Anzahl der Operationen pro Art des Features bei einer Datenfenstergröße von 3. Fettgedruckte Zahl zeigt die Verwendungsanzahl in der Feature-Menge an.}
     \label{tab:feature_operation_complexity}
 \end{table}
 \newline
