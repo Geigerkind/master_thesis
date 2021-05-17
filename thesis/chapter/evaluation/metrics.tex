@@ -12,20 +12,20 @@ d.~h. Fehlklassifizierungen werden vernachlässigt, wenn kontinuierlich der letz
 Standort klassifiziert wird mit einer Gesamttoleranz von $\epsilon$ Klassifizierungen.
 Diese Metrik ist besonders gut für den Vergleich geeignet, da entgegen der Beschriftung in der Testmenge,
 harte Übergänge zwischen zwei benachbarten Standorten nicht der Wirklichkeit entsprechen.
-Im Übergang können Sensorwerte möglicherweise mehrdeutig sein und dies sollte bei der Standorterkennung beachtet werden, solange sie konsequent ist.
-Dadurch wird im Vergleich das Rauschen in der Klassifizierungsgenauigkeit reduziert, dass durch diese Mehrdeutigkeit im Übergang entsteht,
+Im Übergang können Sensorwerte möglicherweise mehrdeutig sein und dies sollte bei der Standorterkennung, solange sie konsequent ist, beachtet werden.
+Dadurch wird im Vergleich das Rauschen in der Klassifizierungsgenauigkeit so reduziert, dass durch diese Mehrdeutigkeit im Übergang entsteht,
 wodurch die ML-Modelle besser vergleichbar sind.
 \begin{flalign}
     \label{formular:accuracy_metrik2}
-    &L := \text{Menge von dem ML-Modell klassifizierten Standorte.} \nonumber\\
+    &L := \text{Menge der von dem ML-Modell klassifizierten Standorte.} \nonumber\\
     &K := \text{Menge von den wirklichen Standorten.} \nonumber\\
-    &\Phi(i) := \text{Index von dem nächsten Standort.} \nonumber\\
-    &\Psi(i) := \text{Index von dem vorherigen Standort.} \nonumber\\
+    &\Phi(i) := \text{Index vom nächsten Standort.} \nonumber\\
+    &\Psi(i) := \text{Index vom vorherigen Standort.} \nonumber\\
     &\Omega(i) := \Phi(i)-i\leq\epsilon\wedge\hspace{-0.3cm} \bigwedge\limits_{i\leq q \leq \min(\#K, \Phi(i))}\hspace{-0.3cm} L_q=K_{\Phi(i)} \nonumber\\
     &\Theta(i) := i-\Psi(i)\leq\epsilon\wedge\hspace{-0.3cm} \bigwedge\limits_{\max(0, \Psi(i))\leq q \leq i}\hspace{-0.3cm} L_q=K_{\Psi(i)} \nonumber\\
     &P(B=\epsilon) := \frac{\#\{L_i | L_i=K_i \vee \Omega(i) \vee \Theta(i)\text{ für } i\in\{0, 1, ..., \#L - 1\}\}}{\#K}
 \end{flalign}
-Zuletzt eine Metrik, die die Klassifizierungsgenauigkeit betrachtet, unter der Bedingung, dass der vorherige Standort inkorrekt war.
+Zuletzt wird die Klassifizierungsgenauigkeit betrachtet, unter der Bedingung, dass der vorherige Standort inkorrekt war.
 Diese Metrik ist besonders relevant bei der Beurteilung der Stabilität der ML-Modelle.
 \begin{align}
     \label{formular:accuracy_previous_was_in_correct}
