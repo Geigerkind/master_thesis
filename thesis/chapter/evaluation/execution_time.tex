@@ -25,10 +25,9 @@ Tabelle \ref{tab:feature_operation_complexity} zeigt die estimierte Anzahl der O
     \caption{Estimierte Anzahl der Operationen pro Art des Features bei einer Datenfenstergröße von 3. Fettgedruckte Zahl zeigt die Verwendungsanzahl in der Feature-Menge an.}
     \label{tab:feature_operation_complexity}
 \end{table}
-\newline
-\newline
-Zur Evaluierung eines Entscheidungsbaumes werden höchstens $Q\leq\text{Waldgröße}\ \cdot\ \text{Max. Baumhöhe}$ Vergleiche benötigt,
-sowie $R\leq\text{Waldgröße}\ \cdot\ \text{\#Standorte}$ Additionen und \text{\#Standorte} zusätzliche Vergleiche, um die einzelnen Entscheidungsbäume zusammenzufassen \cite{dymelThesis}.
+\newpage
+Zur Evaluierung eines Entscheidungswaldes werden höchstens $\text{Waldgröße}\ \cdot\ \text{Max. Baumhöhe}$ Vergleiche benötigt,
+sowie $\text{Waldgröße}\ \cdot\ \text{\#Standorte}$ Additionen und \text{\#Standorte} zusätzliche Vergleiche, um die einzelnen Entscheidungsbäume zusammenzufassen \cite{dymelThesis}.
 Für einen Entscheidungswald mit 8 Bäumen mit einer maximalen Höhe von 16 und 102 Standorten werden damit 230 Vergleiche und 816 Additionen benötigt.
 \newline
 \newline
@@ -61,8 +60,7 @@ Das FFNN benötigt 80 Multiplikationen, 81 Additionen, 17 Vergleiche, eine Divis
     \caption{Estimierte Anzahl der Operationen pro Feature der Anomalieerkennung.}
     \label{tab:anomaly_feature_operation_complexity}
 \end{table}
-\newline
-\newline
+\newpage
 Tabelle \ref{tab:complexity_summary} fasst die Anzahl der Operationen für eine Konfiguration mit ausschließlich Entscheidungswäldern und FFNNs zusammen.
 Es ist zu erwarten, dass die Entscheidungswälder weniger Ausführungszeit benötigen als die FFNNs, da deutlich weniger Operationen benötigt werden,
 wodurch sich ein Entscheidungsbaum basierter Klassifizierer in Hinsicht auf die benötigte Energie besser eignet.

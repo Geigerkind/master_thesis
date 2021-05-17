@@ -69,14 +69,14 @@ Tabelle \ref{tab:predictions_by_acc_5_cont} gibt diese Klassifizierierungsgenaui
         8 & 32 & 88.06\% & 57.44\% & 86.54\% & 78.26\% & 34.54\% & 34.35\% & 70.57\% & 48.82\% \\\hline
         4 & 64 & 90.98\% & 62.21\% & 86.66\% & 81.08\% & 51.40\% & 22.54\% & 70.94\% & 45.54\% \\\hline
     \end{tabular}
-    \caption{Metrik $P(B=5)_{\text{cont}}$ über Standorte und verschiedenen Konfigurationen der ML-Modelle.}
+    \caption{$P(B=5)_{\text{cont}}$ über Standorte und Konfigurationen der ML-Modelle.}
     \label{tab:predictions_by_acc_5_cont}
 \end{table}
 \newline
 \newline
 Der Entscheidungsbaum basierte Klassifizierer skaliert sehr gut mit der steigenden Standortkomplexität.
 Im Schnitt fällt die Klassifizierungsgenauigkeit um 0,16\% pro zusätzlichen Standort.
-Bei einer Standortkomplexität von 102 wird immernoch eine Klassifizierungsgenauigkeit $P(B=5)_{\text{cont}}$ von 87,77\% erreicht.
+Bei einer Standortkomplexität von 102 wird immer noch eine Klassifizierungsgenauigkeit $P(B=5)_{\text{cont}}$ von 87,77\% erreicht.
 Als beste maximale Baumhöhe hat sich 16 herausgestellt, wobei 32 und 64 marginal schlechtere Ergebnisse produzierten.
 Eine maximale Baumhöhe von 8 war nicht ausreichend, da es für hohe Standortkomplexitäten schlechtere Ergebnisse erzielt hat.
 Bei gleicher Waldgröße haben die maximalen Baumhöhen von 32 und 64 equivalente Ergebnisse produziert,
@@ -85,8 +85,7 @@ Dies schließt aber nicht aus, dass andere Szenarien nicht von größeren maxima
 Die verschiedenen Waldgrößen unterscheiden sich nicht stark.
 Eine Waldgröße von 8 hat nur marginal schlechtere Ergenisse bei 102 Standorten erzielt, als die Waldgrößen 16, 32 und 64.
 Aus diesem Grund ist eine Waldgröße von 8 ausreichend, oder könnte womöglich reduziert werden.
-\newline
-\newline
+\newpage
 Die evaluierten FFNNs skalieren mit steigender Standortkomplexität deutlich schlechter als die Entscheidungswälder.
 Im Schnitt fällt die Klassifizierungsgenauigkeit um 0,51\% pro zusätzlichen Standort.
 Auffallend ist, dass die Klassifizierungsergebnisse bei FFNNs mit dem Kodierungsansatz, in dem Kanten und Knoten kodiert werden,

@@ -25,6 +25,8 @@ Tabelle \ref{tab:predictions_by_loc_size} zeigt Einschätzungen des benötigten 
 wobei die konstanten Anteile vernachlässigt werden.
 Potentielle Optimierungen der Entscheidungswälder, z. B. durch den Compiler,
 sowie potentielle Optimierungen des FFNN, wie Giese sie vorgeschlagen hat \cite{gieseThesis}, wurden dabei nicht betrachtet.
+\newline
+\newline
 Giese hat mit dem CSC-MA-Bit Format die Programmgröße um 39\% reduzieren können.
 Kompilierung mit der Optimierungsstufe \textit{O2} konnte experimentell generierten C-Code
 eines Entscheidungswaldes um bis zu 21,3\% reduzieren.
@@ -62,6 +64,6 @@ Für beide ML-Modelle gibt es Mikrocontroller, die ausreichend Programmspeicher 
         8 & 32 & 34.2 & 35.1 & 35.2 & 36.2 & 37.1 & 39.2 & 39.7 & 46.1 \\\hline
         4 & 64 & 60.2 & 62.0 & 62.2 & 64.3 & 66.0 & 70.1 & 71.2 & 84.0 \\\hline
     \end{tabular}
-    \caption{Metrik Programmgröße in KB über Standorte und verschiedenen Konfigurationen der ML-Modelle.}
+    \caption{Programmgröße in KB über Standorte und Konfigurationen der ML-Modelle.}
     \label{tab:predictions_by_loc_size}
 \end{table}
