@@ -2,7 +2,7 @@
 \label{sec:eval_anomalieerkennung}
 Bei der Anomalieerkennung werden Entscheidungswälder und FFNNs mit den besten ML-Modellen zur Standorterkennung trainiert und mit den drei Baseline-Modellen verglichen.
 Tabelle \ref{tab:anomaly_detection_prediction_accuracy} zeigt die Klassifizierungsgenauigkeiten über die verschiedenen Standortkomplexitäten,
-wobei die Klassifizierungsgenauigkeit $P(A)$ nochmal genauer aufgeschlüsselt ist in den Anteil der korrekten Klassifizierungen, wenn eine bzw. keine Anomalie vorlag.
+wobei die Klassifizierungsgenauigkeit $P(A)$ nochmal genauer in den Anteil der korrekten Klassifizierungen aufgeschlüsselt ist, wenn eine bzw. keine Anomalie vorlag.
 Die trainierten FFNNs geben stets aus, dass keine Anomalie vorliegt.
 Es ist unklar, warum die FFNNs sich so verhalten.
 \begin{table}[h!]
@@ -35,7 +35,7 @@ Aus diesem Grund ist die Klassifizierungsgenauigkeit bei den Standortkomplexitä
 geringer, als bei der Kodierungsmethode, bei der nur die Knoten kodiert werden.
 \newline
 \newline
-Abbildung \ref{fig:true_vs_predicted_anomaly} zeigt einen Auscchnitt der Anomalietestmenge, worauf der Entscheidungswald der Standortkomplexität 17 angewendet wurde.
+Abbildung \ref{fig:true_vs_predicted_anomaly} zeigt einen Ausschnitt der Anomalietestmenge, worauf der Entscheidungswald der Standortkomplexität 17 angewendet wurde.
 Die Anomalie wird nicht kontinuierlich erkannt und es werden auch fälschlicherweise Standorte als Anomalien klassifiziert.
 Allerdings treten falsch-positive Ergebnisse nur vereinzelt auf, wohingegen bei einer Anomalie, sehr häufig eine Anomalie erkannt wird.
 Die falsch-positiven Ergebnisse können somit durch Ausnutzen dieser Fluktuationen vermieden werden,

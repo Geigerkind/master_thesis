@@ -2,16 +2,16 @@
 Es ist problemetisch eine sinvolle Einschätzung für die benötigte Ausführungszeit und Energie anzugeben, da
 die Ausführungszeit und die benötigte Energie abhängig von dem verwendeten Mikrocontroller sind.
 Vergleichbare 32-Bit Mikrocontroller mit FPU (Floating Point Unit), zu den Microcontrollern die Dymel verwendet hat \cite{dymelThesis}, sind aus der AVR C-Serie \cite{avr32BitDatasheet}.
-Leider ist aus deren Datenblätter keine Information über die Ausführungszeit von Gleitkommazahlinstruktionen und kein Energiemodell zu entnehmen.
+Die Datenblätter enthalten keine Information über die Ausführungszeit von Gleitkommazahlinstruktionen und kein Energiemodell.
 Es ist aber anzunehmen, dass deutlich weniger Cyclen benötigt werden für hardwareunterstützte Gleitkommazahloperationen, als Software basierte Alternativen.
-Aus diesem Grund wird die Ausführungszeit in Gleitkommazahl- Vergleichen, Multiplikationen, Division, Additionen und Wurzeln angegeben,
+Aus diesem Grund wird die Ausführungszeit in Gleitkommazahl -Vergleichen, -Multiplikationen, -Division, -Additionen und Wurzeln angegeben,
 da diese die integralen Bestandteile der Feature-Extrahierung und Evaluation der ML-Modelle sind.
 \newline
 \newline
 Die in dieser Arbeit vorgeschlagene Architektur (\ref{fig:model_idea}) hat fünf Bestandteile, die jeweils zur Gesamtausführungszeit beitragen.
 Die Aufnahme der Sensorwerte wird als konstanter Energieverbrauch angenommen und in dieser Evaluation vernachlässigt.
 In der ersten Feature-Extrahierung werden 34 Features aus dem Datenfenster extrahiert.
-Tabelle \ref{tab:feature_operation_complexity} zeigt die estimierte Anzahl der Operationen, die pro Art des Features benötigt wird.
+Tabelle \ref{tab:feature_operation_complexity} zeigt die geschätzte Anzahl der Operationen, die pro Art des Features benötigt wird.
 \begin{table}[h!]
     \centering
     \begin{tabular}{ | l | c | c | c | c | c | }
@@ -22,16 +22,18 @@ Tabelle \ref{tab:feature_operation_complexity} zeigt die estimierte Anzahl der O
         Durchschnitt (\textbf{6}) & 0 & 0 & 1 & 2 & 0 \\\hline
         Wert (\textbf{9}) & 0 & 0 & 0 & 0 & 0 \\\hline
     \end{tabular}
-    \caption{Estimierte Anzahl der Operationen pro Art des Features bei einer Datenfenstergröße von 3. Fettgedruckte Zahl zeigt die Verwendungsanzahl in der Feature-Menge an.}
+    \caption{Geschätzte Anzahl der Operationen pro Art des Features bei einer Datenfenstergröße von 3. Fettgedruckte Zahl zeigt die Verwendungsanzahl in der Feature-Menge an.}
     \label{tab:feature_operation_complexity}
 \end{table}
 \newpage
-Zur Evaluierung eines Entscheidungswaldes werden höchstens $\text{Waldgröße}\ \cdot\ \text{Max. Baumhöhe}$ Vergleiche benötigt,
-sowie $\text{Waldgröße}\ \cdot\ \text{\#Standorte}$ Additionen und \text{\#Standorte} zusätzliche Vergleiche, um die einzelnen Entscheidungsbäume zusammenzufassen \cite{dymelThesis}.
+Zur Evaluierung eines Entscheidungswaldes werden höchstens
+\newline
+$\texttt{Waldgröße}\ \cdot\ \texttt{Max. Baumhöhe}$ Vergleiche benötigt,
+sowie $\texttt{Waldgröße}\ \cdot\ \texttt{\#Standorte}$ Additionen und \text{\#Standorte} zusätzliche Vergleiche, um die einzelnen Entscheidungsbäume zusammenzufassen \cite{dymelThesis}.
 Für einen Entscheidungswald mit 8 Bäumen mit einer maximalen Höhe von 16 und 102 Standorten werden damit 230 Vergleiche und 816 Additionen benötigt.
 \newline
 \newline
-Für die Evaluierung eines FFNNs mit der in Kapitel \ref{sec:model_ffnn} beschriebenen Struktur setzen sich die benötigten Operationen folgendermaßen zusammen.
+Für die Evaluierung eines FFNNs mit der in Kapitel \ref{sec:model_ffnn} beschriebenen Struktur setzen sich die benötigten Operationen folgendermaßen zusammen:
 Die Größe der ersten Schicht des FFNNs ist $n_1:=\text{\#Features}$.
 Die Größe der letzten Schicht ist $n_m:=\text{\#Standorte}$.
 Dazwischen liegen $m-2$ Schichten, die jeweils $K$ Neuronen haben.
@@ -42,7 +44,7 @@ bei 102 Standorten, 4352 Multiplikationen, 4454 Additionen, 134 Vergleiche, 102 
 \newline
 \newline
 Bei der Feature-Extrahierung für das ML-Modell zur Anomalieerkennung werden nur vier Features extrahiert.
-Tabelle \ref{tab:anomaly_feature_operation_complexity} zeigt die estimierte Anzahl der Operationen, die für die einzelnen Features benötigt werden.
+Tabelle \ref{tab:anomaly_feature_operation_complexity} zeigt die geschätzte Anzahl der Operationen, die für die einzelnen Features benötigt werden.
 Der Entscheidungswald zur Anomalieerkennung besteht aus 4 Entscheidungsbäumen mit einer maximalen Baumhöhe von 8.
 Das FFNN zur Anomalieerkennung hat eine verdeckte Schicht mit 16 Neuronen und die Ausgabeschicht hat nur ein Neuron.
 Der Entscheidungswald benötigt damit 34 Vergleiche und 8 Additionen.
@@ -57,7 +59,7 @@ Das FFNN benötigt 80 Multiplikationen, 81 Additionen, 17 Vergleiche, eine Divis
         Topologieverletzung & 5 & 1 & 0 & 1 & 0 \\\hline
         Standardabweichung Top 5 Klassifizierungen & 0 & 5 & 2 & 13 & 1 \\\hline
     \end{tabular}
-    \caption{Estimierte Anzahl der Operationen pro Feature der Anomalieerkennung.}
+    \caption{Geschätzte Anzahl der Operationen pro Feature der Anomalieerkennung.}
     \label{tab:anomaly_feature_operation_complexity}
 \end{table}
 \newpage
@@ -78,6 +80,6 @@ Dies ist aber unrealistisch, da die Sensorenbox auch für lange Zeit an einem Or
         Wurzel & 8 & 8 \\\hline
         $\exp$-Funktion & 0 & 103 \\\hline
     \end{tabular}
-    \caption{Estimierte Anzahl der Operationen für die gesamte Ausführung mit den im Besipiel genannten Größen für Entscheidungswald und FFNN.}
+    \caption{Geschätzte Anzahl der Operationen für die gesamte Ausführung mit den im Besipiel genannten Größen für Entscheidungswald und FFNN.}
     \label{tab:complexity_summary}
 \end{table}

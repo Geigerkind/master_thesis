@@ -4,7 +4,7 @@ Wichtig ist dabei der meiste RAM, der zu einem Zeitpunkt benötigt werden kann.
 \newline
 \newline
 Für jeden Sensorwert, bis auf der Detektion von WLAN-Zugangspunkten, wird ein vier Byte Datentyp angenommen.
-Für die Detektion der Zugangspunkte wird ein 1 Byte Datentyp angenommen.
+Für die Detektion der Zugangspunkte wird ein ein Byte Datentyp angenommen.
 Insgesamt beträgt der benötigte RAM für einen Vektor von Sensorwerten damit 61 Byte.
 Dies setzt sich zusammen aus dem Zeitstempel, der xyz-Komponente von Accelerometer und Gyroskop, dem Lichtsensor,
 dem Temperatursensor, dem Magnetfeldsensor, dem Geräuschsensor und fünf möglichen WLAN-Zugangspunkten.
@@ -12,7 +12,7 @@ Bei einem Datenfenster von drei Einträgen wird damit 183 Byte für Sensorwerte 
 \newline
 \newline
 Der Anteil der Features ist abhängig von den Features die für ein bestimmtes Szenario eingesetzt werden.
-Insgesamt werden aber 34 Features verwendet, die vereinfacht alle als 4 Byte Datentyp angenommen werden.
+Insgesamt werden aber 34 Features verwendet, die vereinfacht alle als vier Byte Datentyp angenommen werden.
 Zur Evaluierung des ML-Modells wird nur die aktuelle Feature-Menge benötigt.
 Damit wird für die Feature-Menge insgesamt 136 Byte benötigt, wenn alle Features verwendet werden.
 \newline
@@ -28,12 +28,12 @@ Damit wird für $N$ Standorte und $K$ Features mit einem Entscheidungswald als M
 ca. $183 + 4(N + K)$ Byte benötigt, d. h. bei 102 Standorten und 34 Features ca. 727 Byte.
 \newline
 \newline
-Zur Ausführung eines FFNN können nur wenige Byte verwendet werden, um die nötigen Multiplikationen eines Neuronen durchzuführen.
+Zur Ausführung eines FFNN werden nur wenige Byte benötigt, um die nötigen Multiplikationen eines Neuronen durchzuführen.
 Dies würde die Ausführungszeit, und den Energiebedarf, aber signifikant erhöhen, da die benötigten Gewichte ständig aus dem Programmspeicher geladen werden müssen.
 Das heißt, es müssen mindestens die Zwischenergebnisse einer Schicht im RAM gehalten werden, sowie ein Gewicht und und ein Bias.
 \newline
 \newline
 Damit benötigt ein FFNN, dessen größte Schicht $M$ Neuronen hat, mindestens $4(M+2)$ Byte.
 Maximal wird $4M$ Byte, zuzüglich der Größe aller Gewichte und Biase benötigt.
-Der maximale RAM, der zu einem Zeitpunkt benötigt wird mit einem FFNN, beträgt damit mindestestens $183 + 4(M + K)$,
+Der maximale RAM, der zu einem Zeitpunkt benötigt wird mit einem FFNN, beträgt damit mindestestens $183 + 4(M + K)$ Byte,
 wobei $M$ die Schicht mit den meisten Neuronen von entweder dem ML-Modell zur Standort- oder Anomalieerkennung ist.

@@ -1,5 +1,5 @@
 \chapter{Schlussfolgerungen}
-Diese Arbeit hat gezeigt, dass Klassifizierer mit Entscheidungsbäumen sich besser als FFNNs zur Standorterkennung eignen.
+Diese Arbeit hat gezeigt, dass sich Klassifizierer mit Entscheidungsbäumen besser als FFNNs zur Standorterkennung eignen.
 Selbst bei hohen Standortkomplexitäten von 102 konnten Klassifizierungsgenauigkeiten $P(A)_{\text{cont}}$ von bis zu 84,37\% erreicht werden.
 Anomalien konnten bis zu 52,58\% bei einer Fehlerrate von 2,95\% korrekt klassifiziert werden.
 \newline
@@ -11,7 +11,7 @@ ein geringerer Energieverbrauch zu erwarten ist.
 \newline
 \newline
 Der Kodierungsansatz, der nur Knoten kodiert, skaliert besser als der Kodierungsansatz, der Kanten und Knoten kodiert.
-Resultiere ML-Modelle haben bessere Klassifizierungsergebnisse mit ersteren Kodierungsansatz erzielt.
+Resultierende ML-Modelle haben bessere Klassifizierungsergebnisse mit ersteren Kodierungsansatz erzielt.
 Entscheidungswälder skalieren mit steigender Standortkomplexität besser als FFNNs.
 Mit jedem zusätzlichen Standort, ab einer Standortkomplexität von 9, verringert sich die Klassifizierungsgenauigkeit der Entscheidungswälder,
 um 0,16\%, wohingegen sich die Klassifizierungsgenauigkeit bei FFNNs um 0,51\% verringert.
@@ -23,7 +23,7 @@ Zusätzlich hat sich gezeigt, dass die Nullung einzelner Features ebenfalls eine
 \newpage
 Die ML-Modelle wurden mit fehlerhaften Daten trainiert, um die Fehlertoleranz zu erhöhen.
 Es hat sich gezeigt, dass sowohl Entscheidungswälder als auch FFNNs robust gegenüber Abweichungen der Sensorwerte,
-Ausfall von einzelnen Sensoren und Permutation der Routen ist.
+Ausfall von einzelnen Sensoren und Permutation der Routen sind.
 Im Schnitt benötigt ein Entscheidungswald 5,2 Klassifizierungen, um den korrekten Standort wieder zu bestimmen,
 nachdem es einen falschen Standort bestimmt hat.
 Ein FFNN benötigt im Schnitt 5,8 Klassifizierungen.
@@ -43,7 +43,7 @@ Möglicherweise könnte ein Arduino Board mit handelsüblichen, vergleichbaren S
 \newline
 \newline
 Weitere Optimierungen der ML-Modelle sollten untersucht werden.
-Zunächst könnte die Anzahl der Features reduziert werden durch eine sorgfältige Auswahl mit Hilfe eines Optimierungsverfahrens.
+Zunächst könnte die Anzahl der Features mit Hilfe eines Optimierungsverfahrens reduziert werden.
 Dort sollte die Klassifizierungsgenauigkeit und Ausführungszeit maximiert werden unter Einhaltung der Hardwarelimitierungen.
 Zur Optimierung von KNN könnten die Ansätze von Giese aufgegriffen werden \cite{gieseThesis}.
 \newline

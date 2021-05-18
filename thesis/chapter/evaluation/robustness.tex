@@ -11,7 +11,7 @@ Tabelle \ref{tab:robustness_by_acc_cont} zeigt die Differenz.
 Die Testmenge mit einem Rauschen von 5\% wurde ausgelassen, da es keine Auswirkung auf die Klassifizierungsgenauigkeit hatte.
 Vermutlich sind 5\% Rauschen zu wenig.
 Entgegen den Erwartungen aus der Signifikanz der Features hat die Ausrichtung des Magnetfeldes sehr wenig Einfluss auf die Klassifizierungsgenauigkeit beim Entscheidungswald,
-wenn dieser Sensorwert genullt ist, d. h. grob Fehlerhafte Sensorwerte verursachen größere Fehler als genullte Sensorwerte.
+wenn dieser Sensorwert genullt ist, d. h. grob fehlerhafte Sensorwerte verursachen größere Fehler als genullte Sensorwerte.
 Deutlich signifikanter sind die Sensorwerte des Temperatursensors, die in der Permutationswichtigkeit insignifikant sind,
 d. h. Entscheidungswälder sind sehr anfällig, wenn der Temperatursensor ausfällt.
 Das ist vermutlich darauf zurückzuführen, dass der Temperatursensor immer eine Umgebungstemperatur misst und
@@ -42,7 +42,7 @@ Der durchschnittliche Fehler ist 5,1\%.
 \newline
 Das FFNN zeigt weniger Fehlertoleranz auf.
 Der größte Fehler kommt durch die genullten WLAN-Zugangspunkte zustande.
-Dies stimmt mit der bestimmten Signifikanz durch die Permutationswichtigkeit überein.
+Dies stimmt mit der ermittelten Signifikanz durch die Permutationswichtigkeit überein.
 Die WLAN-Zugangspunkte bilden 14,7\% der Feature-Menge, wodurch diese Features einen großen Einfluss ausüben können.
 \newline
 Entgegen der Erwartung ist der Fehler durch die Nullung der Ausrichtung des Magnetfeldes und des Accelerometers.
@@ -52,9 +52,9 @@ Der durchschnittliche Fehler ist 9,1\%.
 \newline
 \newline
 Tabelle \ref{tab:predictions_by_acc_pic_cont} gibt die Klassifizierungsgenauigkeit $P(C)_{\text{cont}}$ über verschiedene Standortkomplexitäten an.
-Demnach ist zu erwarten, dass ein Entscheidungswald, bei einer Standortkomplexität von 9, ca. 5,3 Interrupts benötigt bis der korrekte Standort identifiziert wurde,
+Demnach ist zu erwarten, dass ein Entscheidungswald, bei einer Standortkomplexität von 9, ca. 5,3 Klassifizierungen benötigt, bis der korrekte Standort identifiziert wurde,
 wenn ein falscher Standort zuvor identifiziert wurde.
-Ein FFNN benötigt ca. 5,8 Interrupts.
+Ein FFNN benötigt ca. 5,8 Klassifizierungen.
 $P(C)_{\text{cont}}$ korreliert stark mit $P(A)_{\text{cont}}$, weshalb keine Aussage getroffen werden kann, ob Entscheidungswälder oder FFNNs schneller den korrekten Standort wieder erkennen.
 In diesem Fall ist die Klassifizierungsgenauigkeit $P(A)_{\text{cont}}$ der FFNNs geringer, weshalb mehr Interrupts benötigt werden.
 \newline
@@ -64,7 +64,7 @@ Für 8, 16, 32 und 64 Bäume wurde ein durschnittlicher Fehler von 6,2\%, 5,8\%,
 Der geringere Fehler ist aber darauf zurückzuführen, dass die Klassifizierungsgenauigkeit $P(A)_{\text{cont}}$ mit steigender Waldgröße steigt.
 \newpage
 In dieser Arbeit haben sich Entscheidungswälder als robuster gegenüber Fehler herausgestellt.
-Allerdings ist die erzielen die Entscheidungswälder in dieser Arbeit auch insgesamt bessere Klassifizierungsergebenisse, weswegen dies zu erwarten ist.
+Allerdings erzielen die Entscheidungswälder in dieser Arbeit auch insgesamt bessere Klassifizierungsergebenisse, weswegen dies zu erwarten ist.
 Der durchschnittliche Fehler beider ML-Modelle ist vergleichbar, bei vergleichbarer Klassifizierungsgenauigkeit.
 Zusätzlich hat sich die Untersuchung von modifizierten Testmengen mit gezielten Veränderungen als Ergänzung zur Permutationwichtigkeit bewiesen,
 um die Signifikanz von einzelnen Features einzuschätzen.

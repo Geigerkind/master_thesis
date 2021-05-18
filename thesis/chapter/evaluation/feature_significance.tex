@@ -6,6 +6,8 @@ Je größer der Fehler, desto wichtiger das Feature.
 \newline
 \newline
 Abbildungen \ref{fig:feature_significance_dt} und \ref{fig:feature_significance_knn} zeigen die Permutationswichtigkeit eines Entscheidungswaldes und FFNN.
+Die Features sind abgekürzt in der Grafik: \textit{acc} steht für die Features aus den Accelerometer, \textit{light} für den Lichtsensor, \textit{ap} für den WLAN-Zugangspunkt,
+\textit{temperature} für den Temperatursensor, \textit{heading} für den Magnetfeldsensor, \textit{volume} für den Geräuschsensor, \textit{ang} für das Gyroskop.
 Die Permutationswichtigkeit von einzelnen Entscheidungswäldern bzw. FFNNs unterscheidet sich nicht stark.
 Beide ML-Modelle weisen den vorherigen Standorten eine hohe Signifikanz zu.
 Die Klassifizierunggenauigkeiten in Tabelle \ref{tab:predictions_by_acc_pic_cont} bestätigen diese Abhängigkeit.
@@ -33,7 +35,7 @@ Durch diese Abhängigkeit ist keine hohe Robustheit der ML-Modelle zu erwarten.
 Diese Abhängigkeit ließe sich Eliminieren, indem ohne die Rückwärtskante trainiert wird.
 Dies simplifiziert den Trainingsprozess, wodurch die ML-Modelle schneller zu trainieren sind.
 Tabelle \ref{tab:predictions_wo_feedback_edge_by_acc} zeigt, dass diese ML-Modelle vergleichbare Klassifizierungsgenauigkeiten erzielen.
-Insbesondere FFNNs erzielen deutlich bessere Klassfizierungsgenauigkeiten, erzielen aber dennoch schlechtere Ergebnisse als die Entscheidungswälder.
+Insbesondere FFNNs erzielen deutlich bessere Klassfizierungsgenauigkeiten, erzielen aber immer noch deutlich schlechtere Ergebnisse als die Entscheidungswälder.
 Hier ist die Metrik $P(A)$ mit der Metrik $P(A)_{\text{cont}}$ vergleichbar, da der propagierte Fehler durch die Eliminierung der Rückwärtskante nicht mehr existiert.
 \newline
 \newline
@@ -54,10 +56,9 @@ Das FFNN hingegen nutzt alle Features, wobei Features aus dem Accelerometer und 
     \caption{Permutationswichtigkeit der Features eines FFNN ohne Rückwärtskante.}
     \label{fig:feature_significance_knn_wo_fe}
 \end{figure}
-\newline
-\newline
+\newpage
 Abbildung \ref{fig:feature_significance_dt_anomaly} zeigt die Permutationswichtigkeit von einem Entscheidungswald zur Anomalieerkennung.
-Am wichtigsten sind die Features, die die Wahrscheinlichkeitsverteilung des Klassifizierungsergebnisses von dem ML-Modell zur Standorterkennung ausnutzen.
+Am wichtigsten sind die Features, welche die Wahrscheinlichkeitsverteilung des Klassifizierungsergebnisses von dem ML-Modell zur Standorterkennung ausnutzen.
 Die Abweichung zu den durchschnittlichen Standortänderungen hat kaum Einfluss.
 Dies deutet darauf hin, dass die ML-Modelle zur Standorterkennung nicht so instabil in Anomalien sind, wie angenommen.
 Aus dem selben Grund hat das Feature der Topologieverletzung auch wenig Einfluss, da es bei Anomalien wenig ausschlägt.
