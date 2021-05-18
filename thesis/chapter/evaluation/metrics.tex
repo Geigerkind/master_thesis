@@ -1,6 +1,6 @@
 \newpage
 \section{Metriken}
-In dieser Arbeit werden verschiedene Metriken zur Ermittlung der Klassifizierungsgenauigkeit ermittelt.
+In dieser Arbeit werden verschiedene Metriken zur Ermittlung der Klassifizierungsgenauigkeit verwendet.
 Zunächst die übliche Klassifizierungsgenauigkeit (\ref{formular:simple_accuracy}), in der die Anzahl der korrekt klassifizierten Standorte mit der Gesamtanzahl verglichen werden.
 Diese Metrik wird auch von Mian verwendet und ist für den direkten Vergleich erforderlich.
 \begin{align}
@@ -14,7 +14,7 @@ Standort klassifiziert wird mit einer Gesamttoleranz von $\epsilon$ Klassifizier
 Diese Metrik ist besonders gut für den Vergleich geeignet, da entgegen der Beschriftung in der Testmenge,
 harte Übergänge zwischen zwei benachbarten Standorten nicht der Wirklichkeit entsprechen.
 Im Übergang können Sensorwerte möglicherweise mehrdeutig sein und dies sollte bei der Standorterkennung, solange sie konsequent ist, beachtet werden.
-Dadurch wird im Vergleich das Rauschen in der Klassifizierungsgenauigkeit so reduziert, dass durch diese Mehrdeutigkeit im Übergang entsteht,
+Dadurch wird, im Vergleich, das Rauschen in der Klassifizierungsgenauigkeit so reduziert, dass durch diese Mehrdeutigkeit im Übergang entsteht,
 wodurch die ML-Modelle besser vergleichbar sind.
 \begin{flalign}
     \label{formular:accuracy_metrik2}

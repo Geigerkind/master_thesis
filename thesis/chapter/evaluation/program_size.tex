@@ -3,20 +3,19 @@ Der Großteil des Programmspeichers wird für das ML-Modell benötigt.
 Aus diesem Grund wird der Anteil des Programmspeichers in der Evaluation vernachlässigt,
 der für die restlichen Funktionen und für die Feature-Extrahierung benötigt wird.
 Zudem ist der benötigte Programmspeicher dieses Anteils konstant und skaliert nicht mit der Größe, wie die ML-Modelle.
-\newline
-\newline
+\newpage
 Zur Einschätzung des Programmspeichers der Entscheidungsbäume wird der hybride Ansatz mit einer Toleranz von $\epsilon=0$ angenommen,
 d. h. es werden für eindeutige Ergebnisse diskrete Rückgaben zurückgegeben, anstatt der Wahrscheinlichkeitsverteilung.
 Als Datentyp für die Vergleiche und allen Features wird angenommen, dass ein vier Byte Datentyp verwendet wird.
 Für einen Vergleich werden fünf Instruktionen benötigt \cite{dymelThesis}.
 Für eine Rückgabe werden zwischen zwei und $2(N+1)$ Instruktionen und zwischen 0 und $2N$ Parameter benötigt,
 wobei $N$ die Anzahl der möglichen Standorte ist.
-Die Größe einer Instruktion ist 4 Byte, da eine 32-Bit CPU angenommen wird.
+Die Größe einer Instruktion ist vier Byte, da eine 32-Bit CPU angenommen wird.
 Die Größe des zusammenfassenden Klassifizierers wird vernachlässigt.
 \newline
 \newline
 Für die FFNNs wird ebenfalls ein vier Byte Datentyp für die Biase und die Gewichte angenommen.
-Die Größe des Algorithmus zur Ausführung des KNN ist unbekannt und wird als konstanter Wert angenommen,
+Die Größe des Algorithmus zur Ausführung des FFNNs ist unbekannt und wird als konstanter Wert angenommen,
 liegt aber, den Zahlen in Gieses Arbeit nach zu urteilen, zwischen 6 KB und 7 KB \cite{gieseThesis}.
 Diese Messungen beziehen sich aber auf einen 8-Bit Mikrocontroller, weshalb dieser Anteil für ein 32-Bit Mikroconroller möglicherweise größer ist.
 \newline
@@ -25,14 +24,12 @@ Tabelle \ref{tab:predictions_by_loc_size} zeigt Einschätzungen des benötigten 
 wobei die konstanten Anteile vernachlässigt werden.
 Potentielle Optimierungen der Entscheidungswälder, z. B. durch den Compiler,
 sowie potentielle Optimierungen des FFNN, wie Giese in \cite{gieseThesis} vorgeschlagen hat, wurden dabei nicht betrachtet.
-\newline
-\newline
 Giese hat mit dem CSC-MA-Bit Format die Programmgröße um 39\% reduzieren können.
 Kompilierung mit der Optimierungsstufe \textit{O2} konnte experimentell generierten C-Code
 eines Entscheidungswaldes um bis zu 21,3\% reduzieren.
 \newline
 \newline
-Der benötigte Programmspeicher beider ML-Modelle skaliert mit der Anzahl der zu klassifizierenden Standorte, der Anzahl der Schichten bzw. Bäume
+Der benötigte Programmspeicher beider ML-Modelle skaliert mit der Standortkomplexität, der Anzahl der Schichten bzw. Bäume
 und der Anzahl der Neuronen pro Schicht bzw. der maximalen Baumhöhe.
 Für Entscheidungswälder werden maximal ca. 4,7 MB benötigt.
 Der beste Entscheidungswald bei einer Standortkomplexität von 102 benötigt aber nur ca. 1,1 MB.

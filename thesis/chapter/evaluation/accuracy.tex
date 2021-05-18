@@ -2,12 +2,12 @@
 Die Klassifizierungsgenauigkeit der ML-Modelle zur Standorterkennung wurde mit verschiedenen Konfigurationen über komplexer werdende Datenmengen evaluiert.
 In Kapitel \ref{sec:model_dt} und Kapitel \ref{sec:model_ffnn} werden die einzelnen Konfigurationen der ML-Modelle beschrieben.
 Die Komplexität wird über die Anzahl der Standorte definiert.
-Um die Anzahl der Standorte zu erhöhen, wurden die Datenmengen um weitere Routen erweitert.
+Um die Standortkomplexität zu erhöhen, wurden die Datenmengen um weitere Routen erweitert.
 Dies impliziert aber, dass die Testmengen nicht unter den verschiedenen Standortkomplexitäten vergleichbar sind, da mit jeder Route die Testmenge erweitert wird.
 Die berechneten Klassifizierungswahrscheinlichkeiten sind jeweils der Durchschnitt der Klassifizierungswahrscheinlichkeiten aller Routen in der Testmenge.
 \newline
 \newline
-Außerdem unterscheiden sich die Kodierungsansätze je nach Standortkomplexität.
+Außerdem unterscheiden sich die Kodierungsansätze, je nach Standortkomplexität.
 Für die Standortkomplexitäten 9, 17, 25 und 52 wurde der Kodierungsansatz verwendet, bei denen nur die Knoten und ein zusätzlicher unbekannter Standort betrachtet wird.
 Für die Standortkomplexitäten 16, 32, 48 und 102 wurde der Kodierungsansatz verwendet, bei denen Knoten und Kanten betrachtet werden.
 Ein besserer Ansatz, um Daten mit beliebiger Komplexität zu generieren wird in Kapitel \ref{chapter:discussion} diskutiert.
@@ -26,7 +26,7 @@ Dabei wurde stets die höchste Klassifizierungsgenauigkeiten aller evaluierten K
 \newline
 \newline
 Mian kodierte in seinem Ansatz die Kanten als Standorte, was sich von den in dieser Arbeit benutzten Ansätzen unterscheidet.
-Die in dieser Arbeit evaluierten Standortkomplexitäten, die Mians Evaluation am nächsten kommen, sind 16, mit dem Kodierungsansatz, der Kanten und Knoten enkodiert,
+Die in dieser Arbeit evaluierten Standortkomplexitäten, die Mians Evaluation am nächsten kommen, sind 16, mit dem Kodierungsansatz, der Kanten und Knoten kodiert,
 und 17, mit dem Kodierungsansatz, der nur Knoten kodiert.
 \newline
 \newline
@@ -34,6 +34,7 @@ Aus Tabelle \ref{tab:predictions_by_acc_cont} können die Klassifizierungsergebn
 Der beste Entscheidungswald mit einer Standortkomplexität von 16 hat eine Klassifizierungsgenauigkeit $P(A)_{\text{cont}}$ von 83,52\%.
 Das ist 10,27 Prozentpunkte schlechter als Mians Ansatz.
 Das beste FFNN ist 30,16 Prozentpunkte schlechter.
+\newpage
 Der beste Entscheidungswald mit einer Standortkomplexität von 17 ist 0,31 Prozentpunkte besser als Mians Ansatz.
 Das beste FFNN ist 6,88 Prozentpunkte schlechter.
 Anzumerken ist aber, dass die Standortkomplexität höher ist und ein deutlich kleineres Datenfenster verwendet wurde,
@@ -42,7 +43,7 @@ um die Feature-Menge zu generieren, wodurch die resultierenden ML-Modelle kleine
 \newline
 ML-Modelle sind besser vergleichbar, wenn toleriert wird, dass das ML-Modell den Standort etwas zu früh betritt oder etwas zu spät verlässt,
 solange es kontinuierlich den selben Standort angibt, da bei den Übergängen zwischen Standorten nicht immer eindeutig ein Standort bestimmt werden kann.
-Tabelle \ref{tab:predictions_by_acc_5_cont} gibt diese Klassifizierierungsgenauigkeit $P(B=5)$ an, wobei bis zu 5 Klassifizierungen toleriert werden.
+Tabelle \ref{tab:predictions_by_acc_5_cont} gibt diese Klassifizierierungsgenauigkeit $P(B\leq5)$ an, wobei bis zu 5 Klassifizierungen toleriert werden.
 \begin{table}[h!]
     \hspace{-2cm}
     \begin{tabular}{ | c | c | c | c | c | c | c | c | c | c | }
@@ -69,21 +70,22 @@ Tabelle \ref{tab:predictions_by_acc_5_cont} gibt diese Klassifizierierungsgenaui
         8 & 32 & 88.06\% & 57.44\% & 86.54\% & 78.26\% & 34.54\% & 34.35\% & 70.57\% & 48.82\% \\\hline
         4 & 64 & 90.98\% & 62.21\% & 86.66\% & 81.08\% & 51.40\% & 22.54\% & 70.94\% & 45.54\% \\\hline
     \end{tabular}
-    \caption{$P(B=5)_{\text{cont}}$ über Standorte und Konfigurationen der ML-Modelle.}
+    \caption{$P(B\leq5)_{\text{cont}}$ über Standorte und Konfigurationen der ML-Modelle.}
     \label{tab:predictions_by_acc_5_cont}
 \end{table}
 \newline
 \newline
 Der Entscheidungsbaum basierte Klassifizierer skaliert sehr gut mit der steigenden Standortkomplexität.
 Im Schnitt fällt die Klassifizierungsgenauigkeit um 0,16 Prozentpunkte pro zusätzlichen Standort.
-Bei einer Standortkomplexität von 102 wird immer noch eine Klassifizierungsgenauigkeit $P(B=5)_{\text{cont}}$ von 87,77\% erreicht.
-Als beste maximale Baumhöhe hat sich 16 herausgestellt, wobei 32 und 64 marginal schlechtere Ergebnisse produzierten.
+Bei einer Standortkomplexität von 102 wird immer noch eine Klassifizierungsgenauigkeit $P(B\leq5)_{\text{cont}}$ von 87,77\% erreicht.
+Als beste maximale Baumhöhe hat sich 16 herausgestellt, wobei 32 und 64 marginal schlechtere Ergebnisse erzielten.
 Eine maximale Baumhöhe von 8 war nicht ausreichend, da es für hohe Standortkomplexitäten schlechtere Ergebnisse erzielt hat.
-Bei gleicher Waldgröße haben die maximalen Baumhöhen von 32 und 64 equivalente Ergebnisse produziert,
+Bei gleicher Waldgröße haben die maximalen Baumhöhen von 32 und 64 equivalente Ergebnisse erzielt,
 d. h. für die evaluierten Szenarien wird nicht mehr als eine maximale Baumhöhe von 32 benötigt.
+\newpage
 Dies schließt aber nicht aus, dass andere Szenarien nicht von größeren maximalen Baumhöhen profitieren könnten.
 Die verschiedenen Waldgrößen unterscheiden sich nicht stark.
-Eine Waldgröße von 8 hat nur marginal schlechtere Ergenisse bei 102 Standorten erzielt, als die Waldgrößen 16, 32 und 64.
+Eine Waldgröße von 8 hat nur marginal schlechtere Ergebnisse bei 102 Standorten erzielt, als die Waldgrößen 16, 32 und 64.
 Aus diesem Grund ist eine Waldgröße von 8 ausreichend, oder könnte womöglich reduziert werden.
 \newpage
 Die evaluierten FFNNs skalieren mit steigender Standortkomplexität deutlich schlechter als die Entscheidungswälder.
@@ -95,7 +97,7 @@ Aus den Daten ist nicht zu schließen, wie sich die Anzahl der Schichten und Neu
 Große FFNNs sind im Vergleich zu kleinen FFNNs aber sehr volatil in der Klassifizierungsgenauigkeit.
 \newline
 \newline
-Sowohl bei den Entscheidungswäldern, als auch bei den FFNNs, ist eine geringere Klassifizierungsgenauigkeit mit dem Kodierungsansatz der Kanten und Knoten kodiert
-zu beobachten, als mit dem Kodierungsansatz der nur die Knoten kodiert.
+Sowohl bei den Entscheidungswäldern, als auch bei den FFNNs, ist eine geringere Klassifizierungsgenauigkeit mit dem Kodierungsansatz, der Kanten und Knoten kodiert,
+zu beobachten, als mit dem Kodierungsansatz, der nur die Knoten kodiert.
 Insbesondere zwischen den Standortkomplexitäten 16 und 17, sowie 32, 48 und 52 ist diese Diskrepanz zu erkennen.
 Aus diesem Grund ist zu schließen, dass der Kodierungsansatz, der nur Knoten kodiert, besser skaliert, als der Kodierungsansatz, der Kanten und Knoten kodiert.

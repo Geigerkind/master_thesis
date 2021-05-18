@@ -2,7 +2,7 @@
 \section{Signifikanz der Features}
 Die Signifikanz der Features wird über die Permutationswichtigkeit bestimmt.
 Die Permutationswichtigkeit ist der Fehler, der durch das permutieren eines Features in der Testmenge entsteht, im Vergleich zu der ursprünglichen Testmenge.
-Je größer der Fehler, desto wichtiger das Feature.
+Je größer der Fehler, desto wichtiger das Feature \cite{breiman2001random}.
 \newline
 \newline
 Abbildungen \ref{fig:feature_significance_dt} und \ref{fig:feature_significance_knn} zeigen die Permutationswichtigkeit eines Entscheidungswaldes und FFNN.
@@ -14,25 +14,25 @@ Die Klassifizierunggenauigkeiten in Tabelle \ref{tab:predictions_by_acc_pic_cont
 Demnach ist die Wahrscheinlichkeit sehr gering, dass der Standort korrekt klassifiziert wird, wenn der vorherige Standort inkorrekt war.
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=\linewidth]{images/evaluation_feature_importance_dt_pi.png}
+    \includegraphics[width=0.95\linewidth]{images/evaluation_feature_importance_dt_pi.png}
     \caption{Permutationswichtigkeit der Features eines Entscheidungswaldes.}
     \label{fig:feature_significance_dt}
 \end{figure}
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=\linewidth]{images/evaluation_feature_importance_knn_pi.png}
+    \includegraphics[width=0.95\linewidth]{images/evaluation_feature_importance_knn_pi.png}
     \caption{Permutationswichtigkeit der Features eines FFNN.}
     \label{fig:feature_significance_knn}
 \end{figure}
 \newline
 \newline
-Für die Entscheidungswälder sind alle Features, bis auf die vorherige Position und die Standardabweichung von der Ausrichtung zum Magnetfeld unwichtig.
+Für die Entscheidungswälder sind alle Features, bis auf den vorherigen Standort und die Standardabweichung von der Ausrichtung zum Magnetfeld unwichtig.
 Die FFNNs hingegen bedienen sich außerdem Features von dem Temperatursensor, dem Lichtsensor und vor allem der Detektierung von WLAN-Zugangspunkten.
 Allerdings sind FFNNs deutlich abhängiger von dem vorherigen Standort als Entscheidungswälder.
 \newline
 \newline
 Durch diese Abhängigkeit ist keine hohe Robustheit der ML-Modelle zu erwarten.
-Diese Abhängigkeit ließe sich Eliminieren, indem ohne die Rückwärtskante trainiert wird.
+Diese Abhängigkeit ließe sich eliminieren, indem ohne die Rückwärtskante trainiert wird.
 Dies simplifiziert den Trainingsprozess, wodurch die ML-Modelle schneller zu trainieren sind.
 Tabelle \ref{tab:predictions_wo_feedback_edge_by_acc} zeigt, dass diese ML-Modelle vergleichbare Klassifizierungsgenauigkeiten erzielen.
 Insbesondere FFNNs erzielen deutlich bessere Klassfizierungsgenauigkeiten, erzielen aber immer noch deutlich schlechtere Ergebnisse als die Entscheidungswälder.
@@ -46,13 +46,13 @@ Die anderen Features sind im Vergleich deutlich unwichtiger.
 Das FFNN hingegen nutzt alle Features, wobei Features aus dem Accelerometer und Gyroskop unwichtiger sind.
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=\linewidth]{images/fi_wo_fe_dt.png}
+    \includegraphics[width=0.95\linewidth]{images/fi_wo_fe_dt.png}
     \caption{Permutationswichtigkeit der Features eines Entscheidungswaldes ohne Rückwärtskante.}
     \label{fig:feature_significance_dt_wo_fe}
 \end{figure}
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=\linewidth]{images/fi_wo_fe_knn.png}
+    \includegraphics[width=0.95\linewidth]{images/fi_wo_fe_knn.png}
     \caption{Permutationswichtigkeit der Features eines FFNN ohne Rückwärtskante.}
     \label{fig:feature_significance_knn_wo_fe}
 \end{figure}
@@ -68,7 +68,8 @@ Aus dem selben Grund hat das Feature der Topologieverletzung auch wenig Einfluss
     \caption{Permutationswichtigkeit der Features eines Entscheidungswaldes zur Anomalieerkennung.}
     \label{fig:feature_significance_dt_anomaly}
 \end{figure}
-\newpage
-Die Wichitgkeit der Features variiert mit dem Szenario, indem die ML-Modelle eingesetzt werden.
+\newline
+\newline
+Die Wichtigkeit der Features variiert mit dem Szenario, indem die ML-Modelle eingesetzt werden.
 Aus diesem Grund sollte die Analyse der Wichtigkeit der Features individuell für jedes Einsatzszenario durchgeführt werden,
 womit durch eine sorgfältige Feature-Selektion die Klassifizierungsgenauigkeit und der Ressourcenverbrauch maximiert werden kann.

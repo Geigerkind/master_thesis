@@ -14,7 +14,7 @@ Der Kodierungsansatz, der nur Knoten kodiert, skaliert besser als der Kodierungs
 Resultierende ML-Modelle haben bessere Klassifizierungsergebnisse mit ersteren Kodierungsansatz erzielt.
 Entscheidungswälder skalieren mit steigender Standortkomplexität besser als FFNNs.
 Mit jedem zusätzlichen Standort, ab einer Standortkomplexität von 9, verringert sich die Klassifizierungsgenauigkeit der Entscheidungswälder,
-um 0,16\%, wohingegen sich die Klassifizierungsgenauigkeit bei FFNNs um 0,51\% verringert.
+um 0,16 Prozentpunkte, wohingegen sich die Klassifizierungsgenauigkeit bei FFNNs um 0,51 Prozentpunklte verringert.
 \newline
 \newline
 Die Signifikanz der Features ist abhängig von dem Einsatzszenario.
@@ -35,17 +35,11 @@ Dabei ist das resultierende ML-Modell kleiner und unkomplizierter.
 FFNNs konnten ohne Rückwärtskante bessere Klassifizierungsergbnisse erzielen.
 \newline
 \newline
-Zukünftige Arbeiten sollten drei Bereiche weiter untersuchen.
+Zukünftige Arbeiten sollten zwei Bereiche weiter untersuchen.
 Zunächst sollten diese ML-Modelle mit Echtdaten untersucht werden.
 Dafür müsste ein Prototyp der Sensorenbox konstruiert werden und in
 einem geeigneten Szenario ausreichend Daten aufgenommen werden.
 Möglicherweise könnte ein Arduino Board mit handelsüblichen, vergleichbaren Sensoren ausreichen.
-\newline
-\newline
-Weitere Optimierungen der ML-Modelle sollten untersucht werden.
-Zunächst könnte die Anzahl der Features mit Hilfe eines Optimierungsverfahrens reduziert werden.
-Dort sollte die Klassifizierungsgenauigkeit und Ausführungszeit maximiert werden unter Einhaltung der Hardwarelimitierungen.
-Zur Optimierung von KNN könnten die Ansätze von Giese aufgegriffen werden \cite{gieseThesis}.
 \newline
 \newline
 Ein Energiemodell zur Einschätzung des Energieverbrauchs der verschiedenen ML-Modelle könnte erstellt werden.

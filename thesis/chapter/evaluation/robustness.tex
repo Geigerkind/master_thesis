@@ -1,25 +1,26 @@
 \section{Fehlertoleranz}
 Bei der Fehlertoleranz wird die Fähigkeit der ML-Modelle untersucht, mit fehlerhaften Sensordaten Standorte zu erkennen.
-Dafür wurde für jeden Sensor modifizierte Testmengen erstellt.
+Dafür wurden für jeden Sensor modifizierte Testmengen erstellt.
 Die erste Testmenge fügt ein Rauschen von 5\% hinzu und die zweite Testmenge simuliert den Ausfall des Sensors, indem alle Sensorwerte genullt werden.
 Zudem wurde untersucht, was passiert wenn die Sensorenbox nicht dem trainierten Pfad folgt, indem die Testmenge permutiert wurde.
 Verglichen werden die Differenzen der Klassifizierungsgenauigkeit $P(A)_{\text{cont}}$ von der originalen Testmenge zu der modifizierten Testmenge.
 Damit Entscheidungswald und FFNN fair verglichen werden können, werden die besten ML-Modelle der Standortkomplexität 9 verwendet.
 \newline
 \newline
-Tabelle \ref{tab:robustness_by_acc_cont} zeigt die Differenz.
-Die Testmenge mit einem Rauschen von 5\% wurde ausgelassen, da es keine Auswirkung auf die Klassifizierungsgenauigkeit hatte.
-Vermutlich sind 5\% Rauschen zu wenig.
+Tabelle \ref{tab:robustness_by_acc_cont} zeigt die Differenz der Klassifizierungsgenauigkeiten $P(A)_{\text{cont}}$ von den modifizierten Testmenge zur originalen Testmenge.
+Die Testmengen mit einem Rauschen von 5\% wurde ausgelassen, da es keine Auswirkung auf die Klassifizierungsgenauigkeit hatte.
+Vermutlich ist 5\% Rauschen zu wenig, um einen Einfluss auszuüben.
+\newpage
 Entgegen den Erwartungen aus der Signifikanz der Features hat die Ausrichtung des Magnetfeldes sehr wenig Einfluss auf die Klassifizierungsgenauigkeit beim Entscheidungswald,
 wenn dieser Sensorwert genullt ist, d. h. grob fehlerhafte Sensorwerte verursachen größere Fehler als genullte Sensorwerte.
 Deutlich signifikanter sind die Sensorwerte des Temperatursensors, die in der Permutationswichtigkeit insignifikant sind,
 d. h. Entscheidungswälder sind sehr anfällig, wenn der Temperatursensor ausfällt.
 Das ist vermutlich darauf zurückzuführen, dass der Temperatursensor immer eine Umgebungstemperatur misst und
-ein rapider Abfall der Temperatur in diesem Szenario mit einem Einflusspunkt sehr selten ist, und deswegen ein
+ein rapider Abfall der Temperatur in diesem Szenario sehr selten ist, und deswegen ein
 starker Einflussfaktor für den in Verbindung stehenden Standort ist.
 In Szenarien, in denen dies häufiger vorkommt, würde der Einfluss vermutlich deutlich geringer sein.
 Die Permutation der Testmenge hat wenig Einfluss auf den Entscheidungswald, was erwartet wurde,
-da die einzigen Langzeitabhängigkeiten die vorherigen Positionen sind, die schnell korrigiert werden können.
+da die einzigen Langzeitabhängigkeiten die vorherigen Standorte sind, die schnell korrigiert werden können.
 Der durchschnittliche Fehler ist 5,1\%.
 \begin{table}[h!]
     \centering
@@ -40,7 +41,7 @@ Der durchschnittliche Fehler ist 5,1\%.
 \end{table}
 \newline
 \newline
-Das FFNN zeigt weniger Fehlertoleranz auf.
+Das FFNN zeigt weniger Fehlertoleranz.
 Der größte Fehler kommt durch die genullten WLAN-Zugangspunkte zustande.
 Dies stimmt mit der ermittelten Signifikanz durch die Permutationswichtigkeit überein.
 Die WLAN-Zugangspunkte bilden 14,7\% der Feature-Menge, wodurch diese Features einen großen Einfluss ausüben können.
@@ -49,20 +50,20 @@ Entgegen der Erwartung ist der Fehler durch die Nullung der Ausrichtung des Magn
 Die Permutationswichtigkeit bei den Sensorwerten des Accelerometers ist vermutlich geringer,
 da die Werte im gesamten Datensatz sehr homogen sind.
 Der durchschnittliche Fehler ist 9,1\%.
-\newline
-\newline
+\newpage
 Tabelle \ref{tab:predictions_by_acc_pic_cont} gibt die Klassifizierungsgenauigkeit $P(C)_{\text{cont}}$ über verschiedene Standortkomplexitäten an.
 Demnach ist zu erwarten, dass ein Entscheidungswald, bei einer Standortkomplexität von 9, ca. 5,3 Klassifizierungen benötigt, bis der korrekte Standort identifiziert wurde,
 wenn ein falscher Standort zuvor identifiziert wurde.
 Ein FFNN benötigt ca. 5,8 Klassifizierungen.
 $P(C)_{\text{cont}}$ korreliert stark mit $P(A)_{\text{cont}}$, weshalb keine Aussage getroffen werden kann, ob Entscheidungswälder oder FFNNs schneller den korrekten Standort wieder erkennen.
-In diesem Fall ist die Klassifizierungsgenauigkeit $P(A)_{\text{cont}}$ der FFNNs geringer, weshalb mehr Interrupts benötigt werden.
+In diesem Fall ist die Klassifizierungsgenauigkeit $P(A)_{\text{cont}}$ der FFNNs geringer, weshalb mehr Klassifizierungen benötigt werden.
 \newline
 \newline
 Von Entscheidungswäldern ist zu erwarten, dass sie mit steigender Waldgröße robuster werden, da sich die Feature-Mengen der einzelnen Entscheidungsbäume unterscheiden.
 Für 8, 16, 32 und 64 Bäume wurde ein durschnittlicher Fehler von 6,2\%, 5,8\%, 4,6\% und 5,1\% beobachtet.
 Der geringere Fehler ist aber darauf zurückzuführen, dass die Klassifizierungsgenauigkeit $P(A)_{\text{cont}}$ mit steigender Waldgröße steigt.
-\newpage
+\newline
+\newline
 In dieser Arbeit haben sich Entscheidungswälder als robuster gegenüber Fehler herausgestellt.
 Allerdings erzielen die Entscheidungswälder in dieser Arbeit auch insgesamt bessere Klassifizierungsergebenisse, weswegen dies zu erwarten ist.
 Der durchschnittliche Fehler beider ML-Modelle ist vergleichbar, bei vergleichbarer Klassifizierungsgenauigkeit.
