@@ -8,11 +8,12 @@ d. h. das Klassifizierungsergebnis ist der Pfad auf dem sich der Mikrocontroller
 \newline
 In dieser Arbeit wird neben der Erkennung von Pfaden auch die Erkennung von Knoten, sowie die Erkennung von Pfaden und Knoten untersucht.
 Pfade und Knoten liegen auf Routen, die als zyklischen Graphen betrachtet werden können, wie in Abbildung \ref{fig:location_encoding} illustriert.
-Der Ansatz von Mian versucht die Kanten dieses Graphen zu klassifizieren und definiert diese als Standorte.
+Der Ansatz von Mian versucht die Kanten dieses Graphen zu klassifizieren und definiert diese als Standorte \cite{naveedThesis}.
 Daneben können auch nur die Knoten als Standorte kodiert werden und alle restlichen Datensätze als \textit{unbekannten Standort}.
 Zuletzt können sowohl die Knoten und Kanten als Standorte definiert werden.
 Die Knoten werden durch alle Datensätze dargestellt, die innerhalb eines Umkreises von einem Punkt sind, der von Interesse ist.
 Folglich befinden sich alle restlichen Datensätze auf Kanten zwischen zwei Knoten oder gelten als \textit{unbekannt}.
+In dieser Arbeit wird der Kodierungsansatz, der nur Kanten kodiert, nicht untersucht, da Mian diese Ansatz bereits untersucht hatte.
 \begin{figure}[h!]
     \centering
     \includegraphics[width=\linewidth]{images/location_encoding.png}
