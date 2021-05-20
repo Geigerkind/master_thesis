@@ -19,6 +19,12 @@ In der ersten Variante sind alle vorherigen Standorte korrekt.
 In der zweiten Variante ist der erste vorherige Standort als \textit{unbekannt} beschriftet und alle folgenden vorherigen Standorte werden iterativ durch das ML-Modell bestimmt,
 d.~h. in dieser Variante wird der propagierte Fehler durch die Rückwärtskante des ML-Modells betrachtet.
 Metriken, die auf die zweite Variante der Testmenge angewendet werden sind mit \texttt{cont} markiert.
+\newline
+\newline
+Die ML-Modelle wurden mit Trainingsdaten von den vier aufgenommen Routen trainiert.
+Sie teilen ein relatives Koordinatensystem, in dem die künstlichen Interferenzquellen für die ergänzten Sensoren liegen.
+Das heißt, ein Training mit mehreren Routen kann als eine sehr komplexe Route mit überlappenden Pfaden betrachtet werden,
+da diese Routen technisch gesehen übereinander liegen.
 
 \input{chapter/evaluation/metrics}
 \input{chapter/evaluation/accuracy}
