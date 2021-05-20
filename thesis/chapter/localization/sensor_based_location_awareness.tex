@@ -12,7 +12,7 @@ Aus den resultierenden Sensorwerten wird die Veränderung zum vorherigen Sensorw
 Für jeden Sensor wird als Feature der Betrag dieser Differenz verwendet.
 Um Muster aus einer Folge von Feature-Mengen zu inferieren hat Mian ein Datenfenster eingeführt, über das
 hintereinander liegende Feature-Mengen zu einer Feature-Menge konkatiniert werden.
-Zudem werden die zuletzt besuchten Standorte in Form einer exponentiell fallenenden Funktion über die Zeit als weitere Features hinzugefügt.
+Zudem werden die zuletzt besuchten Standorte in Form einer exponentiell fallenden Funktion über die Zeit als weitere Features hinzugefügt.
 \newpage
 Mit dieser Eingabe trainierte Mian ein FFNN mit einer Rückwärtskante (FBNN) von der Ausgabe- zur Eingabeschicht,
 um die zuletzt bestimmten Standorte als Features nutzen zu können.
@@ -22,22 +22,25 @@ Das trainierte FFNN wurde dann genutzt, um die Standorte der zweiten Teilmenge z
 Daraufhin wurde das FFNN mit der zweiten Teilmenge trainiert, bevor es auf einer Testmenge validiert wurde.
 \newline
 \newline
-Mian unterscheidet vier Modellarchitekturen: FFNN, FBNN, WFFNN (FFNN mit Datenfenster) und WFBNN (FBNN mit Datenfenster).
+Mian unterscheidet vier Modellarchitekturen: FFNN, FBNN, WFFNN (FFNN mit Sensorengedächtnis) und WFBNN (FBNN mit Sensorengedächtnis).
 Er stellte fest, dass das FFNN nicht in der Lage war verschiedene Standorte zu unterscheiden,
 unabhängig von der Anzahl der verdeckten Schichten und dessen Anzahl von Neuronen.
 \newline
 \newline
-Das FBNN hingegen konnte bei einer Route mit einem Pfad und sechs Standorten Testgenauigkeiten von bis zu 86,73\% erzielen.
+Das FBNN hingegen konnte bei einer Route mit einem Pfad und sechs Standorten Testgenauigkeiten von bis zu 98.12\% erzielen.
 Allerdings bedarf es dafür zwei verdeckte Schichten mit jeweils 64 Neuronen.
 Mit weniger Schichten oder Neuronen wurden deutlich schlechtere Ergebnisse erzielt.
-Bei mehr Pfaden und Standorten wurden ebenfalls schlechtere Ergebnisse erzielt.
+Bei mehr Pfaden und Standorten wurden ebenfalls schlechtere Ergebnisse erzielt, obwohl Anzahl der Neuronen pro verdeckte Schicht auf 256 erhöht wurde.
+Bei einer Route mit zwei Pfaden und neun Standorten wurden Testgenauigkeiten von 85.56\% erzielt und
+bei drei Pfaden und 14 Standorten wurden Testgenauigkeiten von 33,57\% erzielt.
 \newline
 \newline
 Mit der Einführung eines Datenfensters (WFFNN und WFBNN) hat sich die Klassifizierungsgenauigkeit signifikant erhöht.
-Ein WFFNN mit zwei verdeckten Schichten mit jeweils 16 Neuronen und einem Datenfenster von 25 konnte eine Testgenauigkeit von 93,31\%
+Ein WFFNN mit zwei verdeckten Schichten mit jeweils 64 Neuronen und einem Sensorengedächtnis von 50 konnte eine Testgenauigkeit von 99,13\%
 bei einem Pfad und sechs Standorten erreichen.
-Durch das Vergrößern des Datenfensters und mehr Neuronen pro verdeckte Schicht konnte Mian die Klassifizierungsgenauigkeit auf bis zu 95,57\% erhöhen.
-Das WFBNN hat keine signifikante Änderung zum WFFNN gezeigt.
+Die Testgenauigkeiten bei zwei Pfaden und 9 Standorten war 94,41\%.
+Bei drei Pfaden und 14 Standorten wurde mit einer verdeckten Schicht mit 56 Neuronen und einem Sensorengedächtnis von 200 mit dem WFFNN 94,51\% erzielt
+und mit dem WFBNN 93,26\%.
 \newline
 \newline
 Mian stellte fest, dass sich die Klassifizierungsgenauigkeiten weiter verbessern ließen,
