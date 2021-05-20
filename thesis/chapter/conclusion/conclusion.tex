@@ -1,48 +1,47 @@
 \chapter{Schlussfolgerungen}
 Diese Arbeit hat gezeigt, dass sich Klassifizierer mit Entscheidungsbäumen besser als FFNNs zur Standortbestimmung eignen.
-Selbst bei hohen Standortkomplexitäten von 102 konnten Klassifizierungsgenauigkeiten $P(A)_{\text{cont}}$ von bis zu 84,37\% erreicht werden.
-Anomalien konnten bis zu 52,58\% bei einer Fehlerrate von 2,95\% korrekt klassifiziert werden.
+Es können mit kleinen Entscheidungswäldern, Klassifizierungsgenauigkeiten von 96,5\% bei einer geringen Standortkomplexität von 9 Orten
+und 86,11\% bei einer hohen Standortkomplexität von 102 Orten erzielt werden.
+Anomalien von üblichen Wegen konnten nur bis zu 52,58\% bei einer Fehlerrate von 2,95\% korrekt klassifiziert werden.
 \newline
 \newline
-Die ML-Modelle sind klein genug für den Betrieb auf einem Mikrocontroller.
+Die untersuchten ML-Modelle sind klein genug, um auf Mikrocontrollern ausgeführt zu werden.
 Es wurde gezeigt, dass ein Datenfenster von drei Einträgen ausreicht, um die Sensorwerte zu glätten und Features zu extrahieren.
 Entscheidungswälder benötigen zwar mehr Programmspeicher, dafür aber weniger RAM und deutlich weniger Operationen als FFNNs, wodurch
-ein geringerer Energieverbrauch zu erwarten ist.
+ein geringerer Energiebedarf zu erwarten ist.
 \newline
 \newline
 Der Kodierungsansatz, der nur Knoten kodiert, skaliert besser als der Kodierungsansatz, der Kanten und Knoten kodiert.
-Resultierende ML-Modelle haben bessere Klassifizierungsergebnisse mit ersteren Kodierungsansatz erzielt.
+Resultierende ML-Modelle haben damit bessere Klassifizierungsergebnisse erzielt.
 Entscheidungswälder skalieren mit steigender Standortkomplexität besser als FFNNs.
 Mit jedem zusätzlichen Standort, ab einer Standortkomplexität von 9, verringert sich die Klassifizierungsgenauigkeit der Entscheidungswälder,
 um 0,16 Prozentpunkte, wohingegen sich die Klassifizierungsgenauigkeit bei FFNNs um 0,51 Prozentpunkte verringert.
 \newline
 \newline
-Die Signifikanz der Features ist abhängig von dem Einsatzszenario.
-Die Permutationswichtigkeit hat sich als eine gute Methode erwiesen, um die Signifikanz einzelner Features einzuschätzen.
-Zusätzlich hat sich gezeigt, dass die Nullung einzelner Features ebenfalls eine gute Methode zur Einschätzung der Signifikanz ist.
+Die Signifikanz der Features ist vom Einsatzszenario abhängig.
+Zur Einschätzung der Signifikanz haben sich die Permutationswichtigkeit \cite{breiman2001random} und ähnliche modifizierung der Testmengen erwiesen,
+die die Signifikanz durch den Klassifizierungsfehler im Vergleich zur originalen Testmenge bestimmen, z. B. die Nullung einzelner Features.
 \newpage
 Die ML-Modelle wurden mit fehlerhaften Daten trainiert, um die Fehlertoleranz zu erhöhen.
-Es hat sich gezeigt, dass sowohl Entscheidungswälder als auch FFNNs robust gegenüber Abweichungen der Sensorwerte,
+Es hat sich gezeigt, dass dadurch sowohl Entscheidungswälder als auch FFNNs robust gegenüber Abweichungen der Sensorwerte,
 Ausfall von einzelnen Sensoren und Permutation der Routen sind.
 Im Schnitt benötigt ein Entscheidungswald 5,2 Klassifizierungen, um den korrekten Standort wieder zu bestimmen,
 nachdem es einen falschen Standort bestimmt hat.
 Ein FFNN benötigt im Schnitt 5,8 Klassifizierungen.
 \newline
 \newline
-Das Training mit einer Rückwärtskante ist sehr aufwändig und rechenintensiv.
-Ohne die Rückwärtskante konnten vergleichbare bzw. teilweise bessere Klassifizierungsergebnisse erzielt werden.
+Das Training mit einer Rückwärtskante, die erkannte Standorte für die nachfolgende Klassifizierung als Feature verfügbar macht, ist sehr aufwändig und rechenintensiv.
+Ohne die Rückwärtskante konnten vergleichbare bzw. teilweise bessere Klassifizierungsergebnisse erzielt werden als mit Rückwärtskante.
 Dabei ist das resultierende ML-Modell kleiner und unkomplizierter.
-FFNNs konnten ohne Rückwärtskante bessere Klassifizierungsergbnisse erzielen.
+FFNNs konnten ohne Rückwärtskante deutlich bessere Klassifizierungsergbnisse erzielen.
 \newline
 \newline
-Zukünftige Arbeiten sollten zwei Bereiche weiter untersuchen.
-Zunächst sollten diese ML-Modelle mit Echtdaten untersucht werden.
-Dafür müsste ein Prototyp der Sensorenbox konstruiert werden und in
-einem geeigneten Szenario ausreichend Daten aufgenommen werden.
-Möglicherweise könnte ein Arduino Board mit handelsüblichen, vergleichbaren Sensoren ausreichen.
+Zukünftige Arbeiten sollten die untersuchten Ansätze mit Echtdaten untersuchen und ein Modell zur Abschätzung des Energiebedarfs erstellen.
+Um die ML-Modelle mit Echtdaten zu untersuchen, muss ein Prototyp der Sensorenbox konstruiert werden.
+Möglicherweise könnte ein Arduino Board mit handelsüblichen, vergleichbaren Sensoren, oder ein SmartPhone ausreichen.
+In einem geeigneten Szenario müssen dann ausreichend Daten aufgenommen werden.
 \newline
 \newline
-Ein Energiemodell zur Einschätzung des Energieverbrauchs der verschiedenen ML-Modelle könnte erstellt werden.
-Dieses könnte für verschiedene Batteriegrößen und Mikrocontroller, Einschätzungen für obere Schranken der Größe von
-verschiedenen ML-Ansätzen angeben.
-Damit können dann gezielter weitere Ansätze untersucht werden.
+Das Energiemodell soll für verschiedene ML-Modelle, Batteriegrößen und Mikrocontroller erstellt werden.
+Mit den resultierenden oberen Schranken für die Größen verschiedener ML-Modelle,
+können dann gezielter ML-Ansätze untersucht werden.
