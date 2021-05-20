@@ -26,13 +26,15 @@ Demnach ist die Wahrscheinlichkeit sehr gering, dass der Standort korrekt klassi
 \end{figure}
 \newline
 \newline
-Für die Entscheidungswälder sind alle Features, bis auf den vorherigen Standort und die Standardabweichung von der Ausrichtung zum Magnetfeld unwichtig.
+Für die Entscheidungswälder sind alle Features, bis auf den vorherigen Standort und die Standardabweichung von der Ausrichtung zum Magnetfeld, nach der Permutationswichtigkeit, unwichtig.
 Die FFNNs hingegen bedienen sich außerdem Features von dem Temperatursensor, dem Lichtsensor und vor allem der Detektierung von WLAN-Zugangspunkten.
 Allerdings sind FFNNs deutlich abhängiger von dem vorherigen Standort als Entscheidungswälder.
+Dies zeigt den Nachteil der Permutationswichtigkeit auf.
+Features, die durchweg sehr ähnlich, werden keinen großen Fehler durch die Permutation verursachen.
+Aus diesem Grund sind Features auf Basis von Beschleunigung, Temperatur und Geräusche verhältnismäßig unwichtig.
 \newline
 \newline
-Durch diese Abhängigkeit ist keine hohe Robustheit der ML-Modelle zu erwarten.
-Diese Abhängigkeit ließe sich eliminieren, indem ohne die Rückwärtskante trainiert wird.
+Die Abhängigkeit zu den vorherigen Standorten ließe sich eliminieren, indem ohne die Rückwärtskante trainiert wird.
 Dies simplifiziert den Trainingsprozess, wodurch die ML-Modelle schneller zu trainieren sind.
 Tabelle \ref{tab:predictions_wo_feedback_edge_by_acc} zeigt, dass diese ML-Modelle vergleichbare Klassifizierungsgenauigkeiten erzielen.
 Insbesondere FFNNs erzielen deutlich bessere Klassfizierungsgenauigkeiten, erzielen aber immer noch deutlich schlechtere Ergebnisse als die Entscheidungswälder.
@@ -70,6 +72,6 @@ Aus dem selben Grund hat das Feature der Topologieverletzung auch wenig Einfluss
 \end{figure}
 \newline
 \newline
-Die Wichtigkeit der Features variiert mit dem Szenario, indem die ML-Modelle eingesetzt werden.
-Aus diesem Grund sollte die Analyse der Wichtigkeit der Features individuell für jedes Einsatzszenario durchgeführt werden,
+Die Wichtigkeit der Features variiert mit dem Szenario, indem die ML-Modelle eingesetzt werden, und unter den einzelnen ML-Modellen.
+Aus diesem Grund sollte die Analyse der Wichtigkeit der Features individuell für jedes Einsatzszenario und ML-Modell durchgeführt werden,
 womit durch eine sorgfältige Feature-Selektion die Klassifizierungsgenauigkeit und der Ressourcenverbrauch maximiert werden kann.
