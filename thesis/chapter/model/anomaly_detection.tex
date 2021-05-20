@@ -6,7 +6,7 @@ Abbildung \ref{fig:model_idea} zeigt, dass die Anomalieerkennung ein eigener Sch
 Die Eingabe sind Features, die auf historischen Daten und dem momentanen Standort basieren.
 \newline
 \newline
-Es wird ein zweites ML-Modell trainiert, anstatt dem ML-Modell zur Standorterkennung einen \textit{Anomaliestandort} lernen zu lassen.
+Es wird ein zweites ML-Modell trainiert, anstatt dem ML-Modell zur Standortbestimmung einen \textit{Anomaliestandort} lernen zu lassen.
 Dies ist begründet auf der Schwierigkeit Trainingsdaten für Anomalien basierend auf den Sensordaten zu entwickeln,
 da es unendlich viele Szenarien geben könnte, die als Anomalie zu bezeichnen sind.
 Stattdessen werden Features genutzt, die eine Abweichung von der Normalität ausdrücken,
@@ -20,10 +20,10 @@ Außerdem wird für die Kostenfunktion \textit{binäre Crossentropy} verwendet, 
 Binäre Crossentropy bedarf keine kategorische Kodierung im Gegensatz zur kategorischen Crossentropy.
 \newline
 \newline
-Die ML-Modelle zur Anomalieerkennung können seperat von den ML-Modellen zur Standorterkennung trainiert werden.
-Sie werden im Gegensatz zu den ML-Modellen zur Standorterkennung nur einmalig trainiert mit vorbereiteten Trainingsdaten.
+Die ML-Modelle zur Anomalieerkennung können seperat von den ML-Modellen zur Standortbestimmung trainiert werden.
+Sie werden im Gegensatz zu den ML-Modellen zur Standortbestimmung nur einmalig trainiert mit vorbereiteten Trainingsdaten.
 Die Trainingsdaten werden aus den Anomaliedatenmengen und Datenmengen für die verschieden Routen generiert.
-Dafür werden die Klassifizierungsergebnisse auf diesen Datenmengen von den zuvor trainierten ML-Modellen zur Standorterkennung genutzt.
+Dafür werden die Klassifizierungsergebnisse auf diesen Datenmengen von den zuvor trainierten ML-Modellen zur Standortbestimmung genutzt.
 Daraus werden beschriftete Features extrahiert, die in Kapitel \ref{sec:data_anomalie} detailiert erläutert werden.
 \newpage
 Alternativ können nicht ML-Modelle als Vergleichsmodelle genutzt werden.

@@ -1,5 +1,5 @@
 \chapter{Einleitung}
-Als Standortbestimmung, oder \textit{Lokalisierung}, wird der Prozess bezeichnet die Position von einem Gerät oder Nutzer in einem Koordinatensystem zu bestimmen \cite{bulusu2000gps}.
+Als \textit{Lokalisierung} wird der Prozess bezeichnet die Position von einem Gerät oder Nutzer in einem Koordinatensystem zu bestimmen \cite{bulusu2000gps}.
 Diese Information wird von technischen Systemen genutzt, um deren Dienste anzubieten, z. B. Tracking- oder Navigationssysteme.
 Ein bekanntes Beispiel ist das \textit{Global Positioning System} (GPS) \cite{kaplan2005understanding}.
 Bei GPS berechnet das empfangende Gerät seine Position basierend auf den empfangenden Signalen der Satelliten.
@@ -8,35 +8,40 @@ Bei GPS berechnet das empfangende Gerät seine Position basierend auf den empfan
 In Gebäuden ist die Signalstärke der GPS-Satelliten jedoch stark eingeschränkt, sodass die Ortung ungenau wird oder überhaupt nicht funktioniert.
 Aus diesem Grund werden für \textit{Indoor}-Lokalisation andere Ansätze verfolgt.
 Je nach Genauigkeit können Objekte mit Sendern, RFID Tags oder Barcodes markiert werden \cite{xiao2016survey}.
-Meistens wird eine komplexe Infrastruktur benötigt, die diese Lokalisierungssysteme vergleichsweise teuer macht.
+Meistens wird eine komplexe Infrastruktur benötigt, die Lokalisierungssysteme vergleichsweise teuer macht.
 \newline
 \newline
-Eine weitere Art der Lokalisation ist der Orientierungssinn von Mensch und Tier.
-Anhand von Orientierungspunkten wird so von einem Punkt zu einem anderen Punkt navigiert.
+Eine weitere Art der Lokalisation ist der Orientierungssinn von Menschen und Tieren.
+Anhand von Orientierungspunkten wird von einem Punkt zu einem anderen Punkt navigiert.
 Beispielsweise Honigbienen navigieren auf Basis von gelernten Orientierungspunkten, um Nahrungsquelle und Nest zu finden \cite{menzel1996knowledge}.
 \newline
 \newline
-In dieser Arbeit wird die diskrete Positionsbestimmung basierend auf Sensordaten untersucht.
+In dieser Arbeit wird die diskrete Standortbestimmung basierend auf Sensordaten untersucht,
+d.~h. eine Art der Lokalisierung, in der keine Koordinaten, sondern diskrete Standorte gefunden werden sollen.
 Dabei soll eine bestimmte Anzahl von Standorten anhand verschiedener Sensorwerte unterschieden werden.
 Dies ähnelt dem zuvor beschriebenen Orientierungssinn.
-Mit Hilfe maschinellen Lernens sollen künstliche neuronale Netze (KNN) und Entscheidungsbäume trainiert werden.
-Als Eingabedaten werden aus den gesammelten Sensordaten Features extrahiert, d. h. Attribute und Eigenschaften dieser Daten.
-Dieses System bedarf keiner Infrastruktur, muss aber für jedes Gebäude individuell trainiert werden.
-Damit unterscheided sich diese Arbeit sich von anderen Arbeiten, da mehrere Sensoren zur diskreten Standorterkennung kombiniert werden für den Einsatz auf einem Mikrocontroller.
+Mit Hilfe maschinellen Lernens sollen künstliche neuronale Netze (KNNs) und Entscheidungsbäume
+auf Basis von ausgewählten Features, d.~h. Attribute und Eigenschaften der Daten, trainiert werden.
+Diese Arbeit baut auf den Ergebnissen von Mian auf, der die diskrete Standortbestimmung mit Hilfe von
+Feed Forward neuronalen Netzwerken (FFNNs) untersucht hatte \cite{naveedThesis}.
+Mian nutzte drei Sensoren und große FFNNs, um 14 Standorte bestimmen zu können.
+Zusätzliche Sensoren können das Problem potenziell vereinfachen, wodurch kleinere Modelle verwendet werden können
+und mehr Standorte unterschieden werden können.
 \newline
 \newline
-Es wird ein Evaluierungsprozess der Sensordaten erstellt, um Standorte und Anomalien mit Hilfe von ML-Modellen zu unterscheiden.
-Dafür werden Sensordaten mit CoppeliaSim simuliert, da Echtdaten eines Prototyps zum Zeitpunkt dieser Arbeit noch nicht Verfügbar sind.
-Die simulativ erfassten Sensordaten werden mit weiteren Sensordaten auf Basis vereinfachter Modelle ergänzt.
-Es wird die Klassifizierungsgenauigkeit der ML-Modelle untersucht im Hinblick auf Skalierbarkeit der Anzahl der Standorte, sowie Robustheit gegenüber mögliche Fehler.
-Außerdem wird die Klassifizierungsgenauigkeit des Anomalieerkennungsmodells untersucht.
-Zuletzt wird der Speicher- und Energieverbrauch eingeschätzt für den Betrieb auf einem batteriegestützten Mikrocontroller.
+Zur Erstellung dieser Arbeit wurde ein Evaluierungsprozess der Sensordaten erstellt, mit dem Standorte und Anomalien mit Hilfe von ML-Modellen unterschieden werden.
+Dafür wurden Sensordaten mit CoppeliaSim simuliert, da Echtdaten eines Prototyps zum Zeitpunkt dieser Arbeit noch nicht verfügbar sind.
+Die simulativ erfassten Sensordaten wurden mit weiteren Sensordaten auf Basis vereinfachter Modelle ergänzt.
+Es wurde die Klassifizierungsgenauigkeit der ML-Modelle untersucht im Hinblick auf Skalierbarkeit der Anzahl der Standorte sowie Robustheit gegenüber mögliche Fehler.
+Außerdem wurde die Klassifizierungsgenauigkeit des Anomalieerkennungsmodells untersucht.
+Auch wurde der Speicher- und Energiebedarf für den Betrieb auf einem batteriegestützten Mikrocontroller geschätzt.
+Insgesamt wurden 128 ML-Modelle zur Standortbestimmung von 9 bis 102 Standorten und zwei ML-Modelle zur Anomalieerkennung evaluiert.
 \newline
 \newline
 Kapitel 2 führt Entscheidungsbäume und Ensemble-Methoden ein.
-Kapitel 3 führt künstliche neuronale Netze (KNN) mit dem Fokus auf Feed Forward neuronale Netze (FFNN) ein.
-In Kapitel 4 wird auf den Stand der Forschung für Standortbestimmung mit Hilfe von maschinellen Lernen (ML) eingegangen.
-Das Trainieren der ML-Modelle mit Entscheidungsbäumen und FFNN wird in Kapitel 5 erläutert.
-Kapitel 6 geht auf die Generierung von Trainings- und Validationsdaten auf Basis von Simulationen ein.
-Darauf folgt die Evaluation der Klassifizierungsgenauigkeit, Fehlertoleranz und Resourcennutzung in Kapitel 7.
-Kapitel 8 enthält einen kritischen Rückblick auf die Entscheidungen dieser Arbeit, bevor Kapitel 9 Schlussfolgerungen zieht.
+Kapitel 3 führt künstliche neuronale Netze (KNN) mit dem Fokus auf FFNNs ein.
+In Kapitel 4 wird auf den Stand der Forschung für die Standortbestimmung mit Hilfe von maschinellen Lernen (ML) eingegangen.
+Das Trainieren der ML-Modelle mit Entscheidungsbäumen und FFNNs wird in Kapitel 5 erläutert.
+Kapitel 6 geht auf die Generierung von Trainings- und Testdaten auf Basis von Simulationen ein.
+Darauf folgt die Evaluation der Klassifizierungsgenauigkeit, Fehlertoleranz und Ressourcennutzung in Kapitel 7.
+Kapitel 8 enthält einen kritischen Rückblick auf die Entscheidungen dieser Arbeit bevor Kapitel 9 Schlussfolgerungen zieht.

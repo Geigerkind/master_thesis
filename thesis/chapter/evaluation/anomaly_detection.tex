@@ -1,6 +1,6 @@
 \section{Klassifizierungsgenauigkeit der Anomalien}
 \label{sec:eval_anomalieerkennung}
-Bei der Anomalieerkennung werden Entscheidungswälder und FFNNs mit den besten ML-Modellen zur Standorterkennung trainiert und mit den drei Baseline-Modellen verglichen.
+Bei der Anomalieerkennung werden Entscheidungswälder und FFNNs mit den besten ML-Modellen zur Standortbestimmung trainiert und mit den drei Baseline-Modellen verglichen.
 Tabelle \ref{tab:anomaly_detection_prediction_accuracy} zeigt die Klassifizierungsgenauigkeiten über die verschiedenen Standortkomplexitäten,
 wobei die Klassifizierungsgenauigkeit $P(A)$ nochmal genauer in den Anteil der korrekten Klassifizierungen aufgeschlüsselt ist, wenn eine bzw. keine Anomalie vorlag.
 Die trainierten FFNNs geben stets aus, dass keine Anomalie vorliegt.
@@ -28,9 +28,9 @@ Es ist unklar, warum die FFNNs sich so verhalten.
 \newpage
 Die Entscheidungswälder hingegen eignen sich besser für den Anomalieerkennungszweck.
 Es werden zwischen 1,92\% und 52,58\% der Anomalien erkannt und zwischen 1,04\% und 7,52\% falsch als Anomalien erkannt.
-Die Klassifizierungsgenauigkeit des Entscheidungswaldes zur Anomalieerkennung ist abhängig von der Klassifizierungsgenauigkeit zur Standorterkennung
+Die Klassifizierungsgenauigkeit des Entscheidungswaldes zur Anomalieerkennung ist abhängig von der Klassifizierungsgenauigkeit zur Standortbestimmung
 und von der Standortkomplexität.
-Je besser das Standorterkennungsmodell und je höher die Standortkomplexität, desto höher ist die Anomalieerkennungsrate.
+Je besser das Standortbestimmungsmodell und je höher die Standortkomplexität, desto höher ist die Anomalieerkennungsrate.
 Aus diesem Grund ist die Klassifizierungsgenauigkeit bei den Standortkomplexitäten, die mit dem Kodierungsansatz, der Kanten und Knoten kodiert, zusammenhängen,
 geringer, als bei dem Kodierungsansatz, der nur die Knoten kodiert.
 \newline

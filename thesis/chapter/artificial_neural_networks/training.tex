@@ -1,4 +1,4 @@
-\section{Training von KNN}
+\section{Training von KNNs}
 Um die Zielfunktion $f^{*}$ zu approximieren ist eine Kostenfunktion nötig, die den Abstand von der approximierten Funktion zur approximierenden Funktion angibt \cite{nielsenneural}.
 Im Optimierungsprozess wird die Kostenfunktion minimiert. 
 Oft wird die Kostenfunktion auch als \textit{Verlustfunktion (engl. loss function)}, \textit{Fehlerfunktion (engl. error function)},
@@ -14,7 +14,7 @@ Der Lernalgorithmus steuert dabei, wie in dieser Epoche die Parameter mit den Tr
 Zu den Parametern gehört die Struktur des neuronalen Netzwerks, Aktivierungsfunktionen, Gewichte und Biase.
 \newline
 \newline
-Abhängig von der Strategie des Lernalgorithmuses müssen die Gradienten rückwärts, rekursiv Schicht für Schicht zurück propagiert werden.
+Abhängig von der Strategie des Lernalgorithmusses müssen die Gradienten rückwärts, rekursiv Schicht für Schicht zurück propagiert werden.
 Ziel ist es den Fehler unter Berücksichtigung der Parameter zurück zu propagieren.
 Dafür ist es nötig die Ableitungen von der Kostenfunktion zu den Parametern zu berechnen.
 Gleichung \ref{formular:general_knn} zeigt, dass das Ergebnis einer Schicht die Aktivierung der gewichteten Summe des

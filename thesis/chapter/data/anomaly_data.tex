@@ -2,8 +2,8 @@
 \label{sec:data_anomalie}
 Für Anomaliedaten werden die bekannten Routen modifiziert, indem Umleitungen eingebaut werden, die teilweise Standorte überspringen
 und nicht in den Trainingsdaten vorhanden sind.
-Dadurch wird ein Szenario simuliert, in der das Klassifizierungsverhalten von dem ML-Modell zur Standorterkennung auf unbekannten Wegen beobachtet werden kann.
-Aus den Klassifizierungsergebnissen des ML-Modells zur Standorterkennung werden schließlich Features extrahiert,
+Dadurch wird ein Szenario simuliert, in der das Klassifizierungsverhalten von dem ML-Modell zur Standortbestimmung auf unbekannten Wegen beobachtet werden kann.
+Aus den Klassifizierungsergebnissen des ML-Modells zur Standortbestimmung werden schließlich Features extrahiert,
 die von dem ML-Modell zur Anomalieerkennung verwendet werden.
 \begin{figure}[h!]
     \centering
@@ -26,7 +26,7 @@ d. h. wenn eine Anomalie vorliegt wird häufiger der Standort geändert.
 \newline
 Das zweite Feature ist analog zu dem ersten Feature konstruiert.
 Dieses nutzt ansatt der Anzahl der Standortänderungen die summierte Wahrscheinlichkeit der erkannten Standorte.
-Das ML-Modell zur Standorterkennung hat keine diskrete Ausgabe, sondern gibt einen Vektor von Wahrscheinlichkeiten aus,
+Das ML-Modell zur Standortbestimmung hat keine diskrete Ausgabe, sondern gibt einen Vektor von Wahrscheinlichkeiten aus,
 der für jeden Standort die Klassifizierungswahrscheinlichkeit angibt.
 Dabei gilt der klassifizierte Standort als der Eintrag im Vektor mit der höchsten Wahrscheinlichkeit.
 Diese Wahrscheinlichkeit wird dann analog zu den Standortänderungen summiert.
@@ -43,7 +43,7 @@ d. h. wenn eine Anomalie vorliegt, ist die Sicherheit für einen Standort gering
 \newline
 \newline
 Zusätzlich wird das Ergebnis des Modells auf Basis der Topologie als Feature verwendet.
-Dieses Feature indiziert, dass das ML-Modell zur Standorterkennung ein Fehler gemacht haben muss
+Dieses Feature indiziert, dass das ML-Modell zur Standortbestimmung ein Fehler gemacht haben muss
 oder dass tatsächlich eine Anomalie vorliegt, da die Topologie verletzt wurde.
 \newline
 \newline

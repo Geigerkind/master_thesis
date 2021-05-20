@@ -12,12 +12,12 @@ Zuletzt wird auf Basis historischer Daten und dem Klassifizierungsergebnis von e
 \newline
 \newline
 Mian verwendete eine ähnliche Architektur \cite{naveedThesis}.
-Sein FFNN zur Standorterkennung hatte ebenfalls eine Rückwärtskante, um die zuletzt erkannten Standorte als Features zu verwenden.
+Sein FFNN zur Standortbestimmung hatte ebenfalls eine Rückwärtskante, um die zuletzt erkannten Standorte als Features zu verwenden.
 In dieser Arbeit wird zusätzlich versucht Anomalien zu erkennen.
-Dafür wird ein weiteres ML-Modell verwendet, welches aus dem Klassifizierungsverhalten des ML-Modells zur Standorterkennung schließt, ob eine Anomalie vorliegt.
+Dafür wird ein weiteres ML-Modell verwendet, welches aus dem Klassifizierungsverhalten des ML-Modells zur Standortbestimmung schließt, ob eine Anomalie vorliegt.
 Dies motiviert die Erweiterung, um eine weitere Phase zur Feature-Extrahierung aus den zuletzt erkannten Standorten,
 sowie einer Phase zur Evaluierung des ML-Modells zur Anomalieerkennung aus der resultierenden Feature-Menge.
-Die Anomalieerkennung ist somit eine Information, die aus dem Standorterkennungsverhalten des vorangestellen ML-Modells resultiert,
+Die Anomalieerkennung ist somit eine Information, die aus dem Standortbestimmungsverhalten des vorangestellen ML-Modells resultiert,
 weshalb sowohl der Standort als auch die Einschätzung als Anomalie als Ergebnis zurückgegeben wird.
 \begin{figure}[h!]
     \centering
