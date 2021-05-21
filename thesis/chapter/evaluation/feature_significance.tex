@@ -1,6 +1,6 @@
 \newpage
 \section{Signifikanz der Features}
-Die Signifikanz der Features wird über die Permutationswichtigkeit bestimmt.
+Die Signifikanz der Features wird in dieser Arbeit definiert als der Fehler, der durch die Modifizierung eines Features in der Testmenge im Vergleich zur ursprünglichen Testmenge entsteht.
 Die Permutationswichtigkeit ist der Fehler, der durch das permutieren eines Features in der Testmenge entsteht, im Vergleich zu der ursprünglichen Testmenge.
 Je größer der Fehler, desto wichtiger das Feature \cite{breiman2001random}.
 \newline
@@ -10,7 +10,7 @@ Die Features sind abgekürzt in der Grafik: \textit{acc} steht für die Features
 \textit{temperature} für den Temperatursensor, \textit{heading} für den Magnetfeldsensor, \textit{volume} für den Geräuschsensor, \textit{ang} für das Gyroskop.
 Die Permutationswichtigkeit von einzelnen Entscheidungswäldern bzw. FFNNs unterscheidet sich nicht stark.
 Beide ML-Modelle weisen den vorherigen Standorten eine hohe Signifikanz zu.
-Die Klassifizierunggenauigkeiten in Tabelle \ref{tab:predictions_by_acc_pic_cont} bestätigen diese Abhängigkeit.
+Die Klassifizierungsgenauigkeiten in Tabelle \ref{tab:predictions_by_acc_pic_cont} bestätigen diese Abhängigkeit.
 Demnach ist die Wahrscheinlichkeit sehr gering, dass der Standort korrekt klassifiziert wird, wenn der vorherige Standort inkorrekt war.
 \begin{figure}[h!]
     \centering

@@ -13,29 +13,29 @@ Stattdessen werden Features genutzt, die eine Abweichung von der Normalität aus
 d. h. das ML-Modell lernt nicht explizite Anomaliepfade, sondern das Verhalten des Standortklassifizierungsmodells einzuordnen.
 \newline
 \newline
-Dafür werden analog zu Kapitel \ref{sec:model_dt} und \ref{sec:model_ffnn} Entscheidungswälder und FFNN trainiert.
+Dafür werden analog zu Kapitel \ref{sec:model_dt} und \ref{sec:model_ffnn} Entscheidungswälder und FFNNs trainiert.
 Allerdings bedarf dieses Modell keine Rückwärtskante und das FFNN kann für binäre Klassifizierung vereinfacht werden.
 Die letzte Schicht des FFNN hat nur ein Neuron und nutzt die Sigmoid-Funktion, anstatt der SoftMax-Funktion.
 Außerdem wird für die Kostenfunktion \textit{binäre Crossentropy} verwendet, anstatt kategorische Crossentropy.
 Binäre Crossentropy bedarf keine kategorische Kodierung im Gegensatz zur kategorischen Crossentropy.
 \newline
 \newline
-Die ML-Modelle zur Anomalieerkennung können seperat von den ML-Modellen zur Standortbestimmung trainiert werden.
+Die ML-Modelle zur Anomalieerkennung können separat von den ML-Modellen zur Standortbestimmung trainiert werden.
 Sie werden im Gegensatz zu den ML-Modellen zur Standortbestimmung nur einmalig trainiert mit vorbereiteten Trainingsdaten.
 Die Trainingsdaten werden aus den Anomaliedatenmengen und Datenmengen für die verschieden Routen generiert.
 Dafür werden die Klassifizierungsergebnisse auf diesen Datenmengen von den zuvor trainierten ML-Modellen zur Standortbestimmung genutzt.
-Daraus werden beschriftete Features extrahiert, die in Kapitel \ref{sec:data_anomalie} detailiert erläutert werden.
+Daraus werden beschriftete Features extrahiert, die in Kapitel \ref{sec:data_anomalie} detailliert erläutert werden.
 \newpage
 Alternativ können nicht ML-Modelle als Vergleichsmodelle genutzt werden.
 Die trivialen Modelle sind das \textit{Coin-Toss}-, \textit{immer Falsch}- und \textit{immer Wahr}-Modell.
-Ein komplexeres Modell nutzt die Topologie des Systems aus, um eine Anamolie zu indizieren, wenn die Sensorenbox nicht dem Pfad folgt.
+Ein komplexeres Modell nutzt die Topologie des Systems aus, um eine Anomalie zu indizieren, wenn die Sensorenbox nicht dem Pfad folgt.
 In einer lockereren Variante könnte nur erwartet werden, dass einem Pfad kontinuierlich gefolgt wird,
 sodass übersprungende Standorte nicht dauerhaft eine Anomalie indizieren.
 Abbildung \ref{lst:topology_anomaly_detection} skizziert dieses Modell.
 Wenn der Standort und der vorherige Standort nicht der unbekannte Standort ist und
 der vorherige Standort ungleich dem erwarteten Standort ist, dann wird ein Alarm ausgelöst.
 Dieser Alarm indiziert für eine konstante Dauer, dass eine Anomalie vorliegt.
-Dies ist motiviert aus dem Zusammenhang, dass wenn eine Anomalie vorliegt, es wahrscheinlich ist, dass sie kurz danach immernoch vorliegt.
+Dies ist motiviert aus dem Zusammenhang, dass wenn eine Anomalie vorliegt, es wahrscheinlich ist, dass sie kurz danach immer noch vorliegt.
 \begin{lstlisting}[label=lst:topology_anomaly_detection, caption={Skizze des Modells zur Anamolieerkennung auf Basis der Topologie.}]
 if standort > 0 and vorheriger_standort > 0 and topologie[standort].vorheriger_standort != vorheriger_standort:
     alarm_zaehler = 0

@@ -1,6 +1,6 @@
 \section{Benötigte Trainingsdaten}
 Mit wachsender Standortkomplexität werden mehr Trainingsdaten benötigt.
-Abbildung \ref{fig:required_training_data} zeigt die benötigten Trainingszyklen für Entscheidungswälder und FFNNs bis auf der Testmenge
+Abbildung \ref{fig:required_training_data} zeigt die benötigten Trainingszyklen für Entscheidungswälder und FFNNs mit Rückwärtskante bis auf der Testmenge
 eine Klassifizierungsgenauigkeit $P(A)$ von 97\% erreicht wurde.
 Es wurde 97\% als Grenze gewählt, da 97,26\% die höchste Klassifizierungsgenauigkeit des FFNNs bei einer Standortkomplexität von 102 ist.
 Die Trainingszyklen korrelieren mit der Anzahl der Trainingsdaten, da mit jedem Zyklus die Trainingsdaten ergänzt werden.
@@ -13,3 +13,4 @@ Die Trainingszyklen korrelieren mit der Anzahl der Trainingsdaten, da mit jedem 
 \newpage
 Die Entscheidungswälder benötigen weniger Trainingszyklen als FFNNs, um den Schwellenwert zu erreichen.
 Je größer die Standortkomplexität, desto größer wird die Differenz der benötigten Trainingsdaten.
+Die ML-Modelle ohne Rückwärtskante wurden nicht in Zyklen trainiert, weswegen keine Aussage über die benötigten Trainingsdaten getroffen wird.

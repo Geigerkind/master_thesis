@@ -28,6 +28,7 @@ class CompileAll:
         self.prediction_accuracies = self.__load_log_accuracies()
         self.prediction_accuracies.to_csv(self.bin_path + "/log_compiled.csv")
 
+        """
         for acc_type in acc_types:
             # Graphs
             self.__generate_graph_best_dt_vs_best_ffnn(acc_type)
@@ -42,18 +43,25 @@ class CompileAll:
 
             # Latex tables
             self.__generate_latex_table(acc_type)
-        self.__generate_latex_table("loc_size")
-        self.__generate_graph_best_dt_vs_best_ffnn_vs_kind("acc", "acc_cont")
-        self.__generate_faulty_latex_table("acc_cont")
-        self.__generate_faulty_avg_over_trees("acc_cont")
+        """
+        #self.__generate_latex_table("loc_size")
+        #self.__generate_graph_best_dt_vs_best_ffnn_vs_kind("acc", "acc_cont")
+        self.__generate_faulty_latex_table("acc")
+        #self.__generate_faulty_avg_over_trees("acc_cont")
 
     def __load_log_accuracies(self):
         def extract_accuracies_from_file(file):
-            data_set = pandas.read_csv(file)
+            open_error = False
+            try:
+                data_set = pandas.read_csv(file)
+            except:
+                open_error = True
+            if open_error:
+                return 0, 0, 0, 0, 0, True
             return data_set.iloc[0]["accuracy"], data_set.iloc[0]["accuracy_given_previous_location_was_correct"], \
                    data_set.iloc[0]["accuracy_given_previous_location_was_incorrect"], \
                    data_set.iloc[0]["accuracy_given_location_is_cont_the_same_and_within_5_entries"], \
-                   data_set.iloc[0]["accuracy_given_location_is_cont_the_same_and_within_10_entries"]
+                   data_set.iloc[0]["accuracy_given_location_is_cont_the_same_and_within_10_entries"], open_error
 
         data = []
         bin_path_len = len(self.bin_path)
@@ -100,25 +108,32 @@ class CompileAll:
                 slash_index = list(reversed(subdir)).index("/")
                 route = subdir[-slash_index + 7:] if is_faulty else subdir[-slash_index:]
 
-                dt_acc, dt_acc_pc, dt_acc_pic, dt_acc_5, dt_acc_10 = extract_accuracies_from_file(
+                dt_acc, dt_acc_pc, dt_acc_pic, dt_acc_5, dt_acc_10, open_error = extract_accuracies_from_file(
                     subdir + "/evaluation_dt/log_true_vs_predicted.csv")
 
-                dt_acc_cont, dt_acc_pc_cont, dt_acc_pic_cont, dt_acc_5_cont, dt_acc_10_cont = (0, 0, 0, 0, 0)
-                if not WITHOUT_PREVIOUS_EDGE:
-                    dt_acc_cont, dt_acc_pc_cont, dt_acc_pic_cont, dt_acc_5_cont, dt_acc_10_cont = extract_accuracies_from_file(
-                        subdir + "/evaluation_continued_dt/log_true_vs_predicted.csv")
+                if open_error:
+                    continue
 
-                knn_acc, knn_acc_pc, knn_acc_pic, knn_acc_5, knn_acc_10 = extract_accuracies_from_file(
+                dt_acc_cont, dt_acc_pc_cont, dt_acc_pic_cont, dt_acc_5_cont, dt_acc_10_cont = (0, 0, 0, 0, 0)
+                #if not WITHOUT_PREVIOUS_EDGE:
+                #    dt_acc_cont, dt_acc_pc_cont, dt_acc_pic_cont, dt_acc_5_cont, dt_acc_10_cont = extract_accuracies_from_file(
+                #        subdir + "/evaluation_continued_dt/log_true_vs_predicted.csv")
+
+                knn_acc, knn_acc_pc, knn_acc_pic, knn_acc_5, knn_acc_10, open_error = extract_accuracies_from_file(
                     subdir + "/evaluation_knn/log_true_vs_predicted.csv")
 
+                if open_error:
+                    continue
+
                 knn_acc_cont, knn_acc_pc_cont, knn_acc_pic_cont, knn_acc_5_cont, knn_acc_10_cont = (0, 0, 0, 0, 0)
-                if not WITHOUT_PREVIOUS_EDGE:
-                    knn_acc_cont, knn_acc_pc_cont, knn_acc_pic_cont, knn_acc_5_cont, knn_acc_10_cont = extract_accuracies_from_file(
-                        subdir + "/evaluation_continued_knn/log_true_vs_predicted.csv")
+                #if not WITHOUT_PREVIOUS_EDGE:
+                #    knn_acc_cont, knn_acc_pc_cont, knn_acc_pic_cont, knn_acc_5_cont, knn_acc_10_cont = extract_accuracies_from_file(
+                #        subdir + "/evaluation_continued_knn/log_true_vs_predicted.csv")
 
                 # This could be taken out of the loop
-                #loc_real_max_depth, loc_size_dt, loc_size_knn, anomaly_real_max_depth, \
-                #anomaly_size_dt, anomaly_size_knn = [0, 0, 0, 0, 0, 0]
+                loc_real_max_depth, loc_size_dt, loc_size_knn, anomaly_real_max_depth, \
+                anomaly_size_dt, anomaly_size_knn = [0, 0, 0, 0, 0, 0]
+                """
                 size_key = ((subdir[::-1])[slash_index + 1:])[::-1]
                 if size_key in size_map:
                     loc_real_max_depth, loc_size_dt, loc_size_knn, anomaly_real_max_depth, \
@@ -141,6 +156,7 @@ class CompileAll:
                     file_dt_anomaly.close()
                     size_map[size_key] = [loc_real_max_depth, loc_size_dt, loc_size_knn, anomaly_real_max_depth,
                                           anomaly_size_dt, anomaly_size_knn]
+                """
 
                 data.append([route, is_faulty, num_trees, max_depth, num_layers, num_neurons, num_locations, dt_acc,
                              dt_acc_pc, dt_acc_pic, dt_acc_5, dt_acc_10, dt_acc_cont, dt_acc_pc_cont, dt_acc_pic_cont,
@@ -375,8 +391,8 @@ class CompileAll:
 
     def __generate_faulty_latex_table(self, acc_kind):
         location_complexity = 9
-        best_dt = (64, 32)
-        best_knn = (1, 128)
+        best_dt = (32, 32)
+        best_knn = (8, 32)
 
         dt_data = self.prediction_accuracies.query(
             "trees == " + str(best_dt[0]) + " and max_depth == " + str(best_dt[1]) + " and num_locations == " + str(
@@ -395,7 +411,10 @@ class CompileAll:
         for row in dt_data.iterrows():
             route_accuracies[row[1]["route"]] = (row[1]["dt_" + acc_kind] - dt_base_acc, 0)
         for row in knn_data.iterrows():
-            route_accuracies[row[1]["route"]] = (route_accuracies[row[1]["route"]][0], row[1]["knn_" + acc_kind] - knn_base_acc)
+            if row[1]["route"] in route_accuracies:
+                route_accuracies[row[1]["route"]] = (route_accuracies[row[1]["route"]][0], row[1]["knn_" + acc_kind] - knn_base_acc)
+            else:
+                route_accuracies[row[1]["route"]] = (0, row[1]["knn_" + acc_kind] - knn_base_acc)
 
         file = open(self.bin_path + "/robustness_by_" + acc_kind + ".tex", "w")
         file.write("\\begin{table}[h!]\n")
@@ -437,4 +456,4 @@ class CompileAll:
         print(avg_accs)
         print(trees)
 
-CompileAll("/home/shino/Uni/master_thesis/bin")
+CompileAll("/home/shino/Uni/master_thesis/external_eval/bin")
