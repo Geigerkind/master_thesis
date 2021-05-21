@@ -51,27 +51,55 @@
 \begin{figure}[h!]
     \centering
     \includegraphics[width=\linewidth]{images/multiple_best_by_group_dt_max_depth_acc_5_cont.png}
-    \caption{Klassifizierungsgenauigkeiten $P(B=5)$ von Entscheidungsbaum basierten Klassifizierer mit einer Waldgröße von 16 über alle Standortkomplexitäten.}
+    \caption{Klassifizierungsgenauigkeiten $P(B\leq5)_{\text{cont}}$ von Entscheidungswäldern mit einer Waldgröße von 16 über Standortkomplexitäten.}
     \label{fig:multiple_best_by_group_dt_max_depth_acc_5_cont}
 \end{figure}
 
 \begin{figure}[h!]
     \centering
     \includegraphics[width=\linewidth]{images/multiple_best_by_group_dt_trees_acc_5_cont.png}
-    \caption{Klassifizierungsgenauigkeiten $P(B=5)$ von Entscheidungsbaum basierten Klassifizierer mit einer maximalen Baumhöhe von 32 über alle Standortkomplexitäten.}
+    \caption{Klassifizierungsgenauigkeiten $P(B\leq5)_{\text{cont}}$ von Entscheidungswäldern mit einer maximalen Baumhöhe von 32 über Standortkomplexitäten.}
     \label{fig:multiple_best_by_group_dt_trees_acc_5_cont}
 \end{figure}
 
 \begin{figure}[h!]
     \centering
     \includegraphics[width=\linewidth]{images/multiple_best_by_group_knn_layers_acc_5_cont.png}
-    \caption{Klassifizierungsgenauigkeiten $P(B=5)$ von Entscheidungsbaum basierten Klassifizierer mit 32 Neuronen pro verdeckte Schicht über alle Standortkomplexitäten.}
+    \caption{Klassifizierungsgenauigkeiten $P(B\leq5)_{\text{cont}}$ von FFNNs mit 32 Neuronen pro verdeckte Schicht über Standortkomplexitäten.}
     \label{fig:multiple_best_by_group_knn_layers_acc_5_cont}
 \end{figure}
 
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=\linewidth]{images/multiple_best_by_group_knn_neurons_acc_10_cont.png}
-    \caption{Klassifizierungsgenauigkeiten $P(B=5)$ von Entscheidungsbaum basierten Klassifizierer mit einer verdeckte Schicht über alle Standortkomplexitäten.}
+    \includegraphics[width=\linewidth]{images/multiple_best_by_group_knn_neurons_acc_5_cont.png}
+    \caption{Klassifizierungsgenauigkeiten $P(B\leq5)_{\text{cont}}$ von FFNNs mit einer verdeckte Schicht über Standortkomplexitäten.}
     \label{fig:multiple_best_by_group_knn_neurons_acc_5_cont}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\linewidth]{images/multiple_best_by_group_dt_max_depth_acc_5.png}
+    \caption{Klassifizierungsgenauigkeiten $P(B\leq5)$ von Entscheidungswäldern ohne Rückwärtskante mit einer Waldgröße von 16 über Standortkomplexitäten.}
+    \label{fig:multiple_best_by_group_dt_max_depth_acc_5}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\linewidth]{images/multiple_best_by_group_dt_trees_acc_5.png}
+    \caption{Klassifizierungsgenauigkeiten $P(B\leq5)$ von Entscheidungswäldern ohne Rückwärtskante mit einer maximalen Baumhöhe von 32 über Standortkomplexitäten.}
+    \label{fig:multiple_best_by_group_dt_trees_acc_5}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\linewidth]{images/multiple_best_by_group_knn_layers_acc_5.png}
+    \caption{Klassifizierungsgenauigkeiten $P(B\leq5)$ von FFNNs ohne Rückwärtskante mit 32 Neuronen pro verdeckte Schicht über Standortkomplexitäten.}
+    \label{fig:multiple_best_by_group_knn_layers_acc_5}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\linewidth]{images/multiple_best_by_group_knn_neurons_acc_5.png}
+    \caption{Klassifizierungsgenauigkeiten $P(B\leq5)$ von FFNNs ohne Rückwärtskante mit einer verdeckte Schicht über Standortkomplexitäten.}
+    \label{fig:multiple_best_by_group_knn_neurons_acc_5}
 \end{figure}
