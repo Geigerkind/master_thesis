@@ -1,16 +1,16 @@
 \section{Ausführungszeit und benötigte Energie}
 Es ist problemetisch eine sinvolle Einschätzung für die benötigte Ausführungszeit und Energie anzugeben, da
-die Ausführungszeit und die benötigte Energie abhängig von dem verwendeten Mikrocontroller sind.
+die Ausführungszeit und die benötigte Energie abhängig von dem verwendeten Mikrocontroller ist.
 Vergleichbare 32-Bit Mikrocontroller mit FPU (Floating Point Unit), zu den Microcontrollern die Dymel verwendet hat \cite{dymelThesis}, sind aus der AVR C-Serie \cite{avr32BitDatasheet}.
 Die Datenblätter enthalten keine Information über die Ausführungszeit von Gleitkommazahlinstruktionen und kein Energiemodell.
-Es ist aber anzunehmen, dass deutlich weniger Cyclen benötigt werden für hardwareunterstützte Gleitkommazahloperationen, als Software basierte Alternativen.
+Es ist aber anzunehmen, dass deutlich weniger Zyklen benötigt werden für hardwareunterstützte Gleitkommazahloperationen als Software basierte Alternativen.
 Aus diesem Grund wird die Ausführungszeit in Gleitkommazahl -Vergleichen, -Multiplikationen, -Division, -Additionen und Wurzeln angegeben,
 da diese die integralen Bestandteile der Feature-Extrahierung und Evaluation der ML-Modelle sind.
 \newline
 \newline
 Die in dieser Arbeit vorgeschlagene Architektur (\ref{fig:model_idea}) hat fünf Bestandteile, die jeweils zur Gesamtausführungszeit beitragen.
 Die Aufnahme der Sensorwerte wird als konstanter Energieverbrauch angenommen und in dieser Evaluation vernachlässigt.
-In der ersten Feature-Extrahierung werden 34 Features aus dem Datenfenster extrahiert.
+In der ersten Feature-Extrahierung werden 38 Features aus dem Datenfenster extrahiert.
 Tabelle \ref{tab:feature_operation_complexity} zeigt die geschätzte Anzahl der Operationen, die pro Art des Features benötigt wird.
 \begin{table}[h!]
     \centering
@@ -20,7 +20,7 @@ Tabelle \ref{tab:feature_operation_complexity} zeigt die geschätzte Anzahl der 
         Standardabweichung (\textbf{7}) & 0 & 3 & 2 & 7 & 1 \\\hline
         Minimum (\textbf{6}) / Maximum (\textbf{6}) & 2 & 0 & 0 & 0 & 0 \\\hline
         Durchschnitt (\textbf{6}) & 0 & 0 & 1 & 2 & 0 \\\hline
-        Wert (\textbf{9}) & 0 & 0 & 0 & 0 & 0 \\\hline
+        Wert (\textbf{13}) & 0 & 0 & 0 & 0 & 0 \\\hline
     \end{tabular}
     \caption{Geschätzte Anzahl der Operationen pro Art des Features bei einer Datenfenstergröße von 3. Fettgedruckte Zahl zeigt die Verwendungsanzahl in der Feature-Menge an.}
     \label{tab:feature_operation_complexity}

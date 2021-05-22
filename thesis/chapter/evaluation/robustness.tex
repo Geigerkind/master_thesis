@@ -31,16 +31,16 @@ Vermutlich ist 5\% Rauschen zu wenig, um einen Einfluss auszuüben.
 \newline
 \newline
 Die ML-Modelle mit und ohne Rückwärtskante sind robust gegenüber der Nullung der Features und gegenüber der permutierten Testmenge.
-Aus der Menge stechen die Fehler durch die Nullung der Features des Temperatur- und Magnetfeldsensors, sowie der WLAN-Zugangspunkte.
+Aus der Menge stechen die Fehler durch die Nullung der Features des Temperatur- und Magnetfeldsensors sowie der WLAN-Zugangspunkte heraus.
 Außerdem ist der Fehler durch die Nullung der Features des Accelerometers und Gyroskops bei den ML-Modellen mit Rückwärtskanten
 deutlich größer als bei den ML-Modellen ohne Rückwärtskante.
 \newline
 \newline
 Die Permutationswichtigkeit hat den Features des Temperatursensors eine geringere Wichtigkeit zugeordnet, als die Nullung es tut.
 Dies ist dadurch begründet, dass die Sensordaten des Temperatursensors mit wenigen Ausnahmen sehr homogen sind.
-Für den Temperatursensor wird eine Umgebungstemperatur simuliert, die sich nur verändert, wenn die Sensorenbox einer Temperaturquelle näher kommt.
+Für den Temperatursensor wird eine Umgebungstemperatur simuliert, die sich nur verändert, wenn die Sensorenbox einer Wärmequelle näher kommt.
 Für den größten Teil der Daten misst der Temperatursensor die Umgebungstemperatur, weswegen eine permutation keinen großen Fehler verursacht.
-Die Nullung dieser Sensordaten hingegen deutet auf eine Temperaturquelle hin, die die Umgebungstemperatur verringert.
+Die Nullung dieser Sensordaten hingegen deutet auf eine Wärmequelle hin, die die Umgebungstemperatur verringert.
 Dieses Ereignis ist im Vergleich zu einer Erhöhung der Umgebungstemperatur selten, weswegen die Nullung einen großen Fehler verursacht.
 Würde dieses Ereignis häufiger vorkommen, wäre der Fehler vermutlich geringer.
 \newline
@@ -57,17 +57,16 @@ Insgesamt bilden die Features der WLAN-Zugangspunkte 14,7\% aller Features, wobe
 Vermutlich ist aus diesem Grund der Einfluss dieser Features beim FFNN im Vergleich zu den Entscheidungswäldern so groß.
 \newline
 \newline
-Die permutation der Testmenge hat nur einen geringen Fehler verursacht.
+Die Permutation der Testmenge hat nur einen geringen Fehler verursacht.
 Dies war bei allen ML-Modellen zu erwarten, da das interne Datenfenster mit drei Einträgen sehr klein ist
 und die Features der vorherigen Standorte bereits nach wenigen Klassifizierungen korrigiert werden.
 Dementsprechend ist der Fehler bei den ML-Modellen ohne Rückwärtskante auch deutlich kleiner als bei den ML-Modellen mit Rückwärtskante.
-\newline
-\newline
+\newpage
 Im Durchschnitt sind die ML-Modelle ohne Rückwärtskante robuster als die ML-Modelle mit Rückwärtskante.
 Die Entscheidungswälder sind robuster als die FFNNs.
-Dieser Fehler korreliert aber mit der Klassifizierungsgenauigkeit der Modelle (Abbildung \ref{fig:best_dt_vs_knn_fb_vs_no_fb}).
+Der beobachtete Fehler korreliert aber mit der Klassifizierungsgenauigkeit der ML-Modelle (Abbildung \ref{fig:best_dt_vs_knn_fb_vs_no_fb}).
 Der Entscheidungswald mit Rückwärtskante, der marginal bessere Klassifizierungsgenauigkeiten erzielt hat, als das FFNN ohne Rückwärtskante,
-hat einen marginal geringeren Fehler erzeugt.
+hat einen marginal geringeren Fehler im Test erzielt.
 \newline
 \newline
 Tabellen \ref{tab:predictions_by_acc_pic_cont} und \ref{tab:predictions_by_acc_pic_wo_fb} geben die Klassifizierungsgenauigkeit $P(C)_{\text{cont}}$ bzw. $P(C)$ an.
@@ -89,8 +88,8 @@ Der Ausfall des Lichtsensors bei Mians Ansätzen hat einen Fehler von 88,15 Proz
 wohingegen der Fehler des schlechtesten ML-Modells in dieser Arbeit gegenüber dem Ausfall des Lichtsensors nur 6,93 Prozentpunkten ist.
 \newline
 \newline
-In dieser Arbeit haben sich Entscheidungswälder als robuster gegenüber Fehler herausgestellt.
+In dieser Arbeit haben sich Entscheidungswälder als robuster gegenüber Fehler herausgestellt als FFNNs.
 Allerdings erzielen die Entscheidungswälder in dieser Arbeit auch insgesamt bessere Klassifizierungsergebnisse, weswegen dies zu erwarten ist.
 Der durchschnittliche Fehler beider ML-Modelle ist vergleichbar, bei vergleichbarer Klassifizierungsgenauigkeit.
 Zusätzlich hat sich die Untersuchung von modifizierten Testmengen mit gezielten Veränderungen als Ergänzung zur Permutationswichtigkeit bewiesen,
-um die Signifikanz von einzelnen Features einzuschätzen.
+um die Wichtigkeit von einzelnen Features einzuschätzen.

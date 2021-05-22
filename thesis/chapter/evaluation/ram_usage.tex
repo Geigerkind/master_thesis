@@ -15,25 +15,25 @@ Bei einem Datenfenster von drei Einträgen wird damit 183 Byte für Sensorwerte 
 \newline
 \newline
 Der Anteil der Features ist abhängig von den Features, die für ein bestimmtes Szenario eingesetzt werden.
-Insgesamt werden aber 34 Features verwendet, die vereinfacht alle als vier Byte Datentyp angenommen werden.
+Insgesamt werden aber 38 Features verwendet, die vereinfacht alle als vier Byte Datentyp angenommen werden.
 Zur Evaluierung des ML-Modells wird nur die aktuelle Feature-Menge benötigt.
-Damit wird für die Feature-Menge insgesamt 136 Byte benötigt, wenn alle Features verwendet werden.
+Damit wird für die Feature-Menge insgesamt 152 Byte benötigt, wenn alle Features verwendet werden.
 \newline
 \newline
 Zur Ausführung eines Entscheidungswaldes wird für die Rückgabe der Wahrscheinlichkeitsverteilung für jeden Standort vier Byte benötigt.
 Je nach Implementierung würde dieser Vektor mehrmals benötigt werden, z. B. bei der parallelen Evaluierung der Entscheidungsbäume skaliert dies mit der Anzahl der Prozessoren.
 In diesem Fall wird keine Nebenläufigkeit angenommen.
-In dieser Arbeit wurden zwischen 9 und 102 Standorte untersucht, d. h. es wurden zwischen 36 und 408 Byte benötigt.
+In dieser Arbeit wurden zwischen 9 Standorte und 102 Standorte untersucht, d. h. es wurden zwischen 36 und 408 Byte benötigt.
 Die Standortkomplexität ist aber abhängig von dem Einsatzszenario.
 Die anschließende Evaluierung eines Entscheidungswaldes zur Anomalieerkennung kann vernachlässigt werden,
 da dieser ein diskretes Ergebnis zurückgeben kann und die benötigte Feature-Menge deutlich kleiner ist.
 Damit wird für $N$ Standorte und $K$ Features mit einem Entscheidungswald als ML-Modell zu einem Zeitpunkt
-ca. $183 + 4(N + K)$ Byte benötigt, d. h. bei 102 Standorten und 34 Features ca. 727 Byte.
+ca. $183 + 4(N + K)$ Byte benötigt, d. h. bei 102 Standorten und 38 Features ca. 743 Byte.
 \newline
 \newline
-Zur Ausführung eines FFNN werden nur wenige Byte benötigt, um die nötigen Multiplikationen eines Neurons durchzuführen.
+Zur Ausführung eines FFNNs werden nur wenige Byte benötigt, um die nötigen Multiplikationen eines Neurons durchzuführen.
 Dies würde die Ausführungszeit, und den Energiebedarf, aber signifikant erhöhen, da die benötigten Gewichte ständig aus dem Programmspeicher geladen werden müssten.
-Das heißt, es müssen mindestens die Zwischenergebnisse einer Schicht im RAM gehalten werden, sowie ein Gewicht und und ein Bias.
+Das heißt, es müssen mindestens die Zwischenergebnisse einer Schicht im RAM gehalten werden, sowie ein Gewicht und ein Bias.
 \newline
 \newline
 Damit benötigt ein FFNN, dessen größte Schicht $M$ Neuronen hat, mindestens $4(M+2)$ Byte.

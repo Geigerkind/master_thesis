@@ -14,11 +14,11 @@ Standort klassifiziert wird mit einer Gesamttoleranz von $\epsilon$ Klassifizier
 Diese Metrik ist besonders gut für den Vergleich geeignet, da entgegen der Beschriftung in der Testmenge,
 harte Übergänge zwischen zwei benachbarten Standorten nicht der Wirklichkeit entsprechen.
 Im Übergang können Sensorwerte möglicherweise mehrdeutig sein und dies sollte bei der Standortbestimmung, solange sie konsequent ist, beachtet werden.
-Dadurch wird, im Vergleich, das Rauschen in der Klassifizierungsgenauigkeit so reduziert, dass durch diese Mehrdeutigkeit im Übergang entsteht,
+Dadurch wird, im Vergleich zu $P(A)$, das Rauschen in der Klassifizierungsgenauigkeit reduziert, da diese Mehrdeutigkeit im Übergang toleriert wird,
 wodurch die ML-Modelle besser vergleichbar sind.
 \begin{flalign}
     \label{formular:accuracy_metrik2}
-    &L := \text{Menge der von dem ML-Modell klassifizierten Standorte.} \nonumber\\
+    &L := \text{Menge der von dem ML-Modell klassifizierten Standorten.} \nonumber\\
     &K := \text{Menge von den wirklichen Standorten.} \nonumber\\
     &\Phi(i) := \text{Index vom nächsten Standort.} \nonumber\\
     &\Psi(i) := \text{Index vom vorherigen Standort.} \nonumber\\

@@ -11,19 +11,19 @@ Für einen Vergleich werden fünf Instruktionen benötigt \cite{dymelThesis}.
 Für eine Rückgabe werden zwischen zwei und $2(N+1)$ Instruktionen und zwischen 0 und $2N$ Parameter benötigt,
 wobei $N$ die Anzahl der möglichen Standorte ist.
 Die Größe einer Instruktion ist vier Byte, da eine 32-Bit CPU angenommen wird.
-Die Größe des zusammenfassenden Klassifizierers wird vernachlässigt.
+Die Größe des Algorithmus des zusammenfassenden Klassifizierers wird vernachlässigt.
 \newline
 \newline
 Für die FFNNs wird ebenfalls ein vier Byte Datentyp für die Biase und die Gewichte angenommen.
 Die Größe des Algorithmus zur Ausführung des FFNNs ist unbekannt und wird als konstanter Wert angenommen,
 liegt aber, den Zahlen in Gieses Arbeit nach zu urteilen, zwischen 6 KB und 7 KB \cite{gieseThesis}.
-Diese Messungen beziehen sich aber auf einen 8-Bit Mikrocontroller, weshalb dieser Anteil für ein 32-Bit Mikroconroller möglicherweise größer ist.
+Diese Messungen beziehen sich aber auf einen 8-Bit Mikrocontroller, weshalb dieser Anteil für ein 32-Bit Mikrocontroller möglicherweise größer ist.
 \newline
 \newline
 Tabelle \ref{tab:predictions_by_loc_size} zeigt Einschätzungen des benötigten Programmspeichers der verschiedenen Konfigurationen der ML-Modelle,
 wobei die konstanten Anteile vernachlässigt werden.
 Potentielle Optimierungen der Entscheidungswälder, z. B. durch den Compiler,
-sowie potentielle Optimierungen des FFNN, wie Giese in \cite{gieseThesis} vorgeschlagen hat, wurden dabei nicht betrachtet.
+sowie potentielle Optimierungen des FFNNs, wie Giese in \cite{gieseThesis} vorgeschlagen hat, wurden dabei nicht betrachtet.
 Giese hat mit dem CSC-MA-Bit Format die Programmgröße um 39\% reduzieren können.
 Kompilierung mit der Optimierungsstufe \textit{O2} konnte experimentell generierten C-Code
 eines Entscheidungswaldes um bis zu 21,3\% reduzieren.
@@ -58,8 +58,8 @@ eines Entscheidungswaldes um bis zu 21,3\% reduzieren.
 \end{table}
 \newline
 \newline
-Der benötigte Programmspeicher beider ML-Modelle skaliert mit der Standortkomplexität, der Anzahl der Schichten bzw. Bäume
-und der Anzahl der Neuronen pro Schicht bzw. der maximalen Baumhöhe.
+Der benötigte Programmspeicher beider ML-Modelle skaliert mit der Standortkomplexität, der Anzahl der verdeckten Schichten bzw. der Waldgröße
+und der Anzahl der Neuronen pro verdeckte Schicht bzw. der maximalen Baumhöhe.
 Für Entscheidungswälder werden maximal ca. 4,7 MB benötigt.
 Der beste Entscheidungswald bei einer Standortkomplexität von 102 benötigt aber nur ca. 1,1 MB.
 Die FFNNs hingegen benötigen deutlich weniger Programmspeicher.

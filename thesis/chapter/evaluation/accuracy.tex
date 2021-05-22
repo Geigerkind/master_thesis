@@ -3,7 +3,7 @@ Die Klassifizierungsgenauigkeit der ML-Modelle zur Standortbestimmung wurde mit 
 In Kapitel \ref{sec:model_dt} und Kapitel \ref{sec:model_ffnn} werden die einzelnen Konfigurationen der ML-Modelle beschrieben.
 Die Komplexität wird über die Anzahl der Standorte definiert.
 Um die Standortkomplexität zu erhöhen, wurden die Datenmengen um weitere Routen erweitert.
-Dies impliziert aber, dass die Testmengen nicht unter den verschiedenen Standortkomplexitäten vergleichbar sind, da mit jeder Route die Testmenge erweitert wird.
+Dies impliziert aber, dass die Testmengen nicht unter den verschiedenen Standortkomplexitäten direkt vergleichbar sind, da mit jeder Route die Testmenge erweitert wird.
 Die berechneten Klassifizierungswahrscheinlichkeiten sind jeweils der Durchschnitt der Klassifizierungswahrscheinlichkeiten aller Routen in der Testmenge.
 \newline
 \newline
@@ -12,7 +12,7 @@ Für die Standortkomplexitäten 9, 17, 25 und 52 wurde der Kodierungsansatz verw
 Für die Standortkomplexitäten 16, 32, 48 und 102 wurde der Kodierungsansatz verwendet, bei denen Knoten und Kanten betrachtet werden.
 Ein besserer Ansatz, um Daten mit beliebiger Komplexität zu generieren wird in Kapitel \ref{chapter:discussion} diskutiert.
 
-\subsection{Vergleich mit Mians Klassifizierungsergebnissen}
+\subsection{Vergleich mit Mians Ergebnissen}
 Mian hat die Klassifizierungsgenauigkeit $P(A)_{\text{cont}}$ betrachtet.
 Er konnte mit einem WFBNN bei einer Route mit drei Pfaden und 14 Standorten eine Klassifizierungsgenauigkeit von 93,26\% erreichen \cite{naveedThesis}.
 Mit einem WFFNN konnte Mian eine Klassifizierungsgenauigkeit von 94,51\% erreichen.
@@ -23,7 +23,7 @@ da bei dem ML-Modell ohne Rückwärtskante kein Fehler propagiert werden kann.
 \begin{figure}[h!]
     \centering
     \includegraphics[width=\linewidth]{images/best_dt_vs_knn_fb_vs_no_fb.png}
-    \caption{Die besten Klassifizierungsgenauigkeiten von ML-Modell mit und ohne Rückwärtskante und Mians Modelle über Standortkomplexitäten.}
+    \caption{Die besten Klassifizierungsgenauigkeiten der ML-Modelle mit und ohne Rückwärtskante und Mians Modelle über Standortkomplexitäten.}
     \label{fig:best_dt_vs_knn_fb_vs_no_fb}
 \end{figure}
 \newline
@@ -31,10 +31,9 @@ da bei dem ML-Modell ohne Rückwärtskante kein Fehler propagiert werden kann.
 Mian kodierte in seinem Ansatz die Kanten als Standorte, was sich von den in dieser Arbeit benutzten Ansätzen unterscheidet.
 Die in dieser Arbeit evaluierten Standortkomplexitäten, die Mians Evaluation am nächsten kommen, sind 16, mit dem Kodierungsansatz, der Kanten und Knoten kodiert,
 und 17, mit dem Kodierungsansatz, der nur Knoten kodiert.
-\newline
-\newline
+\newpage
 Aus Tabelle \ref{tab:predictions_by_acc_cont} können die Klassifizierungsergebnisse $P(A)_{\text{cont}}$ für die ML-Modelle mit Rückwärtskante entnommen werden
-und aus Tabelle \ref{tab:predictions_wo_feedback_edge_by_acc} die Klassifizierungsergebnisse $P(A)$ für die ML-Modelle ohen Rückwärtskante.
+und aus Tabelle \ref{tab:predictions_wo_feedback_edge_by_acc} die Klassifizierungsergebnisse $P(A)$ für die ML-Modelle ohne Rückwärtskante.
 Der beste Entscheidungswald mit Rückwärtskante bei einer Standortkomplexität von 16 Orten hat eine Klassifizierungsgenauigkeit $P(A)_{\text{cont}}$ von 83,52\% erzielt.
 Das ist 9,74 Prozentpunkte schlechter als Mians WFBNN.
 Das beste FFNN ist 29,32 Prozentpunkte schlechter.
@@ -69,7 +68,7 @@ bei FFNNs mit Rückwärtskante um 0,47 Prozentpunkte und bei FFNNs ohne Rückwä
 \begin{figure}[h!]
     \centering
     \includegraphics[width=\linewidth]{images/best_dt_vs_knn_pb_5_vs_pb_5_cont.png}
-    \caption{Die besten Klassifizierungsgenauigkeiten $P(B\leq5)$ von ML-Modell mit und ohne Rückwärtskante über Standortkomplexitäten.}
+    \caption{Die besten Klassifizierungsgenauigkeiten $P(B\leq5)$ der ML-Modelle mit und ohne Rückwärtskante über Standortkomplexitäten.}
     \label{fig:best_dt_vs_knn_pb_5_vs_pb_5_cont}
 \end{figure}
 \newline
@@ -81,20 +80,21 @@ Aus diesem Grund ist zu schließen, dass der Kodierungsansatz, der nur Knoten ko
 
 \subsection{Einfluss der Hyperparameter}
 Abbildungen \ref{fig:multiple_best_by_group_dt_max_depth_acc_5_cont} und \ref{fig:multiple_best_by_group_dt_max_depth_acc_5} zeigen, dass sich
-als beste maximale Baumhöhe hat sich 16 herausgestellt, wobei 32 und 64 marginal schlechtere Ergebnisse erzielten.
-Eine maximale Baumhöhe von 8 war nicht ausreichend, da es für hohe Standortkomplexitäten schlechtere Ergebnisse erzielt hat.
+als beste maximale Baumhöhe 16 herausgestellt, wobei 32 und 64 marginal schlechtere Ergebnisse erzielten.
+Eine maximale Baumhöhe von 8 war nicht ausreichend, da es für hohe Standortkomplexitäten schlechtere Ergebnisse erzielt hatte.
 Bei gleicher Waldgröße haben die maximalen Baumhöhen von 32 und 64 äquivalente Ergebnisse erzielt für Entscheidungswälder mit Rückwärtskante.
 \newline
 \newline
 Dies schließt aber nicht aus, dass andere Szenarien nicht von größeren maximalen Baumhöhen profitieren könnten.
 Abbildungen \ref{fig:multiple_best_by_group_dt_trees_acc_5_cont} und \ref{fig:multiple_best_by_group_dt_trees_acc_5} zeigen
-die Klassifizierungsergebnisse von Entscheidungswäldern verschiedener Waldgröße.
+die Klassifizierungsergebnisse von Entscheidungswäldern verschiedener Waldgrößen.
 Eine Waldgröße von 8 hat nur marginal schlechtere Ergebnisse bei 102 Standorten erzielt, als die Waldgrößen 16, 32 und 64.
 Aus diesem Grund ist eine Waldgröße von 8 ausreichend, oder könnte womöglich reduziert werden.
 \newline
 \newline
 Die FFNNs mit Rückwärtskante verhalten sich sehr volatil (Abbildungen \ref{fig:multiple_best_by_group_knn_layers_acc_5_cont}
-und \ref{fig:multiple_best_by_group_knn_neurons_acc_5_cont}), weswegen keine Aussage darüber getroffen werden kann.
+und \ref{fig:multiple_best_by_group_knn_neurons_acc_5_cont}), weswegen keine Aussage über die Skalierung mit der
+Anzahl der verdeckten Schichten oder der Anzahl der Neuronen pro verdeckte Schicht getroffen werden kann.
 Die FFNNs ohne Rückwärtskante erzielen konsistentere Ergebnisse.
 Abbildung \ref{fig:multiple_best_by_group_knn_layers_acc_5} zeigt, dass die Klassifizierungsergebnisse
 für verschiedene Anzahlen von verdeckten Schichten sich nicht stark voneinander unterscheiden.
