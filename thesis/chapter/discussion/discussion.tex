@@ -4,7 +4,7 @@ Ein Großteil dieser Arbeit ist die Generierung von Sensordaten.
 Dazu wurde der Ansatz von Mian aufgegriffen, wodurch verschiedene Routen in CoppeliaSim simuliert wurden.
 Der Nachteil dieses Ansatzes ist die schlechte Skalierbarkeit, wenn es um die Untersuchung von Pfaden und Standorten geht.
 Um weitere Pfade und Standorte zu untersuchen, mussten entweder komplexere Routen in CoppeliaSim erstellt werden,
-Routen synhetisch kombiniert werden oder Routen unabhängig von einander trainiert werden.
+Routen synthetisch kombiniert werden oder Routen unabhängig von einander trainiert werden.
 \newline
 \newline
 Der erste Ansatz ist sehr aufwändig und der zweite Ansatz unterscheidet sich nicht stark von dem dritten Ansatz,
@@ -14,6 +14,8 @@ z.~B. eine Kurve oder eine Gerade nach links laufend.
 Jedes dieser Teilstücke hätte eine feste Länge und könnte transformiert werden in sowohl der Länge, als auch den aufgenommen Sensordaten.
 Durch geschickte Kombination, könnten dann beliebig komplexe Routen mit beliebig vielen Pfaden und Standorten generiert werden,
 was die Untersuchung erheblich erleichtert hätte.
+Zudem könnten genauere Aussagen über die Skalierung der Klassifizierungsgenauigkeit mit der Standortkomplexität getroffen werden können,
+da die Standortkomplexität systematisch erhöht werden könnte.
 \newline
 \newline
 Die Entscheidungswälder könnten gezielter trainiert werden, um die Klassifizierungsgenauigkeit zu erhöhen und die Robustheit zu verbessern.
