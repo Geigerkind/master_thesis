@@ -1,7 +1,7 @@
 \chapter{Machine Learning Modelle}
 In dieser Arbeit wird die Device-Based Indoor-Lokalisation auf Basis von Sensorwerten untersucht.
-Der Ansatz ist inspiriert von dem Orientierungssinn von Mensch und Tier.
-Dabei werden diskrete Standorte unterschieden, sowie ob eine Anomalie entdeckt wurde,
+Der Ansatz ist inspiriert von dem Orientierungssinn von Menschen und Tieren.
+Dabei werden diskrete Standorte unterschieden sowie, ob eine Anomalie entdeckt wurde,
 d. h. ob das Modell sich an einem unbekannten Standort oder auf einem unbekannten Pfad befindet.
 \newline
 \newline
@@ -9,7 +9,12 @@ Abbildung \ref{fig:model_idea} zeigt die Architektur des verfolgten Ansatzes.
 Zunächst werden aus den Sensorwerten Features extrahiert.
 Die resultierende Feature-Menge wird dann vom ML-Modell genutzt, um den Standort zu klassifizieren.
 Zuletzt wird auf Basis historischer Daten und dem Klassifizierungsergebnis von einem weiteren ML-Modell zur Anomalieerkennung bestimmt, ob eine Anomalie vorliegt.
-\newline
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\linewidth]{images/model_idea.png}
+    \caption{Architektur des verfolgten Ansatzes.}
+    \label{fig:model_idea}
+\end{figure}
 \newline
 Mian verwendete eine ähnliche Architektur \cite{naveedThesis}.
 Sein (W)FBNN zur Standortbestimmung hatte ebenfalls eine Rückwärtskante, um die zuletzt erkannten Standorte als Features zu verwenden.
@@ -18,19 +23,15 @@ In dieser Arbeit wird zusätzlich versucht Anomalien zu erkennen.
 Dafür wird ein weiteres ML-Modell verwendet, welches aus dem Klassifizierungsverhalten des ML-Modells zur Standortbestimmung schließt, ob eine Anomalie vorliegt.
 Dies motiviert die Erweiterung, um eine weitere Phase zur Feature-Extrahierung aus den zuletzt erkannten Standorten,
 sowie einer Phase zur Evaluierung des ML-Modells zur Anomalieerkennung aus der resultierenden Feature-Menge.
-Die Anomalieerkennung ist somit eine Information, die aus dem Standortbestimmungsverhalten des vorangestellen ML-Modells resultiert,
-weshalb sowohl der Standort als auch die Einschätzung als Anomalie als Ergebnis zurückgegeben wird.
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width=\linewidth]{images/model_idea.png}
-    \caption{Architektur des verfolgten Ansatzes.}
-    \label{fig:model_idea}
-\end{figure}
+\newpage
+Die Anomalieerkennung interpretiert somit das Standortbestimmungsverhalten des vorangestellen ML-Modells zur Standortbestimmung,
+weshalb sowohl der Standort als auch die Einschätzung der Anomalie als Ergebnis zurückgegeben werden.
 \newline
-In dieser Arbeit werden Entscheidungsbaum basierte Klassifizierer mit KNN verglichen, insbesondere den von Mian verwendeten Ansatz mit FBNN.
-Entscheidungsbäume sind deutlich effizienter in der Ausführungszeit als KNN \cite{dymelThesis},
+\newline
+In dieser Arbeit werden Entscheidungsbaum basierte Klassifizierer mit FFNNs verglichen, insbesondere den von Mian verwendeten Ansatz des FBNNs.
+Entscheidungsbäume sind deutlich effizienter in der Ausführungszeit als FFNNs \cite{dymelThesis},
 allerdings sind sie in ihrer Generalisierungsfähigkeit durch die berechneten Features begrenzt,
-wohingegen KNN komplexe Features selbst erlernen können \cite{seide2011feature}.
+wohingegen FFNNs komplexe Features selbst erlernen können \cite{seide2011feature}.
 
 \input{chapter/model/location_encoding}
 \input{chapter/model/decision_tree}
