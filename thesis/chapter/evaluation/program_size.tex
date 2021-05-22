@@ -27,14 +27,6 @@ sowie potentielle Optimierungen des FFNN, wie Giese in \cite{gieseThesis} vorges
 Giese hat mit dem CSC-MA-Bit Format die Programmgröße um 39\% reduzieren können.
 Kompilierung mit der Optimierungsstufe \textit{O2} konnte experimentell generierten C-Code
 eines Entscheidungswaldes um bis zu 21,3\% reduzieren.
-\newline
-\newline
-Der benötigte Programmspeicher beider ML-Modelle skaliert mit der Standortkomplexität, der Anzahl der Schichten bzw. Bäume
-und der Anzahl der Neuronen pro Schicht bzw. der maximalen Baumhöhe.
-Für Entscheidungswälder werden maximal ca. 4,7 MB benötigt.
-Der beste Entscheidungswald bei einer Standortkomplexität von 102 benötigt aber nur ca. 1,1 MB.
-Die FFNNs hingegen benötigen deutlich weniger Programmspeicher.
-Für beide ML-Modelle gibt es Mikrocontroller, die ausreichend Programmspeicher anbieten.
 \begin{table}[h!]
     \hspace{-2cm}
     \begin{tabular}{ | c | c | c | c | c | c | c | c | c | c | }
@@ -64,3 +56,13 @@ Für beide ML-Modelle gibt es Mikrocontroller, die ausreichend Programmspeicher 
     \caption{Programmgröße in KB über Standorte und Konfigurationen der ML-Modelle.}
     \label{tab:predictions_by_loc_size}
 \end{table}
+\newline
+\newline
+Der benötigte Programmspeicher beider ML-Modelle skaliert mit der Standortkomplexität, der Anzahl der Schichten bzw. Bäume
+und der Anzahl der Neuronen pro Schicht bzw. der maximalen Baumhöhe.
+Für Entscheidungswälder werden maximal ca. 4,7 MB benötigt.
+Der beste Entscheidungswald bei einer Standortkomplexität von 102 benötigt aber nur ca. 1,1 MB.
+Die FFNNs hingegen benötigen deutlich weniger Programmspeicher.
+Für beide ML-Modelle gibt es Mikrocontroller, die ausreichend Programmspeicher anbieten.
+Im Vergleich zu dem WFFNN und WFBNN von Mian sind die FFNNs dieser Arbeit zwischen 54\% und 97,6\% kleiner bei ähnlicher Standortkomplexität.
+Die Entscheidungswälder können bis zu 47\% kleiner sein, aber auch bis zu 720\% größer sein.
