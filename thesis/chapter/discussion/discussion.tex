@@ -20,11 +20,11 @@ da die Standortkomplexität systematisch erhöht werden könnte.
 \newline
 Die Entscheidungswälder könnten gezielter trainiert werden, um die Klassifizierungsgenauigkeit zu erhöhen und die Robustheit zu verbessern.
 Zuerst wird ein Entscheidungswald mit allen Features trainiert.
-Aus diesem Entscheidungswald wird die Signifikanz der einzelnen Features geschlossen.
+Aus diesem Entscheidungswald wird die Wichtigkeit der einzelnen Features geschlossen.
 Auf Basis dessen werden gezielt Teilmengen aus der Feature-Menge extrahiert, womit orthogonale Entscheidungsbäume trainiert werden.
 Anschließend werden diese Entscheidungsbäume zu einem Entscheidungswald kombiniert.
 \newpage
-Für das FFNN wurde für die vorherigen Standorte zwei Features verwendet, die alle Standorte zwischen 0 und 1 kodiert haben.
+Für das FFNN wurden für die vorherigen Standorte zwei Features verwendet, die alle Standorte zwischen 0 und 1 kodiert haben.
 Dies hat dazu geführt, dass FFNNs mit steigender Standortkomplexität schlechtere Klassifizierungsergebnisse erzielt haben als Entscheidungswälder.
 Besser hätten die vorherigen Standorte kategorisch kodiert werden sollen.
 Dadurch würde die Eingabeschicht des FFNNs zwar stark wachsen, aber das Problem möglicherweise eliminiert werden.
