@@ -12,7 +12,8 @@ Zuletzt wird auf Basis historischer Daten und dem Klassifizierungsergebnis von e
 \newline
 \newline
 Mian verwendete eine ähnliche Architektur \cite{naveedThesis}.
-Sein FFNN zur Standortbestimmung hatte ebenfalls eine Rückwärtskante, um die zuletzt erkannten Standorte als Features zu verwenden.
+Sein (W)FBNN zur Standortbestimmung hatte ebenfalls eine Rückwärtskante, um die zuletzt erkannten Standorte als Features zu verwenden.
+Die gestrichelte Linie signalisiert, dass, ähnlich zu Mian, auch ML-Modelle ohne Rückwärtskante evaluiert werden.
 In dieser Arbeit wird zusätzlich versucht Anomalien zu erkennen.
 Dafür wird ein weiteres ML-Modell verwendet, welches aus dem Klassifizierungsverhalten des ML-Modells zur Standortbestimmung schließt, ob eine Anomalie vorliegt.
 Dies motiviert die Erweiterung, um eine weitere Phase zur Feature-Extrahierung aus den zuletzt erkannten Standorten,
@@ -26,7 +27,7 @@ weshalb sowohl der Standort als auch die Einschätzung als Anomalie als Ergebnis
     \label{fig:model_idea}
 \end{figure}
 \newline
-In dieser Arbeit werden Entscheidungsbaum basierte Klassifizierer mit KNN verglichen, insbesondere den von Mian verwendeten Ansatz mit FFNN.
+In dieser Arbeit werden Entscheidungsbaum basierte Klassifizierer mit KNN verglichen, insbesondere den von Mian verwendeten Ansatz mit FBNN.
 Entscheidungsbäume sind deutlich effizienter in der Ausführungszeit als KNN \cite{dymelThesis},
 allerdings sind sie in ihrer Generalisierungsfähigkeit durch die berechneten Features begrenzt,
 wohingegen KNN komplexe Features selbst erlernen können \cite{seide2011feature}.
