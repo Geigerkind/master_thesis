@@ -1,7 +1,7 @@
 \chapter{Schlussfolgerungen}
 Diese Arbeit hat gezeigt, dass sich Klassifizierer mit Entscheidungsbäumen besser als FFNNs zur Standortbestimmung eignen.
-Es können mit kleinen Entscheidungswäldern, Klassifizierungsgenauigkeiten von 96,5\% bei einer geringen Standortkomplexität von 9 Orten
-und 86,11\% bei einer hohen Standortkomplexität von 102 Orten erzielt werden.
+Es können mit kleinen Entscheidungswäldern, Klassifizierungsgenauigkeiten von 98,62\% bei einer geringen Standortkomplexität von 9 Orten
+und 87,35\% bei einer hohen Standortkomplexität von 102 Orten erzielt werden.
 Anomalien von üblichen Wegen konnten nur bis zu 52,58\% bei einer Fehlerrate von 2,95\% korrekt klassifiziert werden.
 \newline
 \newline
@@ -14,26 +14,27 @@ ein geringerer Energiebedarf zu erwarten ist.
 Der Kodierungsansatz, der nur Knoten kodiert, skaliert besser als der Kodierungsansatz, der Kanten und Knoten kodiert.
 Resultierende ML-Modelle haben damit bessere Klassifizierungsergebnisse erzielt.
 Entscheidungswälder skalieren mit steigender Standortkomplexität besser als FFNNs.
-Mit jedem zusätzlichen Standort, ab einer Standortkomplexität von 9, verringert sich die Klassifizierungsgenauigkeit der Entscheidungswälder,
-um 0,16 Prozentpunkte, wohingegen sich die Klassifizierungsgenauigkeit bei FFNNs um 0,51 Prozentpunkte verringert.
+Mit jedem zusätzlichen Standort nimmt die Klassifizierungsgenauigkeit für Entscheidungswälder um 0,13 Prozentpunkte ab,
+wohingegen sie für FFNNs um 0,24 Prozentpunkte abnimmt.
 \newline
 \newline
-Die Signifikanz der Features ist vom Einsatzszenario abhängig.
-Zur Einschätzung der Signifikanz haben sich die Permutationswichtigkeit \cite{breiman2001random} und ähnliche modifizierung der Testmengen erwiesen,
-die die Signifikanz durch den Klassifizierungsfehler im Vergleich zur originalen Testmenge bestimmen, z. B. die Nullung einzelner Features.
+Die Wichtigkeit der Features ist vom Einsatzszenario abhängig.
+Zur Einschätzung der Wichtigkeit haben sich die Permutationswichtigkeit \cite{breiman2001random} und ähnliche Modifizierungen der Testmengen erwiesen,
+die die Wichtigkeit durch den Klassifizierungsfehler im Vergleich zur originalen Testmenge bestimmen, z. B. die Nullung einzelner Features.
 \newpage
 Die ML-Modelle wurden mit fehlerhaften Daten trainiert, um die Fehlertoleranz zu erhöhen.
 Es hat sich gezeigt, dass dadurch sowohl Entscheidungswälder als auch FFNNs robust gegenüber Abweichungen der Sensorwerte,
 Ausfall von einzelnen Sensoren und Permutation der Routen sind.
-Im Schnitt benötigt ein Entscheidungswald 5,2 Klassifizierungen, um den korrekten Standort wieder zu bestimmen,
+Der durchschnittliche Fehler in diesen Szenarien beträgt 2,91 Prozentpunkte für Entscheidungswälder und 6 Prozentpunkte für FFNNs.
+Im Schnitt benötigt ein Entscheidungswald 2,2- bis 3,4 Klassifizierungen, um den korrekten Standort wieder zu bestimmen,
 nachdem es einen falschen Standort bestimmt hat.
-Ein FFNN benötigt im Schnitt 5,8 Klassifizierungen.
+Ein FFNN benötigt im Schnitt 2,2- bis 4,4 Klassifizierungen.
 \newline
 \newline
 Das Training mit einer Rückwärtskante, die erkannte Standorte für die nachfolgende Klassifizierung als Feature verfügbar macht, ist sehr aufwändig und rechenintensiv.
-Ohne die Rückwärtskante konnten vergleichbare bzw. teilweise bessere Klassifizierungsergebnisse erzielt werden als mit Rückwärtskante.
+Ohne die Rückwärtskante konnten bessere Klassifizierungsergebnisse erzielt werden als mit Rückwärtskante.
 Dabei ist das resultierende ML-Modell kleiner und unkomplizierter.
-FFNNs konnten ohne Rückwärtskante deutlich bessere Klassifizierungsergbnisse erzielen.
+FFNNs konnten ohne Rückwärtskante deutlich bessere Klassifizierungsergebnisse erzielen.
 \newline
 \newline
 Zukünftige Arbeiten sollten die untersuchten Ansätze mit Echtdaten untersuchen und ein Modell zur Abschätzung des Energiebedarfs erstellen.
