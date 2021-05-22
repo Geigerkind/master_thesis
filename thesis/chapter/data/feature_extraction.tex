@@ -27,7 +27,7 @@ Zusätzlich wird der momentane Wert jedes Sensors als Feature verwendet.
 Da die Werte des Accelerometers und Gyroskops abhängig von der Ausrichtung der Sensorenbox ist,
 wird von diesen nur der Betrag der Summe der x-, y- und z-Komponenten verwendet.
 Für die Detektionsdaten der WLAN-Zugangspunkte erschien die Standardabweichung, Minimum, Maximum und Durchschnitt nicht sinnvoll, da die Daten nur binäre Werte annehmen.
-Mian hat die Änderung der Sensordaten as Features verwendet \cite{naveedThesis}.
+Mian hat die Änderung der Sensordaten als Features verwendet \cite{naveedThesis}.
 Dies wird in dieser Arbeit nicht getan, da die Standardabweichung eine Änderung im Datenfenster impliziert.
 \begin{table}[h!]
     \hspace{-0.5cm}
@@ -56,12 +56,13 @@ Das zweite Feature ist der zuletzt bestimmte Standort des ML-Modells, der nicht 
 Mian hat ein Feature für jeden zu klassifizierenden Standort als Eingabe benutzt, dass auf eins gesetzt wird, wenn es erkannt wurde und ansonsten exponentiell abfällt \cite{naveedThesis}.
 In dieser Arbeit wurde sich dagegen entschieden, da dies schlecht mit der steigenden Anzahl von zu klassifizierenden Standorten skaliert
 und eine Abhängigkeit zu dem zuletzt bestimmten Standort für die Robustheit vermieden werden sollte.
-Das dritte Feature ist die Standardweichung über die Zeit des Datenfensters.
-Alle anderen Features sind Zeitunabhängig, da sie sich auf Zeitunabhängige Sensorwerte im Datenfenster beziehen.
+\newpage
+Das dritte Feature ist die Standardabweichung über die Zeit des Datenfensters.
+Alle anderen Features sind zeitunabhängig, da sie sich auf Zeitunabhängige Sensorwerte im Datenfenster beziehen.
 \newline
 \newline
 Die Signifikanz der einzelnen Features ist abhängig von der Einsatzumgebung, weshalb in Kapitel \ref{sec:model_training}
 ein Feature-Auswahl Schritt in dem Trainingsprozess vorgeschlagen wurde, um die Anzahl der Features zu verringern.
-Dabei wird die Signifikanz, oder Wichtigkeit, über die Permutationswichtigkeit bestimmt.
+Dabei wird die Wichtigkeit, über die Permutationswichtigkeit bestimmt (Kapitel \ref{sec:eval_feature_importance}).
 Aus diesem Grund muss individuell für jedes Einsatzgebiet abgewogen werden, welche Sensoren und Features am meisten Nutzen,
 im Vergleich zu deren Kosten und Energieverbrauch, bringen.

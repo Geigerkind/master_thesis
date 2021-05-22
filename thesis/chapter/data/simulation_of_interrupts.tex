@@ -2,7 +2,7 @@
 Die Simulationsdaten, die mit CoppeliaSim aufgenommen wurden, enthalten alle 50 ms Einträge für die aufgenommen Sensoren.
 Unter realen Bedingungen wäre solch eine Abtastrate aber nicht mit den Limitierungen der Batterielaufzeit zu vereinbaren.
 Aus diesem Grund führen in solchen Systemen Sensoren \textit{Interrupts} aus, wenn eine signifikante Änderung festgestellt oder ein Schwellenwert überschritten wurde.
-Interrupts sind Benachrichtigungen an die CPU, dass der Sensor ausgelesen werden, wodurch die CPU in der Zwischenzeit schlafen und somit Energie preservieren kann.
+Interrupts sind Benachrichtigungen an die CPU, dass der Sensor ausgelesen werden kann, wodurch die CPU in der Zwischenzeit schlafen und somit Energie preservieren kann.
 \newline
 \newline
 Um dieses Verhalten nachzustellen werden diese Interrupts simuliert, wodurch die Datenmenge gefiltert wird.
