@@ -1,64 +1,90 @@
 \newpage
-\section{Signifikanz der Features}
-Die Signifikanz der Features wird in dieser Arbeit definiert als der Fehler, der durch die Modifizierung eines Features in der Testmenge im Vergleich zur ursprünglichen Testmenge entsteht.
+\section{Wichtigkeit der Features}
+Die Wichtigkeit, oder Signifikanz, der Features wird in dieser Arbeit definiert als der Fehler,
+der durch die Modifizierung eines Features in der Testmenge im Vergleich zur ursprünglichen Testmenge entsteht.
 Die Permutationswichtigkeit ist der Fehler, der durch das permutieren eines Features in der Testmenge entsteht, im Vergleich zu der ursprünglichen Testmenge.
 Je größer der Fehler, desto wichtiger das Feature \cite{breiman2001random}.
 \newline
 \newline
-Abbildungen \ref{fig:feature_significance_dt} und \ref{fig:feature_significance_knn} zeigen die Permutationswichtigkeit eines Entscheidungswaldes und FFNN.
+Scikit-Learn bietet für die verwendeten \textit{RandomForest} ein Attribut \texttt{feature\_importances\_} an, dass die Feature-Wichtigkeit ausgeben soll.
+Dieses beschreibt die akkumulierte \textit{Impurity}-Verringerung, das ein Feature im Entscheidungswald beiträgt \cite{ScikitLearnFeatureImportance}.
+Dabei gibt \textit{Purity} an, wie durchmischt die Klassen in den Blättern der Entscheidungsbäume sind,
+d.~h. Features die früh in der Konstruktion verwendet werden, haben laut dieser Metrik einen großen Einfluss.
+Zur besseren Vergleichbarkeit mit den FFNNs wurde diese Metrik aber nicht verwendet.
+\newline
+\newline
+Abbildung \ref{fig:fi_consolidated} zeigt die Permutationswichtigkeiten der ML-Modelle mit Rückwärtskante zur Standorterkennung.
 Die Features sind abgekürzt in der Grafik: \textit{acc} steht für die Features aus den Accelerometer, \textit{light} für den Lichtsensor, \textit{ap} für den WLAN-Zugangspunkt,
 \textit{temperature} für den Temperatursensor, \textit{heading} für den Magnetfeldsensor, \textit{volume} für den Geräuschsensor, \textit{ang} für das Gyroskop.
-Die Permutationswichtigkeit von einzelnen Entscheidungswäldern bzw. FFNNs unterscheidet sich nicht stark.
-Beide ML-Modelle weisen den vorherigen Standorten eine hohe Signifikanz zu.
-Die Klassifizierungsgenauigkeiten in Tabelle \ref{tab:predictions_by_acc_pic_cont} bestätigen diese Abhängigkeit.
-Demnach ist die Wahrscheinlichkeit sehr gering, dass der Standort korrekt klassifiziert wird, wenn der vorherige Standort inkorrekt war.
+\newline
+\newline
+Auffallend ist, dass die Features der vorherigen Standorte keine Wichtigkeit haben.
+Dies ist durch das iterative Evaluierungsverfahren der Testmenge begründet,
+d.~h. eine Permutation hat keinen Effekt, da diese Features während der Evaluierung von dem Modell selbstständig bestimmt werden.
+Insgesamt ist der Entscheidungswald sehr robust gegenüber der Permutation eines einzelnen Features.
+Der größte Fehler wird durch die Permutation des Minimums der Lichtintensität induziert.
+Das FFNN hingegen ist deutlich anfälliger gegenüber der Permutation eines einzelnen Features.
+Der größte Fehler ist 15,1 Prozentpunkte gegenüber 5,0 Prozentpunkte des Entscheidungswaldes.
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=0.95\linewidth]{images/evaluation_feature_importance_dt_pi.png}
-    \caption{Permutationswichtigkeit der Features eines Entscheidungswaldes.}
-    \label{fig:feature_significance_dt}
+    \includegraphics[width=\linewidth]{images/fi_consolidated.png}
+    \caption{Permutationswichtigkeit der Features der ML-Modelle mit Rückwärtskante.}
+    \label{fig:fi_consolidated}
 \end{figure}
+\newline
+\newline
+Die wichtigsten Features für den Entscheidungswald ist das Minimum der Lichtintensität, die WLAN-Zugangspunkte, die Standardabweichung zu der Ausrichtung zum Magnetfeld,
+dem Maximum der Lautstärke und Durchschnitt der Beschleunigung indiziert durch das Gyroskop.
+Damit nutzt der Entscheidungswald mindestens ein Feature aus jeder Feature-Art.
+Je nach Sensortyp sind einige Feature-Arten nicht so aussagekräftig, wie andere Feature-Arten.
+\newline
+\newline
+Auffallend ist, dass dort wo der Durchschnitt nicht aussagekräftig ist, das Minimum oder das Maximum stattdessen Aussagekraft besitzt.
+Insbesondere trifft dies auf die Beschleunigung des Accelerometers, der Lichtintensität und der Lautstärke zu.
+Diese haben gemeinsam, dass der Großteil ihrer Sensorwerte sehr ähnlich sind,
+d.~h. eine gleichbleibende Beschleunigung, Lichtintensität oder Lautstärke.
+Extrema weisen auf besondere Standorte hin, bei denen sich die Sensorwerte ruckartig ändern.
+Damit diese in der Permutationswichtigkeit relevant sind, müssen diese relativ häufig vorkommen.
+Unerwartet ist, dass das Minimum der Lichtintensität, im Gegensatz zum Maximum, eine hohe Aussagekraft besitzt, da die platzierten Lichtquellen die Lichtintensität nur erhöhen.
+Vermutlich wird das Minimum verwendet, um sich von den üblichen Lichtintensitäten zu unterscheiden, anstatt mit dem Maximum nach speziellen Standorten zu suchen.
+\newline
+\newline
+Bei den Features zu der Ausrichtung zum Magnetfeld under Beschleunigung wird zudem die Standardabweichung benutzt.
+Diese drückt signifikante Änderungen im Datenfenster aus.
+Besonders bei der Ausrichtung zum Magnetfeld ist eine Unterscheidung basierend auf Extrema nicht sinnvoll,
+da die Ausrichtung zum Magnetfeld abhängig von der Orientierung der Sensorenbox ist, die sich im Laufe der Route ändern kann.
+\newline
+\newline
+Besonders relevant sind zudem die Detektierung der WLAN-Zugangspunkte und alle Features basierend auf den Sensorwerten des Gyroskops.
+Die WLAN-Zugangspunkte sind binär.
+Eine Detektierung schließt bestimmte Standorte direkt aus, weswegen die Wichtigkeit nachvollziehbar ist.
+In der Simulation dreht sich die Sensorenbox an vielen Ecken, weswegen die Sensorwerte für diese Standorte sehr Aussagekräftig sind.
+Eine durchschnittliche Drehbeschleunigung weißt auf diese Standorte konsistent hin.
+\newline
+\newline
+Das FFNN weißt den gleichen Features ebenfalls eine hohe Wichtigkeit zu, nur ist der verursachte Fehler durch die Permutation bis zu drei-mal größer.
+Im Gegensatz zum Entscheidungswald, ist die Wichtigkeit der Standardabweichung und des Maximums der Lichtintensität größer und das Minimum dafür geringer.
+Dies ist nachvollziehbar, wenn man betrachtet, dass bei Standorten in der Umgebung von Lichtquellen die Lichtintensität kontinuierlich steigt.
+Zudem ist die Wichtigkeit der Features des Temperatursensors deutlich höher.
+Die Temperatur verhält sich ähnlich zur Lichtintensität.
+In der Nähe von Temperaturquellen verändert sich die Temperatur kontinuierlich, bis ein Maximum oder Minimum erreicht wird.
+Unerwartet ist die Wichtigkeit, die dem Maximum der Ausrichtung zum Magnetfeld zugewiesen wird.
+Wie zuvor diskutiert, ist dieses Feature fachlich nicht sinnvoll.
+\newline
+\newline
+Abbildung \ref{fig:fi_consolidated_wo_fb} zeigt die Permutationswichtigkeit der ML-Modelle ohne Rückwärtskante zur Standorterkennung.
+Die Wichtigkeit der Features für den Entscheidungswald sind weitestgehend unverändert,
+wobei die verursachten Fehler durch die Permutation größer sind, im Vergleich zum Entscheidungswald mit Rückwärtskante.
+Ähnlich verhält sich auch das FFNN im Vergleich zum FFNN mit Rückwärtskante.
+Die Wichtigkeit der Standardabweichung, sowie der Wert der Temperatur ist geringer.
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=0.95\linewidth]{images/evaluation_feature_importance_knn_pi.png}
-    \caption{Permutationswichtigkeit der Features eines FFNN.}
-    \label{fig:feature_significance_knn}
+    \includegraphics[width=\linewidth]{images/fi_consolidated_wo_fb.png}
+    \caption{Permutationswichtigkeit der Features der ML-Modelle ohne Rückwärtskante.}
+    \label{fig:fi_consolidated_wo_fb}
 \end{figure}
 \newline
 \newline
-Für die Entscheidungswälder sind alle Features, bis auf den vorherigen Standort und die Standardabweichung von der Ausrichtung zum Magnetfeld, nach der Permutationswichtigkeit, unwichtig.
-Die FFNNs hingegen bedienen sich außerdem Features von dem Temperatursensor, dem Lichtsensor und vor allem der Detektierung von WLAN-Zugangspunkten.
-Allerdings sind FFNNs deutlich abhängiger von dem vorherigen Standort als Entscheidungswälder.
-Dies zeigt den Nachteil der Permutationswichtigkeit auf.
-Features, die durchweg sehr ähnlich, werden keinen großen Fehler durch die Permutation verursachen.
-Aus diesem Grund sind Features auf Basis von Beschleunigung, Temperatur und Geräusche verhältnismäßig unwichtig.
-\newline
-\newline
-Die Abhängigkeit zu den vorherigen Standorten ließe sich eliminieren, indem ohne die Rückwärtskante trainiert wird.
-Dies simplifiziert den Trainingsprozess, wodurch die ML-Modelle schneller zu trainieren sind.
-Tabelle \ref{tab:predictions_wo_feedback_edge_by_acc} zeigt, dass diese ML-Modelle vergleichbare Klassifizierungsgenauigkeiten erzielen.
-Insbesondere FFNNs erzielen deutlich bessere Klassfizierungsgenauigkeiten, erzielen aber immer noch deutlich schlechtere Ergebnisse als die Entscheidungswälder.
-Hier ist die Metrik $P(A)$ mit der Metrik $P(A)_{\text{cont}}$ vergleichbar, da der propagierte Fehler durch die Eliminierung der Rückwärtskante nicht mehr existiert.
-\newline
-\newline
-Abbildungen \ref{fig:feature_significance_dt_wo_fe} und \ref{fig:feature_significance_knn_wo_fe} zeigen die Permutationswichtigkeit der ML-Modelle ohne Rückwärtskante.
-Beide ML-Modelle gewichten Features aus anderen Sensorwerten deutlich mehr, im Vergleich zu den ML-Modellen mit Rückwärtskante.
-Die Entscheidungswälder gewichten dennoch nur die Standardabweichung der Ausrichtung zum Magnetfeld, die Detektierung der WLAN-Zugangspunkte und das Minimum des Lichtsensors stark.
-Die anderen Features sind im Vergleich deutlich unwichtiger.
-Das FFNN hingegen nutzt alle Features, wobei Features aus dem Accelerometer und Gyroskop unwichtiger sind.
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width=0.95\linewidth]{images/fi_wo_fe_dt.png}
-    \caption{Permutationswichtigkeit der Features eines Entscheidungswaldes ohne Rückwärtskante.}
-    \label{fig:feature_significance_dt_wo_fe}
-\end{figure}
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width=0.95\linewidth]{images/fi_wo_fe_knn.png}
-    \caption{Permutationswichtigkeit der Features eines FFNN ohne Rückwärtskante.}
-    \label{fig:feature_significance_knn_wo_fe}
-\end{figure}
-\newpage
 Abbildung \ref{fig:feature_significance_dt_anomaly} zeigt die Permutationswichtigkeit von einem Entscheidungswald zur Anomalieerkennung.
 Am wichtigsten sind die Features, welche die Wahrscheinlichkeitsverteilung des Klassifizierungsergebnisses von dem ML-Modell zur Standortbestimmung ausnutzen.
 Die Abweichung zu den durchschnittlichen Standortänderungen hat kaum Einfluss.

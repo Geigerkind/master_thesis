@@ -12,6 +12,12 @@ from sklearn.tree import _tree
 from sources.config import NUM_CORES
 from sources.decision_tree.ensemble_method import EnsembleMethod
 
+def do_work(args):
+    model, features, paths_encoded, continued_predict, test_labels, test_accuracy = args
+    # Calculate accuracy
+    ctf_predictions = model.continued_predict(features, paths_encoded) if continued_predict else model.predict(features)
+    ctf_accuracy = model.evaluate_accuracy(ctf_predictions, test_labels)
+    return abs(test_accuracy - ctf_accuracy)
 
 class GenerateDecisionTree:
     def __init__(self, ensemble_method, n_estimators, max_depth):
@@ -214,6 +220,7 @@ class GenerateDecisionTree:
         """
         # Assumes that feature 0 and 1 are previous locations
         data_copy = np.asarray(data).copy()
+        # data_copy = data
         predictions = []
         data_copy_len = len(data_copy)
         data_copy[0][0] = 0
@@ -269,7 +276,7 @@ class GenerateDecisionTree:
         """
         return self.result.feature_importances_
 
-    def permutation_importance(self, test_features, test_labels):
+    def permutation_importance(self, test_features, test_labels, continued_predict=True, paths_encoded=False, NUM_CORES=1):
         """
         This was proposed by Leo Breiman in the Random Forest paper.
         It calculates the accuracy for a provided data set.
@@ -281,11 +288,11 @@ class GenerateDecisionTree:
         :param test_labels: Labels for the feature sets
         :return: Array of errors for each feature, higher is more important
         """
-
-        test_predictions = self.predict(test_features)
+        test_predictions = self.continued_predict(test_features, paths_encoded) if continued_predict else self.predict(
+            test_features)
         test_accuracy = self.evaluate_accuracy(test_predictions, test_labels)
 
-        importances = []
+        map_args = []
         test_len = len(test_features)
         for i in range(len(test_features[0])):
             # Shuffle column i
@@ -293,14 +300,9 @@ class GenerateDecisionTree:
             copy_test_features = copy.deepcopy(test_features)
             for ctf_index in range(test_len):
                 copy_test_features[ctf_index][i] = test_features[permutation[ctf_index]][i]
+            map_args.append([self, copy_test_features, paths_encoded, continued_predict, test_labels, test_accuracy])
 
-            # Calculate accuracy
-            ctf_predictions = self.predict(copy_test_features)
-            ctf_accuracy = self.evaluate_accuracy(ctf_predictions, test_labels)
-
-            importances.append(abs(test_accuracy - ctf_accuracy))
-
-        return importances
+        return multiprocessing.Pool(NUM_CORES).map(do_work, map_args)
 
     def calculate_size(self):
         def __recurse(tree_, node):

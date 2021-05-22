@@ -1,6 +1,7 @@
 import copy
 import os
 import random
+from multiprocessing import Pool
 
 import numpy as np
 import tensorflow as tf
@@ -8,6 +9,20 @@ from tensorflow import keras
 from tensorflow.keras import layers
 
 from sources.config import NUM_CORES
+
+
+def do_work(args):
+    copy_test_features, num_outputs, continued_predict, test_labels = args
+    fitted_model = keras.models.load_model(
+        "/home/shino/Uni/master_thesis/external_eval/bin/eval_1_DT_16_32_KNN_1_64_75_DS_1234/evaluation_knn_model.h5",
+        compile=False)
+    # Calculate accuracy
+    ctf_predictions = GenerateFFNN.static_continued_predict(fitted_model, copy_test_features,
+                                                            num_outputs) if continued_predict else fitted_model.predict(
+        copy_test_features)
+    ctf_accuracy = GenerateFFNN.internal_evaluate_accuracy(ctf_predictions, test_labels)
+
+    return ctf_accuracy
 
 
 class GenerateFFNN:
@@ -80,6 +95,7 @@ class GenerateFFNN:
         """
         # Assumes that feature 0 and 1 are previous locations
         data_copy = np.asarray(data).copy()
+        # data_copy = data
         data_copy[0][0] = 0
         data_copy[0][1] = 0
         predictions = []
@@ -88,7 +104,7 @@ class GenerateFFNN:
         predictions.append(prediction)
         last_distinct_locations = [0, 0]
         for i in range(1, data_copy_len):
-            prediction = model.predict_on_batch(data_copy[i:i+1])[0]
+            prediction = model.predict_on_batch(data_copy[i:i + 1])[0]
             if i < data_copy_len - 1:
                 predicted_location = np.asarray(prediction).argmax()
                 if 0 < predicted_location != last_distinct_locations[-1]:
@@ -121,6 +137,10 @@ class GenerateFFNN:
 
     def evaluate_accuracy(self, prediction, reality):
         return self.__evaluate_accuracy(prediction, reality, self.is_binary)
+
+    @staticmethod
+    def internal_evaluate_accuracy(prediction, reality, is_binary=False):
+        return GenerateFFNN.__evaluate_accuracy(prediction, reality, is_binary)
 
     @staticmethod
     def __evaluate_accuracy(prediction, reality, is_binary=False):
@@ -159,7 +179,8 @@ class GenerateFFNN:
         self.keras_model.save(file_path)
 
     @staticmethod
-    def feature_importances(fitted_model, test_features, test_labels, is_binary=False):
+    def feature_importances(test_features, test_labels, num_outputs, continued_predict=True,
+                            is_binary=False, NUM_CORES=1):
         """
         In comparison to Decision Trees, Neural Networks dont provide such a function.
         However there is something called "Permutation Importance".
@@ -174,22 +195,17 @@ class GenerateFFNN:
         :return: Array of errors for each feature, higher is more important
         """
 
-        test_predictions = fitted_model.predict(test_features)
-        test_accuracy = GenerateFFNN.__evaluate_accuracy(test_predictions, test_labels, is_binary)
+        test_accuracy = Pool(1).map(do_work, [[np.asarray(test_features), num_outputs, continued_predict, test_labels]])[0]
 
-        importances = []
+        map_args = []
         test_len = len(test_features)
         for i in range(len(test_features[0])):
             # Shuffle column i
             permutation = np.random.permutation(test_len)
-            copy_test_features = copy.deepcopy(test_features)
+            copy_test_features = np.asarray(copy.deepcopy(test_features))
             for ctf_index in range(test_len):
                 copy_test_features[ctf_index][i] = test_features[permutation[ctf_index]][i]
+            map_args.append(
+                [copy_test_features, num_outputs, continued_predict, test_labels])
 
-            # Calculate accuracy
-            ctf_predictions = fitted_model.predict(copy_test_features)
-            ctf_accuracy = GenerateFFNN.__evaluate_accuracy(ctf_predictions, test_labels)
-
-            importances.append(abs(test_accuracy - ctf_accuracy))
-
-        return importances
+        return [test_accuracy - x for x in Pool(NUM_CORES).map(do_work, map_args)]
