@@ -1,12 +1,12 @@
 \section{Feature-Extrahierung}
-Die Feature-Extrahierung ist der Prozess, in dem Feature aus den Rohdaten der Datenmenge extrahiert werden.
+Die Feature-Extrahierung ist der Prozess, in dem Features aus den Rohdaten der Datenmenge extrahiert werden.
 In dieser Arbeit findet dieser Schritt nach der Filterung durch künstliche Interrupts statt.
 Features sind berechnete Attribute und Eigenschaften von einem oder mehreren Sensorwerten der Rohdaten.
 \newpage
 Durch die Feature-Extrahierung müssen die ML-Modelle diese Features nicht selbständig lernen, sondern lediglich darauf abstrahieren.
 Dies erleichtert das Training, kann aber gerade für tiefe NN die Generalisierungsfähigkeit einschränken,
 wenn die Features nicht manuell konstruiert wurden \cite{seide2011feature}.
-Einerseits benötigt das Entscheidungsbaum ML-Modell einen solchen Prozess,
+Einerseits benötigten Entscheidungsbaum basierte Klassifizierer einen solchen Prozess,
 da Features das Rauschen der Rohdaten verringern und dadurch eine Partitionierung vereinfachen.
 Andererseits kann das FFNN durch die Limitierungen der Hardware möglicherweise nicht groß genug sein, um diese Features zu erlernen.
 \newline

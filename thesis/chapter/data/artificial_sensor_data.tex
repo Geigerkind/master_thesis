@@ -1,6 +1,6 @@
-\section{Mit eignenen Modellen ergänzte Sensordaten}
-Im Projekt ist die Sensorenbox potentiell mit einem Accelerometer, Gyroskop, Lichtsensor, Magnetfeldsensor,
-Temperatursensor und Geräuschsensor ausgestattet, sowie einen Empfänger zur Erfassung von WLAN-Zugangspunkten.
+\section{Mit eigenen Modellen ergänzte Sensordaten}
+Im Projekt ist die Sensorenbox potentiell mit einem Accelerometer, Gyroskop, Licht-, Magnetfeld-,
+Temperatur- und Geräuschsensor ausgestattet, sowie einen Empfänger zur Erfassung von WLAN-Zugangspunkten.
 Mit CoppeliaSim ist es allerdings nur möglich Sensorwerte des Accelerometers, Gyroskops und Lichtsensors zu erfassen.
 Aus diesem Grund werden die fehlenden Sensoren durch das Ausnutzen vereinfachter Modelle ergänzt.
 \newline
@@ -96,7 +96,7 @@ wobei $d = \sqrt{(p_{o_a} - p_{m_a})^2 + (p_{o_b} - p_{m_b})^2}$.
 
 \subsection{Temperatursensor}
 Das vereinfachte Modell für diesen Sensor geht von einer konstanten Umgebungstemperatur aus.
-Im Raum sind Wärmequellen strategisch verteilt, die eine Temperatur unterhalb und oberhalb der Umgebungstemperatur haben können.
+Im Raum sind Wärmequellen strategisch verteilt, die eine Temperatur unter- und oberhalb der Umgebungstemperatur haben können.
 Je näher sich die Sensorenbox an einer der Wärmequellen befindet, desto mehr nähert sich die gemessene Temperatur der Temperatur der Wärmequelle $T_{\max}$ an.
 \newline
 \newline
@@ -115,8 +115,8 @@ Wärmequelle zur Sensorenbox und der maximalen Einflussdistanz $d_{\max}$.
 \subsection{Geräuschsensor}
 Es gibt verschiedene Arten von Geräuschsensoren, z. B. Geräuschrichtungssensoren \cite{tiete2014soundcompass} oder
 spezifische Anwendungen, wie Herzgeräuschsensoren \cite{zhang2016design}.
-Das Modell ist einem Akustiksensor \cite{sessler1991acoustic}, oder einem Mikrophone am ähnlichsten,
-dass die Lautstärke in einem Frequenzbereich misst.
+Das Modell ist einem Akustiksensor \cite{sessler1991acoustic} oder einem Mikrofon am ähnlichsten,
+das die Lautstärke in einem Frequenzbereich misst.
 \newline
 \newline
 In diesem Modell werden Frequenzbereiche vernachlässigt.
@@ -138,9 +138,9 @@ Formel \ref{formular:sound_sensor_constant_sound} zeigt die Berechnung für die 
 \end{align}
 \newpage
 Periodische Lautstärkequellen emittieren ein Geräusch in regelmäßigen Abständen.
-Dies wird modelliert durch eine quadratisch verringerde Lautstärke über 500 ms,
+Dies wird modelliert durch eine quadratisch verringernde Lautstärke über 500ms,
 wenn die Lautstärke gemessen wird nachdem das Geräusch stattgefunden hat,
-d. h. nach 500 ms, ist das Geräusch nicht mehr wahrzunehmen.
+d. h. nach 500ms, ist das Geräusch nicht mehr wahrzunehmen.
 Formel \ref{formular:sound_sensor_periodic_sound} beschreibt diesen Zusammenhang,
 wobei $t$ der momentane Zeitpunkt ist und $t_{n}$ das Interval des periodischen Geräusches ist.
 \begin{align}

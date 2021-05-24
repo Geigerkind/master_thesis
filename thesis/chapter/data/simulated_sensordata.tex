@@ -1,17 +1,17 @@
 \section{Sensordaten aus Simulator CoppeliaSim}
-Insgesamt wurden vier Routen über 20 Zyklen jeweils zwei mal erfasst.
+Insgesamt wurden vier Routen über 20 Zyklen jeweils zweimal erfasst.
 Einmal für Trainingsdaten und einmal für Testdaten, wobei die letzten fünf Zyklen der
 Trainingsdaten als Validationsmenge genutzt werden.
-Dabei wurden alle 50 ms die xyz-, Koordinaten, Accelerometerdaten und Gyroskopdaten erfasst, sowie Lichtintensität und Metadaten.
-Zu den Metadaten gehören Zeitstempel, Beschriftung des Routenabschnitts und Beschriftung des derzeitigen Zyklusses.
+Dabei wurden alle 50ms die xyz-Koordinaten, Accelerometerdaten und Gyroskopdaten erfasst, sowie Lichtintensität und Metadaten.
+Zu den Metadaten gehören Zeitstempel, Beschriftung des Routenabschnitts und Beschriftung des derzeitigen Zykluses.
 Ein Zyklus ist der vollständige Umlauf einer Route.
 \newpage
 Abbildung \ref{fig:simple_square_labeled} zeigt eine der vier Routen \glqq simple\_square\grqq.
 Jede Route ist mit Markierungen für Zyklen und Standorte ausgestattet.
 Die Zyklusmarkierung wird genutzt, um die Datensätze mit dem derzeitigen Zyklus zu beschriften.
-Jedes mal, wenn die Sensorenbox diese Markierung überschreitet, wird der Zähler für den Zyklus inkrementiert.
+Jedes Mal, wenn die Sensorenbox diese Markierung überschreitet, wird der Zähler für den Zyklus inkrementiert.
 Die Standortmarkierung wird genutzt, um die Datensätze mit dem derzeitigen Routenabschnitt zu beschriften.
-Jedes mal, wenn die Sensorenbox diese Markierung überschreitet, wird der derzeitige Wert für den Routenabschnitt auf den Wert der Markierung gesetzt.
+Jedes Mal, wenn die Sensorenbox diese Markierung überschreitet, wird der derzeitige Wert für den Routenabschnitt auf den Wert der Markierung gesetzt.
 Dabei werden alle aufgenommenen Datensätze immer mit dem derzeitigen Wert für den Routenabschnitt markiert.
 \begin{figure}[h!]
     \centering
@@ -24,7 +24,7 @@ Neben \glqq simple\_square \grqq\ gibt es noch drei weitere Routen (siehe Abbild
 Die Route \glqq long\_rectangle \grqq\ weist lange Pfade mit wenig Änderungen auf.
 Die Route \glqq rectangle\_with\_ramp \grqq\ besitzt zusätzlich zwei Rampen, wodurch Höhenunterschiede simuliert werden.
 Die Route \glqq many\_corners \grqq\ ist sehr komplex und hat viele verschiedene Standorte.
-Die Förderbänder können verschiedene Geschwindigkeiten haben mit sowohl abrupten Übergangen, als auch fließenden Übergängen zueinander.
+Die Förderbänder können verschiedene Geschwindigkeiten haben mit sowohl abrupten Übergängen, als auch fließenden Übergängen zueinander.
 \newline
 \newline
 Je nach Kodierungsart (siehe Kapitel \ref{sec:model_location_encoding}) müssen die Knoten und Kanten, dieses zyklischen Graphen, als Standorte kodiert werden.
