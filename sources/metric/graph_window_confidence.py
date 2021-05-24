@@ -32,8 +32,8 @@ class GraphWindowConfidence:
 
         fig = plt.figure(figsize=(30/2.54, 15/2.54))
         plt.plot(range(min(self.max_entry_draw_size, len(location_changes_in_window))), location_changes_in_window[:self.max_entry_draw_size], "o-b")
-        plt.xlabel("Pfadeintrag (Diskret)")
-        plt.ylabel("Akkumulierte Standortwahrscheinlichkeit im Fenster")
+        plt.xlabel("Pfadeintrag (Diskret)", fontsize=16)
+        plt.ylabel("Summierte Standortwahrscheinlichkeit", fontsize=16)
         # plt.title("Akkumulierte Positionswahrscheinlichkeit im Fenster ({0})".format(self.window_size))
         plt.savefig("{0}{1}".format(self.file_path, self.__graph_name()))
         plt.clf()
