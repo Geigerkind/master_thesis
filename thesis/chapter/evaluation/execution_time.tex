@@ -1,7 +1,7 @@
 \section{Ausführungszeit und benötigte Energie}
-Es ist problemetisch eine sinvolle Einschätzung für die benötigte Ausführungszeit und Energie anzugeben, da
+Es ist problematisch eine sinnvolle Einschätzung für die benötigte Ausführungszeit und Energie anzugeben, da
 die Ausführungszeit und die benötigte Energie abhängig von dem verwendeten Mikrocontroller ist.
-Vergleichbare 32-Bit Mikrocontroller mit FPU (Floating Point Unit), zu den Microcontrollern die Dymel verwendet hat \cite{dymelThesis}, sind aus der AVR C-Serie \cite{avr32BitDatasheet}.
+Vergleichbare 32-Bit Mikrocontroller mit FPU (Floating Point Unit), zu den Mikrocontrollern die Dymel verwendet hat \cite{dymelThesis}, sind aus der AVR C-Serie \cite{avr32BitDatasheet}.
 Die Datenblätter enthalten keine Information über die Ausführungszeit von Gleitkommazahlinstruktionen und kein Energiemodell.
 Es ist aber anzunehmen, dass deutlich weniger Zyklen für hardwareunterstützte Gleitkommazahloperationen benötigt werden als Software basierte Alternativen.
 Aus diesem Grund wird die Ausführungszeit in Gleitkommazahl-Vergleichen, -Multiplikationen, -Division, -Additionen und Wurzeln angegeben,
@@ -30,7 +30,7 @@ Tabelle \ref{tab:feature_operation_complexity} zeigt die geschätzte Anzahl der 
 Zur Evaluierung eines Entscheidungswaldes werden höchstens
 \newline
 $\texttt{Waldgröße}\ \cdot\ \texttt{Max. Baumhöhe}$ Vergleiche benötigt,
-sowie $\texttt{Waldgröße}\ \cdot\ \texttt{\#Standorte}$ Additionen und \text{\#Standorte} zusätzliche Vergleiche, um die einzelnen Entscheidungsbäume zusammenzufassen \cite{dymelThesis}.
+sowie $\texttt{Waldgröße}\ \cdot\ \texttt{\#Standorte}$ Additionen und \texttt{\#Standorte} zusätzliche Vergleiche, um die einzelnen Entscheidungsbäume zusammenzufassen \cite{dymelThesis}.
 Für einen Entscheidungswald mit 8 Bäumen mit einer maximalen Höhe von 16 und 102 Standorten werden damit 230 Vergleiche und 816 Additionen benötigt.
 \newpage
 Für die Evaluierung eines FFNNs mit der in Kapitel \ref{sec:model_ffnn} beschriebenen Struktur setzen sich die benötigten Operationen folgendermaßen zusammen:
@@ -38,7 +38,7 @@ Die Größe der ersten Schicht des FFNNs ist $n_1:=\text{\#Features}$.
 Die Größe der letzten Schicht ist $n_m:=\text{\#Standorte}$.
 Dazwischen liegen $m-2$ Schichten, die jeweils $K$ Neuronen haben.
 Bei jeder Schicht $i$ werden für jedes Neuron in $n_{i+1}$, $n_i$ Multiplikationen und $n_i$ Additionen, sowie ein Vergleich für die Aktivierungsfunktion ReLU verwendet.
-Für die SoftMax-Funktion in der letzten Schicht müssen $n_m$ Divisionen durchgeführt werden, $n_m$ Additionen, sowie $n_m$ die $\exp$-Funktion ausgeführt werden.
+Für die SoftMax-Funktion in der letzten Schicht müssen $n_m$ Divisionen durchgeführt werden, $n_m$ Additionen, sowie $n_m$ Mal die $\exp$-Funktion ausgeführt werden.
 Insgesamt werden für die Ausführung eines FFNNs mit einer verdeckten Schicht mit 32 Neuronen,
 bei 102 Standorten, 4352 Multiplikationen, 4454 Additionen, 134 Vergleiche, 102 Divisionen und 102 $\exp$-Funktionen benötigt.
 \newline

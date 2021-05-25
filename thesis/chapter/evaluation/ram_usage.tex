@@ -15,7 +15,7 @@ Bei einem Datenfenster von drei Einträgen wird damit 183 Byte für Sensorwerte 
 \newline
 \newline
 Der Anteil der Features ist abhängig von den Features, die für ein bestimmtes Szenario eingesetzt werden.
-Insgesamt werden aber 38 Features verwendet, die vereinfacht alle als vier Byte Datentyp angenommen werden.
+Insgesamt werden 38 Features verwendet, die vereinfacht alle als vier Byte Datentyp angenommen werden.
 Zur Evaluierung des ML-Modells wird nur die aktuelle Feature-Menge benötigt.
 Damit wird für die Feature-Menge insgesamt 152 Byte benötigt, wenn alle Features verwendet werden.
 \newline
@@ -24,7 +24,7 @@ Zur Ausführung eines Entscheidungswaldes wird für die Rückgabe der Wahrschein
 Je nach Implementierung würde dieser Vektor mehrmals benötigt werden, z. B. bei der parallelen Evaluierung der Entscheidungsbäume skaliert dies mit der Anzahl der Prozessoren.
 In diesem Fall wird keine Nebenläufigkeit angenommen.
 In dieser Arbeit wurden zwischen 9 Standorte und 102 Standorte untersucht, d. h. es wurden zwischen 36 und 408 Byte benötigt.
-Die Standortkomplexität ist aber abhängig von dem Einsatzszenario.
+Die Standortkomplexität ist jedoch abhängig von dem Einsatzszenario.
 Die anschließende Evaluierung eines Entscheidungswaldes zur Anomalieerkennung kann vernachlässigt werden,
 da dieser ein diskretes Ergebnis zurückgeben kann und die benötigte Feature-Menge deutlich kleiner ist.
 Damit wird für $N$ Standorte und $K$ Features mit einem Entscheidungswald als ML-Modell zu einem Zeitpunkt
@@ -38,5 +38,4 @@ Das heißt, es müssen mindestens die Zwischenergebnisse einer Schicht im RAM ge
 \newline
 Damit benötigt ein FFNN, dessen größte Schicht $M$ Neuronen hat, mindestens $4(M+2)$ Byte.
 Maximal wird $4M$ Byte, zuzüglich der Größe aller Gewichte und Biase benötigt.
-Der maximale RAM, der zu einem Zeitpunkt, mit einem FFNN, benötigt wird, beträgt damit mindestens $183 + 4(M + K)$ Byte,
-wobei $M$ die Schicht mit den meisten Neuronen von entweder dem ML-Modell zur Standort- oder Anomalieerkennung ist.
+Der maximale RAM, der zu einem Zeitpunkt, mit einem FFNN, benötigt wird, beträgt damit mindestens $183 + 4(M + K)$ Byte.
