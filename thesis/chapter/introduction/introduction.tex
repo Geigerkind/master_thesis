@@ -1,5 +1,5 @@
 \chapter{Einleitung}
-Als \textit{Lokalisierung} wird der Prozess bezeichnet die Position von einem Gerät oder Nutzer in einem Koordinatensystem zu bestimmen \cite{bulusu2000gps}.
+Als \textit{Lokalisierung} wird der Prozess bezeichnet die Position von einem Gerät oder Nutzer*innen in einem Koordinatensystem zu bestimmen \cite{bulusu2000gps}.
 Diese Information wird von technischen Systemen genutzt, um deren Dienste anzubieten, z. B. Tracking- oder Navigationssysteme.
 Ein bekanntes Beispiel ist das \textit{Global Positioning System} (GPS) \cite{kaplan2005understanding}.
 Bei GPS berechnet das empfangende Gerät seine Position basierend auf den empfangenden Signalen der Satelliten.
@@ -26,14 +26,14 @@ Diese Arbeit baut auf den Ergebnissen von Mian auf, der die diskrete Standortbes
 Feed Forward neuronalen Netzwerken (FFNNs) untersucht hatte \cite{naveedThesis}.
 \newpage
 Mian nutzte drei Sensoren und große FFNNs, um 14 Standorte bestimmen zu können.
-Zusätzliche Sensoren können das Problem potenziell vereinfachen, wodurch kleinere Modelle verwendet werden können
+Zusätzliche Sensoren können das Problem potenziell vereinfachen, wodurch kleinere Modelle verwendet
 und mehr Standorte unterschieden werden können.
 \newline
 \newline
 Zur Erstellung dieser Arbeit wurde ein Evaluierungsprozess der Sensordaten erstellt, mit dem Standorte und Anomalien mit Hilfe von ML-Modellen unterschieden werden.
 Dafür wurden Sensordaten mit CoppeliaSim simuliert, da Echtdaten eines Prototyps zum Zeitpunkt dieser Arbeit noch nicht verfügbar sind.
 Die simulativ erfassten Sensordaten wurden mit weiteren Sensordaten auf Basis vereinfachter Modelle ergänzt.
-Es wurde die Klassifizierungsgenauigkeit der ML-Modelle untersucht im Hinblick auf Skalierbarkeit der Anzahl der Standorte sowie Robustheit gegenüber mögliche Fehler.
+Es wurde die Klassifizierungsgenauigkeit der ML-Modelle untersucht im Hinblick auf Skalierbarkeit der Anzahl der Standorte sowie Robustheit gegenüber möglicher Fehler.
 Außerdem wurde die Klassifizierungsgenauigkeit des Anomalieerkennungsmodells untersucht.
 Auch wurde der Speicher- und Energiebedarf für den Betrieb auf einem batteriegestützten Mikrocontroller geschätzt.
 Insgesamt wurden 256 ML-Modelle zur Standortbestimmung von 9 bis 102 Standorten und zwei ML-Modelle zur Anomalieerkennung evaluiert.
