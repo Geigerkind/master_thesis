@@ -1,5 +1,5 @@
 \section{Mit eigenen Modellen ergänzte Sensordaten}
-Im Projekt ist die Sensorenbox potentiell mit einem Accelerometer, Gyroskop, Licht-, Magnetfeld-,
+Im Projekt ist die Sensorenbox mit einem Accelerometer, Gyroskop, Licht-, Magnetfeld-,
 Temperatur- und Geräuschsensor ausgestattet, sowie einen Empfänger zur Erfassung von WLAN-Zugangspunkten.
 Mit CoppeliaSim ist es allerdings nur möglich Sensorwerte des Accelerometers, Gyroskops und Lichtsensors zu erfassen.
 Aus diesem Grund werden die fehlenden Sensoren durch das Ausnutzen vereinfachter Modelle ergänzt.
@@ -8,11 +8,11 @@ Aus diesem Grund werden die fehlenden Sensoren durch das Ausnutzen vereinfachter
 Abbildung \ref{fig:simple_square_simulation_map} zeigt die Route \glqq simple\_square\grqq\ mit eingezeichneten Objekten,
 die Einfluss auf die modellierten Sensoren nehmen können.
 Die Routen befinden sich im gleichen Koordinatensystem, weswegen alle Routen diese Verteilung teilen.
-Abilldungen \ref{fig:long_rectangle_simulation_map}, \ref{fig:rectangle_with_ramp_simulation_map} und \ref{fig:many_corners_simulation_map}
+Abbildungen \ref{fig:long_rectangle_simulation_map}, \ref{fig:rectangle_with_ramp_simulation_map} und \ref{fig:many_corners_simulation_map}
 zeigen eine analoge Karte für die restlichen Routen.
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=0.9\linewidth]{images/simple_square_simulation_map.png}
+    \includegraphics[width=0.7\linewidth]{images/simple_square_simulation_map.png}
     \caption{Karte der Route \glqq simple\_square\grqq\ mit eingezeichneten Einflussbereichen der Objekte, die Einfluss auf modellierte Sensoren haben.
             \textit{\textbf{M}agnetic \textbf{S}ource} (Gelb), \textit{\textbf{N}oise Source} (Lila), \textit{\textbf{A}ccess \textbf{P}oint} (Grau),
             \textit{\textbf{H}eat \textbf{S}ource} (Rot) und Standorte (Grün).}
@@ -58,7 +58,7 @@ und der Anzahl der Quadranten, zum Quadranten in dem sich $p_{m}$ befindet, bere
 Dabei werden die Quadranten im Uhrzeigersinn gezählt.
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=0.7\linewidth]{images/magnetic_model.png}
+    \includegraphics[width=0.5\linewidth]{images/magnetic_model.png}
     \caption{Ausrichtung der Sensorenbox relativ zum magnetischen Objekt und magnetischen Nordpol der Erde.}
     \label{fig:magnetic_model}
 \end{figure}
