@@ -20,15 +20,18 @@ zeigen eine analoge Karte für die restlichen Routen.
 \end{figure}
 
 \subsection{Magnetfeldsensor}
-Magnetfeldsensoren messen das Magnetfeld auf Basis von Effekten die dadurch induziert werden, z. B. die Lorentzkraft oder der Hall-Effekt \cite{thompsonMEMS}.
-Eine Anwendung dieses Sensors ist der Kompass.
+Der Magnetfeldsensor ermöglicht die Ausrichtung des Sensors zum Erdmagnetfeld zu messen, welches durch magnetische Objekte beeinflusst werden kann.
+Diese Anomalien werden ausgenutzt, um Standortspezifische Daten zu erhalten.
+Magnetfeldsensoren messen das Magnetfeld auf Basis von Effekten die dadurch impliziert werden, z. B. die Lorentzkraft oder der Hall-Effekt \cite{thompsonMEMS}.
+Eine Anwendung dieses Sensors ist ein Kompass.
 Dieser richtet sich nach dem Magnetfeld der Erde aus und wird daher traditionell zur Navigation verwendet.
-\newpage
-Das vereinfachte Modell des simulierten Magnetfeldsensors fungiert wie ein Kompass.
+\newline
+\newline
+Das in dieser Arbeit verwendete Modell des simulierten Magnetfeldsensors fungiert als Kompass.
 Die Ausgabe ist der relative Richtungsunterschied von der Sensorenbox zum magnetischen Nordpol.
 Dabei können starke magnetische Objekte in der Umgebung Einfluss auf den Sensor haben,
 sodass sich der magnetische Nordpol für den simulierten Sensor ändern kann.
-Die Ausgabewerte sind zwischen 0 und 359, d. h. 0 ist Norden, 90 Osten, 180 Süden und 270 Westen.
+Die Ausgabewerte sind zwischen 0° und 359°, d. h. 0° ist Norden, 90° Osten, 180° Süden und 270° Westen.
 \newline
 \newline
 Es wird angenommen, dass der magnetische Nordpol der Erde weit genug weg ist,
@@ -36,7 +39,7 @@ sodass sich im Fabrikszenario die Richtung nur ändern kann, wenn die Ausrichtun
 oder, wenn ein magnetisches Objekt in der Umgebung Einfluss ausübt.
 Außerdem wird angenommen, dass sich die Ausrichtung des Objektes in einem Zyklus nicht ändert,
 da Fließbandsysteme für gewöhnlich nicht rund sind, sondern Kante auf Kante aufeinander übergehen.
-Allerdings wird für jeden Zyklus eine neue zufällige Ausrichtung zwischen 0 und 359 gewählt,
+Allerdings wird für jeden Zyklus eine neue zufällige Ausrichtung zwischen 0° und 359° gewählt,
 da das Objekt mit verschiedenen Ausrichtungen auf das Fließband gelegt werden könnte.
 Zudem wird keine Interferenz der magnetischen Objekte zueinander angenommen.
 Sollten sie sich überschneiden wird das magnetische Objekt mit dem meisten Einfluss gewählt.
@@ -65,20 +68,22 @@ Dabei werden die Quadranten im Uhrzeigersinn gezählt.
 Je nach Quadrant können für $a$ und $b$ die $x$- bzw. $y$-Koordinate von $p_{m}$ gewählt werden.
 Da der Einfluss des magnetischen Objekts $p_{m}$ abhängig von der Position der Sensorenbox $p_{o}$ ist,
 müssen $a$ und $b$ mit $p_{o}$ als Ursprung transformiert werden.
-Die Berechnung von $\alpha$ folgt dann Formel \ref{formular:magnetic_sensor_alpha}.
+Die Berechnung von $\alpha$ folgt dann (\ref{formular:magnetic_sensor_alpha}).
 \begin{align}
     \label{formular:magnetic_sensor_alpha}
     \alpha = \arcsin (\frac{|p_{o_a} - p_{m_a}|}{\sqrt{(p_{o_a} - p_{m_a})^2 + (p_{o_b} - p_{m_b})^2}})
 \end{align}
-Mit den Winkeln $\gamma$ und $\beta$ kann dann das Koordinatensystem zum magnetischen Objekt hin rotiert werden,
-sodass die Ausrichtung von $p_{o}$ zum beeinflussten magnetischen Nordpol aus Formel \ref{formular:magnetic_sensor_new_heading} berechnet werden kann.
+Mit den Winkeln $\beta$ und $\gamma$ kann dann das Koordinatensystem zum magnetischen Objekt hin rotiert werden,
+sodass die Ausrichtung von $p_{o}$ zum beeinflussten magnetischen Nordpol aus (\ref{formular:magnetic_sensor_new_heading}) berechnet werden kann.
 \begin{align}
     \label{formular:magnetic_sensor_new_heading}
     \gamma^{\prime} = (\gamma + (360 - \beta))\mod 360
 \end{align}
-\newpage
-Zu beachten ist schließlich der Einfluss $\eta$, der abhängig von der Distanz von $p_{m}$ zu $p_{o}$ ist.
-Formel \ref{formular:magnetic_sensor_influence} modelliert den Einfluss als quadratisch abfallende Funktion mit zunehmender Distanz $d$ und maximaler Einflussdistanz $d_{\max}$,
+\newline
+\newline
+Der Einfluss eines magnetischen Objekts wird mit $\eta$ beschrieben.
+Es ist abhängig von der Distanz von $p_{m}$ zu $p_{o}$.
+In (\ref{formular:magnetic_sensor_influence}) wird der Einfluss als quadratisch abfallende Funktion mit zunehmender Distanz $d$ und maximaler Einflussdistanz $d_{\max}$ modelliert,
 wobei der maximale Einfluss 1 ist und der minimale Einfluss 0 ist.
 \begin{align}
     \label{formular:magnetic_sensor_influence}
@@ -95,15 +100,19 @@ wobei $d = \sqrt{(p_{o_a} - p_{m_a})^2 + (p_{o_b} - p_{m_b})^2}$.
 \end{align}
 
 \subsection{Temperatursensor}
-Das vereinfachte Modell für diesen Sensor geht von einer konstanten Umgebungstemperatur aus.
-Im Raum sind Wärmequellen strategisch verteilt, die eine Temperatur unter- und oberhalb der Umgebungstemperatur haben können.
-Je näher sich die Sensorenbox an einer der Wärmequellen befindet, desto mehr nähert sich die gemessene Temperatur der Temperatur der Wärmequelle $T_{\max}$ an.
+Der Temperatursensor wird ausgenutzt, um Abweichungen zu der Umgebungstemperatur zu erkennen.
+Diese könnte je nach Einsatzszenario von verschiedenen Faktoren beeinflusst sein, z.~B. eine offene Tür, ein Schmelzofen oder eine Kühlkammer.
 \newline
 \newline
-Jede Wärmequelle hat einen Einflussbereich, in der sie sich auf die Umgebungstemperatur $T_U$ auswirken kann.
+Das Modell für den Temperatursensor geht von einer konstanten Umgebungstemperatur aus.
+Im Raum sind Kälte- und Wärmequellen strategisch verteilt, die eine Temperatur unter- und oberhalb der Umgebungstemperatur haben können.
+Je näher sich die Sensorenbox an einer der Quellen befindet, desto mehr nähert sich die gemessene Temperatur der Temperatur der Quelle $T_{\max}$ an.
+\newline
+\newline
+Jede Kälte- und Wärmequelle hat einen Einflussbereich, in der sie sich auf die Umgebungstemperatur $T_U$ auswirken kann.
 Sollten sich zwei Wärmequellen überschneiden wird die Temperatur ausgewählt, die den größten Unterschied zur Umgebungstemperatur verursacht.
-Formel \ref{formular:temperature_sensor_temperature} zeigt die Berechnung der resultierenden Temperatur $T^{\prime}$ abhängig von der Distanz $d$ der
-Wärmequelle zur Sensorenbox und der maximalen Einflussdistanz $d_{\max}$.
+In (\ref{formular:temperature_sensor_temperature}) wird die Berechnung der resultierenden Temperatur $T^{\prime}$ abhängig von der Distanz $d$ der
+Quelle zur Sensorenbox und der maximalen Einflussdistanz $d_{\max}$ gezeigt.
 \begin{align}
     \label{formular:temperature_sensor_temperature}
     T^{\prime} = \begin{cases}
@@ -113,9 +122,14 @@ Wärmequelle zur Sensorenbox und der maximalen Einflussdistanz $d_{\max}$.
 \end{align}
 
 \subsection{Geräuschsensor}
+In den verschiedenen Einsatzszenarien können Standorte von der Art und Intensität von Geräuschquellen unterschieden werden.
+Beispielsweise können wiederholende Geräuschmuster, wie Hämmern, oder mechanische Geräusche von Robotern,
+oder konstante Geräusche, wie eine Kreissäge, einen Standort einzigartig machen.
+\newline
+\newline
 Es gibt verschiedene Arten von Geräuschsensoren, z. B. Geräuschrichtungssensoren \cite{tiete2014soundcompass} oder
 spezifische Anwendungen, wie Herzgeräuschsensoren \cite{zhang2016design}.
-Das Modell ist einem Akustiksensor \cite{sessler1991acoustic} oder einem Mikrofon am ähnlichsten,
+Das in dieser Arbeit verwendete Modell ist einem Akustiksensor \cite{sessler1991acoustic} oder einem Mikrofon am ähnlichsten,
 das die Lautstärke in einem Frequenzbereich misst.
 \newline
 \newline
@@ -128,7 +142,7 @@ Sollten sich zwei Lautstärkequellen überschneiden, so wird die maximale Lautst
 \newline
 Die Lautstärke $V_{\max}$ die von einer Quelle ausgeht nimmt quadratisch mit der Distanz $d$ ab.
 Dabei wird der Einflussbereich von der maximalen Einflussdistanz $d_{\max}$ bestimmt.
-Formel \ref{formular:sound_sensor_constant_sound} zeigt die Berechnung für die resultierende Lautstärke durch eine konstante Lautstärkequelle.
+In (\ref{formular:sound_sensor_constant_sound}) wird die Berechnung für die resultierende Lautstärke durch eine konstante Lautstärkequelle gezeigt.
 \begin{align}
     \label{formular:sound_sensor_constant_sound}
     V^{\prime} = \begin{cases}
@@ -141,7 +155,7 @@ Periodische Lautstärkequellen emittieren ein Geräusch in regelmäßigen Abstä
 Dies wird modelliert durch eine quadratisch verringernde Lautstärke über 500ms,
 wenn die Lautstärke gemessen wird nachdem das Geräusch stattgefunden hat,
 d. h. nach 500ms, ist das Geräusch nicht mehr wahrzunehmen.
-Formel \ref{formular:sound_sensor_periodic_sound} beschreibt diesen Zusammenhang,
+In (\ref{formular:sound_sensor_periodic_sound}) wird dieser Zusammenhang beschrieben,
 wobei $t$ der momentane Zeitpunkt ist und $t_{n}$ das Interval des periodischen Geräusches ist.
 \begin{align}
     \label{formular:sound_sensor_periodic_sound}
@@ -153,11 +167,16 @@ wobei $t$ der momentane Zeitpunkt ist und $t_{n}$ das Interval des periodischen 
 \end{align}
 
 \subsection{WLAN-Zugangspunkte}
-Die Detektierung von WLAN-Zugangspunkten ist eine Konsequenz aus der Detektierung von RSSI-Werten bzw. MAC-Adressen von WLAN-Zugangspunkten.
+In vielen Einsatzszenarien sind WLAN-Zugangspunkte bereits vorhanden und im Raum strategisch verteilt.
+Diese werden entweder von den Mitarbeitern genutzt, oder sind nötig zur Kommunikation von den Geräten.
+Jeder WLAN-Zugangspunkt deckt einen bestimmten Bereich ab und impliziert somit nur bestimmte Standorte.
+\newline
+\newline
+Die Detektierung von WLAN-Zugangspunkten wird durch die Messung von von RSSI-Werten bzw. MAC-Adressen von WLAN-Zugangspunkten modelliert.
 Das Modell vereinfacht dies, indem es lediglich aussagt, ob ein WLAN-Zugangspunkt in Reichweite ist oder nicht.
 \newline
 \newline
 Im Raum sind strategisch WLAN-Zugangspunkte verteilt.
 Diese können innerhalb einer maximalen Reichweite empfangen werden.
 Ist die Distanz der Sensorenbox zum WLAN-Zugangspunkt innerhalb der Reichweite, gilt der WLAN-Zugangspunkt als empfangen.
-Interferenzen und Reflektionen werden vernachlässigt.
+Interferenzen und Reflexionen werden vernachlässigt.
