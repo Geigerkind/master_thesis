@@ -20,7 +20,7 @@ Die Features sind abgekürzt in der Grafik: \textit{acc} steht für die Features
 \newpage
 Auffallend ist, dass die Features der vorherigen Standorte keine Wichtigkeit haben.
 Dies ist durch das iterative Evaluierungsverfahren der Testmenge begründet,
-d.~h. eine Permutation hat keinen Effekt, da diese Features während der Evaluierung von dem Modell selbstständig bestimmt werden.
+d.~h. eine Permutation hat keinen Effekt, da diese Features während der Evaluierung vom Modell selbstständig bestimmt werden.
 \begin{figure}[h!]
     \centering
     \includegraphics[width=\linewidth]{images/fi_consolidated.png}
@@ -87,7 +87,7 @@ Die Wichtigkeit der Standardabweichung, sowie der Wert der Temperatur ist gering
 \end{figure}
 \newpage
 Abbildung \ref{fig:feature_significance_dt_anomaly} zeigt die Permutationswichtigkeit von einem Entscheidungswald zur Anomalieerkennung.
-Am wichtigsten sind die Features, welche die Wahrscheinlichkeitsverteilung des Klassifizierungsergebnisses von dem ML-Modell zur Standortbestimmung ausnutzen.
+Am wichtigsten sind die Features, welche die Wahrscheinlichkeitsverteilung des Klassifizierungsergebnisses vom ML-Modell zur Standortbestimmung ausnutzen.
 Die Abweichung zu den durchschnittlichen Standortänderungen hat kaum Einfluss.
 Dies deutet darauf hin, dass die ML-Modelle zur Standortbestimmung nicht so instabil in Anomalien sind.
 Aus dem selben Grund hat das Feature der Topologieverletzung auch wenig Einfluss, da es bei Anomalien wenig ausschlägt.

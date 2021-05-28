@@ -2,9 +2,9 @@
 \label{sec:data_anomalie}
 Für Anomaliedaten werden die bekannten Routen modifiziert, indem Umleitungen eingebaut werden, die teilweise Standorte überspringen
 und nicht in den Trainingsdaten vorhanden sind.
-Dadurch wird ein Szenario simuliert, in der das Klassifizierungsverhalten von dem ML-Modell zur Standortbestimmung auf unbekannten Wegen beobachtet werden kann.
+Dadurch wird ein Szenario simuliert, in der das Klassifizierungsverhalten vom ML-Modell zur Standortbestimmung auf unbekannten Wegen beobachtet werden kann.
 Aus den Klassifizierungsergebnissen des ML-Modells zur Standortbestimmung werden schließlich Features extrahiert,
-die von dem ML-Modell zur Anomalieerkennung verwendet werden.
+die vom ML-Modell zur Anomalieerkennung verwendet werden.
 \begin{figure}[h!]
     \centering
     \includegraphics[width=\linewidth]{images/feature_window_location_changes.png}
@@ -23,7 +23,7 @@ Bei den Pfadeinträgen bei ca. 250, 1000 und 1600 sind Extrema zu erkennen, die 
 d. h. wenn eine Anomalie vorliegt wird häufiger der Standort geändert.
 \newline
 \newline
-Das zweite Feature ist analog zu dem ersten Feature konstruiert.
+Das zweite Feature ist analog zum ersten Feature konstruiert.
 Dieses nutzt anstatt der Anzahl der Standortänderungen die summierte Wahrscheinlichkeit der erkannten Standorte.
 Das ML-Modell zur Standortbestimmung hat keine diskrete Ausgabe, sondern gibt einen Vektor von Wahrscheinlichkeiten aus,
 der für jeden Standort die Klassifizierungswahrscheinlichkeit angibt.
@@ -49,4 +49,4 @@ oder dass tatsächlich eine Anomalie vorliegt, da die Topologie verletzt wurde.
 Daneben wurde ebenfalls eine Rückwärtskante in Betracht gezogen,
 da es wahrscheinlich ist, dass wenn zuvor eine Anomalie vorlag, danach immer noch eine Anomalie vorliegt.
 Im Training wurden damit zwar sehr gute Ergebnisse erreicht,
-in der Praxis war das Modell aber äquivalent zu dem \textit{Immer-Falsch} Modell.
+in der Praxis war das Modell aber äquivalent zum \textit{Immer-Falsch} Modell.

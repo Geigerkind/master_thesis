@@ -35,7 +35,7 @@ Je größer die Dimension des Eingabevektor ist, desto aufwendiger ist die Berec
 \newline
 \newline
 SGD ist eine Approximation von GD. Es nutzt eine zufällige Teilmenge des Eingabevektors, den sogenannten \textit{Mini-Batch}.
-Es wird angenommen, dass der Gradient des Mini-Batches ähnlich zu dem Gradienten des gesamten Eingabevektors ist.
+Es wird angenommen, dass der Gradient des Mini-Batches ähnlich zum Gradienten des gesamten Eingabevektors ist.
 Folglich werden mit jedem Mini-Batch die Parameter des KNN aktualisiert, wodurch in jeder Epoche die Parameter mehr als einmal aktualisiert werden.
 Ziel dieser Approximierung ist eine Laufzeitverbesserung.
 \newline
@@ -48,7 +48,7 @@ vorherigen Gradienten beibehalten wird, um aus lokalen Extremum wieder raus zu f
     \bigtriangledown C(\boldsymbol\theta_k), \hspace{0.6cm} \boldsymbol\theta_{k+1} = \boldsymbol\theta_k - \textbf{v}_k\eta
 \end{align}
 Zur Berechnung wird ein Hilfsvektor $\textbf{v}$ verwendet, welcher das Momentum vergangener Gradienten darstellt.
-In jeder Iteration fließt ein Anteil $\gamma$, typischerweise $\gamma=0.9$, von dem Hilfsvektor in die Berechnung der neuen Eingabeparameter ein.
+In jeder Iteration fließt ein Anteil $\gamma$, typischerweise $\gamma=0.9$, vom Hilfsvektor in die Berechnung der neuen Eingabeparameter ein.
 Der Unterschied zu GD (\ref{formular:gd_multi_dim}) ist der Anteil vergangener Gradienten.
 \newline
 \newline
