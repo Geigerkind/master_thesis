@@ -9,12 +9,12 @@ Um dieses Verhalten nachzustellen werden diese Interrupts simuliert, wodurch die
 In dieser Arbeit wird die Änderung zum letzten Interrupt eines Sensors modelliert,
 d. h. jeder Sensor merkt sich seinen Sensorwert, wenn er einen Interrupt auslöst
 und führt das nächste Mal nur einen Interrupt aus, wenn sich der Sensorwert um einen bestimmten Prozentsatz zum gemerkten Sensorwert unterscheidet.
-\newpage
+\newline
+\newline
 Dadurch wird einerseits ein realistischeres Szenario dargestellt,
 denn von einer Sensorenbox, die still steht, würde auch keine Aktivität erwartet werden.
 Andererseits verringert sich die Datenmenge, wodurch die Trainingszeit verringert wird.
-\newline
-\newline
+\newpage
 Unterschieden werden drei Ansätze, um Interrupts zu erzeugen.
 Der erste Ansatz vergleicht den Betrag der Differenz mit einem festen Schwellenwert.
 Der zweite Ansatz erfordert, dass die Änderung einen Prozentsatz des vorherigen Wertes ausmacht.

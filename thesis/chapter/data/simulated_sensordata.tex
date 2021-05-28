@@ -5,11 +5,13 @@ Trainingsdaten als Validationsmenge genutzt werden.
 Dabei wurden alle 50ms die xyz-Koordinaten, Accelerometerdaten und Gyroskopdaten erfasst, sowie Lichtintensität und Metadaten.
 Zu den Metadaten gehören Zeitstempel, Beschriftung des Routenabschnitts und Beschriftung des derzeitigen Zykluses.
 Ein Zyklus ist der vollständige Umlauf einer Route.
-\newpage
+\newline
+\newline
 Abbildung \ref{fig:simple_square_labeled} zeigt eine der vier Routen \glqq simple\_square\grqq.
 Jede Route ist mit Markierungen für Zyklen und Standorte ausgestattet.
 Die Zyklusmarkierung wird genutzt, um die Datensätze mit dem derzeitigen Zyklus zu beschriften.
 Jedes Mal, wenn die Sensorenbox diese Markierung überschreitet, wird der Zähler für den Zyklus inkrementiert.
+\newpage
 Die Standortmarkierung wird genutzt, um die Datensätze mit dem derzeitigen Routenabschnitt zu beschriften.
 Jedes Mal, wenn die Sensorenbox diese Markierung überschreitet, wird der derzeitige Wert für den Routenabschnitt auf den Wert der Markierung gesetzt.
 Dabei werden alle aufgenommenen Datensätze immer mit dem derzeitigen Wert für den Routenabschnitt annotiert.
@@ -19,7 +21,8 @@ Dabei werden alle aufgenommenen Datensätze immer mit dem derzeitigen Wert für 
     \caption{Modell der Route \glqq simple\_square\grqq\ in CoppeliaSim mit Beschriftungen.}
     \label{fig:simple_square_labeled}
 \end{figure}
-\newpage
+\newline
+\newline
 Neben \glqq simple\_square \grqq\ gibt es noch drei weitere Routen (siehe Abbildungen \ref{fig:long_rectangle}, \ref{fig:rectangle_with_ramp} und \ref{fig:many_corners}).
 Die Route \glqq long\_rectangle\grqq\ weist lange Pfade mit wenig Änderungen auf.
 Die Route \glqq rectangle\_with\_ramp\grqq\ besitzt zusätzlich zwei Rampen, wodurch Höhenunterschiede simuliert werden.
