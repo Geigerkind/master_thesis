@@ -91,7 +91,6 @@
     \item Motivation
     \begin{itemize}
         \item Orientierungssinn von Tieren und Menschen
-        \item Indoor-Lokalisierung hohe Infrastrukturkosten
         \item Mian untersuchte FFNN und simulierte Daten
         \item Entscheidungsbäume potentiell effizienter
     \end{itemize}
@@ -119,13 +118,6 @@
     \begin{figure}
         \centering
         \includegraphics[width=0.6\linewidth]{model/grundlegender_ansatz_2.png}
-    \end{figure}
-\end{frame}
-
-\begin{frame}{Ansatz zur diskreten Standortbestimmung III}
-    \begin{figure}
-        \centering
-        \includegraphics[width=0.6\linewidth]{model/grundlegender_ansatz.png}
     \end{figure}
 \end{frame}
 
@@ -158,7 +150,7 @@
 
 \section{Standorterkennung}
 % Gehe hier auf das Datenfenster ein
-\begin{frame}{Feature-Extrahierung}
+\begin{frame}{Extrahierte Features}
     \begin{table}
         \centering
         \begin{tabular}{ | l | c | c | c | c | c | }
@@ -204,14 +196,7 @@
     \end{enumerate}
 \end{frame}
 
-\begin{frame}{Wichtigkeit von Features II - \texttt{feature\_importances\_}}
-    \begin{figure}
-        \centering
-        \includegraphics[width=\linewidth]{model/feature_importances.png}
-    \end{figure}
-\end{frame}
-
-\begin{frame}{Wichtigkeit von Features III - Permutationswichtigkeit}
+\begin{frame}{Wichtigkeit von Features II - Permutationswichtigkeit}
     \begin{figure}
         \centering
         \includegraphics[width=0.46\linewidth]{model/permutatation_importance.png}
@@ -294,37 +279,26 @@
     \end{figure}
 \end{frame}
 
-\begin{frame}{Feature-Extrahierung}
-    \begin{itemize}
-        \item Abweichung zu Ø Standortänderungen
-        \item Abweichung zu Ø Standortwahrscheinlichkeit
-        \item Standardabweichung Top 5 Standortwahrscheinlichkeiten
-        \item Topologieverletzung
-    \end{itemize}
-\end{frame}
-
-\begin{frame}{Klassifizierungsergebnisse}
-    \begin{itemize}
-        \item FFNN konnte \textbf{nicht} erfolgreich trainiert werden
-        \item Entscheidungswald kann 52,52\% der Anomalien erkennen
-        \item 2,95\% Falsch-Positiv Rate
-        \item Klassifizierungsgenauigkeit abhängig von Erkennungsrate von ML-Modell und Standortkomplexität
-        \item Topologiemodell nur bei hoher Erkennungsrate gut
-    \end{itemize}
-\end{frame}
-
-\begin{frame}{Klassifizierungsergebnisse}
-    \begin{figure}
-        \centering
-        \includegraphics[width=\linewidth]{anomaly_detection/soll_vs_ist_anomaly.png}
-    \end{figure}
-\end{frame}
-
 \begin{frame}{Permutationswichtigkeit}
     \begin{figure}
         \centering
         \includegraphics[width=\linewidth]{anomaly_detection/fi_anomaly_dt.png}
     \end{figure}
+\end{frame}
+
+\begin{frame}{Klassifizierungsergebnisse}
+    \begin{minipage}{.5\textwidth}
+        \begin{itemize}
+            \item FFNN konnte \textbf{nicht} erfolgreich trainiert werden
+            \item Entscheidungswald kann 52,52\% der Anomalien erkennen
+            \item 2,95\% Falsch-Positiv Rate
+            \item Klassifizierungsgenauigkeit abhängig von Erkennungsrate von ML-Modell und Standortkomplexität
+        \end{itemize}
+    \end{minipage}%
+    \begin{minipage}{.5\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{anomaly_detection/soll_vs_ist_anomaly.png} 
+    \end{minipage}
 \end{frame}
 
 \section{Schlussfolgerungen}
@@ -338,7 +312,6 @@
         \item Geringere Ausführungszeit und klein genug
         \item Orte zu bestimmen ist besser als Orte und Pfade zu bestimmen
         \item Feature-Wichtigkeit abhängig vom Einsatzszenario
-        \item Entscheidungswald benötigt weniger Trainingsdaten
     \end{itemize}
 \end{frame}
 
@@ -346,8 +319,11 @@
   Fragen?
 \end{frame}
 
-\begin{frame}[standout]
-  DEMO
+\begin{frame}{Wichtigkeit von Features - \texttt{feature\_importances\_}}
+    \begin{figure}
+        \centering
+        \includegraphics[width=\linewidth]{model/feature_importances.png}
+    \end{figure}
 \end{frame}
 
 \begin{frame}{Simulationskarte von „Simple Square“}

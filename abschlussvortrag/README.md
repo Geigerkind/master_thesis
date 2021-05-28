@@ -1,16 +1,9 @@
 # Motivation und Ziele
+Vor 4 Wochen hatte Mian seinen Abschlussvortrag über die diskrete Indoor-Lokalisierung mit Hilfe von FFNNs auf Basis von Sensoren geredet. 
 Bei der Lokalisation wird die Position von einem Gerät oder Nutzer in einem Koordinatensystem bestimmt.
-Dabei wird zwischen Indoor- und Outdoor-Lokalisation unterschieden.
-Ein bekanntes Outdoor Verfahren ist z. B. GPS, welches in Indoor Szenarien aber oft nicht aufgrund der Signalstärke Einsetzbar ist.
-Aus diesem Grund wird bei der Indoor-Lokalisation Infrastruktur aufgebaut, um eine Lokalisation zu ermöglichen.
-Die Infrastruktur ist nötig, um die Position des Geräts oder Nutzers eindeutig zu bestimmen.
-Oft ist aber eine so gute Auflösung gar nicht nötig.
+Ähnlich wie der Orientierungssinn von Menschen und Tieren, sollen keine konkreten Koordinaten gefunden werden, 
+sondern diskrete Standorte unterschieden werden.
 
-Anstatt die Position des Geräts zu bestimmen, kann das Gerät auch einfach seine eigene Position bestimmen.
-Ein Beispiel aus der Natur ist der Orientierungssinn von Menschen und Tieren, die anhand von Orientierungspunkten feststellen an welchem Standort sie sich befinden.
-Dies ist eine Form der diskreten Standortbestimmung, in der keine konkrete Position bestimmt wird, sondern nur der Ort anhand von Orientierungspunkten.
-
-Für ML-Modelle können diese Orientierungspunkte durch aufgenommene Sensorwerte dargestellt werden auf Basis dessen diskrete Standorte unterschieden werden.
 Mian hatte bereits FFNNs mit simulativ erzeugten Daten auf Basis von drei Sensoren untersucht: Accelerometer, Gyroskop und Lichtsensor.
 Diese Arbeit untersucht zusätzlich Entscheidungsbäume, da sie potenziell effizienter sind als FFNNs.
 Außerdem wurden noch mehr Sensoren verwendet, aus denen ausgewählte Features extrahiert wurden.
@@ -23,16 +16,17 @@ Dabei kann eine Route als zyklischen Graphen dargestellt werden, aus dem insgesa
 3. Es werden Knoten und Kanten kodiert.
 In dieser Arbeit wird der erste und dritte Ansatz verwendet.
 
+Diese Route mit 4 Standorten ist nur eine Illustration, in dieser Arbeit wurden deutlich komplexere Routen.
+
 # Ansatz zur diskreten Standortbestimmung II
 Die Standorte sind dann durch ihre Sensordaten unterscheidbar, indem jeder Standort eine einzigartige Menge an Features besitzt.
 Features sind Attribute und Eigenschaften der Sensordaten. 
 Dies ist in diesem Bild illustriert.
 Standort 1 hat besonders viel Lautstärke.
 Standort 2 hat keines der Features.
-Standort 3 ist in Reichweite eines WLAN-Zugsangspunkts.
+Standort 3 ist in Reichweite eines WLAN-Zugangspunktes.
 Standort 4 hat magnetische Interferenzen.
 
-# Ansatz zur diskreten Standortbestimmung III
 Diese Sensordaten werden dann von einer Sensorbox aufgenommen, die sich auf dieser Route bewegt.
 Anhand der aufgenommen Sensordaten werden Features extrahiert, die von einem ML-Modell genutzt werden, um den momentanen Standort zu bestimmen.
 
@@ -108,13 +102,6 @@ Je größer der Fehler, desto wichtiger das Feature.
 Modifizierungsmethoden sind z. B. die Permutation oder Nullung von Features.
 
 # Wichtigkeit von Features II
-In diesem Bild wird die erste Methode illustriert.
-Die weiße Box unter den Entscheidungsregeln zeigt die Beschriftungen der in diesem Knoten enthaltenden Trainingsdaten.
-Durch jede Entscheidungsregel wird die Reinheit (engl. Purity) erhöht.
-Die Wichtigkeit wird durch den Zuwachs der Reinheit bestimmt, den jedes Feature in einer Entscheidungsregel bringt.
-In dieser Arbeit wurde dieser Ansatz aber nicht verwendet, da er nicht auf FFNNs angewendet werden konnte.
-
-# Wichtigkeit von Features III
 Hier wird die Permutationswichtigkeit illustriert.
 Aus der Testmenge werden für jedes Feature, hier die geometrischen Formen, eine Testmenge generiert, in der jeweils nur das Feature Spaltenweise permutiert wurde.
 Dann werden die Klassifizierungsgenauigkeiten dieser Testmengen zur originalen Testmenge verglichen.
@@ -128,6 +115,10 @@ Verwendet werden hauptsächlich die Standardabweichung und die Minima und Maxima
 Insbesondere Licht, Ausrichtung zum Magnetfeld (Heading) und Lautstärke (volume) wird verwendet.
 Zudem haben die WLAN-Zugangspunkte einen großen Einfluss.
 Besonders das FFNN gewichtet die WLAN-Zugangspunkte stark.
+
+Die Features der vorherigen Standorte erscheinen als "Unwichtig", da die Testmenge iterativ evaluiert wird, sodass das ML-Modell die Features der vorherigen Standorte 
+für den nächsten Datensatz selbst bestimmt.
+Würde dies nicht gemacht werden, haben diese Features einen Fehler von bis zu 80%.
 
 Verhältnismäßig unwichtig für den Entscheidungswald sind die Features der Temperatur und der Beschleunigung.
 
@@ -185,28 +176,26 @@ Allerdings habe komplexere Routen viele von diesen Pseudeo Anomalien (zeige auf 
 Wenn die Sensorenbox sich in einer Anomalie befindet, wird davon ausgegangen, dass sie oft den momentan Standort ändert. 
 Dies ist in dieser Grafik zu sehen, da bei den Anomalien (zeige auf Peaks) ungewöhnlich viele Standortänderungen zu beobachten sind.
 
-# Feature-Extrahierung
+# Permutationswichtigkeit
 Daraus sind vier Features motiviert:
 1. Abweichung zu den durchschnittlichen Standortänderungen
 2. Abweichung zu der durchschnittlichen Standortwahrscheinlichkeit
-3. Standardabweichung der Top 5 wahrscheinlichsten Standorte des ML-Modells
-4. Ob eine Topologieverletzung vorliegt, d. h. ob die Sensorenbox dem gelernten Pfad nicht folgt.
+3. Ob eine Topologieverletzung vorliegt, d. h. ob die Sensorenbox dem gelernten Pfad nicht folgt.
+4. Standardabweichung der Top 5 wahrscheinlichsten Standorte des ML-Modells
 
-# Klassifizierungsergebnisse I
+Die wichtigsten Features sind diese, die die Sicherheit für die Klassifizierungsergebnisse der ML-Modelle ausnutzen.
+DIe anderen scheinen unwichtig zu sein.
+
+# Klassifizierungsergebnisse
 FFNNs waren nicht in der Lage trainiert zu werden.
 Sie haben lediglich gelernt immer keine Anomalie auszugeben, was aber auch den großteil der Daten ausmacht.
 Entscheidungswälder konnten bis 52,52% der Anomalien erkennen, wobei 2,95% fälschlich als Anomalien erkannt wurden.
 Die Genauigkeit scheint abhängig von der Standortbestimmungsrate zu sein und der Standortkomplexität.
 Je mehr Standorte und je bessere Klassifizierungsgenauigkeiten, desto besser ist die Anomalieerkennung.
 
-# Klassifizierungsergebnisse II
 Hier sieht man einen Ausschnitt der Klassifizierungsergebnisse eines Entscheidungswaldes.
 Wie zu sehen ist, sind die meisten Erkennungen einer Anomalie bei einer tatsächlichen Anomalie.
 Mit einem Schwellenwert könnten die Falsch-Positiven Ergebnisse möglicherweise eliminiert werden.
-
-# Permutationswichtigkeit
-Die wichtigsten Features sind diese, die die Sicherheit für die Klassifizierungsergebnisse der ML-Modelle ausnutzen.
-DIe anderen scheinen unwichtig zu sein.
 
 # Erkenntnisse dieser Arbeit
 Entscheidungswälder skalieren besser als FFNNs mit steigender Standortkomplexität.
@@ -222,3 +211,29 @@ als mit der Methode, die Knoten und Kanten kodiert.
 Die Wichtigkeit der Features ist abhängig vom Einsatzszenario.
 Als sinnvolle Methoden, um die Wichtigkeit einzuschätzen haben sich die Permutationswichtigkeit oder Nullung ergeben, 
 aber auch andere Modifizierungen wie z. B. ein Rauschen wäre denkbar.
+
+
+
+## OLD
+# Wichtigkeit von Features II
+In diesem Bild wird die erste Methode illustriert.
+Die weiße Box unter den Entscheidungsregeln zeigt die Beschriftungen der in diesem Knoten enthaltenden Trainingsdaten.
+Durch jede Entscheidungsregel wird die Reinheit (engl. Purity) erhöht.
+Die Wichtigkeit wird durch den Zuwachs der Reinheit bestimmt, den jedes Feature in einer Entscheidungsregel bringt.
+In dieser Arbeit wurde dieser Ansatz aber nicht verwendet, da er nicht auf FFNNs angewendet werden konnte.
+
+# Motivation und Ziele
+Dabei wird zwischen Indoor- und Outdoor-Lokalisation unterschieden.
+Ein bekanntes Outdoor Verfahren ist z. B. GPS, welches in Indoor Szenarien aber oft nicht aufgrund der Signalstärke Einsetzbar ist.
+Aus diesem Grund wird bei der Indoor-Lokalisation Infrastruktur aufgebaut, um eine Lokalisation zu ermöglichen.
+Die Infrastruktur ist nötig, um die Position des Geräts oder Nutzers eindeutig zu bestimmen.
+Oft ist aber eine so gute Auflösung gar nicht nötig.
+
+Anstatt die Position des Geräts zu bestimmen, kann das Gerät auch einfach seine eigene Position bestimmen.
+Ein Beispiel aus der Natur ist der Orientierungssinn von Menschen und Tieren, die anhand von Orientierungspunkten feststellen an welchem Standort sie sich befinden.
+Dies ist eine Form der diskreten Standortbestimmung, in der keine konkrete Position bestimmt wird, sondern nur der Ort anhand von Orientierungspunkten.
+
+Für ML-Modelle können diese Orientierungspunkte durch aufgenommene Sensorwerte dargestellt werden auf Basis dessen diskrete Standorte unterschieden werden.
+Mian hatte bereits FFNNs mit simulativ erzeugten Daten auf Basis von drei Sensoren untersucht: Accelerometer, Gyroskop und Lichtsensor.
+Diese Arbeit untersucht zusätzlich Entscheidungsbäume, da sie potenziell effizienter sind als FFNNs.
+Außerdem wurden noch mehr Sensoren verwendet, aus denen ausgewählte Features extrahiert wurden.
