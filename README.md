@@ -1,0 +1,1 @@
+You can find instructions on how to run the evaluations in the Makefile.
