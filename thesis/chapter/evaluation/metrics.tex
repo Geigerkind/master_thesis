@@ -1,19 +1,19 @@
 \newpage
 \section{Metriken}
-In dieser Arbeit werden verschiedene Metriken zur Ermittlung der Klassifizierungsgenauigkeit verwendet.
-Zunächst die übliche Klassifizierungsgenauigkeit (\ref{formular:simple_accuracy}), in der die Anzahl der korrekt klassifizierten Standorte mit der Gesamtanzahl verglichen werden.
-Diese Metrik wird auch von Mian verwendet und ist für den direkten Vergleich erforderlich.
+In dieser Arbeit werden drei Metriken zur Bewertung der Klassifizierungsgenauigkeit verwendet.
+Die erste Metrik, die die Klassifizierungsgenauigkeit als die Anzahl der korrekt klassifizierten Standorte mit der Gesamtanzahl verglichen werden (\ref{formular:simple_accuracy}).
+Diese Metrik wird auch von Mian verwendet und ist für den direkten Vergleich mit seinen FFNNs erforderlich.
 \begin{align}
     \label{formular:simple_accuracy}
     P(A) := \frac{\text{Anzahl korrekter Klassifizierungen}}{\text{Gesamtanzahl}}
 \end{align}
 Die zweite Metrik (\ref{formular:accuracy_metrik2}) betrachtet die Klassifizierungsgenauigkeit unter Tolerierung, dass ein Standort
-kontinuierlich zu früh oder zu spät verlassen wurde,
-d.~h. Fehlklassifizierungen werden vernachlässigt, wenn kontinuierlich der letzte korrekte Standort bzw. der nächste korrekte
+zu früh oder zu spät verlassen wurde,
+d.~h. Fehlklassifizierungen werden vernachlässigt, wenn der letzte korrekte Standort bzw. der nächste korrekte
 Standort klassifiziert wird mit einer Gesamttoleranz von $\epsilon$ Klassifizierungen.
-Diese Metrik ist besonders gut für den Vergleich geeignet, da entgegen der Beschriftung in der Testmenge,
+Diese Metrik ist besonders gut für den Vergleich von ML-Modellen geeignet, da entgegen der Beschriftung in der Testmenge,
 harte Übergänge zwischen zwei benachbarten Standorten nicht der Wirklichkeit entsprechen.
-Im Übergang können Sensorwerte möglicherweise mehrdeutig sein und dies sollte bei der Standortbestimmung, solange sie konsequent ist, beachtet werden.
+Im Übergang können Sensorwerte mehrdeutig sein und dies sollte bei der Standortbestimmung, solange sie konsequent ist, beachtet werden.
 Dadurch wird, im Vergleich zu $P(A)$, das Rauschen in der Klassifizierungsgenauigkeit reduziert, da diese Mehrdeutigkeit im Übergang toleriert wird,
 wodurch die ML-Modelle besser vergleichbar sind.
 \begin{flalign}
@@ -26,8 +26,9 @@ wodurch die ML-Modelle besser vergleichbar sind.
     &\Theta(i) := i-\Psi(i)\leq\epsilon\wedge\hspace{-0.3cm} \bigwedge\limits_{\max(0, \Psi(i))\leq q \leq i}\hspace{-0.3cm} L_q=K_{\Psi(i)} \nonumber\\
     &P(B\leq\epsilon) := \frac{\#\{L_i | L_i=K_i \vee \Omega(i) \vee \Theta(i)\text{ für } i\in\{0, 1, ..., \#L - 1\}\}}{\#K}
 \end{flalign}
-Zuletzt wird die Klassifizierungsgenauigkeit betrachtet, unter der Bedingung, dass der vorherige Standort inkorrekt war.
-Diese Metrik ist besonders relevant bei der Beurteilung der Stabilität der ML-Modelle.
+Als dritte Metrik wird betrachtet, welche Klassifizierungsgenauigkeit nach (\ref{formular:simple_accuracy}) erreicht werden kann,
+wenn der vorherige Standort inkorrekt war (\ref{formular:accuracy_previous_was_in_correct}).
+Diese Metrik ist besonders relevant bei der Beurteilung der Robustheit der ML-Modelle.
 \begin{align}
     \label{formular:accuracy_previous_was_in_correct}
     P(C) := \frac{\text{Anzahl korrekter Klassifizierungen, wenn vorheriger Standort inkorrekt war}}{\text{Alle Klassifizierungen, wenn vorheriger Standort inkorrekt war}}
