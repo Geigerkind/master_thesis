@@ -65,8 +65,9 @@ def par_ef_calculate_features(args):
 
     window = data.iloc[(i - window_size + 1):i+1, :]
 
-    acc_total_abs_col_list = (window["x_acc"] + window["y_acc"] + window["z_acc"]).abs().tolist()
-    ang_total_abs_col_list = (window["x_ang"] + window["y_ang"] + window["z_ang"]).abs().tolist()
+    # In the evaluation these vectors were only added, but I forgot to square them
+    acc_total_abs_col_list = (window["x_acc"] ** 2 + window["y_acc"] ** 2 + window["z_acc"] ** 2).sqrt().tolist()
+    ang_total_abs_col_list = (window["x_ang"] ** 2 + window["y_ang"] ** 2 + window["z_ang"] ** 2).sqrt().tolist()
     light_col_list = window["light"].tolist()
     temperature_col_list = window["temperature"].tolist()
     heading_col_list = window["heading"].tolist()

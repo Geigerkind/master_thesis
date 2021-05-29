@@ -39,4 +39,9 @@ da die synthetischen Trainingsdaten nicht benötigt werden würden.
 Beim Training der ML-Modelle ist eine Aufwärmphase vorgesehen, damit die ML-Modelle eine Chance haben die nachfolgenden Partitionen der Trainingsmenge
 zu einer hohen Wahrscheinlichkeit zu bestimmen.
 Möglicherweise wurden in dieser Arbeit zu viele Aufwärmzyklen verwendet, wodurch eine hohe Abhängigkeit zum vorherigen Standort im Vergleich zu anderen Features beobachtet werden konnte.
+\newline
+\newline
+Bei der Feature-Extrahierung wurde der Betrag von den Komponenten der Sensorwerte von dem Accelerometer und Gyroskop falsch berechnet.
+Anstatt den Betrag des Vektors zu berechnen, wurde der Betrag der Summe berechnet.
+Aus diesem Grund ist die Wichtigkeit der Features des Accelerometers und Gyroskops möglicherweise nicht so wichtig, wie es hätte sein können.
 

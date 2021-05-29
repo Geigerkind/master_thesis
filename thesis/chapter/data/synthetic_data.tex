@@ -1,14 +1,15 @@
 \section{Synthetische Daten}
 Es kann passieren, dass Sensoren über die Zeit kaputt gehen oder vorübergehend gestört werden.
-Ist die Abhängigkeit des ML-Modells zu groß zu diesen Sensoren, dann wird die Klassifizierungsfähigkeit des ML-Modells stark eingeschränkt, wenn dieser Fall eintritt.
+Ist die Abhängigkeit des ML-Modells zu diesen Sensoren zu groß, wird die Klassifizierungsfähigkeit des ML-Modells stark eingeschränkt, wenn dieser Fall eintritt.
 Um die ML-Modelle robust gegenüber diesen Szenarien zu machen, werden synthetische Daten auf Basis existierenden Daten erzeugt, die zusätzlich im Training benutzt werden.
+In den Daten werden Sensorausfälle simuliert, indem die Sensorwerte verändert werden.
 \newpage
-Mögliche Fehler der Sensoren sind temporärer oder permanenter Ausfall oder leichte Abweichungen zum Originalwert.
-Zudem können Standorte nicht erfasst werden, weil kein Interrupt ausgelöst wurde als die Sensorenbox sich an diesem Standort befand
-oder die Sensorbox hat auf unbekannten Wege einen Standorte übersprungen.
+Mögliche Fehler der Sensoren sind ein temporärer oder permanenter Ausfall oder eine leichte Abweichungen zum korrekten Sensorwert.
+Zudem könnten Standorte nicht erfasst werden, weil kein Interrupt ausgelöst wurde als die Sensorbox sich an diesem Standort befand
+oder die Sensorbox hat auf einem unbekannten Weg einen Standorte übersprungen.
 \newline
 \newline
 Fehlerhafte Sensoren werden durch die Duplizierung von Routen dargestellt, in denen die Sensoren genullt werden bzw. ein zufälliges Rauschen addiert wird.
-Verpasste Standorte werden zum einen durch permutierte, duplizierte Routen dargestellt.
+Verpasste Standorte werden zum einen als Routen mit permutierten Standorten dargestellt.
 Zum anderen werden sie durch duplizierte Routen dargestellt, in denen der zuletzt besuchte nicht unbekannte Standort übersprungen wurde.
-Um keinen Bias zu erzeugen, werden von den synthetischen Routen 10\% von jedem Standort zur Trainingsmenge hinzugefügt.
+Um keinen Bias zu erzeugen, werden 10\% synthetische Routen von jedem Standort zur Trainingsmenge hinzugefügt.

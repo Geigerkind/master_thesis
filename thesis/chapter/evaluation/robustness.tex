@@ -2,7 +2,7 @@
 Bei der Fehlertoleranz wird die Fähigkeit der ML-Modelle untersucht, trotz fehlerhafter Sensordaten Standorte zu erkennen.
 Dafür wurden für jeden Sensor modifizierte Testmengen erstellt.
 Die erste Testmenge fügt ein Rauschen von 5\% hinzu und die zweite Testmenge simuliert den Ausfall des Sensors, indem alle Sensorwerte genullt werden.
-Zudem wurde untersucht, was passiert wenn die Sensorenbox nicht dem trainierten Pfad folgt, indem die Testmenge permutiert wurde.
+Zudem wurde untersucht, was passiert wenn die Sensorbox nicht dem trainierten Pfad folgt, indem die Testmenge permutiert wurde.
 Damit Entscheidungswald und FFNN fair verglichen werden können, werden die besten ML-Modelle der Standortkomplexität 9 verwendet.
 \newline
 \newline
@@ -38,7 +38,7 @@ deutlich größer als bei den ML-Modellen ohne Rückwärtskante.
 \newline
 Die Permutationswichtigkeit hat den Features des Temperatursensors eine geringere Wichtigkeit zugeordnet, als die Nullung es tut.
 Dies ist dadurch begründet, dass die Sensordaten des Temperatursensors mit wenigen Ausnahmen sehr homogen sind.
-Für den Temperatursensor wird eine Umgebungstemperatur simuliert, die sich nur verändert, wenn die Sensorenbox einer Wärmequelle näher kommt.
+Für den Temperatursensor wird eine Umgebungstemperatur simuliert, die sich nur verändert, wenn die Sensorbox einer Wärmequelle näher kommt.
 Für den größten Teil der Daten misst der Temperatursensor die Umgebungstemperatur, weswegen eine permutation keinen großen Fehler verursacht.
 Die Nullung dieser Sensordaten hingegen deutet auf eine Wärmequelle hin, die die Umgebungstemperatur verringert.
 Dieses Ereignis ist im Vergleich zu einer Erhöhung der Umgebungstemperatur selten, weswegen die Nullung einen großen Fehler verursacht.

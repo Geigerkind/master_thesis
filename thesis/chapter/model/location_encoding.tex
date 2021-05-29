@@ -25,18 +25,18 @@ In dieser Arbeit wird der Kodierungsansatz, der nur Kanten kodiert, nicht unters
 Daraus wird die Komplexität und Genauigkeit dieser Ansätze deutlich.
 Der Kantenansatz ist ein Kompromiss zwischen Genauigkeit und Komplexität.
 Dabei bestimmt die Anzahl der zu klassifizierenden Standorte die Komplexität.
-Zum einen ist gerade bei langen Pfaden eine geringe Auflösung im Vergleich zur Realposition der Sensorenbox zu erwarten,
-d. h. es ist unklar, ob sich die Sensorenbox am Anfang, Ende oder in dazwischen befindet.
+Zum einen ist gerade bei langen Pfaden eine geringe Auflösung im Vergleich zur Realposition der Sensorbox zu erwarten,
+d. h. es ist unklar, ob sich die Sensorbox am Anfang, Ende oder in dazwischen befindet.
 Zum anderen werden in einem zyklischen Graphen mindestens so viele Standorte, wie beim Knotenansatz verwendet.
 Der Knotenansatz benötigt am wenigsten Standorte zur Kodierung ist aber außerhalb der Standorte sehr ungenau.
 \newpage
-Aus einer Historie von vorherigen Standorten kann aber ein möglicher Pfad inferiert werden, auf dem sich die Sensorenbox befindet.
+Aus einer Historie von vorherigen Standorten kann aber ein möglicher Pfad inferiert werden, auf dem sich die Sensorbox befindet.
 Allerdings können auch mehrere Pfade in Frage kommen, z. B. bei einer Gabelung.
 Der kombinierte Ansatz kodiert so viele Standorte, wie beide Ansätze zusammen,
 wodurch dieser Ansatz am komplexesten ist und am schlechtesten für große Routen skaliert.
 Dafür ist die Auflösung des kombinierten Ansatzes so gut, wie eine diskrete Kodierung es zulässt.
 \newline
 \newline
-Ist in den aufgenommenen Trainingsdaten die Position der Sensorenbox zum Zeitpunkt der Aufnahme der Sensorwerte bekannt,
+Ist in den aufgenommenen Trainingsdaten die Position der Sensorbox zum Zeitpunkt der Aufnahme der Sensorwerte bekannt,
 so können die Standorte nach dem gewählten Kodierungsansatz beliebig genau beschriftet werden.
 Dies kann in einem Weiterverarbeitungsschritt nach der Aufnahme der Daten mit einer Karte von Punkten, die von Interesse sind, geschehen.

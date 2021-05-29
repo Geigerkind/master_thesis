@@ -1,5 +1,5 @@
 \section{Mit eigenen Modellen ergänzte Sensordaten}
-Im Projekt ist die Sensorenbox mit einem Accelerometer, Gyroskop, Licht-, Magnetfeld-,
+Im Projekt ist die Sensorbox mit einem Accelerometer, Gyroskop, Licht-, Magnetfeld-,
 Temperatur- und Geräuschsensor ausgestattet, sowie einen Empfänger zur Erfassung von WLAN-Zugangspunkten.
 Mit CoppeliaSim ist es allerdings nur möglich Sensorwerte des Accelerometers, Gyroskops und Lichtsensors zu erfassen.
 Aus diesem Grund werden die fehlenden Sensoren durch das Ausnutzen vereinfachter Modelle ergänzt.
@@ -28,14 +28,14 @@ Dieser richtet sich nach dem Magnetfeld der Erde aus und wird daher traditionell
 \newline
 \newline
 Das in dieser Arbeit verwendete Modell des simulierten Magnetfeldsensors fungiert als Kompass.
-Die Ausgabe ist der relative Richtungsunterschied von der Sensorenbox zum magnetischen Nordpol.
+Die Ausgabe ist der relative Richtungsunterschied von der Sensorbox zum magnetischen Nordpol.
 Dabei können starke magnetische Objekte in der Umgebung Einfluss auf den Sensor haben,
 sodass sich der magnetische Nordpol für den simulierten Sensor ändern kann.
 Die Ausgabewerte sind zwischen 0° und 359°, d. h. 0° ist Norden, 90° Osten, 180° Süden und 270° Westen.
 \newline
 \newline
 Es wird angenommen, dass der magnetische Nordpol der Erde weit genug weg ist,
-sodass sich im Fabrikszenario die Richtung nur ändern kann, wenn die Ausrichtung der Sensorenbox geändert wird
+sodass sich im Fabrikszenario die Richtung nur ändern kann, wenn die Ausrichtung der Sensorbox geändert wird
 oder, wenn ein magnetisches Objekt in der Umgebung Einfluss ausübt.
 Außerdem wird angenommen, dass sich die Ausrichtung des Objektes in einem Zyklus nicht ändert,
 da Fließbandsysteme für gewöhnlich nicht rund sind, sondern Kante auf Kante aufeinander übergehen.
@@ -53,20 +53,20 @@ Die magnetischen Objekte können unterschiedliche Einflussreichweiten haben.
 \newline
 \newline
 Abbildung \ref{fig:magnetic_model} illustriert diese Situation.
-Um die Ausrichtung der Sensorenbox relativ zum magnetischen Nordpol der Erde bei 0 und dem Einfluss des magnetischen Objekts zu berechnen,
-ist es nötig die Winkel zwischen dem magnetischen Nordpol der Erde und dem magnetischen Objekt, sowie den Winkel zur Sensorenbox zu wissen.
-Der Winkel $\beta$ vom magnetischen Nordpol der Erde zur Sensorenbox $p_{o}$ ist bekannt.
+Um die Ausrichtung der Sensorbox relativ zum magnetischen Nordpol der Erde bei 0 und dem Einfluss des magnetischen Objekts zu berechnen,
+ist es nötig die Winkel zwischen dem magnetischen Nordpol der Erde und dem magnetischen Objekt, sowie den Winkel zur Sensorbox zu wissen.
+Der Winkel $\beta$ vom magnetischen Nordpol der Erde zur Sensorbox $p_{o}$ ist bekannt.
 Der Winkel $\gamma$ vom magnetischen Nordpol der Erde zum magnetischen Objekt $p_{m}$ wird aus dem Winkel $\alpha$ innerhalb des eigenen Quadranten
 und der Anzahl der Quadranten, zum Quadranten in dem sich $p_{m}$ befindet, berechnet.
 Dabei werden die Quadranten im Uhrzeigersinn gezählt.
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.5\linewidth]{images/magnetic_model.png}
-    \caption{Ausrichtung der Sensorenbox relativ zum magnetischen Objekt und magnetischen Nordpol der Erde.}
+    \caption{Ausrichtung der Sensorbox relativ zum magnetischen Objekt und magnetischen Nordpol der Erde.}
     \label{fig:magnetic_model}
 \end{figure}
 Je nach Quadrant können für $a$ und $b$ die $x$- bzw. $y$-Koordinate von $p_{m}$ gewählt werden.
-Da der Einfluss des magnetischen Objekts $p_{m}$ abhängig von der Position der Sensorenbox $p_{o}$ ist,
+Da der Einfluss des magnetischen Objekts $p_{m}$ abhängig von der Position der Sensorbox $p_{o}$ ist,
 müssen $a$ und $b$ mit $p_{o}$ als Ursprung transformiert werden.
 Die Berechnung von $\alpha$ folgt dann (\ref{formular:magnetic_sensor_alpha}).
 \begin{align}
@@ -106,13 +106,13 @@ Diese könnte je nach Einsatzszenario von verschiedenen Faktoren beeinflusst sei
 \newline
 Das Modell für den Temperatursensor geht von einer konstanten Umgebungstemperatur aus.
 Im Raum sind Kälte- und Wärmequellen strategisch verteilt, die eine Temperatur unter- und oberhalb der Umgebungstemperatur haben können.
-Je näher sich die Sensorenbox an einer der Quellen befindet, desto mehr nähert sich die gemessene Temperatur der Temperatur der Quelle $T_{\max}$ an.
+Je näher sich die Sensorbox an einer der Quellen befindet, desto mehr nähert sich die gemessene Temperatur der Temperatur der Quelle $T_{\max}$ an.
 \newline
 \newline
 Jede Kälte- und Wärmequelle hat einen Einflussbereich, in der sie sich auf die Umgebungstemperatur $T_U$ auswirken kann.
 Sollten sich zwei Wärmequellen überschneiden wird die Temperatur ausgewählt, die den größten Unterschied zur Umgebungstemperatur verursacht.
 In (\ref{formular:temperature_sensor_temperature}) wird die Berechnung der resultierenden Temperatur $T^{\prime}$ abhängig von der Distanz $d$ der
-Quelle zur Sensorenbox und der maximalen Einflussdistanz $d_{\max}$ gezeigt.
+Quelle zur Sensorbox und der maximalen Einflussdistanz $d_{\max}$ gezeigt.
 \begin{align}
     \label{formular:temperature_sensor_temperature}
     T^{\prime} = \begin{cases}
@@ -179,5 +179,5 @@ Das Modell vereinfacht dies, indem es lediglich aussagt, ob ein WLAN-Zugangspunk
 \newline
 Im Raum sind strategisch WLAN-Zugangspunkte verteilt.
 Diese können innerhalb einer maximalen Reichweite empfangen werden.
-Ist die Distanz der Sensorenbox zum WLAN-Zugangspunkt innerhalb der Reichweite, gilt der WLAN-Zugangspunkt als empfangen.
+Ist die Distanz der Sensorbox zum WLAN-Zugangspunkt innerhalb der Reichweite, gilt der WLAN-Zugangspunkt als empfangen.
 Interferenzen und Reflexionen werden vernachlässigt.

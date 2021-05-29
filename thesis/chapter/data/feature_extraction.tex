@@ -3,12 +3,11 @@ Die Feature-Extrahierung ist der Prozess, in dem Features aus den Rohdaten der D
 In dieser Arbeit findet dieser Schritt nach der Filterung durch künstliche Interrupts statt.
 Features sind berechnete Attribute und Eigenschaften von einem oder mehreren Sensorwerten der Rohdaten.
 \newpage
-Durch die Feature-Extrahierung müssen die ML-Modelle diese Features nicht selbständig lernen, sondern lediglich darauf abstrahieren.
-Dies erleichtert das Training, kann aber gerade für tiefe NN die Generalisierungsfähigkeit einschränken,
-wenn die Features nicht manuell konstruiert wurden \cite{seide2011feature}.
-Einerseits benötigten Entscheidungsbaum basierte Klassifizierer einen solchen Prozess,
+Durch die Feature-Extrahierung müssen die ML-Modelle die Features nicht selbständig lernen, sondern lediglich darauf abstrahieren.
+Dies erleichtert das Training, kann aber gerade für tiefe NN die Generalisierungsfähigkeit einschränken \cite{seide2011feature}.
+Einerseits benötigten entscheidungsbaumbasierte Klassifizierer einen solchen Prozess,
 da Features das Rauschen der Rohdaten verringern und dadurch eine Partitionierung vereinfachen.
-Andererseits kann das FFNN durch die Limitierungen der Hardware möglicherweise nicht groß genug sein, um diese Features zu erlernen.
+Andererseits kann das FFNN durch die Limitierungen der Hardware möglicherweise nicht groß genug sein, um diese Features selbstständig zu erlernen.
 \newline
 \newline
 Mian hat in seiner Arbeit ein Datenfenster verwendet, um die Sensorwerte zu glätten \cite{naveedThesis}.
@@ -22,13 +21,13 @@ Das Datenfenster ist aber signifikant kleiner, da durch die künstlichen Interru
 \newline
 Tabelle \ref{tab:all_features} listet alle verwendeten Features auf.
 Zunächst werden aus jedem Sensor, sofern der Sensor dies erlaubt, die gleiche Menge von Features extrahiert.
-Aus den Datenfenstern der Sensordaten werden die Standardabweichung, Minimum, Maximum und der Durchschnitt für jeden Sensor berechnet.
+Aus den Datenfenstern der Sensordaten werden Standardabweichung, Minimum, Maximum und Durchschnitt für jeden Sensor berechnet.
 Zusätzlich wird der momentane Wert jedes Sensors als Feature verwendet.
-Da die Werte des Accelerometers und Gyroskops abhängig von der Ausrichtung der Sensorenbox ist,
+Da die Werte des Accelerometers und Gyroskops abhängig von der Ausrichtung der Sensorbox ist,
 wird von diesen nur der Betrag der Summe der x-, y- und z-Komponenten verwendet.
 Für die Detektionsdaten der WLAN-Zugangspunkte erschien die Standardabweichung, Minimum, Maximum und Durchschnitt nicht sinnvoll, da die Daten nur binäre Werte annehmen.
 Mian hat die Änderung der Sensordaten als Features verwendet \cite{naveedThesis}.
-Dies wird in dieser Arbeit nicht getan, da die Standardabweichung eine Änderung im Datenfenster impliziert.
+Statt dessen wird in dieser Arbeit die Standardabweichung verwendet, die eine Änderung im Datenfenster impliziert.
 \begin{table}[h!]
     \hspace{-0.5cm}
     \begin{tabular}{ | p{3.2cm} | c | c | c | c | c | }
@@ -51,18 +50,17 @@ Dies wird in dieser Arbeit nicht getan, da die Standardabweichung eine Änderung
 \newline
 \newline
 Daneben wurden noch drei weitere Features aus den Metadaten extrahiert.
-Das erste Feature ist der zuletzt bestimmte Standort des ML-Modells.
-Das zweite Feature ist der zuletzt bestimmte Standort des ML-Modells, der nicht als unbekannter Standort gilt und nicht der aktuelle Standort ist.
-Mian hat ein Feature für jeden zu klassifizierenden Standort als Eingabe benutzt, dass auf eins gesetzt wird, wenn es erkannt wurde und ansonsten exponentiell abfällt \cite{naveedThesis}.
-In dieser Arbeit wurde sich dagegen entschieden, da dies schlecht mit der steigenden Anzahl von zu klassifizierenden Standorten skaliert
+Das erste Feature ist der zuletzt vom ML-Modell bestimmte Standort.
+Das zweite Feature ist der zuletzt bestimmte Standort, der nicht als unbekannter Standort gilt und nicht der aktuelle Standort ist.
+Mian hat ein Feature für jeden zu klassifizierenden Standort als Eingabe verwendet, dass auf eins gesetzt wird, wenn es erkannt wurde und ansonsten exponentiell abfällt \cite{naveedThesis}.
+In dieser Arbeit wurde der Standort als Wert nur eines Features repräsentiert, da dies schlecht mit der steigenden Anzahl von zu klassifizierenden Standorten skaliert
 und eine Abhängigkeit zum zuletzt bestimmten Standort für die Robustheit vermieden werden sollte.
 \newpage
-Das dritte Feature ist die Standardabweichung über die Zeit des Datenfensters.
-Alle anderen Features sind zeitunabhängig, da sie sich auf Zeitunabhängige Sensorwerte im Datenfenster beziehen.
+Das dritte Feature ist die Standardabweichung über die Zeit zwischen Interrupts des Datenfensters.
+Alle anderen Features sind zeitunabhängig, da sie sich auf zeitunabhängige Sensorwerte im Datenfenster beziehen.
 \newline
 \newline
 Die Signifikanz der einzelnen Features ist abhängig von der Einsatzumgebung, weshalb in Kapitel \ref{sec:model_training}
-ein Feature-Auswahl Schritt in dem Trainingsprozess vorgeschlagen wurde, um die Anzahl der Features zu verringern.
+ein Feature-Auswahlschritt im Trainingsprozess vorgeschlagen wurde, um die Anzahl der Features zu verringern.
 Dabei wird die Wichtigkeit, über die Permutationswichtigkeit bestimmt (Kapitel \ref{sec:eval_feature_importance}).
-Aus diesem Grund muss individuell für jedes Einsatzgebiet abgewogen werden, welche Sensoren und Features am meisten Nutzen,
-im Vergleich zu deren Kosten und Energieverbrauch, bringen.
+Aus diesem Grund muss individuell für jedes Einsatzgebiet abgewogen werden, welche Sensoren und Features im Vergleich zu deren Kosten und Energieverbrauch am meisten Nutzen bringen.
