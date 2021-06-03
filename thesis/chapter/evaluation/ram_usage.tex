@@ -23,7 +23,7 @@ Damit wird für die Feature-Menge insgesamt 152 Byte benötigt, wenn alle Featur
 Zur Ausführung eines Entscheidungswaldes wird für die Rückgabe der Wahrscheinlichkeitsverteilung für jeden Standort vier Byte benötigt.
 Je nach Implementierung würde dieser Vektor mehrmals benötigt werden, z. B. bei der parallelen Evaluierung der Entscheidungsbäume skaliert dies mit der Anzahl der Prozessoren.
 In diesem Fall wird keine Nebenläufigkeit angenommen.
-In dieser Arbeit wurden zwischen 9 Standorte und 102 Standorte untersucht, d. h. es wurden zwischen 36 und 408 Byte benötigt.
+In dieser Arbeit wurden zwischen 9 Standorte und 102 Standorte untersucht, d. h. es wurden zwischen 36 Byte und 408 Byte benötigt.
 Die Standortkomplexität ist jedoch abhängig vom Einsatzszenario.
 Die anschließende Evaluierung eines Entscheidungswaldes zur Anomalieerkennung kann vernachlässigt werden,
 da dieser ein diskretes Ergebnis zurückgeben kann und die benötigte Feature-Menge deutlich kleiner ist.

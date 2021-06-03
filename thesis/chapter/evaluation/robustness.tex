@@ -3,7 +3,7 @@ Bei der Fehlertoleranz wird die Fähigkeit der ML-Modelle untersucht, trotz fehl
 Dafür wurden für jeden Sensor modifizierte Testmengen erstellt.
 Die erste Testmenge fügt ein Rauschen von 5\% hinzu und die zweite Testmenge simuliert den Ausfall des Sensors, indem alle Sensorwerte genullt werden.
 Zudem wurde untersucht, was passiert wenn die Sensorbox nicht dem trainierten Pfad folgt, indem die Testmenge permutiert wurde.
-Damit Entscheidungswald und FFNN fair verglichen werden können, werden die besten ML-Modelle der Standortkomplexität 9 verwendet.
+Damit Entscheidungswald und FFNN fair verglichen werden können, werden die besten ML-Modelle der Standortkomplexität 9 Orten verwendet.
 \newline
 \newline
 Tabelle \ref{tab:robustness} zeigt die Differenz der Klassifizierungsgenauigkeiten $P(A)_{\text{cont}}$ und $P(A)$ von den modifizierten Testmengen zur originalen Testmenge.
@@ -38,9 +38,9 @@ deutlich größer als bei den ML-Modellen ohne Rückwärtskante.
 \newline
 Die Permutationswichtigkeit hat den Features des Temperatursensors eine geringere Wichtigkeit zugeordnet, als die Nullung es tut.
 Dies ist dadurch begründet, dass die Sensordaten des Temperatursensors mit wenigen Ausnahmen sehr homogen sind.
-Für den Temperatursensor wird eine Umgebungstemperatur simuliert, die sich nur verändert, wenn die Sensorbox einer Wärmequelle näher kommt.
+Für den Temperatursensor wird eine Umgebungstemperatur simuliert, die sich nur verändert, wenn die Sensorbox einer Kälte- oder Wärmequelle näher kommt.
 Für den größten Teil der Daten misst der Temperatursensor die Umgebungstemperatur, weswegen eine permutation keinen großen Fehler verursacht.
-Die Nullung dieser Sensordaten hingegen deutet auf eine Wärmequelle hin, die die Umgebungstemperatur verringert.
+Die Nullung dieser Sensordaten hingegen deutet auf eine Kältequelle hin, die die Umgebungstemperatur verringert.
 Dieses Ereignis ist im Vergleich zu einer Erhöhung der Umgebungstemperatur selten, weswegen die Nullung einen großen Fehler verursacht.
 Würde dieses Ereignis häufiger vorkommen, wäre der Fehler vermutlich geringer.
 \newline
@@ -48,7 +48,7 @@ Würde dieses Ereignis häufiger vorkommen, wäre der Fehler vermutlich geringer
 Das FFNN mit Rückwärtskante hat im Vergleich zu den anderen ML-Modellen einen deutlich größeren Fehler, wenn die Features des Magnetfeldsensors genullt werden.
 Diese Anomalie ist entgegen den Erwartungen der Permutationswichtigkeit, insbesondere da die anderen ML-Modelle
 höhere Permutationswichtigkeiten für die Features des Magnetfeldsensors erzeugt haben.
-Es ist unklar, warum das FFNN, im Vergleich zu den anderen ML-Modellen, dem so anfällig ist.
+Es ist unklar, warum das FFNN, im Vergleich zu den anderen ML-Modellen, dem so anfällig gegenüber ist.
 \newline
 \newline
 Die FFNNs erzeugen einen großen Fehler, wenn die WLAN-Zugangspunkte genullt werden.
