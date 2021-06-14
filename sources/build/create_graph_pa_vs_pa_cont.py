@@ -28,6 +28,7 @@ plt.plot(mian_distinct_loc, mian_fbnn, "X-", color="saddlebrown")
 plt.xlabel("Anzahl Standorte (Diskret)", fontsize=16)
 plt.ylabel("Klassifizierungsgenauigkeit", fontsize=16)
 plt.ylim([0, 1])
+"""
 fig.legend(['Entscheidungswald (ohne Rückwärtskante) P(A)',
             'Entscheidungswald (mit Rückwärtskante) P(A) (cont)',
             'FFNN (ohne Rückwärtskante) P(A)',
@@ -36,6 +37,7 @@ fig.legend(['Entscheidungswald (ohne Rückwärtskante) P(A)',
             'Mian WFBNN',
             'Mian FBNN'],
            loc=[0.475, 0.11], fontsize=12)
+"""
 plt.savefig("{0}/best_dt_vs_knn_fb_vs_no_fb.png".format(BIN_FOLDER_PATH))
 plt.clf()
 plt.close(fig)
