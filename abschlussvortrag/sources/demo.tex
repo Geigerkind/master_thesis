@@ -104,7 +104,7 @@
 \end{frame}
 
 % Unterteilen die Route in sich auschließende Teile
-% Eine Sensorbox nimmt zu jedem Zeitpunkt versch. Sensorwerte auf
+% Eine Sensorenbox nimmt zu jedem Zeitpunkt versch. Sensorwerte auf
 % Diese werden zu Features verarbeitet
 % Problem wird als Klassifizierungsproblem modelliert
 \begin{frame}{Ansatz zur diskreten Standortbestimmung I}
@@ -144,7 +144,7 @@
 \begin{frame}{Modell}
     \begin{figure}
         \centering
-        \includegraphics[width=\linewidth]{model/model_idea.png}
+        \includegraphics[width=0.55\linewidth]{model/model_vertical.png}
     \end{figure}
 \end{frame}
 
@@ -185,22 +185,21 @@
 \begin{frame}{Klassifizierungsgenauigkeit über Standortkomplexitäten}
     \begin{figure}
         \centering
-        \includegraphics[width=\linewidth]{location_recognition/best_dt_vs_knn_fb_vs_no_fb.png}
+        \includegraphics[width=\linewidth]{location_recognition/graph_comb.jpg}
     \end{figure}
 \end{frame}
 
-\begin{frame}{Wichtigkeit von Features I}
-    \begin{enumerate}
-        \item Basierend auf Entscheidungsregeln und Trainingsdaten
-        \item Modifizieren der Testmenge und Fehler zur Originalmenge messen, z.~B. Permutationswichtigkeit oder Nullung
-    \end{enumerate}
-\end{frame}
-
-\begin{frame}{Wichtigkeit von Features II - Permutationswichtigkeit}
-    \begin{figure}
+\begin{frame}{Wichtigkeit von Features}
+    \begin{minipage}{.5\textwidth}
+        \begin{enumerate}
+            \item Basierend auf Entscheidungsregeln und Trainingsdaten
+            \item Modifizieren der Testmenge und Fehler zur Originalmenge messen, z.~B. Permutationswichtigkeit oder Nullung
+        \end{enumerate}
+    \end{minipage}%
+    \begin{minipage}{.5\textwidth}
         \centering
-        \includegraphics[width=0.46\linewidth]{model/permutatation_importance.png}
-    \end{figure}
+        \includegraphics[width=0.9\linewidth]{model/permutatation_importance.png}
+    \end{minipage}
 \end{frame}
 
 \begin{frame}{Permutationswichtigkeit - ML-Modelle mit Rückwärtskante}
@@ -249,19 +248,18 @@
         \item Entscheidungswälder benötigen deutlich weniger RAM
         \item Entscheidungswälder sind deutlich effizienter
         \item Programmgröße skaliert mit Standortkomplexität
-        \item FFNNs zwischen 54\% und 97,6\% kleiner als Mians FFNNs
-        \item Enscheidungswälder bis zu 720\% größer als Mians FFNNs
-        \item Für beide ML-Modelle existieren Mikrocontroller mit genug RAM und Programmspeicher
+        \item FFNNs zwischen 54\% und 97,6\% kleiner als Mians FFNNs (70KB bis 3KB)
+        \item Enscheidungswälder bis zu 720\% größer als Mians FFNNs (ca. 1MB)
     \end{itemize}
 \end{frame}
 
 \section{Anomalieerkennung}
 \begin{frame}{Anomalieerkennung}
     \begin{itemize}
-        \item Klassifizierung, dass momentaner Standort nicht trainiert wurde
+        \item Anomalie := Klassifizierung: Momentaner Standort wurde nicht trainiert
         \item Unendliche viele mögliche Anomalien
         \item Training basierend auf Sensordaten nicht sinnvoll
-        \item Klassifizierung ungewöhnlichen Verhaltes des Standorterkennungsmodells
+        \item Klassifizierung ungewöhnlichen Verhaltes des Standortbestimmungsmodells
     \end{itemize}
 \end{frame}
 
@@ -307,7 +305,7 @@
         \item Entscheidungswälder skalieren besser als FFNN
         \item ML-Modelle ohne Rückwärtskante besser als mit
         \item 98,62\% bei 9 Standorten, 87,35\% bei 102 Standorten
-        \item Anomalieerkennung: Bis zu 52,58\% bei Fehlerrate von 2,95\%
+        \item Anomalieerkennung: Bis zu 52,52\% bei Fehlerrate von 2,95\%
         \item Kleine Datenfenster sind ausreichend
         \item Geringere Ausführungszeit und klein genug
         \item Orte zu bestimmen ist besser als Orte und Pfade zu bestimmen
